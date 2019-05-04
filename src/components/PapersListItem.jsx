@@ -29,14 +29,23 @@ const styles = theme => ({
   content: {
     paddingBottom: 0,
   },
-  title: {
+  titleWrapper: {
     marginRight: 40,
   },
-  link: {
+  title: {
     color: '#333',
+    fontWeight: 500,
     textDecoration: "none",
     "&:hover": {
       color: '#878787',
+    }
+  },
+  author: {
+    color: '#656565',
+    textDecoration: "none",
+    "&:hover": {
+      color: '#878787',
+      textDecoration: "underline",
     }
   },
   bookmark: {
@@ -50,7 +59,7 @@ const styles = theme => ({
     marginBottom: 12
   },
   date: {
-    color: "textSecondary",
+    color: "#656565",
     fontSize: 11
   },
   actions: {
@@ -58,6 +67,7 @@ const styles = theme => ({
   },
   metadata: {
     marginRight: "6px",
+    color: "#49a8f5",
   },
   expand: {
     transform: "rotate(0deg)",
@@ -83,10 +93,10 @@ const PapersListItem = ({ paper, classes }) => {
     <Card classes={{root: classes.root}}>
       <CardContent className={classes.content}>
         <Grid container className={classes.header} direction={"row"} justify="space-between">
-          <Grid item className={classes.title}>
+          <Grid item className={classes.titleWrapper}>
             <Link
               to={`/paper/${paper._id}`}
-              className={classes.link}
+              className={classes.title}
             >
               {paper.title}
             </Link>
@@ -100,7 +110,7 @@ const PapersListItem = ({ paper, classes }) => {
             <Typography>
               {paper.authors.map((author, index) => (
                 <React.Fragment key={index}>
-                  <Link to={`/author/${author.name}`}>{author.name}</Link>
+                  <Link to={`/author/${author.name}`} className={classes.author}>{author.name}</Link>
                   {index < paper.authors.length - 1 ? ", " : ""}
                 </React.Fragment>
               ))}
@@ -119,7 +129,7 @@ const PapersListItem = ({ paper, classes }) => {
         <Button disabled={true}>
           <i className={`fa fa-star ${classes.metadata}`}></i> {bookmarks_count || "0"}
         </Button>
-        <div><TwitterMeta twtr_score={twtr_score} twtr_links={twtr_links}/></div>
+        <div><TwitterMeta twtr_score={twtr_score} twtr_links={twtr_links} iconClass={classes.metadata}/></div>
         <IconButton
           className={classnames(classes.expand, {
             [classes.expandOpen]: expanded

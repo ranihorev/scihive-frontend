@@ -14,16 +14,13 @@ const styles = theme => ({
     textDecoration: 'inherit',
     color: 'inherit',
   },
-  metadata: {
-    marginRight: "8px"
-  },
   popover: {
     maxHeight: '150px',
     overflowY: 'auto',
   },
 });
 
-const TwitterMeta = ({twtr_score, twtr_links, classes}) => {
+const TwitterMeta = ({twtr_score, twtr_links, classes, iconClass}) => {
   const links = twtr_links ? twtr_links : [];
   const [anchorEl, setAnchorEl] = React.useState(null);
 
@@ -45,7 +42,7 @@ const TwitterMeta = ({twtr_score, twtr_links, classes}) => {
         onClick={handleClick}
         disabled={links.length === 0}
       >
-        <i className={`fab fa-twitter ${classes.metadata}`}></i> {twtr_score}
+        <i className={`fab fa-twitter ${iconClass}`}></i> {twtr_score}
       </Button>
       <Popover
         id="simple-popper"

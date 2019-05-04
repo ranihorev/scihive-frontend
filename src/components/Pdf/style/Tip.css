@@ -1,0 +1,47 @@
+.Tip__compact {
+    cursor: pointer;
+    color: white;
+    padding: 10px 10px 7px 10px;
+    background-color: #9f9f9f;
+    margin: auto;
+    border-radius: 50%;
+    justify-content: center;
+}
+
+.Tip__card {
+    padding: 10px;
+    background: #fff;
+    background-clip: padding-box;
+    border: 1px solid #e8e8e8;
+    border-radius: 4px;
+    box-shadow: 0 2px 4px rgba(37, 40, 43, 0.2);
+    width: 220px;
+}
+
+.Tip__card textarea {
+    font-size: 16px;
+    height: 70px;
+}
+
+.Tip__card input[type="submit"] {
+    margin-top: 5px;
+    font-size: large;
+}
+
+.Tip__private {
+    float: right;
+}
+
+.Tip__private_message {
+    margin-top: 12px;
+    font-size: 12px;
+    color: #9f9f9f;
+}
+
+.Tip__anonymous {
+    margin-top: 7px;
+}
+
+.Tip__anonymous_checkbox {
+    padding: 3px 8px 3px 12px !important;
+}

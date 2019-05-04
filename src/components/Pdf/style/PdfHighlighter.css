@@ -1,0 +1,22 @@
+.PdfHighlighter {
+    position: relative;
+    overflow: auto;
+    width: 98%;
+    margin: auto;
+}
+
+.PdfHighlighter__highlight-layer {
+    position: absolute;
+    z-index: 3;
+    left: 0;
+}
+
+.PdfHighlighter__tip-container {
+    z-index: 6;
+    position: absolute;
+}
+
+.PdfHighlighter--disable-selection {
+    user-select: none;
+    pointer-events: none;
+}

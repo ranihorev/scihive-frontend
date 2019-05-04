@@ -15,7 +15,8 @@ const styles = theme => ({
     color: 'inherit',
   },
   metadata: {
-    marginRight: "8px"
+    marginRight: "8px",
+    color: '#1da1f2',
   },
   popover: {
     maxHeight: '150px',

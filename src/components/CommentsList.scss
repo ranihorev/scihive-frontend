@@ -1,15 +1,8 @@
-.comments-list {
-  color: rgb(119, 119, 119);
-  position: relative;
 
-  .comments-container {
-    overflow-y: scroll;
-    // TODO fix the hard coding of the navbar height
-    height: calc(100vh - 64px);
-  }
-  .description {
-    position: absolute;
-    bottom: 0;
-    left: 0;
-  }
+.comments-container {
+  position: relative;
+  color: rgb(119, 119, 119);
+  overflow-y: scroll;
+  height: 100%;
+  // TODO fix the hard coding of the navbar height
 }

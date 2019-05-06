@@ -4,7 +4,7 @@ import {connect} from "react-redux";
 
 
 const ReadingProgress = ({progress}) => {
-  return <LinearProgress variant="determinate" value={progress} />
+  return <LinearProgress variant="determinate" value={progress} style={{zIndex: 1}} />
 }
 
 const mapStateToProps = (state, ownProps) => {

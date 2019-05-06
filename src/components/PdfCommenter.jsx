@@ -14,20 +14,18 @@ import {actions } from "../actions";
 import {connect} from "react-redux";
 import * as queryString from "query-string";
 import {toast} from "react-toastify";
+import {isEmpty} from "lodash";
+import Tooltip from "@material-ui/core/Tooltip";
+import IconButton from "@material-ui/core/IconButton";
+import {APP_BAR_HEIGHT} from "./TopBar/PrimaryAppBar";
 
 const styles = theme => ({
   rootVert: {
-    flexGrow: 1,
-    backgroundColor: '#eeeeee'
+    backgroundColor: '#eeeeee',
   },
   rootHorz: {
     paddingTop: '8px',
     backgroundColor: '#eeeeee',
-  },
-  pdf: {
-    height: "100vh",
-    overflowY: "scroll",
-    position: "relative"
   },
   spinner: {
     position: "absolute",
@@ -39,10 +37,32 @@ const FETCHING = '-1';
 const FAILED = '0';
 const MOBILE_WIDTH = 800;
 
-const PdfCommenter = ({setBookmark, classes, location, match: {params}, selectGroup, setGroups}) => {
+const useWindowDimensions = () => {
+  const [windowDimensions, setWindowDimensions] = useState({width: window.innerWidth, height: window.innerHeight});
+
+  useEffect(() => {
+    function handleResize() {
+      setWindowDimensions({width: window.innerWidth, height: window.innerHeight});
+    }
+    window.addEventListener('resize', handleResize);
+    window.addEventListener('touchmove', handleResize);
+    return () => {
+      window.removeEventListener('resize', handleResize)
+      window.removeEventListener('touchmove', handleResize)
+    };
+  }, []);
+
+  return windowDimensions;
+}
+
+const PdfCommenter = ({setBookmark, classes, location, match: {params}, selectGroup, setGroups, isLoggedIn}) => {
 
   const [highlights, setHighlights] = useState([]);
   const [url, setUrl] = useState(FETCHING);
+  const {height: pageHeight} = useWindowDimensions();
+  const contentHeight = pageHeight - APP_BAR_HEIGHT;
+  const defaultPdfPrct = 0.75;
+  const [commentsSectionHeight, setCommentsSectionHeight] = useState((1-defaultPdfPrct) * contentHeight);
 
   useEffect(() => {
     // Fetch paper data
@@ -64,25 +84,26 @@ const PdfCommenter = ({setBookmark, classes, location, match: {params}, selectGr
       }).catch(err => {
       console.log(err.response);
     });
-
-    if (selectedGroupId) {
-      axios.post('/groups/all', {id: selectedGroupId})
-        .then(res => {
-          const groups = res.data;
-          setGroups(groups);
-          const group = groups.find(g => g.id === selectedGroupId);
-          if (group) {
-            selectGroup(group);
-            toast.success(<span>Welcome to Group {group.name}</span>, {autoClose: 2000});
-          }
-        })
-        .catch(e => console.warn(e.message));
-    } else {
-      axios.get('/groups/all')
-        .then(res => {
-          setGroups(res.data);
-        })
-        .catch(e => console.warn(e.message));
+    if (isLoggedIn) {
+      if (selectedGroupId) {
+        axios.post('/groups/all', {id: selectedGroupId})
+          .then(res => {
+            const groups = res.data;
+            setGroups(groups);
+            const group = groups.find(g => g.id === selectedGroupId);
+            if (group) {
+              selectGroup(group);
+              toast.success(<span>Welcome to Group {group.name}</span>, {autoClose: 2000});
+            }
+          })
+          .catch(e => console.warn(e.message));
+      } else {
+        axios.get('/groups/all')
+          .then(res => {
+            setGroups(res.data);
+          })
+          .catch(e => console.warn(e.message));
+      }
     }
 
   }, [params]);
@@ -135,12 +156,14 @@ const PdfCommenter = ({setBookmark, classes, location, match: {params}, selectGr
 
   // Vertical is for mobile phones
   return (
-    <div style={{position: 'relative', height: 'calc(100% - 64px)'}}>
+    <div style={{position: 'relative', height: contentHeight, overflowY: 'hidden'}}>
       <ReadingProgress />
       {isVertical ?
         <SplitPane split={"horizontal"}
-                   defaultSize={'75%'}
+                   defaultSize={defaultPdfPrct * contentHeight}
                    className={classes.rootHorz}
+                   pane2Style={{paddingBottom: '5px', height: commentsSectionHeight}}
+                   onChange={size => console.log(size)}
         >
           <React.Fragment>
             {viewerRender}
@@ -153,7 +176,6 @@ const PdfCommenter = ({setBookmark, classes, location, match: {params}, selectGr
         <SplitPane split={"vertical"}
                    minSize={200}
                    maxSize={600}
-                   primary="first"
                    defaultSize={'25%'}
                    className={classes.rootVert}
         >
@@ -166,12 +188,25 @@ const PdfCommenter = ({setBookmark, classes, location, match: {params}, selectGr
         </SplitPane>
 
       }
+      <div className="comments-help">
+        <Tooltip title="To create area highlight hold Option/Alt key, then click and drag." placement="bottom">
+          <IconButton>
+            <i className="fas fa-info-circle" style={{fontSize: 18}}></i>
+          </IconButton>
+        </Tooltip>
+      </div>
 
     </div>
   )
 
 };
 
+
+const mapStateToProps = (state, ownProps) => {
+  return {
+    isLoggedIn: !isEmpty(state.user.userData),
+  }
+};
 
 const mapDispatchToProps = (dispatch, ownProps) => {
   return {
@@ -186,6 +221,6 @@ const mapDispatchToProps = (dispatch, ownProps) => {
     },
   }
 };
-const withRedux = connect(null, mapDispatchToProps);
+const withRedux = connect(mapStateToProps, mapDispatchToProps);
 
 export default withRedux(withStyles(styles)(withRouter(PdfCommenter)));

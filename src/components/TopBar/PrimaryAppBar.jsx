@@ -88,4 +88,4 @@ PrimaryAppBar.propTypes = {
 const stylesWrapper = withStyles(styles);
 export default stylesWrapper(PrimaryAppBar);
 
-export const APP_BAR_HEIGHT = 64;
+export const APP_BAR_HEIGHT = 56;

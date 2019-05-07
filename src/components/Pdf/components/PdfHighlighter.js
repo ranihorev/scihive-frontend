@@ -40,6 +40,7 @@ import {store} from "../../../store";
 import {connect, Provider} from "react-redux";
 import {APP_BAR_HEIGHT} from "../../TopBar/PrimaryAppBar";
 import {actions} from "../../../actions";
+import Fab from "@material-ui/core/Fab";
 
 type T_ViewportHighlight<T_HT> = { position: T_Position } & T_HT;
 
@@ -574,14 +575,14 @@ class PdfHighlighter<T_HT: T_Highlight> extends Component<Props<T_HT>, State<T_H
       <React.Fragment>
         <div className="pdf-buttons">
           <div>
-            <IconButton onClick={() => this.zoom(1)}>
+            <Fab color="default" aria-label="zoom-in" onClick={() => this.zoom(1)} size="small">
               <i className="fas fa-search-plus"></i>
-            </IconButton>
+            </Fab>
           </div>
           <div>
-            <IconButton onClick={() => this.zoom(-1)}>
+            <Fab color="default" aria-label="zoom-out" onClick={() => this.zoom(-1)} size="small">
               <i className="fas fa-search-minus"></i>
-            </IconButton>
+            </Fab>
           </div>
         </div>
         <Pointable onPointerDown={this.onMouseDown}>

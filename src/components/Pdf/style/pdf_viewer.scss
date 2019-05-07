@@ -41,16 +41,14 @@
 }
 
 .pdf-buttons {
-  background-color: rgba(0,0,0, 0.15);
-  border-radius: 15px;
   position: absolute;
-  bottom: 8px;
-  right: 5px;
+  bottom: 15px;
+  right: 8px;
   z-index: 1000;
 
   button {
     color: black;
-    font-size: 1.3rem;
-    margin: 2px;
+    font-size: 1.1rem;
+    margin-bottom: 8px;
   }
 }

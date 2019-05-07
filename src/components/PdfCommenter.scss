@@ -48,12 +48,3 @@
 .Resizer.disabled:hover {
   border-color: transparent;
 }
-
-.comments-help {
-  position: absolute;
-  left: 1px;
-  bottom: 10px;
-  @media (max-width: 576px) {
-    bottom: 0px;
-  }
-}

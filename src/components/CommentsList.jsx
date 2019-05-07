@@ -5,6 +5,8 @@ import React, {useEffect, useState} from "react";
 import type { T_Highlight } from "./Pdf/types";
 import Comment from "./Comment";
 import './CommentsList.scss';
+import Tooltip from "@material-ui/core/Tooltip";
+import IconButton from "@material-ui/core/IconButton";
 
 type T_ManuscriptHighlight = T_Highlight;
 
@@ -77,6 +79,13 @@ function CommentsList({ highlights, removeHighlight, updateHighlight }: Props) {
               )) :
               CommentsEmptyState
           }
+        </div>
+        <div className="comments-help">
+          <Tooltip title="To create area highlight hold Option/Alt key, then click and drag." placement="bottom">
+            <IconButton>
+              <i className="fas fa-info-circle" style={{fontSize: 18}}></i>
+            </IconButton>
+          </Tooltip>
         </div>
       </React.Fragment>
   );

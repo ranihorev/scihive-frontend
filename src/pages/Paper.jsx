@@ -10,7 +10,6 @@ export default function Paper() {
 
   React.useEffect(() => {
     if (wrapperRef.current) disableBodyScroll(wrapperRef.current, {allowTouchMove: el => {
-      console.log(el);
       return true;
       }});
     return () => clearAllBodyScrollLocks();

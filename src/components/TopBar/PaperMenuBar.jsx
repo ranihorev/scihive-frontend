@@ -10,6 +10,7 @@ import Divider from "@material-ui/core/Divider";
 import Bookmark from "../Bookmark";
 import {actions} from "../../actions";
 import {connect} from "react-redux";
+import {isEmpty} from "lodash";
 
 const styles = theme => ({
   unchangedText: {
@@ -25,7 +26,7 @@ const styles = theme => ({
   }
 });
 
-const PaperMenuDekstopRender = ({classes, match: {params}, toggleGroupsModal}) => {
+const PaperMenuDekstopRender = ({classes, match: {params}, toggleGroupsModal, isLoggedIn}) => {
   const [anchorEl, setAnchorEl] = useState(null);
   const isMenuOpen = Boolean(anchorEl);
   const {PaperId} = params;
@@ -73,9 +74,13 @@ const PaperMenuDekstopRender = ({classes, match: {params}, toggleGroupsModal}) =
           </MenuItem>
         </a>
       </Menu>
-      <IconButton color="inherit" onClick={toggleGroupsModal}>
-        <i className={`fas fa-users ${classes.faIcon}`}></i>
-      </IconButton>
+      {
+        isLoggedIn ?
+          <IconButton color="inherit" onClick={toggleGroupsModal}>
+            <i className={`fas fa-users ${classes.faIcon}`}></i>
+          </IconButton>
+          : null
+      }
     </React.Fragment>
   )
 
@@ -85,7 +90,7 @@ PaperMenuDekstopRender.propTypes = {
   classes: PropTypes.object.isRequired
 };
 
-const PaperMenuMobileRender = ({classes, match: {params}, handleMobileMenuClick, toggleGroupsModal}) => {
+const PaperMenuMobileRender = ({classes, match: {params}, handleMobileMenuClick, toggleGroupsModal, isLoggedIn}) => {
   const {PaperId} = params;
 
   return (
@@ -112,13 +117,24 @@ const PaperMenuMobileRender = ({classes, match: {params}, handleMobileMenuClick,
           Download LaTeX
         </MenuItem>
       </a>
-      <MenuItem onClick={() => {handleMobileMenuClick(); toggleGroupsModal()}}>
-        Groups
-      </MenuItem>
+      {
+        isLoggedIn ?
+          <MenuItem onClick={() => {handleMobileMenuClick(); toggleGroupsModal()}}>
+            Groups
+          </MenuItem>
+          : null
+      }
       <Divider />
     </React.Fragment>
   )
 
+};
+
+
+const mapStateToProps = (state, ownProps) => {
+  return {
+    isLoggedIn: !isEmpty(state.user.userData),
+  }
 };
 
 const mapDispatchToProps = (dispatch, ownProps) => {
@@ -129,7 +145,7 @@ const mapDispatchToProps = (dispatch, ownProps) => {
   }
 };
 
-const withRedux = connect(null, mapDispatchToProps);
+const withRedux = connect(mapStateToProps, mapDispatchToProps);
 
 export const PaperDekstopMenu = withRedux(withStyles(styles)(withRouter(PaperMenuDekstopRender)));
 

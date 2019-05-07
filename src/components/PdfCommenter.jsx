@@ -59,10 +59,11 @@ const PdfCommenter = ({setBookmark, classes, location, match: {params}, selectGr
 
   const [highlights, setHighlights] = useState([]);
   const [url, setUrl] = useState(FETCHING);
-  const {height: pageHeight} = useWindowDimensions();
+  const {height: pageHeight, width: pageWidth} = useWindowDimensions();
   const contentHeight = pageHeight - APP_BAR_HEIGHT;
   const defaultPdfPrct = 0.75;
   const [commentsSectionHeight, setCommentsSectionHeight] = useState((1-defaultPdfPrct) * contentHeight);
+  const [pdfSectionWidth, setPdfSectionWidth] = useState(defaultPdfPrct * pageWidth);
 
   useEffect(() => {
     // Fetch paper data
@@ -163,7 +164,7 @@ const PdfCommenter = ({setBookmark, classes, location, match: {params}, selectGr
                    defaultSize={defaultPdfPrct * contentHeight}
                    className={classes.rootHorz}
                    pane2Style={{paddingBottom: '5px', height: commentsSectionHeight}}
-                   onChange={size => console.log(size)}
+                   onChange={size => setCommentsSectionHeight(size)}
         >
           <React.Fragment>
             {viewerRender}
@@ -174,10 +175,12 @@ const PdfCommenter = ({setBookmark, classes, location, match: {params}, selectGr
         </SplitPane>
         :
         <SplitPane split={"vertical"}
-                   minSize={200}
-                   maxSize={600}
-                   defaultSize={'25%'}
+                   minSize={300}
+                   defaultSize={defaultPdfPrct * pageWidth}
                    className={classes.rootVert}
+                   primary={'second'}
+                   pane2Style={{width: pdfSectionWidth}}
+                   onChange={size => setPdfSectionWidth(size)}
         >
           <React.Fragment>
             {comments}
@@ -186,16 +189,7 @@ const PdfCommenter = ({setBookmark, classes, location, match: {params}, selectGr
             {viewerRender}
           </React.Fragment>
         </SplitPane>
-
       }
-      <div className="comments-help">
-        <Tooltip title="To create area highlight hold Option/Alt key, then click and drag." placement="bottom">
-          <IconButton>
-            <i className="fas fa-info-circle" style={{fontSize: 18}}></i>
-          </IconButton>
-        </Tooltip>
-      </div>
-
     </div>
   )
 

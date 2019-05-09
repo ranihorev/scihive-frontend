@@ -35,7 +35,6 @@ import type {
   T_PDFJS_Document,
   T_PDFJS_LinkService
 } from "../types";
-import {IconButton} from "@material-ui/core";
 import {store} from "../../../store";
 import {connect, Provider} from "react-redux";
 import {APP_BAR_HEIGHT} from "../../TopBar/PrimaryAppBar";

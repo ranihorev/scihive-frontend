@@ -84,6 +84,11 @@ const MobileMenuRender = ({rootChildren = null, submenuChildren = null, isLogged
             Chrome Extension
           </MenuItem>
         </a>
+        <Link to={'/about'} className={classes.link}>
+          <MenuItem color="inherit">
+            About
+          </MenuItem>
+        </Link>
         {
           isLoggedIn ?
             <Link to={"/library"} className={classes.link}>
@@ -91,7 +96,7 @@ const MobileMenuRender = ({rootChildren = null, submenuChildren = null, isLogged
                 My library
               </MenuItem>
             </Link>
-            : ''
+            : null
         }
         {
           isLoggedIn ?
@@ -167,6 +172,11 @@ const DesktopMenuRender = ({children, isLoggedIn, toggleLoginModal, classes}) =>
             Our poll
           </MenuItem>
         </a>
+        <Link to={'/about'} className={classes.link}>
+          <MenuItem color="inherit">
+            About
+          </MenuItem>
+        </Link>
         {
           isLoggedIn ?
             <MenuItem color="inherit" onClick={() => handleMenuClose(logout)}>Logout</MenuItem> :

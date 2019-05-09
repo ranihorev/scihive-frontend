@@ -7,6 +7,8 @@ import axios from "axios";
 import {isEmpty} from "lodash";
 import {connect} from "react-redux";
 import {ToastContainer} from "react-toastify";
+import NotFound from "./pages/NotFound";
+import About from "./pages/About";
 
 const App = ({isLoggedIn}) => {
 
@@ -32,7 +34,8 @@ const App = ({isLoggedIn}) => {
         <Route path="/search/" exact component={Home} />
         <Route path="/author/:authorId" exact component={Home} />
         <Route path="/paper/:PaperId" exact component={Paper} />
-        {/* <Route component={NotFound} /> */}
+        <Route path="/about" exact component={About} />
+        <Route component={NotFound} />
       </Switch>
       <ToastContainer
         position="bottom-center"

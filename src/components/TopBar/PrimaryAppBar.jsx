@@ -58,8 +58,8 @@ const styles = theme => ({
 const PrimaryAppBar = ({ classes, desktopItems, mobileRootItems, mobileSubItems }) => {
   return (
     <Headroom>
-      <AppBar position='relative'>
-        <Toolbar classes={{gutters: classes.gutters}}>
+      <AppBar position='relative' style={{backgroundColor: '#36a0f5'}}>
+        <Toolbar classes={{gutters: classes.gutters}} variant="dense">
           <div className={classes.leftMenu}>
             <Link to={'/'} className={classes.home}>
                 SciHive
@@ -88,4 +88,4 @@ PrimaryAppBar.propTypes = {
 const stylesWrapper = withStyles(styles);
 export default stylesWrapper(PrimaryAppBar);
 
-export const APP_BAR_HEIGHT = 56;
+export const APP_BAR_HEIGHT = 48;

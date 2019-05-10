@@ -103,7 +103,7 @@ const PapersListItem = ({ paper, classes }) => {
             </Link>
           </Grid>
           <Grid item className={classes.bookmark}>
-            <Bookmark paperId={paper._id} saved_in_library={saved_in_library} color={saved_in_library ? MAIN_COLOR : undefined}/>
+            <Bookmark paperId={paper._id} saved_in_library={saved_in_library} selectedColor={MAIN_COLOR}/>
           </Grid>
         </Grid>
         <Grid container className={classes.authors}>

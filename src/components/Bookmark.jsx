@@ -11,7 +11,7 @@ import {withStyles} from "@material-ui/core";
 const styles = theme => ({});
 
 // isBookmarked and setBookmark are from the redux store
-const Bookmark = ({classes, isLoggedIn, toggleLoginModal, paperId, saved_in_library, isBookmarked, setBookmark, color}) => {
+const Bookmark = ({classes, isLoggedIn, toggleLoginModal, paperId, saved_in_library, isBookmarked, setBookmark, color, selectedColor}) => {
   const [stateBookmark, setStateBookmark] = useState(saved_in_library);
   const value = stateBookmark !== undefined ? stateBookmark : isBookmarked;
 
@@ -36,7 +36,7 @@ const Bookmark = ({classes, isLoggedIn, toggleLoginModal, paperId, saved_in_libr
     <IconButton
       onClick={() => handleBookmarkClick()}
     >
-      { value ? <StarIcon style={{color}} /> : <StarBorderIcon style={{color}}/>}
+      { value ? <StarIcon style={{color: selectedColor || color}} /> : <StarBorderIcon style={{color}}/>}
     </IconButton>
   );
 }

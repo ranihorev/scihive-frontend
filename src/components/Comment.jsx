@@ -78,21 +78,21 @@ function Comment({isFocused, highlight, removeHighlight, updateHighlight, setRef
 
   let actions = (
     <Grid container alignItems={'center'} className={"actions"}>
-      {highlight.canEdit ?
-        <div>
-          <IconButton onClick={() => removeHighlight(highlight.id)}>
-            <i className="far fa-trash-alt"></i>
-          </IconButton>
-          <IconButton onClick={() => setEditMode(!editMode)}>
-            <i className="fas fa-pencil-alt"></i>
-          </IconButton>
-        </div> : ''
-      }
       <div>
         <IconButton onClick={() => setShowReply(!showReply)}>
           <i className="fas fa-reply"></i>
         </IconButton>
       </div>
+      {highlight.canEdit ?
+        <div>
+          <IconButton onClick={() => setEditMode(!editMode)}>
+            <i className="fas fa-pencil-alt"></i>
+          </IconButton>
+          <IconButton onClick={() => removeHighlight(highlight.id)}>
+            <i className="far fa-trash-alt"></i>
+          </IconButton>
+        </div> : ''
+      }
       {highlight.canEdit ?
         <div className={'visibility'}>
           {visibility}
@@ -104,7 +104,7 @@ function Comment({isFocused, highlight, removeHighlight, updateHighlight, setRef
   const imageDom = image ? <CardMedia className={'media'} image={image} title="screenshot"/> : "";
   const textMaxLen = 50;
   const textDom = text ?
-    <blockquote> {text.slice(0, textMaxLen)}{text.length > textMaxLen ? '...' : ''} </blockquote>
+    <blockquote className={'quote'}> {text.slice(0, textMaxLen)}{text.length > textMaxLen ? '...' : ''} </blockquote>
     : '';
 
   return (
@@ -115,11 +115,6 @@ function Comment({isFocused, highlight, removeHighlight, updateHighlight, setRef
           {textDom}
         </div>
         <CardContent className="content">
-          <div color="textSecondary" className="meta">
-            <div>
-              {highlight.user || 'Anonymous'}, {get_age(highlight.createdAt)}
-            </div>
-          </div>
           {editMode ?
             <form onSubmit={updateComment}>
               <TextField
@@ -140,9 +135,11 @@ function Comment({isFocused, highlight, removeHighlight, updateHighlight, setRef
               <Linkify properties={{target: '_blank'}} textDecorator={truncateURL}>{highlight.comment.text}</Linkify>
             </Typography>
           }
-          {/*Page {highlight.position.pageNumber}*/}
-
-
+          <div color="textSecondary" className="meta">
+            <div>
+              {highlight.user || 'Anonymous'}, {get_age(highlight.createdAt)}
+            </div>
+          </div>
           {actions}
           { highlight.replies ?
             <Replies replies={highlight.replies}/> : ''

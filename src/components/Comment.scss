@@ -9,6 +9,11 @@
   transition:.8s background-color;
   margin: 5px 8px;
 
+  .quote {
+    font-size: 0.7rem;
+    padding-bottom: 4px;
+  }
+
   .clickable {
     cursor: pointer;
   }

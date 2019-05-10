@@ -51,14 +51,12 @@ function CommentsList({ highlights, removeHighlight, updateHighlight }: Props) {
 
   highlights.forEach((h) => refs[h.id] = React.createRef());
 
-  const CommentsEmptyState = (
-      <div style={{ padding: "1rem" }}>
-        <h2 style={{ marginBottom: "1rem" }}>Welcome!</h2>
-
+  const Welcome = (
+      <div style={{ padding: '0.2rem 0.7rem' }}>
         <p>
           <small>
-            Leave questions and comments for the community by highlighting the text.<br /><br />
-            Want to comment on a figure or a table? Hold ⌥ Option key on Mac or Alt on Windows and drag over them.
+            <div>Leave questions and comments for the community by highlighting the text.</div>
+            <div style={{paddingTop: 8}}>Want to comment on a figure? Hold ⌥ on Mac or Alt on Windows and drag over it.</div>
           </small>
         </p>
       </div>)
@@ -66,7 +64,8 @@ function CommentsList({ highlights, removeHighlight, updateHighlight }: Props) {
   return (
       <React.Fragment>
         <div className='comments-container' ref={containerRef}>
-          {(highlights.length > 0) ?
+          {Welcome}
+          {
               highlights.map((highlight, index) => (
                   <Comment
                       key={index}
@@ -76,8 +75,7 @@ function CommentsList({ highlights, removeHighlight, updateHighlight }: Props) {
                       removeHighlight={removeHighlight}
                       updateHighlight={updateHighlight}
                   />
-              )) :
-              CommentsEmptyState
+              ))
           }
         </div>
         <div className="comments-help">

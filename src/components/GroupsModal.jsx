@@ -30,7 +30,7 @@ const styles = theme => ({
     fontSize: '16px',
   },
   form: {
-    marginTop: '24px',
+    marginTop: '32px',
     marginBottom: '12px',
     display: 'inline-flex',
     width: '100%',
@@ -105,7 +105,7 @@ const GroupsModal = ({classes, location, history, isGroupsModalOpen, toggleGroup
       <DialogTitle>{"Manage your groups"}</DialogTitle>
       <DialogContent>
         <DialogContentText>
-          Create workspaces and collaborate with groups...
+          Groups allow you to share comments with an exclusive team of peers
         </DialogContentText>
         <form className={classes.form} onSubmit={handleSubmitNewGroup}>
           <TextField

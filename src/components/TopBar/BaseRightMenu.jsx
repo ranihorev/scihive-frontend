@@ -115,8 +115,9 @@ const DesktopMenuRender = ({children, isLoggedIn, toggleLoginModal, classes}) =>
     setAnchorEl(event.currentTarget);
   };
 
-  const handleMenuClose = () => {
+  const handleMenuClose = (cb=null) => {
     setAnchorEl(null);
+    if (cb) cb();
   };
 
   return (

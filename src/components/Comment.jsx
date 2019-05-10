@@ -18,6 +18,7 @@ import NewReply from "./NewReply";
 import Replies from "./Replies";
 import Grid from "@material-ui/core/Grid";
 import Linkify from 'react-linkify';
+import Tooltip from "@material-ui/core/Tooltip";
 
 
 type Props = {
@@ -37,7 +38,9 @@ const visibiltyToIcon = {
   public: 'fas fa-globe',
   anonymous: 'fas fa-globe',
   group: 'fas fa-users',
-}
+};
+
+const capitalize = (string) => string.charAt(0).toUpperCase() + string.slice(1);
 
 function Comment({isFocused, highlight, removeHighlight, updateHighlight, setRef, match: {params}}: Props) {
 
@@ -69,7 +72,9 @@ function Comment({isFocused, highlight, removeHighlight, updateHighlight, setRef
       .catch(err => console.log(err.response))
   };
 
-  const visibility = <i className={visibiltyToIcon[highlight.visibility]} />;
+  const visibility = <Tooltip title={capitalize(highlight.visibility)} placement="top">
+    <i className={visibiltyToIcon[highlight.visibility]} />
+  </Tooltip>;
 
   let actions = (
     <Grid container alignItems={'center'} className={"actions"}>

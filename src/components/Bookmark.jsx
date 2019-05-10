@@ -8,11 +8,7 @@ import axios from "axios";
 import IconButton from "@material-ui/core/IconButton";
 import {withStyles} from "@material-ui/core";
 
-const styles = theme => ({
-  white: {
-    color: 'white',
-  },
-});
+const styles = theme => ({});
 
 // isBookmarked and setBookmark are from the redux store
 const Bookmark = ({classes, isLoggedIn, toggleLoginModal, paperId, saved_in_library, isBookmarked, setBookmark, color}) => {
@@ -36,12 +32,11 @@ const Bookmark = ({classes, isLoggedIn, toggleLoginModal, paperId, saved_in_libr
       .catch(err => console.log(err.response))
   }
 
-  const iconClass = color ? classes[color] : null;
   return (
     <IconButton
       onClick={() => handleBookmarkClick()}
     >
-      { value ? <StarIcon className={iconClass} /> : <StarBorderIcon className={iconClass}/>}
+      { value ? <StarIcon style={{color}} /> : <StarBorderIcon style={{color}}/>}
     </IconButton>
   );
 }

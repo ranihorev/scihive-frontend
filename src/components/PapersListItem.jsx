@@ -16,6 +16,7 @@ import moment from 'moment';
 import TwitterMeta from "./TwitterMeta";
 import Button from "@material-ui/core/Button";
 
+const MAIN_COLOR = '#49a8f5';
 
 const styles = theme => ({
   root: {
@@ -67,7 +68,7 @@ const styles = theme => ({
   },
   metadata: {
     marginRight: "6px",
-    color: "#49a8f5",
+    color: MAIN_COLOR,
   },
   expand: {
     transform: "rotate(0deg)",
@@ -102,7 +103,7 @@ const PapersListItem = ({ paper, classes }) => {
             </Link>
           </Grid>
           <Grid item className={classes.bookmark}>
-            <Bookmark paperId={paper._id} saved_in_library={saved_in_library}/>
+            <Bookmark paperId={paper._id} saved_in_library={saved_in_library} color={saved_in_library ? MAIN_COLOR : undefined}/>
           </Grid>
         </Grid>
         <Grid container className={classes.authors}>

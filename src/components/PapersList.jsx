@@ -50,6 +50,7 @@ class PapersList extends Component {
       hasMorePapers: true,
       scrollID: Math.random(),
       isLoading: true,
+      papersCount: 0,
     };
   }
 
@@ -82,7 +83,7 @@ class PapersList extends Component {
     axios
       .get(url, {params: q})
       .then(result => {
-        const new_papers = result.data;
+        const new_papers = result.data.papers;
         const hasMorePapers = new_papers.length !== 0;
         // Everytime we load page 0 we assume it's a new query
         if (page === 1) {
@@ -93,8 +94,9 @@ class PapersList extends Component {
             papers.push(new_paper);
           })
         }
+        const papersCount = page === 1 ? result.data.count : this.state.papersCount;
 
-        this.setState({ papers, hasMorePapers, isLoading: false });
+        this.setState({ papers, hasMorePapers, isLoading: false, papersCount });
       })
       .catch((e) => console.warn(e));
   }
@@ -104,7 +106,7 @@ class PapersList extends Component {
       // this.loadPapers(1);
     }
     else if (prevProps.match.path !== this.props.match.path || prevProps.location.search !== this.props.location.search) {
-      this.setState({scrollID: Math.random()})
+      this.setState({scrollID: Math.random()});
       this.loadPapers(1);
     }
   }
@@ -120,7 +122,7 @@ class PapersList extends Component {
 
   render() {
     const { classes, location } = this.props;
-    const { papers, scrollID, isLoading } = this.state;
+    const { papers, scrollID, isLoading, papersCount } = this.state;
     const q = queryString.parse(location.search);
     const age = this.getAgeQuery(q);
     const sort = this.getSortQuery(q);
@@ -131,7 +133,7 @@ class PapersList extends Component {
         <Grid container className={classes.root}>
           <Grid container direction="row" alignItems="center" justify='space-between'>
             <Grid item className={classes.summary}>
-              {!isLoading ? `${papers.length} papers`: null}
+              {!isLoading ? `${papersCount} papers`: null}
             </Grid>
             <Grid item className={classes.filters}>
               <FormControl className={classes.formControl}>

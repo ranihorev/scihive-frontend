@@ -14,6 +14,30 @@ const styles = theme => ({
   },
 });
 
+const otherProjects = [
+  'Arxiv-Sanity.com',
+  'FermatsLibrary.com',
+  'SemanticScholar.org',
+  'scholar.google.com',
+  'paperswithcode.com',
+  'BenchSci.com',
+  'arXiv.org',
+  'biorxiv.org',
+  'Mendeley.com',
+  'ReadCube.com',
+  'Authorea.com',
+  'Overleaf.com',
+  'ShareLatex.com',
+  'MathPix.com',
+  'Meta.org',
+  'PubPeer.com',
+  'OpenReview.net',
+  'PeerLibrary.org',
+  'arxiv-vanity.com',
+  'Quora.com',
+  'GroundAI.com',
+];
+
 const About = ({classes}) => {
   return (
     <React.Fragment>
@@ -26,7 +50,7 @@ const About = ({classes}) => {
 
           <p>Scientific research has gone a long way since the scientific revolution started in the 16th century. While many processes like peer reviewed publications are finally streamlined, a significant part of research endeavors suffers from inefficiencies. These inefficiencies, if addressed, can accelerate the rate, quality and novelty of scientific discoveries.</p>
 
-          <p>SciHive is a free, open-source tool that is built by researchers for researchers.</p>
+          <p>SciHive is a free, <a href="https://github.com/ranihorev/scihive-frontend" target="_blank">open-source</a> tool that is built by researchers for researchers.</p>
 
           <p>Our mission is to leverage technology to accelerate the pace of research and scientific progress.</p>
 
@@ -34,9 +58,21 @@ const About = ({classes}) => {
 
           <p>Curiousity starts here.</p>
 
-          <br/>
 
-          <p><small>Credits: SciHive was initially forked from <a href="http://www.arxiv-sanity.com" target="_blank">Arxiv-Sanity.com</a> by Andrej Karpathy.</small></p>
+          <h4 style={{marginTop: 40, marginBottom: 5}}>Credits</h4>
+          <small>SciHive was initially forked from <a href="http://www.arxiv-sanity.com" target="_blank">Arxiv-Sanity.com</a> by Andrej Karpathy.</small>
+
+
+          <h4 style={{paddingTop: 20, marginBottom: 5}}>Other cool research-related projects</h4>
+
+          {
+            otherProjects.map((name, idx) =>
+              <div key={idx}>
+                <small><a href={`http://${name}`} target="_blank">{name}</a></small>
+              </div>
+            )
+          }
+
         </div>
         </Grid>
       </Grid>

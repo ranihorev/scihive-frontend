@@ -23,7 +23,7 @@ const styles = theme => ({
   },
   formControl: {
     margin: "8px 0 8px 8px",
-    minWidth: 120,
+    minWidth: 100,
   },
   spinnerEmptyState: {
     position: "absolute",
@@ -38,7 +38,7 @@ const styles = theme => ({
   },
   filters: {
     marginLeft: 'auto',
-  }
+  },
 
 });
 
@@ -142,6 +142,7 @@ class PapersList extends Component {
                   value={age}
                   onChange={this.handleFilters}
                   input={<Input name="age" id="filter-helper" />}
+                  className={classes.selector}
                 >
                   <MenuItem value="day">Today</MenuItem>
                   <MenuItem value="week">This week</MenuItem>

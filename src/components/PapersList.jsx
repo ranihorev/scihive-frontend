@@ -54,7 +54,7 @@ class PapersList extends Component {
   }
 
   getAgeQuery = (queryParams) => {
-    return queryParams.age || (this.props.match.path === '/library' ? 'all' : 'week');
+    return queryParams.age || ((this.props.match.path === '/library' || queryParams.q) ? 'all' : 'week');
   };
 
   getSortQuery = (queryParams) => {

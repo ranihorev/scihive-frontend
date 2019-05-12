@@ -153,14 +153,14 @@ const DesktopMenuRender = ({children, isLoggedIn, toggleLoginModal, classes}) =>
           horizontal: 'right',
         }}
         open={Boolean(anchorEl)}
-        onClose={handleMenuClose}
+        onClose={() => handleMenuClose()}
       >
         <a
           href="https://chrome.google.com/webstore/detail/arxivcolab/dijdhkcfdaocpepndegmbkgphbpomdai"
           target="_blank"
           className={classes.link}
         >
-          <MenuItem onClick={handleMenuClose}>
+          <MenuItem onClick={() => handleMenuClose()}>
             Chrome Extension
           </MenuItem>
         </a>
@@ -169,7 +169,7 @@ const DesktopMenuRender = ({children, isLoggedIn, toggleLoginModal, classes}) =>
           target="_blank"
           className={classes.link}
         >
-          <MenuItem onClick={handleMenuClose}>
+          <MenuItem onClick={() => handleMenuClose()}>
             Our poll
           </MenuItem>
         </a>

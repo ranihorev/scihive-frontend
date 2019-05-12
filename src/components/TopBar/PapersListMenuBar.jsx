@@ -1,16 +1,10 @@
-import React, {useState} from "react";
+import React from "react";
 import PropTypes from "prop-types";
 import MenuItem from "@material-ui/core/MenuItem/index";
-import Menu from "@material-ui/core/Menu/index";
 import { withStyles } from "@material-ui/core/styles/index";
-import IconButton from "@material-ui/core/IconButton";
-import CloudDownloadIcon from "@material-ui/icons/CloudDownload";
-import Divider from "@material-ui/core/Divider";
-import Bookmark from "../Bookmark";
-import {Link} from "react-router-dom";
 import Button from "@material-ui/core/Button";
 
-const styles = theme => ({
+const styles = () => ({
   unchangedText: {
     textTransform: "none",
     textDecoration: "none",
@@ -48,7 +42,7 @@ const PaperMenuMobileRender = ({classes, handleMobileMenuClick}) => {
         href="http://www.tricider.com/brainstorming/2urLxQ6t9XR"
         className={classes.unchangedText}
         target="_blank"
-        onClick={(e) => handleMobileMenuClick()}
+        onClick={() => handleMobileMenuClick()}
       >
         <MenuItem>
           Suggest a feature

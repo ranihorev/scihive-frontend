@@ -6,8 +6,10 @@ import React, { useEffect, useState } from 'react';
 
 import Tooltip from '@material-ui/core/Tooltip';
 import IconButton from '@material-ui/core/IconButton';
+import {useCookies} from "react-cookie";
 import type { T_Highlight } from './Pdf/types';
 import Comment from './Comment';
+import {linkButton} from "../utils/presets";
 
 type T_ManuscriptHighlight = T_Highlight;
 
@@ -21,6 +23,7 @@ const parseIdFromHash = () => window.location.hash.slice('#comment-'.length);
 
 const refs = {};
 const containerRef = React.createRef();
+const WELCOME_COOKIE = 'comments-welcome';
 
 function CommentsList({ highlights, removeHighlight, updateHighlight }: Props) {
   const [focusedId, setFocusedId] = useState();
@@ -53,7 +56,8 @@ function CommentsList({ highlights, removeHighlight, updateHighlight }: Props) {
     refs[h.id] = React.createRef();
   });
 
-  const Welcome = (
+  const [cookies, setCookie,] = useCookies([WELCOME_COOKIE]);
+  const Welcome = !cookies[WELCOME_COOKIE] && (
     <div style={{ padding: '0.2rem 0.7rem' }}>
       <small>
         <p>
@@ -64,6 +68,17 @@ function CommentsList({ highlights, removeHighlight, updateHighlight }: Props) {
           Want to comment on a figure? Hold ⌥ on Mac or Alt on Windows and drag
           over it.
         </p>
+        <div css={css`
+        width: 100%;
+        text-align: right;
+        color: inherit;
+        margin-top: -17px;
+        `}>
+          <button type="button" css={linkButton} onClick={() => setCookie(WELCOME_COOKIE, 1)}>
+            Got it
+          </button>
+        </div>
+
       </small>
     </div>
   );

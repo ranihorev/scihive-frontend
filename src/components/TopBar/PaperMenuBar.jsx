@@ -47,6 +47,7 @@ const PaperMenuDekstopRender = ({
           href={`https://arxiv.org/pdf/${PaperId}.pdf?download=1`} // download=1 ensures that the extension will ignore the link
           css={simpleLink}
           target="_blank"
+          rel="noopener noreferrer"
           download={`${PaperId}.pdf`}
         >
           <MenuItem onClick={handleMenuClose}>PDF</MenuItem>
@@ -55,6 +56,7 @@ const PaperMenuDekstopRender = ({
           href={`https://arxiv.org/e-print/${PaperId}`}
           css={simpleLink}
           target="_blank"
+          rel="noopener noreferrer"
           download
         >
           <MenuItem onClick={handleMenuClose}>LaTeX</MenuItem>
@@ -88,6 +90,7 @@ const PaperMenuMobileRender = ({
         href={`https://arxiv.org/pdf/${PaperId}.pdf?download=1`}
         css={simpleLink}
         target="_blank"
+        rel="noopener noreferrer"
         download={`${PaperId}.pdf`}
         onClick={() => handleMobileMenuClick()}
       >
@@ -97,6 +100,7 @@ const PaperMenuMobileRender = ({
         href={`https://arxiv.org/e-print/${PaperId}`}
         css={simpleLink}
         target="_blank"
+        rel="noopener noreferrer"
         onClick={() => handleMobileMenuClick()}
         download
       >

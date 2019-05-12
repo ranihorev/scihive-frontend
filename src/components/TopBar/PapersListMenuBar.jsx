@@ -12,6 +12,7 @@ export const PaperDekstopMenu = () => {
         <a
           href="http://www.tricider.com/brainstorming/2urLxQ6t9XR"
           target="_blank"
+          rel="noopener noreferrer"
           css={simpleLink}
         >
           Suggest a Feature
@@ -27,6 +28,7 @@ export const PaperMobileMenu = ({ handleMobileMenuClick }) => {
         href="http://www.tricider.com/brainstorming/2urLxQ6t9XR"
         css={simpleLink}
         target="_blank"
+        rel="noopener noreferrer"
         onClick={() => handleMobileMenuClick()}
       >
         <MenuItem>Suggest a feature</MenuItem>

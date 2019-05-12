@@ -83,6 +83,7 @@ const MobileMenuRender = ({
         <a
           href="https://chrome.google.com/webstore/detail/arxivcolab/dijdhkcfdaocpepndegmbkgphbpomdai"
           target="_blank"
+          rel="noopener noreferrer"
           css={simpleLink}
         >
           <MenuItem onClick={handleMobileMenuClose}>Chrome Extension</MenuItem>
@@ -161,6 +162,7 @@ const DesktopMenuRender = ({ children, isLoggedIn, toggleLoginModal }) => {
         <a
           href="https://chrome.google.com/webstore/detail/arxivcolab/dijdhkcfdaocpepndegmbkgphbpomdai"
           target="_blank"
+          rel="noopener noreferrer"
           css={simpleLink}
         >
           <MenuItem onClick={() => handleMenuClose()}>
@@ -170,6 +172,7 @@ const DesktopMenuRender = ({ children, isLoggedIn, toggleLoginModal }) => {
         <a
           href="https://goo.gl/forms/fiEWkXfk4hLW6i1P2"
           target="_blank"
+          rel="noopener noreferrer"
           css={simpleLink}
         >
           <MenuItem onClick={() => handleMenuClose()}>Our poll</MenuItem>

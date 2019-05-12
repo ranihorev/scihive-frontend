@@ -117,6 +117,7 @@ const PaperMenuMobileRender = ({classes, match: {params}, handleMobileMenuClick,
           Download LaTeX
         </MenuItem>
       </a>
+      <Divider />
       {
         isLoggedIn ?
           <MenuItem onClick={() => {handleMobileMenuClick(); toggleGroupsModal()}}>
@@ -124,7 +125,6 @@ const PaperMenuMobileRender = ({classes, match: {params}, handleMobileMenuClick,
           </MenuItem>
           : null
       }
-      <Divider />
     </React.Fragment>
   )
 

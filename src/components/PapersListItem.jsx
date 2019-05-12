@@ -8,13 +8,13 @@ import Bookmark from "./Bookmark";
 import CardActions from "@material-ui/core/CardActions";
 import Grid from "@material-ui/core/Grid";
 import Divider from "@material-ui/core/Divider";
-import Collapse from "@material-ui/core/Collapse";
 import CardContent from "@material-ui/core/CardContent";
 import ExpandMoreIcon from "@material-ui/icons/ExpandMore";
 import classnames from "classnames";
 import moment from 'moment';
 import TwitterMeta from "./TwitterMeta";
 import Button from "@material-ui/core/Button";
+import LinesEllipsis from 'react-lines-ellipsis'
 
 const MAIN_COLOR = '#49a8f5';
 
@@ -79,6 +79,13 @@ const styles = theme => ({
   },
   expandOpen: {
     transform: "rotate(180deg)"
+  },
+  summary: {
+    color: 'rgba(0, 0, 0, 0.8)',
+    fontSize: '0.875rem',
+    fontWeight: 400,
+    fontFamily: 'Roboto, Helvetica, Arial, sans-serif',
+    lineHeight: '1.46429em',
   }
 });
 
@@ -142,13 +149,23 @@ const PapersListItem = ({ paper, classes }) => {
           <ExpandMoreIcon />
         </IconButton>{" "}
       </CardActions>
-
-      <Collapse in={expanded} timeout="auto" unmountOnExit>
-        <Divider variant="middle" />
-        <CardContent>
-          <Typography paragraph>{paper.summary}</Typography>
-        </CardContent>
-      </Collapse>
+      <Divider variant="middle" />
+      <CardContent>
+        {
+          expanded ?
+            <div className={classes.summary}>{paper.summary}</div> :
+            <div onClick={handleExpandClick}>
+              <LinesEllipsis
+                text={paper.summary}
+                maxLine='2'
+                ellipsis='...'
+                trimRight
+                basedOn='letters'
+                className={classes.summary}
+              />
+            </div>
+        }
+      </CardContent>
     </Card>
   );
 }

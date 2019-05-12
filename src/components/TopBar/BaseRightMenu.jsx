@@ -10,6 +10,7 @@ import MoreIcon from "@material-ui/icons/MoreVert";
 import axios from "axios/index";
 import {connect} from "react-redux";
 import {actions} from "../../actions";
+import Divider from "@material-ui/core/Divider";
 
 const styles = theme => ({
   link: {
@@ -75,6 +76,16 @@ const MobileMenuRender = ({rootChildren = null, submenuChildren = null, isLogged
         onClose={handleMobileMenuClose}
       >
         {submenuChildrenWithClose}
+        {
+          isLoggedIn ?
+            <Link to={"/library"} className={classes.link}>
+              <MenuItem onClick={handleMobileMenuClose}>
+                My library
+              </MenuItem>
+            </Link>
+            : null
+        }
+        <Divider />
         <a
           href="https://chrome.google.com/webstore/detail/arxivcolab/dijdhkcfdaocpepndegmbkgphbpomdai"
           target="_blank"
@@ -89,15 +100,7 @@ const MobileMenuRender = ({rootChildren = null, submenuChildren = null, isLogged
             About
           </MenuItem>
         </Link>
-        {
-          isLoggedIn ?
-            <Link to={"/library"} className={classes.link}>
-              <MenuItem onClick={handleMobileMenuClose}>
-                My library
-              </MenuItem>
-            </Link>
-            : null
-        }
+        <Divider />
         {
           isLoggedIn ?
             <MenuItem color="inherit" onClick={() => handleMobileMenuClick(logout)}>Logout</MenuItem> :
@@ -123,6 +126,7 @@ const DesktopMenuRender = ({children, isLoggedIn, toggleLoginModal, classes}) =>
   return (
     <React.Fragment>
       {children}
+      {children ? <Divider /> : null}
       {
         isLoggedIn ?
           <Button color="inherit">
@@ -178,6 +182,7 @@ const DesktopMenuRender = ({children, isLoggedIn, toggleLoginModal, classes}) =>
             About
           </MenuItem>
         </Link>
+        <Divider />
         {
           isLoggedIn ?
             <MenuItem color="inherit" onClick={() => handleMenuClose(logout)}>Logout</MenuItem> :

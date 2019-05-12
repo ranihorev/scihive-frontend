@@ -53,12 +53,10 @@ function CommentsList({ highlights, removeHighlight, updateHighlight }: Props) {
 
   const Welcome = (
       <div style={{ padding: '0.2rem 0.7rem' }}>
-        <p>
-          <small>
-            <div>Leave questions and comments for the community by highlighting the text.</div>
-            <div style={{paddingTop: 8}}>Want to comment on a figure? Hold ⌥ on Mac or Alt on Windows and drag over it.</div>
-          </small>
-        </p>
+        <small>
+          <p>Leave questions and comments for the community by highlighting the text.</p>
+          <p>Want to comment on a figure? Hold ⌥ on Mac or Alt on Windows and drag over it.</p>
+        </small>
       </div>)
 
   return (

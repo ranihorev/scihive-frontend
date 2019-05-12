@@ -14,7 +14,7 @@ import classnames from "classnames";
 import moment from 'moment';
 import TwitterMeta from "./TwitterMeta";
 import Button from "@material-ui/core/Button";
-import LinesEllipsis from 'react-lines-ellipsis'
+import TextTruncate from 'react-text-truncate';
 
 const MAIN_COLOR = '#49a8f5';
 
@@ -86,6 +86,10 @@ const styles = theme => ({
     fontWeight: 400,
     fontFamily: 'Roboto, Helvetica, Arial, sans-serif',
     lineHeight: '1.46429em',
+  },
+  readMore: {
+    textDecoration: 'none',
+    color: '#8a8a8a',
   }
 });
 
@@ -93,7 +97,8 @@ const PapersListItem = ({ paper, classes }) => {
   const {saved_in_library, comments_count, twtr_score, twtr_links, bookmarks_count} = paper;
   const [expanded, setExpanded] = useState(false);
 
-  const handleExpandClick = () => {
+  const handleExpandClick = (e) => {
+    e.preventDefault();
     setExpanded(!expanded);
   };
 
@@ -154,16 +159,14 @@ const PapersListItem = ({ paper, classes }) => {
         {
           expanded ?
             <div className={classes.summary}>{paper.summary}</div> :
-            <div onClick={handleExpandClick}>
-              <LinesEllipsis
-                text={paper.summary}
-                maxLine='2'
-                ellipsis='...'
-                trimRight
-                basedOn='letters'
-                className={classes.summary}
-              />
-            </div>
+            <TextTruncate
+              line={2}
+              element="div"
+              truncateText="…"
+              className={classes.summary}
+              text={paper.summary}
+              textTruncateChild={<a href="#" className={classes.readMore} onClick={handleExpandClick}>Read more</a>}
+            />
         }
       </CardContent>
     </Card>

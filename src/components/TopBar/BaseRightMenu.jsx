@@ -14,7 +14,7 @@ import Divider from "@material-ui/core/Divider";
 
 const styles = theme => ({
   link: {
-    textTransform: 'inherit',
+    textTransform: 'none',
     textDecoration: 'inherit',
     color: 'inherit',
     "&:focus": {
@@ -131,7 +131,7 @@ const DesktopMenuRender = ({children, isLoggedIn, toggleLoginModal, classes}) =>
         isLoggedIn ?
           <Button color="inherit">
             <Link to={"/library"} className={classes.link}>
-              My library
+              My Library
             </Link>
           </Button> : ''
       }

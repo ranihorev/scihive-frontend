@@ -1,58 +1,36 @@
-import React from "react";
-import PropTypes from "prop-types";
-import MenuItem from "@material-ui/core/MenuItem/index";
-import { withStyles } from "@material-ui/core/styles/index";
-import Button from "@material-ui/core/Button";
+/** @jsx jsx */
+import { jsx } from '@emotion/core';
+import React from 'react';
+import MenuItem from '@material-ui/core/MenuItem/index';
+import Button from '@material-ui/core/Button';
+import { simpleLink } from '../../utils/presets';
 
-const styles = () => ({
-  unchangedText: {
-    textTransform: "none",
-    textDecoration: "none",
-    color: "inherit",
-    "&:focus": {
-      outline: 'none',
-    }
-  },
-  faIcon: {
-    fontSize: '19px',
-  }
-});
-
-const PaperMenuDekstopRender = ({classes}) => {
+export const PaperDekstopMenu = () => {
   return (
     <React.Fragment>
       <Button color="inherit">
-        <a href="http://www.tricider.com/brainstorming/2urLxQ6t9XR" target="_blank" className={classes.unchangedText}>
+        <a
+          href="http://www.tricider.com/brainstorming/2urLxQ6t9XR"
+          target="_blank"
+          css={simpleLink}
+        >
           Suggest a Feature
         </a>
       </Button>
     </React.Fragment>
-  )
-
+  );
 };
-
-PaperMenuDekstopRender.propTypes = {
-  classes: PropTypes.object.isRequired
-};
-
-const PaperMenuMobileRender = ({classes, handleMobileMenuClick}) => {
+export const PaperMobileMenu = ({ handleMobileMenuClick }) => {
   return (
     <React.Fragment>
       <a
         href="http://www.tricider.com/brainstorming/2urLxQ6t9XR"
-        className={classes.unchangedText}
+        css={simpleLink}
         target="_blank"
         onClick={() => handleMobileMenuClick()}
       >
-        <MenuItem>
-          Suggest a feature
-        </MenuItem>
+        <MenuItem>Suggest a feature</MenuItem>
       </a>
     </React.Fragment>
-  )
-
+  );
 };
-
-export const PaperDekstopMenu = withStyles(styles)(PaperMenuDekstopRender);
-
-export const PaperMobileMenu = withStyles(styles)(PaperMenuMobileRender);

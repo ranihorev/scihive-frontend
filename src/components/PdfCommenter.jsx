@@ -10,6 +10,7 @@ import { connect } from 'react-redux';
 import * as queryString from 'query-string';
 import { toast } from 'react-toastify';
 import { isEmpty } from 'lodash';
+import {Helmet} from "react-helmet";
 import { actions } from '../actions';
 import ReadingProgress from './ReadingProgress';
 import PdfViewer from './PdfViewer';
@@ -17,7 +18,6 @@ import CommentsList from './CommentsList';
 import { APP_BAR_HEIGHT } from './TopBar/PrimaryAppBar';
 import type { T_NewHighlight } from './Pdf/types';
 import './PdfCommenter.scss';
-import {Helmet} from "react-helmet";
 
 const styles = () => ({
   rootVert: {

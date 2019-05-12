@@ -4,9 +4,9 @@ import AppBar from "@material-ui/core/AppBar/index";
 import Toolbar from "@material-ui/core/Toolbar/index";
 import { withStyles } from "@material-ui/core/styles/index";
 import {Link} from "react-router-dom";
+import Headroom from "react-headroom";
 import SearchBar from "./SearchBar";
 import {MobileMenu, DesktopMenu} from "./BaseRightMenu";
-import Headroom from "react-headroom";
 
 const styles = theme => ({
   root: {
@@ -25,11 +25,6 @@ const styles = theme => ({
     textDecoration: 'none',
     color: 'inherit',
     margin: 'auto 0',
-  },
-  link: {
-    textTransform: 'inherit',
-    textDecoration: 'inherit',
-    color: 'inherit',
   },
   title: {
     display: "none",
@@ -61,7 +56,7 @@ const PrimaryAppBar = ({ classes, desktopItems, mobileRootItems, mobileSubItems 
       <AppBar position='relative' style={{backgroundColor: '#36a0f5'}}>
         <Toolbar classes={{gutters: classes.gutters}} variant="dense">
           <div className={classes.leftMenu}>
-            <Link to={'/'} className={classes.home}>
+            <Link to="/" className={classes.home}>
                 SciHive
             </Link>
             <SearchBar/>

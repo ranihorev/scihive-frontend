@@ -14,7 +14,7 @@ import { connect } from 'react-redux';
 import FormControlLabel from '@material-ui/core/FormControlLabel';
 import Checkbox from '@material-ui/core/Checkbox';
 import { actions } from '../../../actions';
-import * as presets from '../../../utils/presets';
+import {presets} from '../../../utils';
 
 type State = {
   compact: boolean,

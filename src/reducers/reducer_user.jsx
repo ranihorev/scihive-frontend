@@ -14,7 +14,7 @@ export default function dataReducer (state = initialState, action) {
     case TOGGLE_LOGIN_MODAL:
       return {...state, isLoginModalOpen: !state.isLoginModalOpen, loginModalMessage: action.payload};
     case TOGGLE_GROUPS_MODAL:
-      return {...state, isGroupsModalOpen: !state.isGroupsModalOpen};
+      return {...state, isGroupsModalOpen: action.payload !== undefined ? action.payload : !state.isGroupsModalOpen};
     case SET_USER:
       return {...state, userData: action.payload};
     case SELECT_GROUP:

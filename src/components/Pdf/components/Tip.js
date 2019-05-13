@@ -14,7 +14,7 @@ import { connect } from 'react-redux';
 import FormControlLabel from '@material-ui/core/FormControlLabel';
 import Checkbox from '@material-ui/core/Checkbox';
 import { actions } from '../../../actions';
-import {presets} from '../../../utils';
+import { presets } from '../../../utils';
 
 type State = {
   compact: boolean,
@@ -32,7 +32,8 @@ type Props = {
   tooltipText: React.Element,
   isLoggedIn: boolean,
   selectedGroup: { id: string, name: string },
-  toggleLoginModal: () => void
+  toggleLoginModal: () => void,
+  openGroupsModal: () => void
 };
 
 class Tip extends Component<Props, State> {
@@ -82,7 +83,13 @@ class Tip extends Component<Props, State> {
   };
 
   render() {
-    const { onOpen, tooltipText, selectedGroup } = this.props;
+    const {
+      onOpen,
+      tooltipText,
+      selectedGroup,
+      isLoggedIn,
+      openGroupsModal
+    } = this.props;
     const { compact, text, visibility } = this.state;
     return (
       <div className="Tip">
@@ -161,9 +168,24 @@ class Tip extends Component<Props, State> {
                     <MenuItem value="group">{selectedGroup.name}</MenuItem>
                   ) : null}
                   <MenuItem value="public">Public</MenuItem>
-                  <MenuItem value="private" disabled={!this.props.isLoggedIn}>
+                  <MenuItem value="private" disabled={!isLoggedIn}>
                     Private
                   </MenuItem>
+                  {!selectedGroup && (
+                    <div>
+                      <MenuItem
+                        value="newGroup"
+                        disabled={!isLoggedIn}
+                        onClick={e => {
+                          e.stopPropagation();
+                          e.preventDefault();
+                          openGroupsModal();
+                        }}
+                      >
+                        New Group
+                      </MenuItem>
+                    </div>
+                  )}
                 </Select>
               </FormControl>
               {this.props.isLoggedIn && visibility === 'public' ? (
@@ -175,7 +197,7 @@ class Tip extends Component<Props, State> {
                       color="primary"
                       value="anonymous"
                       css={css`
-                        padding: 3px 8px 3px 12px !important;
+                        padding: 3px 5px 3px 12px !important;
                       `}
                     />
                   }
@@ -231,6 +253,9 @@ const mapDispatchToProps = dispatch => {
   return {
     toggleLoginModal: () => {
       dispatch(actions.toggleLoginModal());
+    },
+    openGroupsModal: () => {
+      dispatch(actions.toggleGroupsModal(true));
     }
   };
 };

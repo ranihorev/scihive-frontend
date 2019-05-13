@@ -13,28 +13,28 @@ export const actions = {
       payload: message
     }
   },
-  toggleGroupsModal: (message) => {
+  toggleGroupsModal: (state) => {
     return {
       type: TOGGLE_GROUPS_MODAL,
-      payload: message
+      payload: state
     }
   },
   setUser: (payload) => {
     return {
       type: SET_USER,
-      payload: payload
+      payload
     }
   },
   updateReadingProgress: (payload) => {
     return {
       type: READING_PROGRESS,
-      payload: payload
+      payload
     }
   },
   setBookmark: (payload) => {
     return {
       type: SET_BOOKMARK,
-      payload: payload
+      payload
     }
   },
   selectGroup: (payload) => {

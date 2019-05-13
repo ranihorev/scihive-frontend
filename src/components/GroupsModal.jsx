@@ -1,3 +1,6 @@
+/** @jsx jsx */
+import { css, jsx } from '@emotion/core';
+
 import React from 'react';
 import {connect} from "react-redux";
 import axios from 'axios';
@@ -20,12 +23,12 @@ import {
 import {compose} from "redux";
 import {withRouter} from "react-router";
 import * as queryString from "query-string";
-import {actions} from "../actions";
 import * as copy from 'clipboard-copy';
 import {toast} from "react-toastify";
+import {actions} from "../actions";
 
 
-const styles = theme => ({
+const styles = () => ({
   faIcon: {
     fontSize: '16px',
   },
@@ -54,7 +57,7 @@ const GroupsModal = ({classes, location, history, isGroupsModalOpen, toggleGroup
   const handleDeleteGroup = id => {
     axios.delete('/groups/group', {params: {id}})
       .then( res => {
-        let newQ = {...queryString.parse(location.search)};
+        const newQ = {...queryString.parse(location.search)};
         delete newQ.group;
         history.push({
           pathname: location.pathname,
@@ -82,13 +85,13 @@ const GroupsModal = ({classes, location, history, isGroupsModalOpen, toggleGroup
       .finally(() => setIsSubmitDisabled(false));
   };
 
-  const switchToGroup = ({id, name}) => {
-    const newQ = {...queryString.parse(location.search), group: id};
+  const switchToGroup = (groupData) => {
+    const newQ = {...queryString.parse(location.search), group: groupData ? groupData.id : undefined};
     history.push({
       pathname: location.pathname,
       search: queryString.stringify(newQ)
     });
-    selectGroup({id, name});
+    selectGroup(groupData);
     // auto close the modal after selection
     setTimeout(() => toggleGroupsModal(), 400);
   };
@@ -98,11 +101,11 @@ const GroupsModal = ({classes, location, history, isGroupsModalOpen, toggleGroup
       fullScreen={fullScreen}
       open={isGroupsModalOpen}
       onClose={toggleGroupsModal}
-      disableBackdropClick={true}
-      maxWidth={'md'}
+      disableBackdropClick
+      maxWidth="md"
       aria-labelledby="responsive-dialog-title"
     >
-      <DialogTitle>{"Manage your groups"}</DialogTitle>
+      <DialogTitle>Manage your groups</DialogTitle>
       <DialogContent>
         <DialogContentText>
           Groups allow you to share comments with an exclusive team of peers
@@ -132,7 +135,7 @@ const GroupsModal = ({classes, location, history, isGroupsModalOpen, toggleGroup
         </form>
         <List>
             {groups && groups.map(group => (
-              <ListItem key={group.id} disableGutters={true} selected={selectedGroup && group.id === selectedGroup.id}>
+              <ListItem key={group.id} disableGutters selected={selectedGroup && group.id === selectedGroup.id}>
                 <ListItemText >
                   <Button className={classes.groupButton} onClick={() => switchToGroup(group)}>
                     {group.name}
@@ -150,7 +153,12 @@ const GroupsModal = ({classes, location, history, isGroupsModalOpen, toggleGroup
             ))}
         </List>
       </DialogContent>
-      <DialogActions>
+      <DialogActions css={css`
+        justify-content: space-between;
+      `}>
+        <Button onClick={() => switchToGroup(undefined)} color="primary">
+          Back to Public
+        </Button>
         <Button onClick={toggleGroupsModal} color="primary">
           Close
         </Button>
@@ -159,7 +167,7 @@ const GroupsModal = ({classes, location, history, isGroupsModalOpen, toggleGroup
   )
 };
 
-const mapStateToProps = (state, ownProps) => {
+const mapStateToProps = (state) => {
   const {user} = state;
   return {
     isGroupsModalOpen: user.isGroupsModalOpen,
@@ -168,7 +176,7 @@ const mapStateToProps = (state, ownProps) => {
   }
 };
 
-const mapDispatchToProps = (dispatch, ownProps) => {
+const mapDispatchToProps = (dispatch) => {
   return {
     toggleGroupsModal: () => {
       dispatch(actions.toggleGroupsModal());

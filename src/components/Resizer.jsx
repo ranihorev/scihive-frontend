@@ -20,6 +20,7 @@ const horizontalLineWrapperCss = css`
 const baseHandleCss = css`
   background-color: rgba(0, 0, 0, 0.1);
   transition: width 0.3s ease, height 0.3s ease, background-color 0.3s ease;
+  background-clip: content-box;
   &:hover {
     background-color: rgba(0, 0, 0, 0.3);
   }
@@ -29,6 +30,7 @@ const verticalLineHandleCss = css`
   ${baseHandleCss};
   height: 100%;
   width: 3px;
+  padding: 0 8px 0 2px;
   cursor: ew-resize;
   &:hover {
     width: 5px;
@@ -40,12 +42,11 @@ const horizontalLineHandleCss = css`
   width: 100%;
   height: 3px;
   cursor: ns-resize;
-  &:hover {
-    height: 5px;
-  }
+  padding: 0px 0 10px 0;
+  margin-top: 3px;
 `;
 
-const Resizer = ({ isVerticalLine, initPos, onDrag, bounds }) => {
+const Resizer = ({ isVerticalLine, initPos, onDrag, bounds, step = 20 }) => {
   return (
     <div
       css={isVerticalLine ? verticalLineWrapperCss : horizontalLineWrapperCss}
@@ -57,10 +58,12 @@ const Resizer = ({ isVerticalLine, initPos, onDrag, bounds }) => {
           isVerticalLine ? { x: initPos, y: 0 } : { x: 0, y: initPos }
         }
         position={null}
-        grid={[20, 20]}
+        grid={[step, step]}
         bounds={bounds}
         scale={1}
-        onDrag={(e, data) => onDrag({ x: data.x, y: data.y })}
+        onDrag={(e, data) => {
+          onDrag({ x: data.x, y: data.y });
+        }}
       >
         <div
           className="handle"

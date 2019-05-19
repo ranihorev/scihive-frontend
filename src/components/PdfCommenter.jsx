@@ -44,7 +44,6 @@ const useWindowDimensions = () => {
   const [windowDimensions, setWindowDimensions] = useState({
     width: window.innerWidth,
     height: window.innerHeight,
-    id: Math.random()
   });
 
   useEffect(() => {
@@ -52,7 +51,6 @@ const useWindowDimensions = () => {
       setWindowDimensions({
         width: window.innerWidth,
         height: window.innerHeight,
-        id: Math.random()
       });
     }
     window.addEventListener('resize', handleResize);
@@ -62,7 +60,6 @@ const useWindowDimensions = () => {
       window.removeEventListener('touchmove', handleResize);
     };
   }, []);
-
   return windowDimensions;
 };
 
@@ -93,7 +90,6 @@ const PdfCommenter = ({
   const {
     height: pageHeight,
     width: pageWidth,
-    id: resizerId
   } = useWindowDimensions();
   const contentHeight = pageHeight - APP_BAR_HEIGHT;
   const defaultPdfPrct = 0.75;
@@ -282,12 +278,13 @@ const PdfCommenter = ({
         {isVertical ? (
           <React.Fragment>
             <Resizer
-              key={resizerId}
+              key={`${pageWidth}-${pageHeight}`}
               initPos={contentHeight * pdfSectionPrct.height}
               onDrag={({ y }) => {
                 setPdfSectionPrct({ ...pdfSectionPrct, height: y / contentHeight });
               }}
-              bounds={{ left: 0, right: 0, top: 200, bottom: contentHeight }}
+              bounds={{ left: 0, right: 0, top: 50, bottom: contentHeight - 50 }}
+              step={10}
               isVerticalLine={false}
             />
             <div
@@ -313,7 +310,7 @@ const PdfCommenter = ({
           <React.Fragment>
             {!isSidebarCollapsed ? (
               <Resizer
-                key={resizerId}
+                key={`${pageWidth}-${pageHeight}`}
                 initPos={sidebarWidth}
                 onDrag={({ x }) =>
                   setPdfSectionPrct({ ...pdfSectionPrct, width: (pageWidth - x) / pageWidth })

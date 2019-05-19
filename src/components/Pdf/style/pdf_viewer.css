@@ -34,21 +34,5 @@
 
 .page {
   box-shadow: 0 0 0 0.75pt #d1d1d1, 0 0 3pt 0.75pt #ccc;
-
-  :first-child {
-    //margin-top: 10px !important;
-  }
 }
 
-.pdf-buttons {
-  position: absolute;
-  bottom: 15px;
-  right: 8px;
-  z-index: 1000;
-
-  button {
-    color: black;
-    font-size: 1.1rem;
-    margin-bottom: 8px;
-  }
-}

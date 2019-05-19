@@ -1,23 +1,25 @@
-// @flow
+/** @jsx jsx */
+import { css, jsx } from '@emotion/core';
 
 import React, { useEffect, useState } from 'react';
 import { withStyles } from '@material-ui/core/styles';
 import axios from 'axios';
 import { withRouter } from 'react-router';
-import SplitPane from 'react-split-pane';
 import CircularProgress from '@material-ui/core/CircularProgress';
 import { connect } from 'react-redux';
 import * as queryString from 'query-string';
 import { toast } from 'react-toastify';
 import { isEmpty } from 'lodash';
-import {Helmet} from "react-helmet";
+import { Helmet } from 'react-helmet';
+import IconButton from '@material-ui/core/IconButton';
+
 import { actions } from '../actions';
 import ReadingProgress from './ReadingProgress';
 import PdfViewer from './PdfViewer';
 import CommentsList from './CommentsList';
 import { APP_BAR_HEIGHT } from './TopBar/PrimaryAppBar';
-import type { T_NewHighlight } from './Pdf/types';
-import './PdfCommenter.scss';
+import { presets } from '../utils';
+import Resizer from './Resizer';
 
 const styles = () => ({
   rootVert: {
@@ -33,6 +35,7 @@ const styles = () => ({
     left: '50%'
   }
 });
+
 const FETCHING = '-1';
 const FAILED = '0';
 const MOBILE_WIDTH = 800;
@@ -40,14 +43,16 @@ const MOBILE_WIDTH = 800;
 const useWindowDimensions = () => {
   const [windowDimensions, setWindowDimensions] = useState({
     width: window.innerWidth,
-    height: window.innerHeight
+    height: window.innerHeight,
+    id: Math.random()
   });
 
   useEffect(() => {
     function handleResize() {
       setWindowDimensions({
         width: window.innerWidth,
-        height: window.innerHeight
+        height: window.innerHeight,
+        id: Math.random()
       });
     }
     window.addEventListener('resize', handleResize);
@@ -61,6 +66,18 @@ const useWindowDimensions = () => {
   return windowDimensions;
 };
 
+const CollapseButton = ({ direction, onClick }) => (
+  <IconButton onClick={() => onClick()}>
+    <i
+      css={css`
+        font-size: 16px;
+        width: 16px;
+      `}
+      className={`fas fa-angle-${direction}`}
+    />
+  </IconButton>
+);
+
 const PdfCommenter = ({
   setBookmark,
   classes,
@@ -73,15 +90,19 @@ const PdfCommenter = ({
   const [highlights, setHighlights] = useState([]);
   const [url, setUrl] = useState(FETCHING);
   const [title, setTitle] = useState('SciHive');
-  const { height: pageHeight, width: pageWidth } = useWindowDimensions();
+  const {
+    height: pageHeight,
+    width: pageWidth,
+    id: resizerId
+  } = useWindowDimensions();
   const contentHeight = pageHeight - APP_BAR_HEIGHT;
   const defaultPdfPrct = 0.75;
-  const [commentsSectionHeight, setCommentsSectionHeight] = useState(
-    (1 - defaultPdfPrct) * contentHeight
-  );
-  const [pdfSectionWidth, setPdfSectionWidth] = useState(
-    defaultPdfPrct * pageWidth
-  );
+  const [pdfSectionPrct, setPdfSectionPrct] = useState({
+    width: defaultPdfPrct,
+    height: defaultPdfPrct
+  });
+
+  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
 
   useEffect(() => {
     // Fetch paper data
@@ -136,11 +157,11 @@ const PdfCommenter = ({
     }
   }, [params]);
 
-  const addHighlight = (highlight: T_NewHighlight) => {
+  const addHighlight = highlight => {
     setHighlights([highlight, ...highlights]);
   };
 
-  const updateHighlight = (highlight: T_NewHighlight) => {
+  const updateHighlight = highlight => {
     setHighlights(
       highlights.map(h => {
         return h.id === highlight.id ? highlight : h;
@@ -148,7 +169,7 @@ const PdfCommenter = ({
     );
   };
 
-  const removeHighlight = (highlightId: string) => {
+  const removeHighlight = highlightId => {
     axios
       .delete(`/paper/${params.PaperId}/comment/${highlightId}`, {
         id: highlightId
@@ -164,6 +185,8 @@ const PdfCommenter = ({
       <CircularProgress />
     </div>
   );
+
+  // Vertical is for mobile phones
   const isVertical = window.innerWidth < MOBILE_WIDTH;
 
   let viewerRender = null;
@@ -186,7 +209,19 @@ const PdfCommenter = ({
     );
   }
 
-  const comments = (
+  const sidebarWidth = pageWidth * (1 - pdfSectionPrct.width);
+  const sidebarHeight = contentHeight * (1 - pdfSectionPrct.height);
+
+  const onCollapseClick = () => {
+    const newState = !isSidebarCollapsed;
+    setIsSidebarCollapsed(newState);
+    setPdfSectionPrct({
+      ...setPdfSectionPrct,
+      width: newState ? 1 : defaultPdfPrct
+    });
+  };
+
+  const Comments = (
     <CommentsList
       highlights={highlights}
       removeHighlight={removeHighlight}
@@ -195,7 +230,42 @@ const PdfCommenter = ({
     />
   );
 
-  // Vertical is for mobile phones
+  let Sidebar = null;
+  if (!isSidebarCollapsed) {
+    if (isVertical) {
+      Sidebar = (
+        <div
+          style={{ height: sidebarHeight }}
+          css={css`
+            position: relative;
+            display: flex;
+          `}
+        >
+          {Comments}
+        </div>
+      );
+    } else {
+      Sidebar = (
+        <div
+          style={{ width: sidebarWidth }}
+          css={css`
+            ${presets.col};
+            flex-grow: 1;
+            position: relative;
+          `}
+        >
+          <div>
+            <CollapseButton
+              direction={isSidebarCollapsed ? 'right' : 'left'}
+              onClick={onCollapseClick}
+            />
+          </div>
+          {Comments}
+        </div>
+      );
+    }
+  }
+
   return (
     <React.Fragment>
       <Helmet>
@@ -210,29 +280,72 @@ const PdfCommenter = ({
       >
         <ReadingProgress />
         {isVertical ? (
-          <SplitPane
-            split="horizontal"
-            defaultSize={defaultPdfPrct * contentHeight}
-            className={classes.rootHorz}
-            pane2Style={{ paddingBottom: '5px', height: commentsSectionHeight }}
-            onChange={size => setCommentsSectionHeight(size)}
-          >
-            <React.Fragment>{viewerRender}</React.Fragment>
-            <React.Fragment>{comments}</React.Fragment>
-          </SplitPane>
+          <React.Fragment>
+            <Resizer
+              key={resizerId}
+              initPos={contentHeight * pdfSectionPrct.height}
+              onDrag={({ y }) => {
+                setPdfSectionPrct({ ...pdfSectionPrct, height: y / contentHeight });
+              }}
+              bounds={{ left: 0, right: 0, top: 200, bottom: contentHeight }}
+              isVerticalLine={false}
+            />
+            <div
+              css={css`
+                ${presets.col};
+                width: 100%;
+              `}
+            >
+              <div
+                style={{ height: contentHeight * pdfSectionPrct.height }}
+                css={css`
+                  position: relative;
+                  overflow: hidden;
+                  display: flex;
+                `}
+              >
+                {viewerRender}
+              </div>
+              {Sidebar}
+            </div>
+          </React.Fragment>
         ) : (
-          <SplitPane
-            split="vertical"
-            minSize={300}
-            defaultSize={defaultPdfPrct * pageWidth}
-            className={classes.rootVert}
-            primary="second"
-            pane2Style={{ width: pdfSectionWidth }}
-            onChange={size => setPdfSectionWidth(size)}
-          >
-            <React.Fragment>{comments}</React.Fragment>
-            <React.Fragment>{viewerRender}</React.Fragment>
-          </SplitPane>
+          <React.Fragment>
+            {!isSidebarCollapsed ? (
+              <Resizer
+                key={resizerId}
+                initPos={sidebarWidth}
+                onDrag={({ x }) =>
+                  setPdfSectionPrct({ ...pdfSectionPrct, width: (pageWidth - x) / pageWidth })
+                }
+                bounds={{ left: 200, right: 600, top: 0, bottom: 0 }}
+                isVerticalLine={true}
+              />
+            ) : (
+              <div
+                css={css`
+                  position: absolute;
+                  top: 4px;
+                  left: 0;
+                  z-index: 10;
+                `}
+              >
+                <CollapseButton
+                  direction={isSidebarCollapsed ? 'right' : 'left'}
+                  onClick={onCollapseClick}
+                />
+              </div>
+            )}
+            <div
+              css={css`
+                ${presets.row};
+                height: 100%;
+              `}
+            >
+              {Sidebar}
+              <div style={{ width: pdfSectionPrct.width * pageWidth }}>{viewerRender}</div>
+            </div>
+          </React.Fragment>
         )}
       </div>
     </React.Fragment>

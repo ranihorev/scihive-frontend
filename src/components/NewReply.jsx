@@ -1,25 +1,31 @@
-// @flow
+/** @jsx jsx */
+import { css, jsx } from '@emotion/core';
 
-import React, {useState} from 'react';
-import Button from "@material-ui/core/Button";
-import TextField from "@material-ui/core/TextField";
+import React, { useState } from 'react';
+import Button from '@material-ui/core/Button';
+import TextField from '@material-ui/core/TextField';
 
-type Props = {
-  onSubmit: () => void
-}
-
-export default function NewReply({onSubmit}: Props) {
+const NewReply = ({ onSubmit }) => {
   const [reply, setReply] = useState('');
 
-  const submitForm = (e) => {
+  const submitForm = e => {
     e.preventDefault();
     onSubmit(reply);
-  }
+  };
 
   return (
-    <form className='new-reply' onSubmit={submitForm}>
+    <form
+      css={css`
+        text-align: left;
+      `}
+      onSubmit={submitForm}
+    >
       <TextField
-        name="reply" label="Your reply" multiline margin='dense' value={reply}
+        name="reply"
+        label="Your reply"
+        multiline
+        margin="dense"
+        value={reply}
         onChange={event => setReply(event.target.value)}
         inputRef={inp => inp && setTimeout(() => inp.focus(), 100)}
         fullWidth
@@ -28,5 +34,7 @@ export default function NewReply({onSubmit}: Props) {
         Reply
       </Button>
     </form>
-  )
-}
+  );
+};
+
+export default NewReply;

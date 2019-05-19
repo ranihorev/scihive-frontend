@@ -1,42 +1,46 @@
-// @flow
-
-import React, {Component} from 'react';
-import { PdfLoader, PdfHighlighter, Tip, Highlight, Popup, AreaHighlight } from './Pdf';
+import React, { Component } from 'react';
 import AddComment from '@material-ui/icons/AddComment';
-import axios from "axios";
-import {withRouter} from "react-router";
+import axios from 'axios';
+import { withRouter } from 'react-router';
+import {
+  PdfLoader,
+  PdfHighlighter,
+  Tip,
+  Highlight,
+  Popup,
+  AreaHighlight
+} from './Pdf';
 
-// TODO fix props
-type Props = {
-  highlights: Array<T_ManuscriptHighlight>,
-  updateHighlight: () => void,
-  addHighlight: () => void,
-  isVertical: boolean,
-  match: object,
-  beforeLoad: React$Element,
+const parseIdFromHash = () => window.location.hash.slice('#highlight-'.length);
 
-}
-
-const parseIdFromHash = () => window.location.hash.slice("#highlight-".length);
-
-const setCommentHash = (id) => {
+const setCommentHash = id => {
   window.location.hash = `comment-${id}`;
 };
 
 const resetHash = () => {
-  window.location.hash = "";
+  window.location.hash = '';
 };
 
 const HighlightPopup = ({ comment }) =>
-  comment.text ? (
-    <div className="Highlight__popup">
-      {comment.text}
-    </div>
-  ) : null;
+  comment.text ? <div className="Highlight__popup">{comment.text}</div> : null;
 
-class PdfViewer extends Component<Props> {
+class PdfViewer extends Component {
+  componentDidMount() {
+    window.addEventListener(
+      'hashchange',
+      this.scrollToHighlightFromHash,
+      false
+    );
+  }
 
-  scrollViewerTo = (highlight: any) => {};
+  componentWillUnmount(): void {
+    window.removeEventListener('hashchange', this.scrollToHighlightFromHash);
+  }
+
+  getHighlightById(id: string) {
+    const { highlights } = this.props;
+    return highlights.find(highlight => highlight.id === id);
+  }
 
   scrollToHighlightFromHash = () => {
     const highlight = this.getHighlightById(parseIdFromHash());
@@ -45,51 +49,57 @@ class PdfViewer extends Component<Props> {
     }
   };
 
-  componentDidMount() {
-    window.addEventListener("hashchange", this.scrollToHighlightFromHash, false);
-  }
-  componentWillUnmount(): void {
-    window.removeEventListener("hashchange", this.scrollToHighlightFromHash)
-  }
-
-  getHighlightById(id: string) {
-    const { highlights } = this.props;
-    return highlights.find(highlight => highlight.id === id);
-  }
-
-  onSelectionFinished = (position, content, hideTipAndSelection, transformSelection) => {
+  onSelectionFinished = (
+    position,
+    content,
+    hideTipAndSelection,
+    transformSelection
+  ) => {
     const submitComment = (comment, visibility) => {
-      const data = {comment, position, content, visibility};
+      const data = { comment, position, content, visibility };
       const self = this;
-      const {match: {params}} = this.props;
-      axios.post(`/paper/${params.PaperId}/new_comment`, data).then(res => {
-        self.props.addHighlight(res.data.comment);
-        hideTipAndSelection();
-      }).catch(err => {
-        console.log(err.response);
-      });
+      const {
+        match: { params }
+      } = this.props;
+      axios
+        .post(`/paper/${params.PaperId}/new_comment`, data)
+        .then(res => {
+          self.props.addHighlight(res.data.comment);
+          hideTipAndSelection();
+        })
+        .catch(err => {
+          console.log(err.response);
+        });
     };
 
     return (
       <Tip
         onOpen={transformSelection}
         onConfirm={submitComment}
-        tooltipText={<AddComment fontSize={'small'}/>}
+        tooltipText={<AddComment fontSize={'small'} />}
       />
-    )
+    );
   };
 
-  highlightTransform = (highlight, index, setTip, hideTip, viewportToScaled, screenshot, isScrolledTo) => {
-    const isTextHighlight = !Boolean(
-      highlight.content && highlight.content.image
-    );
+  highlightTransform = (
+    highlight,
+    index,
+    setTip,
+    hideTip,
+    viewportToScaled,
+    screenshot,
+    isScrolledTo
+  ) => {
+    const isTextHighlight = !(highlight.content && highlight.content.image);
 
     const component = isTextHighlight ? (
       <Highlight
         isScrolledTo={isScrolledTo}
         position={highlight.position}
         comment={highlight.comment}
-        onClick={() => {setCommentHash(highlight.id)}}
+        onClick={() => {
+          setCommentHash(highlight.id);
+        }}
       />
     ) : (
       <AreaHighlight
@@ -128,8 +138,13 @@ class PdfViewer extends Component<Props> {
   };
 
   render() {
-    const {highlights, url, isVertical, beforeLoad} = this.props;
-    const errorStyle = {position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)'};
+    const { highlights, url, isVertical, beforeLoad } = this.props;
+    const errorStyle = {
+      position: 'absolute',
+      top: '50%',
+      left: '50%',
+      transform: 'translate(-50%, -50%)'
+    };
     return (
       <PdfLoader
         key={url}
@@ -150,7 +165,7 @@ class PdfViewer extends Component<Props> {
           />
         )}
       </PdfLoader>
-    )
+    );
   }
 }
 

@@ -1,4 +1,3 @@
-// @flow
 /** @jsx jsx */
 import { css, jsx } from '@emotion/core';
 
@@ -6,18 +5,9 @@ import React, { useEffect, useState } from 'react';
 
 import Tooltip from '@material-ui/core/Tooltip';
 import IconButton from '@material-ui/core/IconButton';
-import {useCookies} from "react-cookie";
-import type { T_Highlight } from './Pdf/types';
+import { useCookies } from 'react-cookie';
 import Comment from './Comment';
-import {linkButton} from "../utils/presets";
-
-type T_ManuscriptHighlight = T_Highlight;
-
-type Props = {
-  highlights: Array<T_ManuscriptHighlight>,
-  removeHighlight: () => void,
-  updateHighlight: () => void
-};
+import { linkButton } from '../utils/presets';
 
 const parseIdFromHash = () => window.location.hash.slice('#comment-'.length);
 
@@ -25,17 +15,22 @@ const refs = {};
 const containerRef = React.createRef();
 const WELCOME_COOKIE = 'comments-welcome';
 
-function CommentsList({ highlights, removeHighlight, updateHighlight }: Props) {
+function CommentsList({
+  highlights,
+  removeHighlight,
+  updateHighlight,
+  isVertical
+}) {
   const [focusedId, setFocusedId] = useState();
 
-  const getHighlightById = (id: string) => {
+  const getHighlightById = id => {
     return highlights.find(highlight => highlight.id === id);
   };
 
   const scrollToComment = () => {
     const id = parseIdFromHash();
     const highlight = getHighlightById(id);
-    if (highlight) {
+    if (highlight && containerRef.current) {
       containerRef.current.scrollTop = refs[highlight.id].offsetTop - 10;
       setFocusedId(highlight.id);
       setTimeout(() => {
@@ -56,11 +51,11 @@ function CommentsList({ highlights, removeHighlight, updateHighlight }: Props) {
     refs[h.id] = React.createRef();
   });
 
-  const [cookies, setCookie,] = useCookies([WELCOME_COOKIE]);
+  const [cookies, setCookie] = useCookies([WELCOME_COOKIE]);
   const Welcome = !cookies[WELCOME_COOKIE] && (
     <div style={{ padding: '0.2rem 0.7rem' }}>
       <small>
-        <p>
+        <p style={{ marginTop: 0 }}>
           Leave questions and comments for the community by highlighting the
           text.
         </p>
@@ -68,17 +63,22 @@ function CommentsList({ highlights, removeHighlight, updateHighlight }: Props) {
           Want to comment on a figure? Hold ⌥ on Mac or Alt on Windows and drag
           over it.
         </p>
-        <div css={css`
-        width: 100%;
-        text-align: right;
-        color: inherit;
-        margin-top: -17px;
-        `}>
-          <button type="button" css={linkButton} onClick={() => setCookie(WELCOME_COOKIE, 1)}>
+        <div
+          css={css`
+            width: 100%;
+            text-align: right;
+            color: inherit;
+            margin-top: -17px;
+          `}
+        >
+          <button
+            type="button"
+            css={linkButton}
+            onClick={() => setCookie(WELCOME_COOKIE, 1)}
+          >
             Got it
           </button>
         </div>
-
       </small>
     </div>
   );
@@ -89,8 +89,9 @@ function CommentsList({ highlights, removeHighlight, updateHighlight }: Props) {
         css={css`
           position: relative;
           color: rgb(119, 119, 119);
-          overflow-y: scroll;
-          height: 100%;
+          overflow-y: auto;
+          flex-grow: 1;
+          padding: ${isVertical ? '4px 0' : '0 0 5px'};
         `}
         ref={containerRef}
       >
@@ -112,7 +113,7 @@ function CommentsList({ highlights, removeHighlight, updateHighlight }: Props) {
         css={css`
           position: absolute;
           right: 1px;
-          bottom: 10px;
+          bottom: 7px;
           @media (max-width: 576px) {
             bottom: 5px;
           }

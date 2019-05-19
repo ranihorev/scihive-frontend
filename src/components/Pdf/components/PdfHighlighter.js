@@ -1,29 +1,32 @@
 // @flow
-import React, { Component } from "react";
-import ReactDom from "react-dom";
-import Pointable from "react-pointable";
-import _ from "lodash/fp";
-import { PDFViewer, PDFLinkService } from "pdfjs-dist/web/pdf_viewer";
+/** @jsx jsx */
+import { css, jsx } from '@emotion/core';
 
-import "pdfjs-dist/web/pdf_viewer.css";
-import "../style/pdf_viewer.scss";
+import React, { Component } from 'react';
+import ReactDom from 'react-dom';
+import Pointable from 'react-pointable';
+import _ from 'lodash/fp';
+import { PDFViewer, PDFLinkService } from 'pdfjs-dist/web/pdf_viewer';
 
-import "../style/PdfHighlighter.css";
+import 'pdfjs-dist/web/pdf_viewer.css';
+import '../style/pdf_viewer.css';
 
-import getBoundingRect from "../lib/get-bounding-rect";
-import getClientRects from "../lib/get-client-rects";
-import getAreaAsPng from "../lib/get-area-as-png";
+import '../style/PdfHighlighter.css';
+
+import getBoundingRect from '../lib/get-bounding-rect';
+import getClientRects from '../lib/get-client-rects';
+import getAreaAsPng from '../lib/get-area-as-png';
 
 import {
   getPageFromRange,
   getPageFromElement,
   findOrCreateContainerLayer
-} from "../lib/pdfjs-dom";
+} from '../lib/pdfjs-dom';
 
-import TipContainer from "./TipContainer";
-import MouseSelection from "./MouseSelection";
+import TipContainer from './TipContainer';
+import MouseSelection from './MouseSelection';
 
-import { scaledToViewport, viewportToScaled } from "../lib/coordinates";
+import { scaledToViewport, viewportToScaled } from '../lib/coordinates';
 
 import type {
   T_Position,
@@ -34,12 +37,12 @@ import type {
   T_PDFJS_Viewer,
   T_PDFJS_Document,
   T_PDFJS_LinkService
-} from "../types";
-import {store} from "../../../store";
-import {connect, Provider} from "react-redux";
-import {APP_BAR_HEIGHT} from "../../TopBar/PrimaryAppBar";
-import {actions} from "../../../actions";
-import Fab from "@material-ui/core/Fab";
+} from '../types';
+import { store } from '../../../store';
+import { connect, Provider } from 'react-redux';
+import { APP_BAR_HEIGHT } from '../../TopBar/PrimaryAppBar';
+import { actions } from '../../../actions';
+import Fab from '@material-ui/core/Fab';
 
 type T_ViewportHighlight<T_HT> = { position: T_Position } & T_HT;
 
@@ -81,13 +84,35 @@ type Props<T_HT> = {
     transformSelection: () => void
   ) => ?React$Element<*>,
   enableAreaSelection: (event: MouseEvent) => boolean,
-  isVertical: boolean,
+  isVertical: boolean
 };
 
-const EMPTY_ID = "empty-id";
+const EMPTY_ID = 'empty-id';
 
+const zoomButtonCss = css`
+  color: black;
+  font-size: 1rem;
+  margin-bottom: 8px;
+`;
 
-class PdfHighlighter<T_HT: T_Highlight> extends Component<Props<T_HT>, State<T_HT>> {
+const ZoomButtom = ({direction, onClick}) => (
+  <div>
+    <Fab
+      color="default"
+      aria-label={direction === 'in' ? "zoom-in" : "zoom-out"}
+      onClick={onClick}
+      size="small"
+      css={zoomButtonCss}
+    >
+      <i className={`fas fa-search-${direction === 'in' ? 'plus' : 'minus'}`} />
+    </Fab>
+  </div>
+);
+
+class PdfHighlighter<T_HT: T_Highlight> extends Component<
+  Props<T_HT>,
+  State<T_HT>
+> {
   state = {
     ghostHighlight: null,
     isCollapsed: true,
@@ -127,7 +152,7 @@ class PdfHighlighter<T_HT: T_Highlight> extends Component<Props<T_HT>, State<T_H
       container: this.containerNode,
       enhanceTextSelection: true,
       removePageBorders: true,
-      linkService: this.linkService,
+      linkService: this.linkService
     });
 
     this.viewer.setDocument(pdfDocument);
@@ -138,30 +163,30 @@ class PdfHighlighter<T_HT: T_Highlight> extends Component<Props<T_HT>, State<T_H
     // debug
     window.PdfViewer = this;
 
-    document.addEventListener("selectionchange", this.onSelectionChange);
-    document.addEventListener("keydown", this.handleKeyDown);
+    document.addEventListener('selectionchange', this.onSelectionChange);
+    document.addEventListener('keydown', this.handleKeyDown);
 
     this.containerNode &&
-    this.containerNode.addEventListener("pagesinit", () => {
-      this.onDocumentReady(width);
-    });
+      this.containerNode.addEventListener('pagesinit', () => {
+        this.onDocumentReady(width);
+      });
 
     this.containerNode &&
-    this.containerNode.addEventListener(
-      "textlayerrendered",
-      this.onTextLayerRendered
-    );
+      this.containerNode.addEventListener(
+        'textlayerrendered',
+        this.onTextLayerRendered
+      );
   }
 
   componentWillUnmount() {
-    document.removeEventListener("selectionchange", this.onSelectionChange);
-    document.removeEventListener("keydown", this.handleKeyDown);
+    document.removeEventListener('selectionchange', this.onSelectionChange);
+    document.removeEventListener('keydown', this.handleKeyDown);
 
     this.containerNode &&
-    this.containerNode.removeEventListener(
-      "textlayerrendered",
-      this.onTextLayerRendered
-    );
+      this.containerNode.removeEventListener(
+        'textlayerrendered',
+        this.onTextLayerRendered
+      );
   }
 
   findOrCreateHighlightLayer(page: number) {
@@ -173,7 +198,7 @@ class PdfHighlighter<T_HT: T_Highlight> extends Component<Props<T_HT>, State<T_H
 
     return findOrCreateContainerLayer(
       textLayer.textLayerDiv,
-      "PdfHighlighter__highlight-layer"
+      'PdfHighlighter__highlight-layer'
     );
   }
 
@@ -211,11 +236,11 @@ class PdfHighlighter<T_HT: T_Highlight> extends Component<Props<T_HT>, State<T_H
   }
 
   scaledPositionToViewport({
-                             pageNumber,
-                             boundingRect,
-                             rects,
-                             usePdfCoordinates
-                           }: T_ScaledPosition): T_Position {
+    pageNumber,
+    boundingRect,
+    rects,
+    usePdfCoordinates
+  }: T_ScaledPosition): T_Position {
     const viewport = this.viewer.getPageView(pageNumber - 1).viewport;
 
     return {
@@ -228,10 +253,10 @@ class PdfHighlighter<T_HT: T_Highlight> extends Component<Props<T_HT>, State<T_H
   }
 
   viewportPositionToScaled({
-                             pageNumber,
-                             boundingRect,
-                             rects
-                           }: T_Position): T_ScaledPosition {
+    pageNumber,
+    boundingRect,
+    rects
+  }: T_Position): T_ScaledPosition {
     const viewport = this.viewer.getPageView(pageNumber - 1).viewport;
 
     return {
@@ -311,7 +336,7 @@ class PdfHighlighter<T_HT: T_Highlight> extends Component<Props<T_HT>, State<T_H
   hideTipAndSelection = () => {
     const tipNode = findOrCreateContainerLayer(
       this.viewer.viewer,
-      "PdfHighlighter__tip-layer"
+      'PdfHighlighter__tip-layer'
     );
 
     ReactDom.unmountComponentAtNode(tipNode);
@@ -332,7 +357,7 @@ class PdfHighlighter<T_HT: T_Highlight> extends Component<Props<T_HT>, State<T_H
 
     const tipNode = findOrCreateContainerLayer(
       this.viewer.viewer,
-      "PdfHighlighter__tip-layer"
+      'PdfHighlighter__tip-layer'
     );
 
     ReactDom.render(
@@ -360,7 +385,7 @@ class PdfHighlighter<T_HT: T_Highlight> extends Component<Props<T_HT>, State<T_H
   scrollTo = (highlight: T_Highlight) => {
     const { pageNumber, boundingRect, usePdfCoordinates } = highlight.position;
 
-    this.viewer.container.removeEventListener("scroll", this.onScroll);
+    this.viewer.container.removeEventListener('scroll', this.onScroll);
 
     const pageViewport = this.viewer.getPageView(pageNumber - 1).viewport;
 
@@ -370,11 +395,11 @@ class PdfHighlighter<T_HT: T_Highlight> extends Component<Props<T_HT>, State<T_H
       pageNumber,
       destArray: [
         null,
-        { name: "XYZ" },
+        { name: 'XYZ' },
         ...pageViewport.convertToPdfPoint(
           0,
           scaledToViewport(boundingRect, pageViewport, usePdfCoordinates).top -
-          scrollMargin
+            scrollMargin
         ),
         0
       ]
@@ -389,17 +414,21 @@ class PdfHighlighter<T_HT: T_Highlight> extends Component<Props<T_HT>, State<T_H
 
     // wait for scrolling to finish
     setTimeout(() => {
-      this.viewer.container.addEventListener("scroll", this.onScroll);
+      this.viewer.container.addEventListener('scroll', this.onScroll);
     }, 100);
   };
 
-  onViewerScroll = (e) => {
-    const maxYpos = Math.max(0, this.viewer.viewer.clientHeight - this.viewer.container.clientHeight)
-    const progress = Math.min(1, this.viewer.container.scrollTop / maxYpos) * 100;
+  onViewerScroll = e => {
+    const maxYpos = Math.max(
+      0,
+      this.viewer.viewer.clientHeight - this.viewer.container.clientHeight
+    );
+    const progress =
+      Math.min(1, this.viewer.container.scrollTop / maxYpos) * 100;
     this.props.updateReadingProgress(progress);
-  }
+  };
 
-  onDocumentReady = (width) => {
+  onDocumentReady = width => {
     const { scrollRef } = this.props;
     const viewport = this.viewer.getPageView(0).viewport;
     this.viewer.currentScaleValue = width / viewport.width - 0.05;
@@ -439,7 +468,7 @@ class PdfHighlighter<T_HT: T_Highlight> extends Component<Props<T_HT>, State<T_H
       () => this.renderHighlights()
     );
 
-    this.viewer.container.removeEventListener("scroll", this.onScroll);
+    this.viewer.container.removeEventListener('scroll', this.onScroll);
   };
 
   onMouseDown = (event: MouseEvent) => {
@@ -447,7 +476,7 @@ class PdfHighlighter<T_HT: T_Highlight> extends Component<Props<T_HT>, State<T_H
       return;
     }
 
-    if (event.target.closest(".PdfHighlighter__tip-container")) {
+    if (event.target.closest('.PdfHighlighter__tip-container')) {
       return;
     }
 
@@ -455,7 +484,7 @@ class PdfHighlighter<T_HT: T_Highlight> extends Component<Props<T_HT>, State<T_H
   };
 
   handleKeyDown = (event: KeyboardEvent) => {
-    if (event.code === "Escape") {
+    if (event.code === 'Escape') {
       this.hideTipAndSelection();
     }
   };
@@ -509,13 +538,13 @@ class PdfHighlighter<T_HT: T_Highlight> extends Component<Props<T_HT>, State<T_H
 
   toggleTextSelection(flag: boolean) {
     this.viewer.viewer.classList.toggle(
-      "PdfHighlighter--disable-selection",
+      'PdfHighlighter--disable-selection',
       flag
     );
   }
 
   onSelection = (startTarget, boundingRect, resetSelection) => {
-    const {onSelectionFinished} = this.props;
+    const { onSelectionFinished } = this.props;
     const page = getPageFromElement(startTarget);
 
     if (!page) {
@@ -534,9 +563,7 @@ class PdfHighlighter<T_HT: T_Highlight> extends Component<Props<T_HT>, State<T_H
       pageNumber: page.number
     };
 
-    const scaledPosition = this.viewportPositionToScaled(
-      viewportPosition
-    );
+    const scaledPosition = this.viewportPositionToScaled(viewportPosition);
 
     const image = this.screenshot(pageBoundingRect, page.number);
 
@@ -561,39 +588,40 @@ class PdfHighlighter<T_HT: T_Highlight> extends Component<Props<T_HT>, State<T_H
           )
       )
     );
-  }
-  zoom = (sign) => {
-    this.viewer.currentScaleValue = parseFloat(this.viewer.currentScaleValue) + sign * 0.05;
-
-  }
+  };
+  zoom = sign => {
+    this.viewer.currentScaleValue =
+      parseFloat(this.viewer.currentScaleValue) + sign * 0.05;
+  };
 
   render() {
     const { enableAreaSelection, isVertical } = this.props;
-    const containerStyle = isVertical ? {height: '100%', width: '100vw'} : {height: `calc(100vh - ${APP_BAR_HEIGHT}px)`}
+    const containerStyle = isVertical
+      ? { height: '100%', width: '100vw' }
+      : { height: `calc(100vh - ${APP_BAR_HEIGHT}px)` };
     return (
       <React.Fragment>
-        <div className="pdf-buttons">
-          <div>
-            <Fab color="default" aria-label="zoom-in" onClick={() => this.zoom(1)} size="small">
-              <i className="fas fa-search-plus"></i>
-            </Fab>
-          </div>
-          <div>
-            <Fab color="default" aria-label="zoom-out" onClick={() => this.zoom(-1)} size="small">
-              <i className="fas fa-search-minus"></i>
-            </Fab>
-          </div>
+        <div
+          css={css`
+            position: absolute;
+            bottom: 10px;
+            right: 8px;
+            z-index: 1000;
+          `}
+        >
+          <ZoomButtom direction="in" onClick={() => this.zoom(1)} />
+          <ZoomButtom direction="out" onClick={() => this.zoom(-1)} />
         </div>
         <Pointable onPointerDown={this.onMouseDown}>
           <div
             ref={node => (this.containerNode = node)}
             className="PdfHighlighter"
-            onContextMenu={(e) => e.preventDefault()}
+            onContextMenu={e => e.preventDefault()}
             onScroll={this.onViewerScroll}
             style={containerStyle}
           >
             <div className="pdfViewer" />
-            {typeof enableAreaSelection === "function" ? (
+            {typeof enableAreaSelection === 'function' ? (
               <MouseSelection
                 onDragStart={() => this.toggleTextSelection(true)}
                 onDragEnd={() => this.toggleTextSelection(false)}
@@ -603,7 +631,7 @@ class PdfHighlighter<T_HT: T_Highlight> extends Component<Props<T_HT>, State<T_H
                 shouldStart={event =>
                   enableAreaSelection(event) &&
                   event.target instanceof HTMLElement &&
-                  Boolean(event.target.closest(".page"))
+                  Boolean(event.target.closest('.page'))
                 }
                 onSelection={this.onSelection}
               />
@@ -617,11 +645,14 @@ class PdfHighlighter<T_HT: T_Highlight> extends Component<Props<T_HT>, State<T_H
 
 const mapDispatchToProps = (dispatch, ownProps) => {
   return {
-    updateReadingProgress: (pos) => {
+    updateReadingProgress: pos => {
       dispatch(actions.updateReadingProgress(pos));
-    },
-  }
-}
-const withRedux = connect(null, mapDispatchToProps);
+    }
+  };
+};
+const withRedux = connect(
+  null,
+  mapDispatchToProps
+);
 
 export default withRedux(PdfHighlighter);

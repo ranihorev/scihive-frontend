@@ -6,6 +6,11 @@ export const row = css`
   flex-direction: row;
 `;
 
+export const col = css`
+  display: flex;
+  flex-direction: column;
+`;
+
 export const simpleLink = css`
   text-transform: none;
   text-decoration: none;

@@ -74,7 +74,7 @@ export const extractSections = (document, onSuccess) => {
 };
 
 
-const PaperSectionsRender = ({ backupSections, sections }) => {
+const PaperSectionsRender = ({ sections }) => {
 
   if (sections === undefined) return null;
 

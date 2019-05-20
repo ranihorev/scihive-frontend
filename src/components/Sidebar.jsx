@@ -35,7 +35,6 @@ export const Sidebar = ({
   isCollapsed,
   isVertical,
   highlights,
-  sections,
   removeHighlight,
   updateHighlight,
   onCollapseClick
@@ -55,9 +54,7 @@ export const Sidebar = ({
       );
       break;
     case 'Sections':
-      content = (
-        <PaperSections backupSections={sections} />
-      );
+      content = <PaperSections />
       break;
     default:
       console.warn('Section not found');

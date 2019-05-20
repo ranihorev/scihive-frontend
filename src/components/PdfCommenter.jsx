@@ -73,7 +73,6 @@ const PdfCommenter = ({
   clearPaper,
 }) => {
   const [highlights, setHighlights] = useState([]);
-  const [sections, setSections] = useState([]);
   const [url, setUrl] = useState(FETCHING);
   const [title, setTitle] = useState('SciHive');
   const { height: pageHeight, width: pageWidth } = useWindowDimensions();
@@ -108,16 +107,6 @@ const PdfCommenter = ({
       })
       .then(res => {
         setHighlights(res.data.comments);
-      })
-      .catch(err => {
-        console.log(err.response);
-      });
-
-    // Fetch sections
-    axios
-      .get(`/paper/${params.PaperId}/sections`)
-      .then(res => {
-        setSections(res.data);
       })
       .catch(err => {
         console.log(err.response);
@@ -222,7 +211,6 @@ const PdfCommenter = ({
       isCollapsed={isSidebarCollapsed}
       isVertical={isVertical}
       highlights={highlights}
-      sections={sections}
       removeHighlight={removeHighlight}
       updateHighlight={updateHighlight}
       onCollapseClick={onCollapseClick}

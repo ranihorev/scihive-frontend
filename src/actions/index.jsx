@@ -5,48 +5,64 @@ export const READING_PROGRESS = 'read_progress';
 export const SET_BOOKMARK = 'toggle_bookmark';
 export const SELECT_GROUP = 'select_group';
 export const SET_GROUPS = 'set_groups';
+export const SET_DOCUMENT = 'set_document';
+export const SET_SECTIONS = 'set_sections';
+export const CLEAR_PAPER = 'clear_paper';
 
 export const actions = {
-  toggleLoginModal: (message) => {
+  toggleLoginModal: message => {
     return {
       type: TOGGLE_LOGIN_MODAL,
       payload: message
-    }
+    };
   },
-  toggleGroupsModal: (state) => {
+  toggleGroupsModal: state => {
     return {
       type: TOGGLE_GROUPS_MODAL,
       payload: state
-    }
+    };
   },
-  setUser: (payload) => {
+  setUser: payload => {
     return {
       type: SET_USER,
       payload
-    }
+    };
   },
-  updateReadingProgress: (payload) => {
+  updateReadingProgress: payload => {
     return {
       type: READING_PROGRESS,
       payload
-    }
+    };
   },
-  setBookmark: (payload) => {
+  setBookmark: payload => {
     return {
       type: SET_BOOKMARK,
       payload
-    }
+    };
   },
-  selectGroup: (payload) => {
+  setDocument: document => {
+    return {
+      type: SET_DOCUMENT,
+      payload: document
+    };
+  },
+  selectGroup: payload => {
     return {
       type: SELECT_GROUP,
-      payload,
-    }
+      payload
+    };
   },
-  setGroups: (payload) => {
+  setGroups: payload => ({
+    type: SET_GROUPS,
+    payload
+  }),
+  setSections: sections => ({
+    type: SET_SECTIONS,
+    payload: sections
+  }),
+  clearPaper: () => {
     return {
-      type: SET_GROUPS,
-      payload,
-    }
+      type: CLEAR_PAPER
+    };
   }
 };

@@ -10,8 +10,12 @@ import {
   Popup,
   AreaHighlight
 } from './Pdf';
+import { connect } from 'react-redux';
 
-const parseIdFromHash = () => window.location.hash.slice('#highlight-'.length);
+const parseIdFromHash = type => {
+  if (!window.location.hash.includes(`${type}-`)) return undefined;
+  return window.location.hash.slice(`#${type}-`.length);
+};
 
 const setCommentHash = id => {
   window.location.hash = `comment-${id}`;
@@ -42,10 +46,30 @@ class PdfViewer extends Component {
     return highlights.find(highlight => highlight.id === id);
   }
 
+  scrollToSectionFromHash = sectionId => {
+    const { sections } = this.props;
+    if (sections) {
+      const selectedSection = sections[sectionId];
+      this.scrollViewerTo(undefined, {
+        page: selectedSection.page + 1,
+        pos:
+          selectedSection.transform[selectedSection.transform.length - 1] +
+          selectedSection.height +
+          5
+      });
+    }
+  };
+
   scrollToHighlightFromHash = () => {
-    const highlight = this.getHighlightById(parseIdFromHash());
-    if (highlight) {
-      this.scrollViewerTo(highlight);
+    const highlightId = parseIdFromHash('highlight');
+    const sectionId = parseIdFromHash('section');
+    if (highlightId) {
+      const highlight = this.getHighlightById(highlightId);
+      if (highlight) {
+        this.scrollViewerTo(highlight);
+      }
+    } else if (sectionId) {
+      this.scrollToSectionFromHash(sectionId);
     }
   };
 
@@ -169,4 +193,12 @@ class PdfViewer extends Component {
   }
 }
 
-export default withRouter(PdfViewer);
+const mapStateToProps = state => {
+  return {
+    sections: state.paper.sections
+  };
+};
+
+const withRedux = connect(mapStateToProps);
+
+export default withRouter(withRedux(PdfViewer));

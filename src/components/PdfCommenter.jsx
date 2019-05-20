@@ -11,15 +11,14 @@ import * as queryString from 'query-string';
 import { toast } from 'react-toastify';
 import { isEmpty } from 'lodash';
 import { Helmet } from 'react-helmet';
-import IconButton from '@material-ui/core/IconButton';
 
 import { actions } from '../actions';
 import ReadingProgress from './ReadingProgress';
 import PdfViewer from './PdfViewer';
-import CommentsList from './CommentsList';
 import { APP_BAR_HEIGHT } from './TopBar/PrimaryAppBar';
 import { presets } from '../utils';
 import Resizer from './Resizer';
+import { CollapseButton, Sidebar } from './Sidebar';
 
 const styles = () => ({
   rootVert: {
@@ -43,14 +42,14 @@ const MOBILE_WIDTH = 800;
 const useWindowDimensions = () => {
   const [windowDimensions, setWindowDimensions] = useState({
     width: window.innerWidth,
-    height: window.innerHeight,
+    height: window.innerHeight
   });
 
   useEffect(() => {
     function handleResize() {
       setWindowDimensions({
         width: window.innerWidth,
-        height: window.innerHeight,
+        height: window.innerHeight
       });
     }
     window.addEventListener('resize', handleResize);
@@ -63,18 +62,6 @@ const useWindowDimensions = () => {
   return windowDimensions;
 };
 
-const CollapseButton = ({ direction, onClick }) => (
-  <IconButton onClick={() => onClick()}>
-    <i
-      css={css`
-        font-size: 16px;
-        width: 16px;
-      `}
-      className={`fas fa-angle-${direction}`}
-    />
-  </IconButton>
-);
-
 const PdfCommenter = ({
   setBookmark,
   classes,
@@ -82,15 +69,14 @@ const PdfCommenter = ({
   match: { params },
   selectGroup,
   setGroups,
-  isLoggedIn
+  isLoggedIn,
+  clearPaper,
 }) => {
   const [highlights, setHighlights] = useState([]);
+  const [sections, setSections] = useState([]);
   const [url, setUrl] = useState(FETCHING);
   const [title, setTitle] = useState('SciHive');
-  const {
-    height: pageHeight,
-    width: pageWidth,
-  } = useWindowDimensions();
+  const { height: pageHeight, width: pageWidth } = useWindowDimensions();
   const contentHeight = pageHeight - APP_BAR_HEIGHT;
   const defaultPdfPrct = 0.75;
   const [pdfSectionPrct, setPdfSectionPrct] = useState({
@@ -126,6 +112,18 @@ const PdfCommenter = ({
       .catch(err => {
         console.log(err.response);
       });
+
+    // Fetch sections
+    axios
+      .get(`/paper/${params.PaperId}/sections`)
+      .then(res => {
+        setSections(res.data);
+      })
+      .catch(err => {
+        console.log(err.response);
+      });
+
+    // Fetch groups
     if (isLoggedIn) {
       if (selectedGroupId) {
         axios
@@ -217,50 +215,19 @@ const PdfCommenter = ({
     });
   };
 
-  const Comments = (
-    <CommentsList
+  const SidebarElement = (
+    <Sidebar
+      height={sidebarHeight}
+      width={sidebarWidth}
+      isCollapsed={isSidebarCollapsed}
+      isVertical={isVertical}
       highlights={highlights}
+      sections={sections}
       removeHighlight={removeHighlight}
       updateHighlight={updateHighlight}
-      isVertical={isVertical}
+      onCollapseClick={onCollapseClick}
     />
   );
-
-  let Sidebar = null;
-  if (!isSidebarCollapsed) {
-    if (isVertical) {
-      Sidebar = (
-        <div
-          style={{ height: sidebarHeight }}
-          css={css`
-            position: relative;
-            display: flex;
-          `}
-        >
-          {Comments}
-        </div>
-      );
-    } else {
-      Sidebar = (
-        <div
-          style={{ width: sidebarWidth }}
-          css={css`
-            ${presets.col};
-            flex-grow: 1;
-            position: relative;
-          `}
-        >
-          <div>
-            <CollapseButton
-              direction={isSidebarCollapsed ? 'right' : 'left'}
-              onClick={onCollapseClick}
-            />
-          </div>
-          {Comments}
-        </div>
-      );
-    }
-  }
 
   return (
     <React.Fragment>
@@ -281,9 +248,17 @@ const PdfCommenter = ({
               key={`${pageWidth}-${pageHeight}`}
               initPos={contentHeight * pdfSectionPrct.height}
               onDrag={({ y }) => {
-                setPdfSectionPrct({ ...pdfSectionPrct, height: y / contentHeight });
+                setPdfSectionPrct({
+                  ...pdfSectionPrct,
+                  height: y / contentHeight
+                });
               }}
-              bounds={{ left: 0, right: 0, top: 50, bottom: contentHeight - 50 }}
+              bounds={{
+                left: 0,
+                right: 0,
+                top: 50,
+                bottom: contentHeight - 50
+              }}
               step={10}
               isVerticalLine={false}
             />
@@ -303,7 +278,7 @@ const PdfCommenter = ({
               >
                 {viewerRender}
               </div>
-              {Sidebar}
+              {SidebarElement}
             </div>
           </React.Fragment>
         ) : (
@@ -313,7 +288,10 @@ const PdfCommenter = ({
                 key={`${pageWidth}-${pageHeight}`}
                 initPos={sidebarWidth}
                 onDrag={({ x }) =>
-                  setPdfSectionPrct({ ...pdfSectionPrct, width: (pageWidth - x) / pageWidth })
+                  setPdfSectionPrct({
+                    ...pdfSectionPrct,
+                    width: (pageWidth - x) / pageWidth
+                  })
                 }
                 bounds={{ left: 200, right: 600, top: 0, bottom: 0 }}
                 isVerticalLine={true}
@@ -339,8 +317,10 @@ const PdfCommenter = ({
                 height: 100%;
               `}
             >
-              {Sidebar}
-              <div style={{ width: pdfSectionPrct.width * pageWidth }}>{viewerRender}</div>
+              {SidebarElement}
+              <div style={{ width: pdfSectionPrct.width * pageWidth }}>
+                {viewerRender}
+              </div>
             </div>
           </React.Fragment>
         )}
@@ -365,7 +345,10 @@ const mapDispatchToProps = dispatch => {
     },
     setGroups: groups => {
       dispatch(actions.setGroups(groups));
-    }
+    },
+    clearPaper: () => {
+      dispatch(actions.clearPaper());
+    },
   };
 };
 const withRedux = connect(

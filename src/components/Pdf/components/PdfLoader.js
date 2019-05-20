@@ -5,6 +5,9 @@ import React, { Component } from "react";
 import type { T_PDFJS_Document } from "../types";
 
 import pdfjs from 'pdfjs-dist';
+import {connect} from "react-redux";
+import {actions} from "../../../actions";
+import {extractSections} from "../../PaperSections";
 pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${ pdfjs.version }/pdf.worker.js`
 
 const STATUS = {
@@ -17,7 +20,9 @@ type Props = {
   url: string,
   beforeLoad: React$Element<*>,
   failed: React$Element<*>,
-  children: (pdfDocument: T_PDFJS_Document) => React$Element<*>
+  children: (pdfDocument: T_PDFJS_Document) => React$Element<*>,
+  setDocument: (pdfDocument: T_PDFJS_Document) => void,
+  setSections: (sections: Array<*>) => void,
 };
 
 type State = {
@@ -33,6 +38,8 @@ class PdfLoader extends Component<Props, State> {
   componentDidMount() {
     const { url } = this.props;
     pdfjs.getDocument(url).then(pdfDocument => {
+      this.props.setDocument(pdfDocument);
+      extractSections(pdfDocument, this.props.setSections);
       this.setState({
         pdfDocument: pdfDocument,
         status: STATUS.SUCCESS,
@@ -61,4 +68,19 @@ class PdfLoader extends Component<Props, State> {
   }
 }
 
-export default PdfLoader;
+const mapDispatchToProps = dispatch => ({
+  setDocument: document => {
+    dispatch(actions.setDocument(document))
+  },
+  setSections: sections => {
+    dispatch(actions.setSections(sections))
+  },
+});
+
+
+const withRedux = connect(
+  undefined,
+  mapDispatchToProps
+);
+
+export default withRedux(PdfLoader);

@@ -29,7 +29,7 @@ const baseHandleCss = css`
 const verticalLineHandleCss = css`
   ${baseHandleCss};
   height: 100%;
-  width: 3px;
+  width: 1px;
   padding: 0 8px 0 2px;
   cursor: ew-resize;
   &:hover {

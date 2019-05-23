@@ -1,3 +1,5 @@
+/** @jsx jsx */
+import { css, jsx } from '@emotion/core';
 import React, { Component } from 'react';
 import AddComment from '@material-ui/icons/AddComment';
 import axios from 'axios';
@@ -11,6 +13,8 @@ import {
   AreaHighlight
 } from './Pdf';
 import { connect } from 'react-redux';
+import Popper from '@material-ui/core/Popper';
+import Paper from '@material-ui/core/Paper';
 
 const parseIdFromHash = type => {
   if (!window.location.hash.includes(`${type}-`)) return undefined;
@@ -29,6 +33,13 @@ const HighlightPopup = ({ comment }) =>
   comment.text ? <div className="Highlight__popup">{comment.text}</div> : null;
 
 class PdfViewer extends Component {
+  state = {
+    referencePopoverAnchor: undefined,
+    referenceCite: ''
+  };
+
+  referenceTimeoutId = null;
+
   componentDidMount() {
     window.addEventListener(
       'hashchange',
@@ -161,8 +172,17 @@ class PdfViewer extends Component {
     this.scrollToHighlightFromHash();
   };
 
+  hideReferencePopover = () => {
+    if (this.state.referencePopoverAnchor) {
+      this.referenceTimeoutId = setTimeout(() => {
+        this.setState({ referencePopoverAnchor: undefined, referenceCite: '' });
+      }, 300);
+    }
+  };
+
   render() {
-    const { highlights, url, isVertical, beforeLoad } = this.props;
+    const { highlights, url, isVertical, beforeLoad, references } = this.props;
+    const { referencePopoverAnchor, referenceCite } = this.state;
     const errorStyle = {
       position: 'absolute',
       top: '50%',
@@ -170,32 +190,78 @@ class PdfViewer extends Component {
       transform: 'translate(-50%, -50%)'
     };
     return (
-      <PdfLoader
-        key={url}
-        url={url}
-        beforeLoad={beforeLoad}
-        failed={<div style={errorStyle}>Failed to download paper</div>}
-      >
-        {pdfDocument => (
-          <PdfHighlighter
-            pdfDocument={pdfDocument}
-            enableAreaSelection={event => event.altKey}
-            onScrollChange={resetHash}
-            scrollRef={this.scrollToRef}
-            onSelectionFinished={this.onSelectionFinished}
-            highlightTransform={this.highlightTransform}
-            highlights={highlights}
-            isVertical={isVertical}
-          />
-        )}
-      </PdfLoader>
+      <React.Fragment>
+        <PdfLoader
+          key={url}
+          url={url}
+          beforeLoad={beforeLoad}
+          failed={<div style={errorStyle}>Failed to download paper</div>}
+        >
+          {pdfDocument => (
+            <PdfHighlighter
+              pdfDocument={pdfDocument}
+              enableAreaSelection={event => event.altKey}
+              onScrollChange={resetHash}
+              scrollRef={this.scrollToRef}
+              onSelectionFinished={this.onSelectionFinished}
+              highlightTransform={this.highlightTransform}
+              highlights={highlights}
+              isVertical={isVertical}
+              onReferenceEnter={e => {
+                const cite = e.target
+                  .getAttribute('href')
+                  .replace('#cite.', '');
+                if (references.hasOwnProperty(cite)) {
+                  this.setState({
+                    referencePopoverAnchor: e.target,
+                    referenceCite: cite
+                  });
+                }
+              }}
+              onReferenceLeave={this.hideReferencePopover}
+            />
+          )}
+        </PdfLoader>
+        <Popper
+          open={Boolean(referencePopoverAnchor)}
+          anchorEl={referencePopoverAnchor}
+          placement="top"
+          style={{zIndex: 10}}
+        >
+          <Paper
+            css={css`
+              padding: 12px;
+              max-width: 300px;
+              max-height: 200px;
+              font-size: 0.85rem;
+              line-height: 1.4;
+              color: #3e3e3e;
+              p:first-of-type {
+                margin-top: 0;
+              }
+              p:last-of-type {
+                margin-bottom: 0;
+              }
+            `}
+          >
+            <div
+              dangerouslySetInnerHTML={{ __html: references[referenceCite] }}
+              onMouseEnter={() => {
+                clearTimeout(this.referenceTimeoutId)
+              }}
+              onMouseLeave={this.hideReferencePopover}
+            />
+          </Paper>
+        </Popper>
+      </React.Fragment>
     );
   }
 }
 
 const mapStateToProps = state => {
   return {
-    sections: state.paper.sections
+    sections: state.paper.sections,
+    references: state.paper.references
   };
 };
 

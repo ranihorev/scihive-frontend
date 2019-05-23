@@ -1,10 +1,11 @@
-import {CLEAR_PAPER, READING_PROGRESS, SET_BOOKMARK, SET_DOCUMENT, SET_SECTIONS} from "../actions";
+import {CLEAR_PAPER, READING_PROGRESS, SET_BOOKMARK, SET_DOCUMENT, SET_REFERNCES, SET_SECTIONS} from "../actions";
 
 const initialState = {
   readingProgress: 0,
   isBookmarked: false,
   document: undefined,
   sections: undefined,
+  references: {},
 };
 
 export default function dataReducer (state = initialState, action) {
@@ -19,6 +20,8 @@ export default function dataReducer (state = initialState, action) {
       return {...state, document: action.payload};
     case SET_SECTIONS:
       return {...state, sections: action.payload};
+    case SET_REFERNCES:
+      return {...state, references: action.payload};
     default:
       return state
   }

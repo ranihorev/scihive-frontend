@@ -70,7 +70,7 @@ const PdfCommenter = ({
   selectGroup,
   setGroups,
   isLoggedIn,
-  clearPaper,
+  setReferences,
 }) => {
   const [highlights, setHighlights] = useState([]);
   const [url, setUrl] = useState(FETCHING);
@@ -98,8 +98,17 @@ const PdfCommenter = ({
         setUrl(FAILED);
       });
 
-    const selectedGroupId = queryString.parse(location.search).group;
+    // Fetch sections
+    axios
+      .get(`/paper/${params.PaperId}/references`)
+      .then(res => {
+        setReferences(res.data);
+      })
+      .catch(err => {
+        console.log(err.response);
+      });
 
+    const selectedGroupId = queryString.parse(location.search).group;
     // Fetch comments
     axios
       .get(`/paper/${params.PaperId}/comments`, {
@@ -336,6 +345,9 @@ const mapDispatchToProps = dispatch => {
     },
     clearPaper: () => {
       dispatch(actions.clearPaper());
+    },
+    setReferences: references => {
+      dispatch(actions.setReferences(references));
     },
   };
 };

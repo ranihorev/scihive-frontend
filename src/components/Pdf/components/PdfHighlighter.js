@@ -2,7 +2,7 @@
 /** @jsx jsx */
 import { css, jsx } from '@emotion/core';
 
-import React, { Component } from 'react';
+import React, {Component} from 'react';
 import ReactDom from 'react-dom';
 import Pointable from 'react-pointable';
 import _ from 'lodash/fp';
@@ -84,7 +84,9 @@ type Props<T_HT> = {
     transformSelection: () => void
   ) => ?React$Element<*>,
   enableAreaSelection: (event: MouseEvent) => boolean,
-  isVertical: boolean
+  isVertical: boolean,
+  onReferenceEnter: (event: MouseEvent) => void,
+  onReferenceLeave: () => void,
 };
 
 const EMPTY_ID = 'empty-id';
@@ -95,11 +97,11 @@ const zoomButtonCss = css`
   margin-bottom: 8px;
 `;
 
-const ZoomButtom = ({direction, onClick}) => (
+const ZoomButtom = ({ direction, onClick }) => (
   <div>
     <Fab
       color="default"
-      aria-label={direction === 'in' ? "zoom-in" : "zoom-out"}
+      aria-label={direction === 'in' ? 'zoom-in' : 'zoom-out'}
       onClick={onClick}
       size="small"
       css={zoomButtonCss}
@@ -117,7 +119,7 @@ class PdfHighlighter<T_HT: T_Highlight> extends Component<
     ghostHighlight: null,
     isCollapsed: true,
     range: null,
-    scrolledToHighlightId: EMPTY_ID
+    scrolledToHighlightId: EMPTY_ID,
   };
 
   state: State<T_HT>;
@@ -384,7 +386,10 @@ class PdfHighlighter<T_HT: T_Highlight> extends Component<
 
   scrollTo = (highlight: T_Highlight, otherLocation = undefined) => {
     if (otherLocation) {
-      this.viewer.scrollPageIntoView({pageNumber: otherLocation.page, destArray: [null, { name: 'XYZ' }, 0, otherLocation.pos]});
+      this.viewer.scrollPageIntoView({
+        pageNumber: otherLocation.page,
+        destArray: [null, { name: 'XYZ' }, 0, otherLocation.pos]
+      });
       return;
     }
 
@@ -599,7 +604,7 @@ class PdfHighlighter<T_HT: T_Highlight> extends Component<
   };
 
   render() {
-    const { enableAreaSelection, isVertical } = this.props;
+    const { enableAreaSelection, isVertical, onReferenceEnter, onReferenceLeave } = this.props;
     const containerStyle = isVertical
       ? { height: '100%', width: '100vw' }
       : { height: `calc(100vh - ${APP_BAR_HEIGHT}px)` };
@@ -623,6 +628,13 @@ class PdfHighlighter<T_HT: T_Highlight> extends Component<
             onContextMenu={e => e.preventDefault()}
             onScroll={this.onViewerScroll}
             style={containerStyle}
+            onMouseOver={e => {
+              if (e.target.tagName === 'A' && e.target.getAttribute('href').includes('#cite')) {
+                onReferenceEnter(e);
+              } else {
+                onReferenceLeave();
+              }
+            }}
           >
             <div className="pdfViewer" />
             {typeof enableAreaSelection === 'function' ? (
@@ -647,7 +659,7 @@ class PdfHighlighter<T_HT: T_Highlight> extends Component<
   }
 }
 
-const mapDispatchToProps = (dispatch, ownProps) => {
+const mapDispatchToProps = dispatch => {
   return {
     updateReadingProgress: pos => {
       dispatch(actions.updateReadingProgress(pos));

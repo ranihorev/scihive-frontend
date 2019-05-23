@@ -7,6 +7,7 @@ export const SELECT_GROUP = 'select_group';
 export const SET_GROUPS = 'set_groups';
 export const SET_DOCUMENT = 'set_document';
 export const SET_SECTIONS = 'set_sections';
+export const SET_REFERNCES = 'set_references';
 export const CLEAR_PAPER = 'clear_paper';
 
 export const actions = {
@@ -59,6 +60,10 @@ export const actions = {
   setSections: sections => ({
     type: SET_SECTIONS,
     payload: sections
+  }),
+  setReferences: references => ({
+    type: SET_REFERNCES,
+    payload: references
   }),
   clearPaper: () => {
     return {

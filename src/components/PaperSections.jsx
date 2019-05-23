@@ -64,18 +64,17 @@ export const extractSections = (document, onSuccess) => {
       const sections = optionalSections.filter(
         // big font or median font that is not too common
         section =>
-          section.height > heightThreshold ||
-          (section.height >= heightMedian &&
-            section.fontName !== mostPopularFont)
+          section.str.match(/\D{3,}/) && // At least 3 non-digits in a row
+          (section.height > heightThreshold ||
+            (section.height >= heightMedian &&
+              section.fontName !== mostPopularFont))
       );
       onSuccess(sections);
     });
   });
 };
 
-
 const PaperSectionsRender = ({ sections }) => {
-
   if (sections === undefined) return null;
 
   return (
@@ -111,7 +110,7 @@ const PaperSectionsRender = ({ sections }) => {
 
 const mapStateToProps = state => {
   return {
-    sections: state.paper.sections,
+    sections: state.paper.sections
   };
 };
 

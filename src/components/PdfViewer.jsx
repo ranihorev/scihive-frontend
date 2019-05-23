@@ -49,6 +49,7 @@ class PdfViewer extends Component {
   }
 
   componentWillUnmount(): void {
+    if (this.referenceTimeoutId) clearTimeout(this.referenceTimeoutId);
     window.removeEventListener('hashchange', this.scrollToHighlightFromHash);
   }
 

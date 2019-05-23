@@ -213,6 +213,9 @@ class PdfViewer extends Component {
                   .getAttribute('href')
                   .replace('#cite.', '');
                 if (references.hasOwnProperty(cite)) {
+                  e.target.onclick = function(e) {
+                    e.preventDefault();
+                  };
                   this.setState({
                     referencePopoverAnchor: e.target,
                     referenceCite: cite

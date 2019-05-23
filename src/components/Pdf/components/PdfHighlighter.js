@@ -628,6 +628,11 @@ class PdfHighlighter<T_HT: T_Highlight> extends Component<
             onContextMenu={e => e.preventDefault()}
             onScroll={this.onViewerScroll}
             style={containerStyle}
+            onClick={e => {
+              if (e.target.tagName === 'A' && e.target.getAttribute('href').includes('#cite')) {
+                onReferenceEnter(e);
+              }
+            }}
             onMouseOver={e => {
               if (e.target.tagName === 'A' && e.target.getAttribute('href').includes('#cite')) {
                 onReferenceEnter(e);

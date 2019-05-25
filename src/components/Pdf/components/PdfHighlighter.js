@@ -2,20 +2,20 @@
 /** @jsx jsx */
 import { css, jsx } from '@emotion/core';
 
-import React, {Component} from 'react';
+import React, { Component } from 'react';
 import ReactDom from 'react-dom';
 import Pointable from 'react-pointable';
 import _ from 'lodash/fp';
 import { PDFViewer, PDFLinkService } from 'pdfjs-dist/web/pdf_viewer';
-
 import 'pdfjs-dist/web/pdf_viewer.css';
-import '../style/pdf_viewer.css';
-
-import '../style/PdfHighlighter.css';
-
+import Fab from '@material-ui/core/Fab';
+import { connect, Provider } from 'react-redux';
 import getBoundingRect from '../lib/get-bounding-rect';
 import getClientRects from '../lib/get-client-rects';
 import getAreaAsPng from '../lib/get-area-as-png';
+
+import '../style/pdf_viewer.css';
+import '../style/PdfHighlighter.css';
 
 import {
   getPageFromRange,
@@ -39,10 +39,8 @@ import type {
   T_PDFJS_LinkService
 } from '../types';
 import { store } from '../../../store';
-import { connect, Provider } from 'react-redux';
 import { APP_BAR_HEIGHT } from '../../TopBar/PrimaryAppBar';
 import { actions } from '../../../actions';
-import Fab from '@material-ui/core/Fab';
 
 type T_ViewportHighlight<T_HT> = { position: T_Position } & T_HT;
 
@@ -86,7 +84,7 @@ type Props<T_HT> = {
   enableAreaSelection: (event: MouseEvent) => boolean,
   isVertical: boolean,
   onReferenceEnter: (event: MouseEvent) => void,
-  onReferenceLeave: () => void,
+  onReferenceLeave: () => void
 };
 
 const EMPTY_ID = 'empty-id';
@@ -119,7 +117,7 @@ class PdfHighlighter<T_HT: T_Highlight> extends Component<
     ghostHighlight: null,
     isCollapsed: true,
     range: null,
-    scrolledToHighlightId: EMPTY_ID,
+    scrolledToHighlightId: EMPTY_ID
   };
 
   state: State<T_HT>;
@@ -604,7 +602,12 @@ class PdfHighlighter<T_HT: T_Highlight> extends Component<
   };
 
   render() {
-    const { enableAreaSelection, isVertical, onReferenceEnter, onReferenceLeave } = this.props;
+    const {
+      enableAreaSelection,
+      isVertical,
+      onReferenceEnter,
+      onReferenceLeave
+    } = this.props;
     const containerStyle = isVertical
       ? { height: '100%', width: '100vw' }
       : { height: `calc(100vh - ${APP_BAR_HEIGHT}px)` };
@@ -629,12 +632,18 @@ class PdfHighlighter<T_HT: T_Highlight> extends Component<
             onScroll={this.onViewerScroll}
             style={containerStyle}
             onClick={e => {
-              if (e.target.tagName === 'A' && e.target.getAttribute('href').includes('#cite')) {
+              if (
+                e.target.tagName === 'A' &&
+                e.target.getAttribute('href').includes('#cite')
+              ) {
                 onReferenceEnter(e);
               }
             }}
             onMouseOver={e => {
-              if (e.target.tagName === 'A' && e.target.getAttribute('href').includes('#cite')) {
+              if (
+                e.target.tagName === 'A' &&
+                e.target.getAttribute('href').includes('#cite')
+              ) {
                 onReferenceEnter(e);
               } else {
                 onReferenceLeave();

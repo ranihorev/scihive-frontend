@@ -1,31 +1,33 @@
-import React from "react";
-import Popover from "@material-ui/core/Popover";
-import Button from "@material-ui/core/Button";
-import {withStyles} from "@material-ui/core";
-import List from "@material-ui/core/List";
-import ListItem from "@material-ui/core/ListItem";
-import ListItemIcon from "@material-ui/core/ListItemIcon";
+/** @jsx jsx */
+import { css, jsx } from '@emotion/core';
+import React from 'react';
+import Popover from '@material-ui/core/Popover';
+import Button from '@material-ui/core/Button';
+import { withStyles } from '@material-ui/core';
+import List from '@material-ui/core/List';
+import ListItem from '@material-ui/core/ListItem';
+import ListItemIcon from '@material-ui/core/ListItemIcon';
 
-const styles = theme => ({
-  links: {
-  },
+const styles = () => ({
+  links: {},
   link: {
     textTransform: 'inherit',
     textDecoration: 'inherit',
-    color: 'inherit',
+    color: 'inherit'
   },
   popover: {
     maxHeight: '150px',
-    overflowY: 'auto',
-  },
+    overflowY: 'auto'
+  }
 });
 
-const TwitterMeta = ({twtr_score, twtr_links, classes, iconClass}) => {
-  const links = twtr_links ? twtr_links : [];
+const TwitterMeta = ({ twtr_score, twtr_links, classes, iconClass }) => {
+  const links = twtr_links || [];
+  links.sort((a, b) => b.score - a.score);
   const [anchorEl, setAnchorEl] = React.useState(null);
 
   const handleClick = event => {
-    setAnchorEl(event.currentTarget)
+    setAnchorEl(event.currentTarget);
   };
 
   const handleClose = () => {
@@ -42,7 +44,7 @@ const TwitterMeta = ({twtr_score, twtr_links, classes, iconClass}) => {
         onClick={handleClick}
         disabled={links.length === 0}
       >
-        <i className={`fab fa-twitter ${iconClass}`}></i> {twtr_score}
+        <i className={`fab fa-twitter ${iconClass}`} /> {twtr_score}
       </Button>
       <Popover
         id="simple-popper"
@@ -51,30 +53,38 @@ const TwitterMeta = ({twtr_score, twtr_links, classes, iconClass}) => {
         onClose={handleClose}
         anchorOrigin={{
           vertical: 'bottom',
-          horizontal: 'center',
+          horizontal: 'center'
         }}
         transformOrigin={{
           vertical: 'top',
-          horizontal: 'center',
+          horizontal: 'center'
         }}
-        classes={{paper: classes.popover}}
+        classes={{ paper: classes.popover }}
       >
-        <List className={classes.links}>{
-          links.map((l, idx) =>
-            <a key={idx} className={classes.link} href={l.link} target={'_blank'}>
-              <ListItem button >
+        <List className={classes.links}>
+          {links.map((l, idx) => (
+            <a key={idx} className={classes.link} href={l.link} target="_blank">
+              <ListItem button>
                 <ListItemIcon>
-                  <i className="fab fa-twitter"></i>
+                  <i className="fab fa-twitter" />
                 </ListItemIcon>
                 {l.name}
+                <span
+                  css={css`
+                    padding-left: 4px;
+                    font-size: 0.8rem;
+                    color: #bfbfbf;
+                  `}
+                >
+                  ({l.score})
+                </span>
               </ListItem>
             </a>
-          )
-        }</List>
+          ))}
+        </List>
       </Popover>
     </div>
   );
-
-}
+};
 
 export default withStyles(styles)(TwitterMeta);

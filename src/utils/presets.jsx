@@ -29,6 +29,7 @@ export const linkButton = css`
   margin: 0;
   padding: 0;
   color: inherit;
+  font-size: inherit;
   &:hover,
   :focus {
     text-decoration: none;

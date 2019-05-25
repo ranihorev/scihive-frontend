@@ -1,4 +1,3 @@
-// @flow
 /** @jsx jsx */
 import { css, jsx } from '@emotion/core';
 import React, { useState } from 'react';
@@ -12,6 +11,7 @@ import { connect } from 'react-redux';
 import 'react-toastify/dist/ReactToastify.css';
 import { toast } from 'react-toastify';
 import { actions } from '../actions';
+import * as presets from '../utils/presets';
 
 const styles = theme => ({
   modal: {
@@ -32,15 +32,7 @@ const formControl = css`
   margin-top: 20px;
 `;
 
-type LoginSignupProps = {
-  onSubmitSuccess: () => null,
-  loginModalMessage: HTMLElement | null
-};
-
-function LoginSignupForm({
-  onSubmitSuccess,
-  loginModalMessage
-}: LoginSignupProps) {
+function LoginSignupForm({ onSubmitSuccess, loginModalMessage }) {
   const [isLogin, setIsLogin] = useState(true);
   const [userData, setUserData] = useState({
     email: '',
@@ -64,17 +56,22 @@ function LoginSignupForm({
         localStorage.setItem('username', res.data.username);
         // Redundant: keep it here in case we won't reload the page one day
         onSubmitSuccess(res.data);
-        const onRefresh = e => {
-          e.preventDefault();
+        const onRefresh = refreshEvent => {
+          refreshEvent.preventDefault();
           window.location.reload();
         };
         const content = (
           <span>
             You are now logged in!
             <br />
-            <a href="#" onClick={onRefresh} style={{ color: 'inherit' }}>
+            <button
+              type="button"
+              css={presets.linkButton}
+              onClick={onRefresh}
+              style={{ color: 'inherit' }}
+            >
               Refresh
-            </a>{' '}
+            </button>{' '}
             to view your data.
           </span>
         );
@@ -84,7 +81,9 @@ function LoginSignupForm({
         let msg = 'Failed to reach server';
         try {
           msg = err.response.data.message;
-        } catch (e) {}
+        } catch (exc) {
+          // Do nothing
+        }
         setErrMsg(msg);
       });
   };
@@ -165,9 +164,9 @@ function LoginSignupForm({
         `}
       >
         {isLogin ? 'Not a member yet?' : 'Already a member?'}{' '}
-        <a href="#" onClick={switchForm}>
+        <button type="button" css={presets.linkButton} onClick={switchForm}>
           {isLogin ? 'Sign up' : 'Log in'}
-        </a>
+        </button>
       </div>
     </form>
   );

@@ -20,4 +20,5 @@ code {
 .download-extesion {
   width: 400px;
   text-align: center;
+  margin-left: -40px;
 }

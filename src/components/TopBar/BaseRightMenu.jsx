@@ -81,7 +81,7 @@ const MobileMenuRender = ({
         ) : null}
         <Divider />
         <a
-          href="https://chrome.google.com/webstore/detail/arxivcolab/dijdhkcfdaocpepndegmbkgphbpomdai"
+          href="https://chrome.google.com/webstore/detail/scihive/dijdhkcfdaocpepndegmbkgphbpomdai"
           target="_blank"
           rel="noopener noreferrer"
           css={simpleLink}
@@ -160,7 +160,7 @@ const DesktopMenuRender = ({ children, isLoggedIn, toggleLoginModal }) => {
         onClose={() => handleMenuClose()}
       >
         <a
-          href="https://chrome.google.com/webstore/detail/arxivcolab/dijdhkcfdaocpepndegmbkgphbpomdai"
+          href="https://chrome.google.com/webstore/detail/scihive/dijdhkcfdaocpepndegmbkgphbpomdai"
           target="_blank"
           rel="noopener noreferrer"
           css={simpleLink}

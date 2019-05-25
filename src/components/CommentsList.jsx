@@ -6,8 +6,13 @@ import React, { useEffect, useState } from 'react';
 import Tooltip from '@material-ui/core/Tooltip';
 import IconButton from '@material-ui/core/IconButton';
 import { useCookies } from 'react-cookie';
+import { connect } from 'react-redux';
+import axios from 'axios';
+import { withRouter } from 'react-router';
+import { isEmpty } from 'lodash';
 import Comment from './Comment';
 import { linkButton } from '../utils/presets';
+import { actions } from '../actions';
 
 const parseIdFromHash = () => window.location.hash.slice('#comment-'.length);
 
@@ -17,11 +22,25 @@ const WELCOME_COOKIE = 'comments-welcome';
 
 function CommentsList({
   highlights,
-  removeHighlight,
+  removeHighlight: removeHighlightAction,
   updateHighlight,
+  toggleHighlightsVisiblity,
+  isHighlightsHidden,
+  match: { params },
   isVertical
 }) {
   const [focusedId, setFocusedId] = useState();
+
+  const removeHighlight = highlightId => {
+    axios
+      .delete(`/paper/${params.PaperId}/comment/${highlightId}`, {
+        id: highlightId
+      })
+      .then(() => {
+        removeHighlightAction(highlightId);
+      })
+      .catch(err => console.log(err.response));
+  };
 
   const getHighlightById = id => {
     return highlights.find(highlight => highlight.id === id);
@@ -120,11 +139,24 @@ function CommentsList({
         `}
       >
         <Tooltip
+          title={`${isHighlightsHidden ? 'Show' : 'Hide'} all comments`}
+          placement="top"
+        >
+          <IconButton onClick={() => toggleHighlightsVisiblity()}>
+            <i
+              className={`fas ${
+                isHighlightsHidden ? 'fa-eye-slash' : 'fa-eye'
+              }`}
+              style={{ fontSize: 14 }}
+            />
+          </IconButton>
+        </Tooltip>
+        <Tooltip
           title="To create area highlight hold Option/Alt key, then click and drag."
-          placement="bottom"
+          placement="top"
         >
           <IconButton>
-            <i className="fas fa-info-circle" style={{ fontSize: 18 }} />
+            <i className="fas fa-info-circle" style={{ fontSize: 14 }} />
           </IconButton>
         </Tooltip>
       </div>
@@ -132,4 +164,29 @@ function CommentsList({
   );
 }
 
-export default CommentsList;
+const mapStateToProps = state => {
+  return {
+    highlights: state.paper.highlights,
+    isHighlightsHidden: !isEmpty(state.paper.hiddenHighlights)
+  };
+};
+
+const mapDispatchToProps = dispatch => {
+  return {
+    removeHighlight: highlightId => {
+      dispatch(actions.removeHighlight(highlightId));
+    },
+    updateHighlight: highlight => {
+      dispatch(actions.updateHighlight(highlight));
+    },
+    toggleHighlightsVisiblity: () => {
+      dispatch(actions.toggleHighlightsVisiblity());
+    }
+  };
+};
+const withRedux = connect(
+  mapStateToProps,
+  mapDispatchToProps
+);
+
+export default withRouter(withRedux(CommentsList));

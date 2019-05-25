@@ -71,8 +71,8 @@ const PdfCommenter = ({
   setGroups,
   isLoggedIn,
   setReferences,
+  setHighlights
 }) => {
-  const [highlights, setHighlights] = useState([]);
   const [url, setUrl] = useState(FETCHING);
   const [title, setTitle] = useState('SciHive');
   const { height: pageHeight, width: pageWidth } = useWindowDimensions();
@@ -149,29 +149,6 @@ const PdfCommenter = ({
     }
   }, [params]);
 
-  const addHighlight = highlight => {
-    setHighlights([highlight, ...highlights]);
-  };
-
-  const updateHighlight = highlight => {
-    setHighlights(
-      highlights.map(h => {
-        return h.id === highlight.id ? highlight : h;
-      })
-    );
-  };
-
-  const removeHighlight = highlightId => {
-    axios
-      .delete(`/paper/${params.PaperId}/comment/${highlightId}`, {
-        id: highlightId
-      })
-      .then(() => {
-        setHighlights(highlights.filter(h => h.id !== highlightId));
-      })
-      .catch(err => console.log(err.response));
-  };
-
   const Loader = (
     <div className={classes.spinner}>
       <CircularProgress />
@@ -190,14 +167,7 @@ const PdfCommenter = ({
     );
   } else {
     viewerRender = (
-      <PdfViewer
-        updateHighlight={updateHighlight}
-        addHighlight={addHighlight}
-        highlights={highlights}
-        beforeLoad={Loader}
-        isVertical={isVertical}
-        url={url}
-      />
+      <PdfViewer beforeLoad={Loader} isVertical={isVertical} url={url} />
     );
   }
 
@@ -219,9 +189,6 @@ const PdfCommenter = ({
       width={sidebarWidth}
       isCollapsed={isSidebarCollapsed}
       isVertical={isVertical}
-      highlights={highlights}
-      removeHighlight={removeHighlight}
-      updateHighlight={updateHighlight}
       onCollapseClick={onCollapseClick}
     />
   );
@@ -349,6 +316,9 @@ const mapDispatchToProps = dispatch => {
     setReferences: references => {
       dispatch(actions.setReferences(references));
     },
+    setHighlights: highlights => {
+      dispatch(actions.setHighlights(highlights));
+    }
   };
 };
 const withRedux = connect(

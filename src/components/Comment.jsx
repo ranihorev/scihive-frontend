@@ -6,20 +6,20 @@ import Card from '@material-ui/core/Card';
 import CardMedia from '@material-ui/core/CardMedia';
 import CardContent from '@material-ui/core/CardContent';
 import Typography from '@material-ui/core/Typography';
-import get_age from './timeUtils';
 import { IconButton } from '@material-ui/core';
 import TextField from '@material-ui/core/TextField';
 import Button from '@material-ui/core/Button';
 import axios from 'axios';
 import { withRouter } from 'react-router';
-import NewReply from './NewReply';
-import Replies from './Replies';
 import Grid from '@material-ui/core/Grid';
 import Linkify from 'react-linkify';
 import Tooltip from '@material-ui/core/Tooltip';
+import Replies from './Replies';
+import get_age from './timeUtils';
+import NewReply from './NewReply';
 
 const truncateURL = url => {
-  return url.replace(/^https?:\/\//, '').substring(0, 20) + '...';
+  return `${url.replace(/^https?:\/\//, '').substring(0, 20)}...`;
 };
 
 const visibiltyToIcon = {
@@ -61,9 +61,11 @@ function Comment({
       .catch(err => console.log(err.response));
   };
 
-  const submitReply = text => {
+  const submitReply = replyText => {
     axios
-      .post(`/paper/${params.PaperId}/comment/${highlight.id}/reply`, { text })
+      .post(`/paper/${params.PaperId}/comment/${highlight.id}/reply`, {
+        text: replyText
+      })
       .then(res => {
         setShowReply(false);
         updateHighlight(res.data.comment);
@@ -77,10 +79,10 @@ function Comment({
     </Tooltip>
   );
 
-  let actions = (
+  const actions = (
     <Grid
       container
-      alignItems={'center'}
+      alignItems="center"
       css={css`
         margin-top: 5px;
         text-align: center;
@@ -141,7 +143,7 @@ function Comment({
         padding: 6px 6px 4px 6px;
         margin: 0;
         font-style: italic;
-        quotes: "\\201C""\\201D";
+        quotes: '\\201C''\\201D';
         &:before {
           content: open-quote;
           margin-right: -2px;
@@ -198,6 +200,7 @@ function Comment({
                 variant="outlined"
                 value={commentText}
                 onChange={event => setCommentText(event.target.value)}
+                style={{ width: '100%' }}
                 inputRef={inp => {
                   if (inp) {
                     setTimeout(() => inp.focus(), 100);

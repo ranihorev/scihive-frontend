@@ -4,6 +4,9 @@ import React, { Component } from 'react';
 import AddComment from '@material-ui/icons/AddComment';
 import axios from 'axios';
 import { withRouter } from 'react-router';
+import { connect } from 'react-redux';
+import Popper from '@material-ui/core/Popper';
+import Paper from '@material-ui/core/Paper';
 import {
   PdfLoader,
   PdfHighlighter,
@@ -12,9 +15,7 @@ import {
   Popup,
   AreaHighlight
 } from './Pdf';
-import { connect } from 'react-redux';
-import Popper from '@material-ui/core/Popper';
-import Paper from '@material-ui/core/Paper';
+import { actions } from '../actions';
 
 const parseIdFromHash = type => {
   if (!window.location.hash.includes(`${type}-`)) return undefined;
@@ -112,7 +113,7 @@ class PdfViewer extends Component {
       <Tip
         onOpen={transformSelection}
         onConfirm={submitComment}
-        tooltipText={<AddComment fontSize={'small'} />}
+        tooltipText={<AddComment fontSize="small" />}
       />
     );
   };
@@ -213,8 +214,8 @@ class PdfViewer extends Component {
                   .getAttribute('href')
                   .replace('#cite.', '');
                 if (references.hasOwnProperty(cite)) {
-                  e.target.onclick = function(e) {
-                    e.preventDefault();
+                  e.target.onclick = event => {
+                    event.preventDefault();
                   };
                   this.setState({
                     referencePopoverAnchor: e.target,
@@ -230,7 +231,7 @@ class PdfViewer extends Component {
           open={Boolean(referencePopoverAnchor)}
           anchorEl={referencePopoverAnchor}
           placement="top"
-          style={{zIndex: 10}}
+          style={{ zIndex: 10 }}
         >
           <Paper
             css={css`
@@ -251,7 +252,7 @@ class PdfViewer extends Component {
             <div
               dangerouslySetInnerHTML={{ __html: references[referenceCite] }}
               onMouseEnter={() => {
-                clearTimeout(this.referenceTimeoutId)
+                clearTimeout(this.referenceTimeoutId);
               }}
               onMouseLeave={this.hideReferencePopover}
             />
@@ -265,10 +266,20 @@ class PdfViewer extends Component {
 const mapStateToProps = state => {
   return {
     sections: state.paper.sections,
-    references: state.paper.references
+    references: state.paper.references,
+    highlights: state.paper.highlights
   };
 };
 
-const withRedux = connect(mapStateToProps);
+const mapDispatchToProps = dispatch => ({
+  addHighlight: highlight => {
+    dispatch(actions.addHighlight(highlight));
+  }
+});
+
+const withRedux = connect(
+  mapStateToProps,
+  mapDispatchToProps
+);
 
 export default withRouter(withRedux(PdfViewer));

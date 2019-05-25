@@ -138,6 +138,7 @@ class Tip extends Component<Props, State> {
                 type="text"
                 name="comment"
                 label="Your Comment"
+                placeholder="Add a comment (Optional)"
                 multiline
                 margin="normal"
                 variant="outlined"

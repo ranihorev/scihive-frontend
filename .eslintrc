@@ -17,7 +17,9 @@
     "jsx-a11y/interactive-supports-focus": 0,
     "camelcase": "off",
     "react/jsx-boolean-value": "off",
-    "react/no-array-index-key": "off"
+    "react/no-array-index-key": "off",
+    "jsx-a11y/mouse-events-have-key-events": "off",
+    "jsx-a11y/no-static-element-interactions": "off"
   },
   "globals": {
     "window": true,

@@ -1,24 +1,26 @@
 import React, { useEffect } from 'react';
 import { Route, Switch } from 'react-router-dom';
-import Home from './pages/Home';
-import Paper from './pages/Paper';
-import LoginSignupModal from './components/LoginSignupModal';
 import axios from 'axios';
 import { isEmpty } from 'lodash';
 import { connect } from 'react-redux';
 import { ToastContainer } from 'react-toastify';
+import { MuiThemeProvider, createMuiTheme } from '@material-ui/core/styles';
+
+import Home from './pages/Home';
+import Paper from './pages/Paper';
+import LoginSignupModal from './components/LoginSignupModal';
 import NotFound from './pages/NotFound';
 import About from './pages/About';
-import { MuiThemeProvider, createMuiTheme } from '@material-ui/core/styles';
+import chromeExtensionPopup from './utils/chromeExtension';
 
 const theme = createMuiTheme({
   palette: {
     primary: {
       main: '#36a0f5',
-      contrastText: 'white',
-    },
+      contrastText: 'white'
+    }
   },
-  typography: { useNextVariants: true },
+  typography: { useNextVariants: true }
 });
 
 const App = ({ isLoggedIn }) => {
@@ -26,7 +28,7 @@ const App = ({ isLoggedIn }) => {
     if (isLoggedIn) {
       axios
         .get('/user/validate')
-        .then(res => {})
+        .then(() => {})
         .catch(err => {
           if (err.response && err.response.status) {
             localStorage.removeItem('username');
@@ -34,6 +36,7 @@ const App = ({ isLoggedIn }) => {
           }
         });
     }
+    chromeExtensionPopup();
   }, []);
 
   return (
@@ -63,7 +66,7 @@ const App = ({ isLoggedIn }) => {
   );
 };
 
-const mapStateToProps = (state, ownProps) => {
+const mapStateToProps = state => {
   return {
     isLoggedIn: !isEmpty(state.user.userData)
   };

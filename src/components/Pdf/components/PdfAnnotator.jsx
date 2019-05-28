@@ -403,6 +403,11 @@ const PdfAnnotator = (
     updateReadingProgress(progress);
   };
 
+  const zoom = sign => {
+    viewer.current.currentScaleValue =
+      parseFloat(viewer.current.currentScaleValue) + sign * 0.05;
+  };
+
   return (
     <React.Fragment>
       <div
@@ -413,8 +418,8 @@ const PdfAnnotator = (
           z-index: 1000;
         `}
       >
-        {/* <ZoomButtom direction="in" onClick={() => this.zoom(1)} />
-        <ZoomButtom direction="out" onClick={() => this.zoom(-1)} /> */}
+        <ZoomButtom direction="in" onClick={() => zoom(1)} />
+        <ZoomButtom direction="out" onClick={() => zoom(-1)} />
       </div>
       <Pointable onPointerDown={onMouseDown}>
         <div

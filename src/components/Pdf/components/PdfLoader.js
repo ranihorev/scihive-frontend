@@ -1,14 +1,15 @@
 // @flow
 
-import React, { Component } from "react";
-
-import type { T_PDFJS_Document } from "../types";
-
 import pdfjs from 'pdfjs-dist';
-import {connect} from "react-redux";
-import {actions} from "../../../actions";
-import {extractSections} from "../../PaperSections";
-pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${ pdfjs.version }/pdf.worker.js`
+import React, {Component} from 'react';
+import {connect} from 'react-redux';
+
+import type {T_PDFJS_Document} from '../types';
+import {actions} from '../../../actions';
+import {extractSections} from '../../PaperSections';
+
+pdfjs.GlobalWorkerOptions.workerSrc =
+    `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.js`
 
 const STATUS = {
   'LOADING': 0,
@@ -26,35 +27,35 @@ type Props = {
 };
 
 type State = {
-  pdfDocument: ?T_PDFJS_Document
+  pdfDocument: ? T_PDFJS_Document,
+  status :
+  number
 };
 
 class PdfLoader extends Component<Props, State> {
-  state = {
-    pdfDocument: null,
-    status: STATUS.LOADING
-  };
+  state = {pdfDocument: null, status: STATUS.LOADING};
 
   componentDidMount() {
-    const { url } = this.props;
-    pdfjs.getDocument(url).then(pdfDocument => {
-      this.props.setDocument(pdfDocument);
-      extractSections(pdfDocument, this.props.setSections);
-      this.setState({
-        pdfDocument: pdfDocument,
-        status: STATUS.SUCCESS,
-      });
-    })
-    .catch(e => {
-      this.setState({
-        status: STATUS.FAILED,
-      });
-    });
+    const {url} = this.props;
+    pdfjs.getDocument(url)
+        .then(pdfDocument => {
+          this.props.setDocument(pdfDocument);
+          extractSections(pdfDocument, this.props.setSections);
+          this.setState({
+            pdfDocument,
+            status: STATUS.SUCCESS,
+          });
+        })
+        .catch(e => {
+          this.setState({
+            status: STATUS.FAILED,
+          });
+        });
   }
 
   render() {
-    const { children, beforeLoad, failed } = this.props;
-    const { pdfDocument, status } = this.state;
+    const {children, beforeLoad, failed} = this.props;
+    const {pdfDocument, status} = this.state;
     switch (status) {
       case STATUS.FAILED:
         return failed;
@@ -78,9 +79,6 @@ const mapDispatchToProps = dispatch => ({
 });
 
 
-const withRedux = connect(
-  undefined,
-  mapDispatchToProps
-);
+const withRedux = connect(undefined, mapDispatchToProps);
 
 export default withRedux(PdfLoader);

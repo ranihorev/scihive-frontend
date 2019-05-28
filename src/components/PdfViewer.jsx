@@ -16,6 +16,7 @@ import {
   AreaHighlight
 } from './Pdf';
 import { actions } from '../actions';
+import PdfAnnotator from './Pdf/components/PdfAnnotator';
 
 const parseIdFromHash = type => {
   if (!window.location.hash.includes(`${type}-`)) return undefined;
@@ -24,10 +25,6 @@ const parseIdFromHash = type => {
 
 const setCommentHash = id => {
   window.location.hash = `comment-${id}`;
-};
-
-const resetHash = () => {
-  window.location.hash = '';
 };
 
 const HighlightPopup = ({ comment }) =>
@@ -200,14 +197,12 @@ class PdfViewer extends Component {
           failed={<div style={errorStyle}>Failed to download paper</div>}
         >
           {pdfDocument => (
-            <PdfHighlighter
+            <PdfAnnotator
               pdfDocument={pdfDocument}
               enableAreaSelection={event => event.altKey}
-              onScrollChange={resetHash}
               scrollRef={this.scrollToRef}
               onSelectionFinished={this.onSelectionFinished}
               highlightTransform={this.highlightTransform}
-              highlights={highlights}
               isVertical={isVertical}
               onReferenceEnter={e => {
                 const cite = e.target

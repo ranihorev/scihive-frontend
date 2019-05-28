@@ -1,8 +1,8 @@
 /** @jsx jsx */
 import { css, jsx } from '@emotion/core';
 import React from 'react';
-import { presets } from '../utils';
 import { connect } from 'react-redux';
+import { presets } from '../utils';
 
 const sectionToPadding = {
   section: 0,
@@ -25,9 +25,8 @@ const quantile = (arr, q) => {
   const rest = pos - base;
   if (sorted[base + 1] !== undefined) {
     return sorted[base] + rest * (sorted[base + 1] - sorted[base]);
-  } else {
-    return sorted[base];
   }
+  return sorted[base];
 };
 
 const maxKey = obj =>
@@ -35,12 +34,12 @@ const maxKey = obj =>
 
 export const extractSections = (document, onSuccess) => {
   const regex = new RegExp(`^(\\d+\\.?)+\\s+.{0,50}$`);
-  let allHeights = [];
-  let optionalSections = [];
-  let fontsCount = {};
+  const allHeights = [];
+  const optionalSections = [];
+  const fontsCount = {};
 
-  let pagePromises = [];
-  for (let i = 1; i <= document.numPages; i++) {
+  const pagePromises = [];
+  for (let i = 1; i <= document.numPages; i += 1) {
     pagePromises.push(document.getPage(i));
   }
   let contentPromises = [];
@@ -52,7 +51,7 @@ export const extractSections = (document, onSuccess) => {
           allHeights.push(text.height);
           if (fontsCount[text.fontName] === undefined)
             fontsCount[text.fontName] = 0;
-          fontsCount[text.fontName]++;
+          fontsCount[text.fontName] += 1;
           if (text.str.match(regex)) {
             optionalSections.push({ ...text, page: pageIdx });
           }

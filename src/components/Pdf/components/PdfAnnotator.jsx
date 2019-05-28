@@ -65,6 +65,7 @@ const PdfAnnotator = (
     highlightTransform, 
     highlights, 
     onSelectionFinished, 
+    updateReadingProgress,
   }) => {
   const [ghostHighlight, setGhostHighlight] = React.useState(null);
   const [isCollapsed, setIsCollapsed] = React.useState(true);
@@ -394,6 +395,14 @@ const PdfAnnotator = (
     viewer.current.viewer.classList.toggle('PdfHighlighter--disable-selection', flag);
   }
 
+  const onViewerScroll = () => {
+    const {viewer: viewerInner, container} = viewer.current;
+    const maxYpos = Math.max(0, viewerInner.clientHeight - container.clientHeight
+    );
+    const progress = Math.min(1, container.scrollTop / maxYpos) * 100;
+    updateReadingProgress(progress);
+  };
+
   return (
     <React.Fragment>
       <div
@@ -411,8 +420,8 @@ const PdfAnnotator = (
         <div
           ref={containerNode}
           className="PdfHighlighter"
+          onScroll={onViewerScroll}
           onContextMenu={e => e.preventDefault()}
-          onScroll={() => {}}
           style={containerStyle}
           onClick={e => {
             if (

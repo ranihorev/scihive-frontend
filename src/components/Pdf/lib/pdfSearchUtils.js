@@ -1,16 +1,16 @@
 /** @jsx jsx */
-import { jsx } from '@emotion/core';
+import { css, jsx } from '@emotion/core';
 import ReactDom from 'react-dom';
 import React from 'react';
 import { Popper, Paper } from '@material-ui/core';
 import { popupCss } from '../../../utils/presets';
 
-const MyPopup = ({ elem, popupText }) => {
+const MyPopup = ({ elem, popupContent }) => {
   const contentRef = React.useRef(null);
   const timeoutRef = React.useRef(null);
   const [isOpen, setIsOpen] = React.useState(false);
   const hidePopup = () => {
-    timeoutRef.current = setTimeout(() => setIsOpen(false), 200);
+    timeoutRef.current = setTimeout(() => setIsOpen(false), 300);
   };
 
   React.useEffect(() => {
@@ -31,7 +31,7 @@ const MyPopup = ({ elem, popupText }) => {
             }}
             onMouseLeave={hidePopup}
           >
-            {popupText}
+            {popupContent}
           </div>
         </Paper>
       </Popper>
@@ -110,7 +110,21 @@ export const renderMatches = (matches, pageIdx, textLayer, tooltipText) => {
     if (addTooltip) {
       const span = document.createElement('span');
       div.appendChild(span);
-      ReactDom.render(<MyPopup popupText={tooltipText} elem={content} />, span);
+      ReactDom.render(
+        <MyPopup
+          popupContent={
+            <span
+              css={css`
+                text-transform: capitalize;
+              `}
+            >
+              {tooltipText}
+            </span>
+          }
+          elem={content}
+        />,
+        span,
+      );
       return;
     }
     div.appendChild(node);

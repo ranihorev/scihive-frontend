@@ -36,13 +36,13 @@ class Popup extends Component<Props, State> {
                 if (this.state.mouseIn) {
                   return;
                 }
-
                 onMouseOut();
               }}
-              paddingX={60}
+              paddingX={30}
               paddingY={30}
-              children={popupContent}
-            />
+            >
+              {popupContent}
+            </MouseMonitor>
           );
         }}
         onMouseOut={() => {

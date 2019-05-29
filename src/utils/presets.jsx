@@ -35,3 +35,18 @@ export const linkButton = css`
     text-decoration: none;
   }
 `;
+
+export const popupCss = css`
+  padding: 12px;
+  max-width: 300px;
+  max-height: 200px;
+  font-size: 0.85rem;
+  line-height: 1.4;
+  color: #3e3e3e;
+  p:first-of-type {
+    margin-top: 0;
+  }
+  p:last-of-type {
+    margin-bottom: 0;
+  }
+`;

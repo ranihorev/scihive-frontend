@@ -1,7 +1,7 @@
 /** @jsx jsx */
 import { css, jsx } from '@emotion/core';
 
-import React, { Component } from 'react';
+import React from 'react';
 import ReactDom from 'react-dom';
 import Pointable from 'react-pointable';
 import {
@@ -12,17 +12,16 @@ import {
 import 'pdfjs-dist/web/pdf_viewer.css';
 import Fab from '@material-ui/core/Fab';
 import { connect, Provider } from 'react-redux';
+import { isEmpty, debounce, cloneDeep } from 'lodash';
 import getBoundingRect from '../lib/get-bounding-rect';
 import getClientRects from '../lib/get-client-rects';
 import getAreaAsPng from '../lib/get-area-as-png';
-import { debounce, cloneDeep } from 'lodash';
 
 import '../style/pdf_viewer.css';
 import '../style/PdfHighlighter.css';
 
 import {
   getPageFromRange,
-  getPageFromElement,
   findOrCreateContainerLayer
 } from '../lib/pdfjs-dom';
 
@@ -34,8 +33,7 @@ import { scaledToViewport, viewportToScaled } from '../lib/coordinates';
 import { store } from '../../../store';
 import { APP_BAR_HEIGHT } from '../../TopBar/PrimaryAppBar';
 import { actions } from '../../../actions';
-import { convertMatches, renderMatches } from '../lib/convertMatches';
-import { isEmpty } from 'lodash';
+import { convertMatches, renderMatches } from '../lib/pdfSearchUtils';
 
 const EMPTY_ID = 'empty-id';
 
@@ -91,127 +89,20 @@ const PdfAnnotator = ({
   const linkService = React.useRef(null);
   const containerNode = React.useRef(null);
 
-  React.useEffect(() => {
-    linkService.current = new PDFLinkService();
-
-    const pdfFindController = new PDFFindController({
-      linkService: linkService.current
-    });
-
-    viewer.current = new PDFViewer({
-      container: containerNode.current,
-      enhanceTextSelection: true,
-      removePageBorders: true,
-      linkService: linkService.current,
-      findController: pdfFindController
-    });
-
-    viewer.current.setDocument(pdfDocument);
-    linkService.current.setDocument(pdfDocument);
-    linkService.current.setViewer(viewer.current);
-
-    if (containerNode.current) {
-      containerNode.current.addEventListener('pagesinit', onDocumentReady);
-      containerNode.current.addEventListener(
-        'textlayerrendered',
-        onTextLayerRendered
-      );
-    }
-    document.addEventListener('selectionchange', onSelectionChange);
-    document.addEventListener('keydown', handleKeyDown);
-
-    return () => {
-      if (containerNode.current) {
-        containerNode.current.removeEventListener('pagesinit', onDocumentReady);
-        containerNode.current.removeEventListener(
-          'textlayerrendered',
-          onTextLayerRendered
-        );
-      }
-      document.removeEventListener('selectionchange', onSelectionChange);
-      document.removeEventListener('keydown', handleKeyDown);
-    };
-  }, []);
-
   const handleKeyDown = event => {
     if (event.code === 'Escape') {
       hideTipAndSelection();
     }
   };
 
-  React.useEffect(() => {
-    // Find acronyms in the pdf
-    if (!isDocumentReady || isEmpty(acronyms)) return;
-    const { findController } = viewer.current;
-    // We are accessing private functions of findController. Not ideal...
-    findController._firstPageCapability.promise.then(async () => {
-      findController._extractText();
-      const tempAcronymsPos = {};
-      for (const acronym in acronyms) {
-        findController._state = {
-          query: acronym,
-          caseSensitive: false,
-          highlightAll: false,
-          entireWord: true
-        };
-        for (let i = 0; i < pdfDocument.numPages; i++) {
-          findController._pendingFindMatches[i] = true;
-          findController._extractTextPromises[i].then(pageIdx => {
-            delete findController._pendingFindMatches[pageIdx];
-            findController._calculateMatch(pageIdx);
-          });
-        }
-        await Promise.all(findController._extractTextPromises);
-        tempAcronymsPos[acronym] = cloneDeep(findController.pageMatches);
-      }
-      setAcronymPositions(tempAcronymsPos);
-    });
-  }, [isDocumentReady, acronyms]);
-
-  React.useEffect(() => {
-    if (
-      !isDocumentReady ||
-      currTextLayerPage === 0 ||
-      isEmpty(acronymPositions)
-    )
-      return;
-    const pageIdx = currTextLayerPage - 1;
-    const { textLayer } = viewer.current.getPageView(pageIdx);
-    Object.keys(acronymPositions).forEach(acronym => {
-      const m = convertMatches(
-        acronym.length,
-        acronymPositions[acronym][pageIdx],
-        textLayer
-      );
-      renderMatches(m, 0, textLayer, acronyms[acronym]);
-    });
-  }, [isDocumentReady, currTextLayerPage, acronymPositions]);
-
-  React.useEffect(() => {
-    if (!isDocumentReady || currTextLayerPage === 0) return;
-    renderHighlights();
-  }, [
-    isDocumentReady,
-    currTextLayerPage,
-    ghostHighlight,
-    isCollapsed,
-    scrolledToHighlightId
-  ]);
-
-  const onDocumentReady = () => {
-    if (!containerNode.current) {
-      console.error('Container node is not initialized');
-      return;
-    }
-    const { viewport } = viewer.current.getPageView(0);
-    viewer.current.currentScaleValue =
-      containerNode.current.clientWidth / viewport.width - 0.05;
-    setIsDocumentReady(true);
-    scrollRef(scrollTo);
-  };
-
   const resetHash = () => {
     window.location.hash = '';
+  };
+
+  const onScroll = () => {
+    resetHash();
+    setScrolledToHighlightId(EMPTY_ID);
+    viewer.current.container.removeEventListener('scroll', onScroll);
   };
 
   const scrollTo = (highlight, otherLocation) => {
@@ -250,10 +141,16 @@ const PdfAnnotator = ({
     }, 100);
   };
 
-  const onScroll = () => {
-    resetHash();
-    setScrolledToHighlightId(EMPTY_ID);
-    viewer.current.container.removeEventListener('scroll', onScroll);
+  const onDocumentReady = () => {
+    if (!containerNode.current) {
+      console.error('Container node is not initialized');
+      return;
+    }
+    const { viewport } = viewer.current.getPageView(0);
+    viewer.current.currentScaleValue =
+      containerNode.current.clientWidth / viewport.width - 0.05;
+    setIsDocumentReady(true);
+    scrollRef(scrollTo);
   };
 
   const hideTipAndSelection = () => {
@@ -271,9 +168,9 @@ const PdfAnnotator = ({
     return getAreaAsPng(canvas, position);
   };
 
-  const debouncedUpdateSelection = debounce(range => {
+  const debouncedUpdateSelection = debounce(newRange => {
     setIsCollapsed(false);
-    setRange(range);
+    setRange(newRange);
   }, 50);
 
   const onSelectionChange = () => {
@@ -282,40 +179,9 @@ const PdfAnnotator = ({
       setIsCollapsed(true);
       return;
     }
-    const range = selection.getRangeAt(0);
-    if (!range) return;
-    debouncedUpdateSelection(range);
-  };
-
-  React.useEffect(() => {
-    afterSelection();
-  }, [isCollapsed, range]);
-
-  const afterSelection = () => {
-    if (!range || isCollapsed) return;
-    const page = getPageFromRange(range);
-    if (!page) return;
-
-    const rects = getClientRects(range, page.node);
-    if (rects.length === 0) return;
-
-    const boundingRect = getBoundingRect(rects);
-
-    const viewportPosition = { boundingRect, rects, pageNumber: page.number };
-
-    const content = {
-      text: range.toString()
-    };
-    const scaledPosition = viewportPositionToScaled(viewportPosition);
-    renderTipAtPosition(
-      viewportPosition,
-      onSelectionFinished(
-        scaledPosition,
-        content,
-        () => hideTipAndSelection(),
-        () => setGhostHighlight({ position: scaledPosition })
-      )
-    );
+    const curRange = selection.getRangeAt(0);
+    if (!curRange) return;
+    debouncedUpdateSelection(curRange);
   };
 
   const viewportPositionToScaled = ({ pageNumber, boundingRect, rects }) => {
@@ -352,6 +218,33 @@ const PdfAnnotator = ({
         />
       </Provider>,
       tipNode
+    );
+  };
+
+  const afterSelection = () => {
+    if (!range || isCollapsed) return;
+    const page = getPageFromRange(range);
+    if (!page) return;
+
+    const rects = getClientRects(range, page.node);
+    if (rects.length === 0) return;
+
+    const boundingRect = getBoundingRect(rects);
+
+    const viewportPosition = { boundingRect, rects, pageNumber: page.number };
+
+    const content = {
+      text: range.toString()
+    };
+    const scaledPosition = viewportPositionToScaled(viewportPosition);
+    renderTipAtPosition(
+      viewportPosition,
+      onSelectionFinished(
+        scaledPosition,
+        content,
+        () => hideTipAndSelection(),
+        () => setGhostHighlight({ position: scaledPosition })
+      )
     );
   };
 
@@ -428,9 +321,9 @@ const PdfAnnotator = ({
               return highlightTransform(
                 viewportHighlight,
                 index,
-                (highlight, callback) => {
-                  setTip({ highlight, callback });
-                  showTip(highlight, callback(highlight));
+                (curHighlight, callback) => {
+                  setTip({ curHighlight, callback });
+                  showTip(curHighlight, callback(curHighlight));
                 },
                 hideTipAndSelection,
                 rect => {
@@ -486,6 +379,112 @@ const PdfAnnotator = ({
     viewer.current.currentScaleValue =
       parseFloat(viewer.current.currentScaleValue) + sign * 0.05;
   };
+
+  React.useEffect(() => {
+    afterSelection();
+  }, [isCollapsed, range]);
+
+  React.useEffect(() => {
+    linkService.current = new PDFLinkService();
+
+    const pdfFindController = new PDFFindController({
+      linkService: linkService.current
+    });
+
+    viewer.current = new PDFViewer({
+      container: containerNode.current,
+      enhanceTextSelection: true,
+      removePageBorders: true,
+      linkService: linkService.current,
+      findController: pdfFindController
+    });
+
+    viewer.current.setDocument(pdfDocument);
+    linkService.current.setDocument(pdfDocument);
+    linkService.current.setViewer(viewer.current);
+
+    if (containerNode.current) {
+      containerNode.current.addEventListener('pagesinit', onDocumentReady);
+      containerNode.current.addEventListener(
+        'textlayerrendered',
+        onTextLayerRendered
+      );
+    }
+    document.addEventListener('selectionchange', onSelectionChange);
+    document.addEventListener('keydown', handleKeyDown);
+
+    return () => {
+      if (containerNode.current) {
+        containerNode.current.removeEventListener('pagesinit', onDocumentReady);
+        containerNode.current.removeEventListener(
+          'textlayerrendered',
+          onTextLayerRendered
+        );
+      }
+      document.removeEventListener('selectionchange', onSelectionChange);
+      document.removeEventListener('keydown', handleKeyDown);
+    };
+  }, []);
+  
+  React.useEffect(() => {
+    // Find acronyms in the pdf
+    if (!isDocumentReady || isEmpty(acronyms)) return;
+    const { findController } = viewer.current;
+    // We are accessing private functions of findController. Not ideal...
+    findController._firstPageCapability.promise.then(async () => {
+      findController._extractText();
+      const tempAcronymsPos = {};
+      for (const acronym of Object.keys(acronyms)) {
+        findController._state = {
+          query: acronym,
+          caseSensitive: false,
+          highlightAll: false,
+          entireWord: true
+        };
+        for (let i = 0; i < pdfDocument.numPages; i++) {
+          findController._pendingFindMatches[i] = true;
+          findController._extractTextPromises[i].then(pageIdx => {
+            delete findController._pendingFindMatches[pageIdx];
+            findController._calculateMatch(pageIdx);
+          });
+        }
+        // eslint-disable-next-line no-await-in-loop
+        await Promise.all(findController._extractTextPromises);
+        tempAcronymsPos[acronym] = cloneDeep(findController.pageMatches);
+      }
+      setAcronymPositions(tempAcronymsPos);
+    });
+  }, [isDocumentReady, acronyms]);
+
+  React.useEffect(() => {
+    if (
+      !isDocumentReady ||
+      currTextLayerPage === 0 ||
+      isEmpty(acronymPositions)
+    )
+      return;
+    const pageIdx = currTextLayerPage - 1;
+    const { textLayer } = viewer.current.getPageView(pageIdx);
+    Object.keys(acronymPositions).forEach(acronym => {
+      const m = convertMatches(
+        acronym.length,
+        acronymPositions[acronym][pageIdx],
+        textLayer
+      );
+      renderMatches(m, 0, textLayer, acronyms[acronym]);
+    });
+  }, [isDocumentReady, currTextLayerPage, acronymPositions]);
+
+  React.useEffect(() => {
+    if (!isDocumentReady || currTextLayerPage === 0) return;
+    renderHighlights();
+  }, [
+    isDocumentReady,
+    currTextLayerPage,
+    ghostHighlight,
+    isCollapsed,
+    scrolledToHighlightId
+  ]);
 
   return (
     <React.Fragment>

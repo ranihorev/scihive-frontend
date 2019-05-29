@@ -1,5 +1,5 @@
 /** @jsx jsx */
-import { css, jsx } from '@emotion/core';
+import { jsx } from '@emotion/core';
 import React, { Component } from 'react';
 import AddComment from '@material-ui/icons/AddComment';
 import axios from 'axios';
@@ -9,14 +9,14 @@ import Popper from '@material-ui/core/Popper';
 import Paper from '@material-ui/core/Paper';
 import {
   PdfLoader,
-  PdfHighlighter,
   Tip,
   Highlight,
   Popup,
-  AreaHighlight
+  AreaHighlight,
+  PdfAnnotator
 } from './Pdf';
 import { actions } from '../actions';
-import PdfAnnotator from './Pdf/components/PdfAnnotator';
+import { popupCss } from '../utils/presets';
 
 const parseIdFromHash = type => {
   if (!window.location.hash.includes(`${type}-`)) return undefined;
@@ -28,7 +28,7 @@ const setCommentHash = id => {
 };
 
 const HighlightPopup = ({ comment }) =>
-  comment.text ? <div className="Highlight__popup">{comment.text}</div> : null;
+  comment.text ? <Paper css={popupCss}>{comment.text}</Paper> : null;
 
 class PdfViewer extends Component {
   state = {
@@ -157,12 +157,13 @@ class PdfViewer extends Component {
       <Popup
         popupContent={<HighlightPopup {...highlight} />}
         onMouseOver={popupContent =>
-          setTip(highlight, highlight => popupContent)
+          setTip(highlight, () => popupContent)
         }
         onMouseOut={hideTip}
         key={index}
-        children={component}
-      />
+      >
+        {component}
+      </Popup>
     );
   };
 
@@ -180,7 +181,7 @@ class PdfViewer extends Component {
   };
 
   render() {
-    const { highlights, url, isVertical, beforeLoad, references } = this.props;
+    const { url, isVertical, beforeLoad, references } = this.props;
     const { referencePopoverAnchor, referenceCite } = this.state;
     const errorStyle = {
       position: 'absolute',
@@ -228,23 +229,9 @@ class PdfViewer extends Component {
           placement="top"
           style={{ zIndex: 10 }}
         >
-          <Paper
-            css={css`
-              padding: 12px;
-              max-width: 300px;
-              max-height: 200px;
-              font-size: 0.85rem;
-              line-height: 1.4;
-              color: #3e3e3e;
-              p:first-of-type {
-                margin-top: 0;
-              }
-              p:last-of-type {
-                margin-bottom: 0;
-              }
-            `}
-          >
+          <Paper css={popupCss}>
             <div
+              // eslint-disable-next-line react/no-danger
               dangerouslySetInnerHTML={{ __html: references[referenceCite] }}
               onMouseEnter={() => {
                 clearTimeout(this.referenceTimeoutId);

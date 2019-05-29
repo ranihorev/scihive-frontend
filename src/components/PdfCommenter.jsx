@@ -71,7 +71,8 @@ const PdfCommenter = ({
   setGroups,
   isLoggedIn,
   setReferences,
-  setHighlights
+  setHighlights,
+  setAcronyms
 }) => {
   const [url, setUrl] = useState(FETCHING);
   const [title, setTitle] = useState('SciHive');
@@ -98,11 +99,21 @@ const PdfCommenter = ({
         setUrl(FAILED);
       });
 
-    // Fetch sections
+    // Fetch refernces
     axios
       .get(`/paper/${params.PaperId}/references`)
       .then(res => {
         setReferences(res.data);
+      })
+      .catch(err => {
+        console.log(err.response);
+      });
+
+    // Fetch acronyms
+    axios
+      .get(`/paper/${params.PaperId}/acronyms`)
+      .then(res => {
+        setAcronyms(res.data);
       })
       .catch(err => {
         console.log(err.response);
@@ -318,6 +329,9 @@ const mapDispatchToProps = dispatch => {
     },
     setHighlights: highlights => {
       dispatch(actions.setHighlights(highlights));
+    },
+    setAcronyms: acronyms => {
+      dispatch(actions.setAcronyms(acronyms));
     }
   };
 };

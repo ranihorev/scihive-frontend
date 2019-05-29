@@ -14,6 +14,7 @@ export const ADD_HIGHLIGHT = 'ADD_HIGHLIGHT';
 export const UPDATE_HIGHLIGHT = 'UPDATE_HIGHLIGHT';
 export const REMOVE_HIGHLIGHT = 'REMOVE_HIGHLIGHT';
 export const TOGGLE_HIGHLIGHTS = 'TOGGLE_HIGHLIGHTS';
+export const SET_ACRONYMS = 'SET_ACRONYMS';
 
 export const actions = {
   toggleLoginModal: message => {
@@ -91,5 +92,9 @@ export const actions = {
   }),
   toggleHighlightsVisiblity: () => ({
     type: TOGGLE_HIGHLIGHTS
+  }),
+  setAcronyms: acronyms => ({
+    type: SET_ACRONYMS,
+    payload: acronyms
   })
 };

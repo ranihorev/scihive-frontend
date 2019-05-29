@@ -10,7 +10,8 @@ import {
   ADD_HIGHLIGHT,
   UPDATE_HIGHLIGHT,
   REMOVE_HIGHLIGHT,
-  TOGGLE_HIGHLIGHTS
+  TOGGLE_HIGHLIGHTS,
+  SET_ACRONYMS
 } from '../actions';
 
 const initialState = {
@@ -20,7 +21,8 @@ const initialState = {
   sections: undefined,
   references: {},
   highlights: [],
-  hiddenHighlights: []
+  hiddenHighlights: [],
+  acronyms: {}
 };
 
 const updateHighlight = (state, newHighlight) => {
@@ -71,6 +73,8 @@ export default function dataReducer(state = initialState, action) {
         highlights: [...state.highlights, ...state.hiddenHighlights],
         hiddenHighlights: []
       };
+    case SET_ACRONYMS:
+      return { ...state, acronyms: action.payload };
     default:
       return state;
   }

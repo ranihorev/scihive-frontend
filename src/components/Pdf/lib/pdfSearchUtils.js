@@ -1,43 +1,7 @@
 /** @jsx jsx */
 import { css, jsx } from '@emotion/core';
 import ReactDom from 'react-dom';
-import React from 'react';
-import { Popper, Paper } from '@material-ui/core';
-import { popupCss } from '../../../utils/presets';
-
-const MyPopup = ({ elem, popupContent }) => {
-  const contentRef = React.useRef(null);
-  const timeoutRef = React.useRef(null);
-  const [isOpen, setIsOpen] = React.useState(false);
-  const hidePopup = () => {
-    timeoutRef.current = setTimeout(() => setIsOpen(false), 300);
-  };
-
-  React.useEffect(() => {
-    // Clear timeout on unmount
-    return () => timeoutRef.current && clearTimeout(timeoutRef.current);
-  }, []);
-
-  return (
-    <React.Fragment>
-      <span ref={contentRef} onMouseEnter={() => setIsOpen(true)} onMouseLeave={hidePopup}>
-        {elem}
-      </span>
-      <Popper open={isOpen} anchorEl={contentRef.current} placement="top" style={{ zIndex: 10 }}>
-        <Paper css={popupCss}>
-          <div
-            onMouseEnter={() => {
-              if (timeoutRef.current) clearTimeout(timeoutRef.current);
-            }}
-            onMouseLeave={hidePopup}
-          >
-            {popupContent}
-          </div>
-        </Paper>
-      </Popper>
-    </React.Fragment>
-  );
-};
+import Popup from '../components/Popup2';
 
 export const convertMatches = (queryLen, matches, textLayer) => {
   // Early exit if there is nothing to convert.
@@ -111,7 +75,7 @@ export const renderMatches = (matches, pageIdx, textLayer, tooltipText) => {
       const span = document.createElement('span');
       div.appendChild(span);
       ReactDom.render(
-        <MyPopup
+        <Popup
           popupContent={
             <span
               css={css`
@@ -121,8 +85,9 @@ export const renderMatches = (matches, pageIdx, textLayer, tooltipText) => {
               {tooltipText}
             </span>
           }
-          elem={content}
-        />,
+        >
+          {content}
+        </Popup>,
         span,
       );
       return;

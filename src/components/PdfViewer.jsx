@@ -7,14 +7,7 @@ import { withRouter } from 'react-router';
 import { connect } from 'react-redux';
 import Popper from '@material-ui/core/Popper';
 import Paper from '@material-ui/core/Paper';
-import {
-  PdfLoader,
-  Tip,
-  Highlight,
-  Popup,
-  AreaHighlight,
-  PdfAnnotator
-} from './Pdf';
+import { PdfLoader, Tip, Highlight, Popup, AreaHighlight, PdfAnnotator } from './Pdf';
 import { actions } from '../actions';
 import { popupCss } from '../utils/presets';
 
@@ -27,23 +20,18 @@ const setCommentHash = id => {
   window.location.hash = `comment-${id}`;
 };
 
-const HighlightPopup = ({ comment }) =>
-  comment.text ? <Paper css={popupCss}>{comment.text}</Paper> : null;
+const HighlightPopup = ({ comment }) => (comment.text ? <Paper css={popupCss}>{comment.text}</Paper> : null);
 
 class PdfViewer extends Component {
   state = {
     referencePopoverAnchor: undefined,
-    referenceCite: ''
+    referenceCite: '',
   };
 
   referenceTimeoutId = null;
 
   componentDidMount() {
-    window.addEventListener(
-      'hashchange',
-      this.scrollToHighlightFromHash,
-      false
-    );
+    window.addEventListener('hashchange', this.scrollToHighlightFromHash, false);
   }
 
   componentWillUnmount(): void {
@@ -62,10 +50,7 @@ class PdfViewer extends Component {
       const selectedSection = sections[sectionId];
       this.scrollViewerTo(undefined, {
         page: selectedSection.page + 1,
-        pos:
-          selectedSection.transform[selectedSection.transform.length - 1] +
-          selectedSection.height +
-          5
+        pos: selectedSection.transform[selectedSection.transform.length - 1] + selectedSection.height + 5,
       });
     }
   };
@@ -83,17 +68,12 @@ class PdfViewer extends Component {
     }
   };
 
-  onSelectionFinished = (
-    position,
-    content,
-    hideTipAndSelection,
-    transformSelection
-  ) => {
+  onSelectionFinished = (position, content, hideTipAndSelection, transformSelection) => {
     const submitComment = (comment, visibility) => {
       const data = { comment, position, content, visibility };
       const self = this;
       const {
-        match: { params }
+        match: { params },
       } = this.props;
       axios
         .post(`/paper/${params.PaperId}/new_comment`, data)
@@ -106,24 +86,10 @@ class PdfViewer extends Component {
         });
     };
 
-    return (
-      <Tip
-        onOpen={transformSelection}
-        onConfirm={submitComment}
-        tooltipText={<AddComment fontSize="small" />}
-      />
-    );
+    return <Tip onOpen={transformSelection} onConfirm={submitComment} tooltipText={<AddComment fontSize="small" />} />;
   };
 
-  highlightTransform = (
-    highlight,
-    index,
-    setTip,
-    hideTip,
-    viewportToScaled,
-    screenshot,
-    isScrolledTo
-  ) => {
+  highlightTransform = (highlight, index, setTip, hideTip, viewportToScaled, screenshot, isScrolledTo) => {
     const isTextHighlight = !(highlight.content && highlight.content.image);
 
     const component = isTextHighlight ? (
@@ -142,7 +108,7 @@ class PdfViewer extends Component {
           this.props.updateHighlight(
             highlight.id,
             { boundingRect: viewportToScaled(boundingRect) },
-            { image: screenshot(boundingRect) }
+            { image: screenshot(boundingRect) },
           );
         }}
         onClick={event => {
@@ -156,9 +122,7 @@ class PdfViewer extends Component {
     return (
       <Popup
         popupContent={<HighlightPopup {...highlight} />}
-        onMouseOver={popupContent =>
-          setTip(highlight, () => popupContent)
-        }
+        onMouseOver={popupContent => setTip(highlight, () => popupContent)}
         onMouseOut={hideTip}
         key={index}
       >
@@ -187,7 +151,7 @@ class PdfViewer extends Component {
       position: 'absolute',
       top: '50%',
       left: '50%',
-      transform: 'translate(-50%, -50%)'
+      transform: 'translate(-50%, -50%)',
     };
     return (
       <React.Fragment>
@@ -206,16 +170,14 @@ class PdfViewer extends Component {
               highlightTransform={this.highlightTransform}
               isVertical={isVertical}
               onReferenceEnter={e => {
-                const cite = e.target
-                  .getAttribute('href')
-                  .replace('#cite.', '');
+                const cite = e.target.getAttribute('href').replace('#cite.', '');
                 if (references.hasOwnProperty(cite)) {
                   e.target.onclick = event => {
                     event.preventDefault();
                   };
                   this.setState({
                     referencePopoverAnchor: e.target,
-                    referenceCite: cite
+                    referenceCite: cite,
                   });
                 }
               }}
@@ -249,19 +211,19 @@ const mapStateToProps = state => {
   return {
     sections: state.paper.sections,
     references: state.paper.references,
-    highlights: state.paper.highlights
+    highlights: state.paper.highlights,
   };
 };
 
 const mapDispatchToProps = dispatch => ({
   addHighlight: highlight => {
     dispatch(actions.addHighlight(highlight));
-  }
+  },
 });
 
 const withRedux = connect(
   mapStateToProps,
-  mapDispatchToProps
+  mapDispatchToProps,
 );
 
 export default withRouter(withRedux(PdfViewer));

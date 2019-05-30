@@ -387,9 +387,9 @@ const PdfAnnotator = ({
       for (const acronym of Object.keys(acronyms)) {
         findController._state = {
           query: acronym,
-          caseSensitive: false,
+          caseSensitive: true,
           highlightAll: false,
-          entireWord: true,
+          entireWord: false,
         };
         for (let i = 0; i < pdfDocument.numPages; i++) {
           findController._pendingFindMatches[i] = true;

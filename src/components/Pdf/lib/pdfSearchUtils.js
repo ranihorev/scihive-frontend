@@ -86,7 +86,13 @@ export const renderMatches = (matches, pageIdx, textLayer, tooltipText) => {
             </span>
           }
         >
-          {content}
+          <span
+            css={css`
+              border-bottom: 1px dashed #ffaa2a;
+            `}
+          >
+            {content}
+          </span>
         </Popup>,
         span,
       );
@@ -104,7 +110,6 @@ export const renderMatches = (matches, pageIdx, textLayer, tooltipText) => {
   for (let i = 0; i < matches.length; i++) {
     const match = matches[i];
     const { begin, end } = match;
-
     // Match inside new div.
     if (!prevEnd || begin.divIdx !== prevEnd.divIdx) {
       // If there was a previous div, then add the text at the end.

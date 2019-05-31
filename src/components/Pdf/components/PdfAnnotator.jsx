@@ -410,10 +410,10 @@ const PdfAnnotator = ({
     if (!isDocumentReady || currTextLayerPage === 0 || isEmpty(acronymPositions)) return;
     const pageIdx = currTextLayerPage - 1;
     const { textLayer } = viewer.current.getPageView(pageIdx);
-    Object.keys(acronymPositions).forEach(acronym => {
+    for (const acronym of Object.keys(acronymPositions)) {
       const m = convertMatches(acronym.length, acronymPositions[acronym][pageIdx], textLayer);
       renderMatches(m, 0, textLayer, acronyms[acronym]);
-    });
+    }
   }, [isDocumentReady, currTextLayerPage, acronymPositions]);
 
   React.useEffect(() => {

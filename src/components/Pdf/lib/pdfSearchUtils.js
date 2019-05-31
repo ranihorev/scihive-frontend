@@ -70,7 +70,6 @@ export const renderMatches = (matches, pageIdx, textLayer, tooltipText) => {
   const appendTextToDiv = (divIdx, fromOffset, toOffset, addTooltip = false) => {
     const div = textDivs[divIdx];
     const content = textContentItemsStr[divIdx].substring(fromOffset, toOffset);
-    const node = document.createTextNode(content);
     if (addTooltip) {
       const span = document.createElement('span');
       div.appendChild(span);
@@ -96,9 +95,10 @@ export const renderMatches = (matches, pageIdx, textLayer, tooltipText) => {
         </Popup>,
         span,
       );
-      return;
+    } else {
+      const node = document.createTextNode(content);
+      div.appendChild(node);
     }
-    div.appendChild(node);
   };
 
   const beginText = begin => {

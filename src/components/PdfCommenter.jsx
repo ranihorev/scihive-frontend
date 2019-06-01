@@ -22,17 +22,17 @@ import { CollapseButton, Sidebar } from './Sidebar';
 
 const styles = () => ({
   rootVert: {
-    backgroundColor: '#eeeeee'
+    backgroundColor: '#eeeeee',
   },
   rootHorz: {
     paddingTop: '8px',
-    backgroundColor: '#eeeeee'
+    backgroundColor: '#eeeeee',
   },
   spinner: {
     position: 'absolute',
     top: '50%',
-    left: '50%'
-  }
+    left: '50%',
+  },
 });
 
 const FETCHING = '-1';
@@ -42,14 +42,14 @@ const MOBILE_WIDTH = 800;
 const useWindowDimensions = () => {
   const [windowDimensions, setWindowDimensions] = useState({
     width: window.innerWidth,
-    height: window.innerHeight
+    height: window.innerHeight,
   });
 
   useEffect(() => {
     function handleResize() {
       setWindowDimensions({
         width: window.innerWidth,
-        height: window.innerHeight
+        height: window.innerHeight,
       });
     }
     window.addEventListener('resize', handleResize);
@@ -72,7 +72,7 @@ const PdfCommenter = ({
   isLoggedIn,
   setReferences,
   setHighlights,
-  setAcronyms
+  setAcronyms,
 }) => {
   const [url, setUrl] = useState(FETCHING);
   const [title, setTitle] = useState('SciHive');
@@ -81,24 +81,12 @@ const PdfCommenter = ({
   const defaultPdfPrct = 0.75;
   const [pdfSectionPrct, setPdfSectionPrct] = useState({
     width: defaultPdfPrct,
-    height: defaultPdfPrct
+    height: defaultPdfPrct,
   });
 
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
 
-  useEffect(() => {
-    // Fetch paper data
-    axios
-      .get(`/paper/${params.PaperId}`)
-      .then(res => {
-        setUrl(res.data.url);
-        setBookmark(res.data.saved_in_library);
-        if (res.data.title) setTitle(`SciHive - ${res.data.title}`);
-      })
-      .catch(() => {
-        setUrl(FAILED);
-      });
-
+  const fetch_paper_data = () => {
     // Fetch refernces
     axios
       .get(`/paper/${params.PaperId}/references`)
@@ -118,12 +106,27 @@ const PdfCommenter = ({
       .catch(err => {
         console.log(err.response);
       });
+  };
+
+  useEffect(() => {
+    // Fetch paper data
+    axios
+      .get(`/paper/${params.PaperId}`)
+      .then(res => {
+        setUrl(res.data.url);
+        setBookmark(res.data.saved_in_library);
+        if (res.data.title) setTitle(`SciHive - ${res.data.title}`);
+        fetch_paper_data();
+      })
+      .catch(() => {
+        setUrl(FAILED);
+      });
 
     const selectedGroupId = queryString.parse(location.search).group;
     // Fetch comments
     axios
       .get(`/paper/${params.PaperId}/comments`, {
-        params: { group: selectedGroupId }
+        params: { group: selectedGroupId },
       })
       .then(res => {
         setHighlights(res.data.comments);
@@ -144,7 +147,7 @@ const PdfCommenter = ({
             if (group) {
               selectGroup(group);
               toast.success(<span>Welcome to Group {group.name}</span>, {
-                autoClose: 2000
+                autoClose: 2000,
               });
             }
           })
@@ -173,13 +176,9 @@ const PdfCommenter = ({
   if (url === FETCHING) {
     viewerRender = Loader;
   } else if (url === FAILED) {
-    viewerRender = (
-      <div style={{ textAlign: 'center' }}>PDF file does not exist</div>
-    );
+    viewerRender = <div style={{ textAlign: 'center' }}>PDF file does not exist</div>;
   } else {
-    viewerRender = (
-      <PdfViewer beforeLoad={Loader} isVertical={isVertical} url={url} />
-    );
+    viewerRender = <PdfViewer beforeLoad={Loader} isVertical={isVertical} url={url} />;
   }
 
   const sidebarWidth = pageWidth * (1 - pdfSectionPrct.width);
@@ -190,7 +189,7 @@ const PdfCommenter = ({
     setIsSidebarCollapsed(newState);
     setPdfSectionPrct({
       ...setPdfSectionPrct,
-      width: newState ? 1 : defaultPdfPrct
+      width: newState ? 1 : defaultPdfPrct,
     });
   };
 
@@ -213,7 +212,7 @@ const PdfCommenter = ({
         style={{
           position: 'relative',
           height: contentHeight,
-          overflowY: 'hidden'
+          overflowY: 'hidden',
         }}
       >
         <ReadingProgress />
@@ -225,14 +224,14 @@ const PdfCommenter = ({
               onDrag={({ y }) => {
                 setPdfSectionPrct({
                   ...pdfSectionPrct,
-                  height: y / contentHeight
+                  height: y / contentHeight,
                 });
               }}
               bounds={{
                 left: 0,
                 right: 0,
                 top: 50,
-                bottom: contentHeight - 50
+                bottom: contentHeight - 50,
               }}
               step={10}
               isVerticalLine={false}
@@ -265,7 +264,7 @@ const PdfCommenter = ({
                 onDrag={({ x }) =>
                   setPdfSectionPrct({
                     ...pdfSectionPrct,
-                    width: (pageWidth - x) / pageWidth
+                    width: (pageWidth - x) / pageWidth,
                   })
                 }
                 bounds={{ left: 200, right: 600, top: 0, bottom: 0 }}
@@ -280,10 +279,7 @@ const PdfCommenter = ({
                   z-index: 10;
                 `}
               >
-                <CollapseButton
-                  direction={isSidebarCollapsed ? 'right' : 'left'}
-                  onClick={onCollapseClick}
-                />
+                <CollapseButton direction={isSidebarCollapsed ? 'right' : 'left'} onClick={onCollapseClick} />
               </div>
             )}
             <div
@@ -293,9 +289,7 @@ const PdfCommenter = ({
               `}
             >
               {SidebarElement}
-              <div style={{ width: pdfSectionPrct.width * pageWidth }}>
-                {viewerRender}
-              </div>
+              <div style={{ width: pdfSectionPrct.width * pageWidth }}>{viewerRender}</div>
             </div>
           </React.Fragment>
         )}
@@ -306,7 +300,7 @@ const PdfCommenter = ({
 
 const mapStateToProps = state => {
   return {
-    isLoggedIn: !isEmpty(state.user.userData)
+    isLoggedIn: !isEmpty(state.user.userData),
   };
 };
 
@@ -332,12 +326,12 @@ const mapDispatchToProps = dispatch => {
     },
     setAcronyms: acronyms => {
       dispatch(actions.setAcronyms(acronyms));
-    }
+    },
   };
 };
 const withRedux = connect(
   mapStateToProps,
-  mapDispatchToProps
+  mapDispatchToProps,
 );
 
 export default withRedux(withStyles(styles)(withRouter(PdfCommenter)));

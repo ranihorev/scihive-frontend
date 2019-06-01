@@ -18,27 +18,27 @@ const styles = theme => ({
     paddingTop: 10,
     margin: '10px 0px',
     [theme.breakpoints.down('lg')]: {
-      margin: '0px 15px'
-    }
+      margin: '0px 15px',
+    },
   },
   formControl: {
     margin: '8px 0 8px 8px',
-    minWidth: 100
+    minWidth: 100,
   },
   spinnerEmptyState: {
     position: 'absolute',
     top: '50%',
-    left: '50%'
+    left: '50%',
   },
   spinner: {
-    textAlign: 'center'
+    textAlign: 'center',
   },
   scrollWrapper: {
-    width: '100%'
+    width: '100%',
   },
   filters: {
-    marginLeft: 'auto'
-  }
+    marginLeft: 'auto',
+  },
 });
 
 class PapersList extends Component {
@@ -49,7 +49,7 @@ class PapersList extends Component {
       hasMorePapers: true,
       scrollID: Math.random(),
       isLoading: true,
-      papersCount: 0
+      papersCount: 0,
     };
   }
 
@@ -66,14 +66,11 @@ class PapersList extends Component {
   }
 
   getAgeQuery = queryParams => {
-    return (
-      queryParams.age ||
-      (this.props.match.path === '/library' || queryParams.q ? 'all' : 'week')
-    );
+    return queryParams.age || (this.props.match.path === '/library' || queryParams.q ? 'all' : 'week');
   };
 
   getSortQuery = queryParams => {
-    return queryParams.sort || 'tweets';
+    return queryParams.sort || (queryParams.q ? 'score' : 'tweets');
   };
 
   loadPapers = page => {
@@ -106,7 +103,7 @@ class PapersList extends Component {
           papers,
           hasMorePapers,
           isLoading: false,
-          ...(page === 1 && { papersCount: result.data.count })
+          ...(page === 1 && { papersCount: result.data.count }),
         });
       })
       .catch(e => console.warn(e));
@@ -116,11 +113,11 @@ class PapersList extends Component {
     const { location, history } = this.props;
     const newQ = {
       ...queryString.parse(location.search),
-      [event.target.name]: event.target.value.toLowerCase()
+      [event.target.name]: event.target.value.toLowerCase(),
     };
     history.push({
       pathname: location.pathname,
-      search: queryString.stringify(newQ)
+      search: queryString.stringify(newQ),
     });
   };
 
@@ -134,12 +131,7 @@ class PapersList extends Component {
     return (
       <React.Fragment>
         <Grid container className={classes.root}>
-          <Grid
-            container
-            direction="row"
-            alignItems="center"
-            justify="space-between"
-          >
+          <Grid container direction="row" alignItems="center" justify="space-between">
             <Grid item className={classes.summary}>
               {!isLoading ? `${papersCount} papers` : null}
             </Grid>
@@ -159,15 +151,12 @@ class PapersList extends Component {
                 </Select>
               </FormControl>
               <FormControl className={classes.formControl}>
-                <Select
-                  value={sort}
-                  onChange={this.handleFilters}
-                  input={<Input name="sort" id="sort-helper" />}
-                >
+                <Select value={sort} onChange={this.handleFilters} input={<Input name="sort" id="sort-helper" />}>
                   <MenuItem value="date">Date</MenuItem>
                   {/* <MenuItem value="comments">Comments</MenuItem> */}
                   <MenuItem value="tweets">Tweets</MenuItem>
                   <MenuItem value="bookmarks">Stars</MenuItem>
+                  {q && <MenuItem value="score">Relevance</MenuItem>}
                 </Select>
               </FormControl>
             </Grid>
@@ -178,12 +167,7 @@ class PapersList extends Component {
               loadMore={this.loadPapers}
               hasMore={this.state.hasMorePapers}
               loader={
-                <div
-                  key={0}
-                  className={
-                    isLoading ? classes.spinnerEmptyState : classes.spinner
-                  }
-                >
+                <div key={0} className={isLoading ? classes.spinnerEmptyState : classes.spinner}>
                   <CircularProgress />
                 </div>
               }

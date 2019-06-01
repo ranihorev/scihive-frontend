@@ -5,43 +5,43 @@ import parse from 'autosuggest-highlight/parse';
 import Paper from '@material-ui/core/Paper/index';
 import MenuItem from '@material-ui/core/MenuItem/index';
 import { withStyles } from '@material-ui/core/styles/index';
-import InputBase from "@material-ui/core/InputBase/index";
-import { fade } from "@material-ui/core/styles/colorManipulator";
-import SearchIcon from "@material-ui/icons/Search";
-import axios from "axios/index";
-import {withRouter} from "react-router";
-
+import InputBase from '@material-ui/core/InputBase/index';
+import { fade } from '@material-ui/core/styles/colorManipulator';
+import SearchIcon from '@material-ui/icons/Search';
+import axios from 'axios/index';
+import { withRouter } from 'react-router';
+import * as queryString from 'query-string';
 
 const styles = theme => ({
   container: {
     zIndex: 2,
-    position: "relative",
-    "&:focus-within": {
+    position: 'relative',
+    '&:focus-within': {
       flexGrow: 1,
     },
     maxWidth: '600px',
-    transition: theme.transitions.create("flex-grow"),
+    transition: theme.transitions.create('flex-grow'),
   },
   search: {
     borderRadius: theme.shape.borderRadius,
     backgroundColor: fade(theme.palette.common.white, 0.15),
-    "&:hover": {
-      backgroundColor: fade(theme.palette.common.white, 0.25)
+    '&:hover': {
+      backgroundColor: fade(theme.palette.common.white, 0.25),
     },
     marginRight: theme.spacing.unit * 2,
     marginLeft: theme.spacing.unit * 2,
   },
   searchIcon: {
     width: theme.spacing.unit * 6,
-    height: "100%",
-    position: "absolute",
-    pointerEvents: "none",
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "center"
+    height: '100%',
+    position: 'absolute',
+    pointerEvents: 'none',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   inputRoot: {
-    color: "inherit",
+    color: 'inherit',
     display: 'flex',
   },
   inputInput: {
@@ -49,7 +49,7 @@ const styles = theme => ({
     paddingRight: theme.spacing.unit,
     paddingBottom: theme.spacing.unit,
     paddingLeft: theme.spacing.unit * 6,
-    width: "100%",
+    width: '100%',
   },
 
   suggestionsContainerOpen: {
@@ -69,7 +69,6 @@ const styles = theme => ({
   },
 });
 
-
 function renderInputComponent(inputProps) {
   const { classes, inputRef = () => {}, ref, ...other } = inputProps;
 
@@ -82,7 +81,7 @@ function renderInputComponent(inputProps) {
         placeholder="Search…"
         classes={{
           root: classes.inputRoot,
-          input: classes.inputInput
+          input: classes.inputInput,
         }}
         inputRef={node => {
           ref(node);
@@ -97,14 +96,12 @@ function renderInputComponent(inputProps) {
 function renderSuggestion(suggestion, { query, isHighlighted }) {
   const matches = match(suggestion.name, query);
   const parts = parse(suggestion.name, matches);
-  const icon = suggestion.type === 'author' ?
-    <i className="far fa-user" /> :
-    <i className="far fa-file-alt" />;
+  const icon = suggestion.type === 'author' ? <i className="far fa-user" /> : <i className="far fa-file-alt" />;
 
   return (
     <MenuItem selected={isHighlighted} component="div">
       <div>
-        <span style={{fontSize: '85%', paddingRight: '5px'}}>{icon}</span>
+        <span style={{ fontSize: '85%', paddingRight: '5px' }}>{icon}</span>
         {parts.map((part, index) =>
           part.highlight ? (
             <span key={String(index)} style={{ fontWeight: 500 }}>
@@ -125,46 +122,44 @@ function getSuggestionValue(suggestion) {
   return suggestion.name;
 }
 
-class SearchBar extends React.Component {
-  state = {
-    value: '',
-    suggestions: [],
-  };
+const SearchBar = ({ history, classes, location }) => {
+  const { q: urlQuery } = queryString.parse(location.search);
+  const [value, setValue] = React.useState(urlQuery || '');
+  const [suggestions, setSuggestions] = React.useState([]);
 
-  handleSuggestionsFetchRequested = ({ value, reason }) => {
+  React.useEffect(() => {
+    setValue(urlQuery || '');
+  }, [urlQuery]);
+
+  const onSuggestionsFetchRequested = ({ value: reqValue, reason }) => {
     if (reason === 'input-changed') {
-      var self = this;
-      axios.get('/papers/autocomplete', {params: {q: value}})
+      axios
+        .get('/papers/autocomplete', { params: { q: reqValue } })
         .then(res => {
-          self.setState({suggestions: res.data});
+          setSuggestions(res.data);
         })
         .catch(err => console.log(err));
     }
   };
 
-  handleSuggestionsClearRequested = () => {
-    this.setState({
-      suggestions: [],
-    });
+  const onSuggestionsClearRequested = () => {
+    setSuggestions([]);
   };
 
-  handleChange = (event, { newValue }) => {
-    this.setState({
-      value: newValue,
-    });
+  const handleChange = (event, { newValue }) => {
+    setValue(newValue);
   };
 
-  onKeyDown = (e) => {
+  const onKeyDown = e => {
     if (e.keyCode === 13) {
       // TODO search here
       e.preventDefault();
       e.stopPropagation();
-      this.props.history.push({pathname: "/search/", search: `q=${e.target.value}`});
+      history.push({ pathname: '/search/', search: `q=${e.target.value}` });
     }
   };
 
-  onSuggestionSelected = (e, { suggestion }) => {
-    const {history} = this.props;
+  const onSuggestionSelected = (e, { suggestion }) => {
     switch (suggestion.type) {
       case 'author':
         history.push(`/author/${suggestion.name}`);
@@ -173,48 +168,43 @@ class SearchBar extends React.Component {
         history.push(`/paper/${suggestion.id}`);
         break;
       default:
-        console.log('Should not be here')
+        console.log('Should not be here');
     }
   };
 
-  render() {
-    const { classes } = this.props;
+  const autosuggestProps = {
+    renderInputComponent,
+    suggestions,
+    onSuggestionsFetchRequested,
+    onSuggestionsClearRequested,
+    getSuggestionValue,
+    renderSuggestion,
+    onSuggestionSelected,
+  };
 
-    const autosuggestProps = {
-      renderInputComponent,
-      suggestions: this.state.suggestions,
-      onSuggestionsFetchRequested: this.handleSuggestionsFetchRequested,
-      onSuggestionsClearRequested: this.handleSuggestionsClearRequested,
-      getSuggestionValue,
-      renderSuggestion,
-      onSuggestionSelected: this.onSuggestionSelected,
-    };
-
-    return (
-      <Autosuggest
-          {...autosuggestProps}
-          inputProps={{
-            classes,
-            placeholder: 'Search',
-            value: this.state.value,
-            onChange: this.handleChange,
-            onKeyDown: this.onKeyDown,
-          }}
-          theme={{
-            container: classes.container,
-            suggestionsContainerOpen: classes.suggestionsContainerOpen,
-            suggestionsList: classes.suggestionsList,
-            suggestion: classes.suggestion,
-          }}
-          renderSuggestionsContainer={options => (
-            <Paper {...options.containerProps} square>
-              {options.children}
-            </Paper>
-          )}
-        />
-    );
-  }
-}
-
+  return (
+    <Autosuggest
+      {...autosuggestProps}
+      inputProps={{
+        classes,
+        placeholder: 'Search',
+        value,
+        onChange: handleChange,
+        onKeyDown,
+      }}
+      theme={{
+        container: classes.container,
+        suggestionsContainerOpen: classes.suggestionsContainerOpen,
+        suggestionsList: classes.suggestionsList,
+        suggestion: classes.suggestion,
+      }}
+      renderSuggestionsContainer={options => (
+        <Paper {...options.containerProps} square>
+          {options.children}
+        </Paper>
+      )}
+    />
+  );
+};
 
 export default withStyles(styles)(withRouter(SearchBar));

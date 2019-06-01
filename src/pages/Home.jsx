@@ -1,7 +1,6 @@
 import React from 'react';
 import { withStyles } from '@material-ui/core/styles/index';
 import Grid from '@material-ui/core/Grid';
-import { Helmet } from 'react-helmet';
 import PapersList from '../components/PapersList';
 import PrimaryAppBar from '../components/TopBar/PrimaryAppBar';
 import { PaperDekstopMenu, PaperMobileMenu } from '../components/TopBar/PapersListMenuBar';

@@ -77,6 +77,13 @@ const PdfAnnotator = ({
   const linkService = React.useRef(null);
   const containerNode = React.useRef(null);
 
+  const hideTipAndSelection = () => {
+    const tipNode = findOrCreateContainerLayer(viewer.current.viewer, 'PdfHighlighter__tip-layer');
+    ReactDom.unmountComponentAtNode(tipNode);
+    setGhostHighlight(null);
+    setTip(null);
+  };
+
   const handleKeyDown = event => {
     if (event.code === 'Escape') {
       hideTipAndSelection();
@@ -137,13 +144,6 @@ const PdfAnnotator = ({
     viewer.current.currentScaleValue = containerNode.current.clientWidth / viewport.width - 0.05;
     setIsDocumentReady(true);
     scrollRef(scrollTo);
-  };
-
-  const hideTipAndSelection = () => {
-    const tipNode = findOrCreateContainerLayer(viewer.current.viewer, 'PdfHighlighter__tip-layer');
-    ReactDom.unmountComponentAtNode(tipNode);
-    setGhostHighlight(null);
-    setTip(null);
   };
 
   const screenshot = (position, pageNumber) => {

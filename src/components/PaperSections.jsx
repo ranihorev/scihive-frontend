@@ -7,13 +7,13 @@ import { presets } from '../utils';
 const sectionToPadding = {
   section: 0,
   subsection: 10,
-  subsubsection: 20
+  subsubsection: 20,
 };
 
 const sectionToFontSize = {
   section: 0.9,
   subsection: 0.8,
-  subsubsection: 0.7
+  subsubsection: 0.7,
 };
 
 const asc = arr => arr.sort((a, b) => a - b);
@@ -29,8 +29,7 @@ const quantile = (arr, q) => {
   return sorted[base];
 };
 
-const maxKey = obj =>
-  Object.keys(obj).reduce((a, b) => (obj[a] > obj[b] ? a : b));
+const maxKey = obj => Object.keys(obj).reduce((a, b) => (obj[a] > obj[b] ? a : b));
 
 export const extractSections = (document, onSuccess) => {
   const regex = new RegExp(`^(\\d+\\.?)+\\s+.{0,50}$`);
@@ -49,15 +48,14 @@ export const extractSections = (document, onSuccess) => {
       allContent.forEach((content, pageIdx) => {
         content.items.forEach(text => {
           allHeights.push(text.height);
-          if (fontsCount[text.fontName] === undefined)
-            fontsCount[text.fontName] = 0;
+          if (fontsCount[text.fontName] === undefined) fontsCount[text.fontName] = 0;
           fontsCount[text.fontName] += 1;
           if (text.str.match(regex)) {
             optionalSections.push({ ...text, page: pageIdx });
           }
         });
       });
-      const heightThreshold = quantile(allHeights, 0.8);
+      const heightThreshold = quantile(allHeights, 0.95);
       const heightMedian = quantile(allHeights, 0.5);
       const mostPopularFont = maxKey(fontsCount);
       const sections = optionalSections.filter(
@@ -65,8 +63,7 @@ export const extractSections = (document, onSuccess) => {
         section =>
           section.str.match(/\D{3,}/) && // At least 3 non-digits in a row
           (section.height > heightThreshold ||
-            (section.height >= heightMedian &&
-              section.fontName !== mostPopularFont))
+            (section.height >= heightMedian && section.fontName !== mostPopularFont)),
       );
       onSuccess(sections);
     });
@@ -109,7 +106,7 @@ const PaperSectionsRender = ({ sections }) => {
 
 const mapStateToProps = state => {
   return {
-    sections: state.paper.sections
+    sections: state.paper.sections,
   };
 };
 

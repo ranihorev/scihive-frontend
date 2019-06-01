@@ -289,7 +289,14 @@ const PdfCommenter = ({
               `}
             >
               {SidebarElement}
-              <div style={{ width: pdfSectionPrct.width * pageWidth }}>{viewerRender}</div>
+              <div
+                style={{ width: pdfSectionPrct.width * pageWidth }}
+                css={css`
+                  position: relative;
+                `}
+              >
+                {viewerRender}
+              </div>
             </div>
           </React.Fragment>
         )}

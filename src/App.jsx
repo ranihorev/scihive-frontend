@@ -13,6 +13,7 @@ import NotFound from './pages/NotFound';
 import About from './pages/About';
 import chromeExtensionPopup from './utils/chromeExtension';
 import { themePalette } from './utils/presets';
+import Admin from './pages/Admin';
 
 const theme = createMuiTheme({
   palette: {
@@ -48,6 +49,7 @@ const App = ({ isLoggedIn }) => {
           <Route path="/author/:authorId" exact component={Home} />
           <Route path="/paper/:PaperId" exact component={Paper} />
           <Route path="/about" exact component={About} />
+          <Route path="/admin" exact component={Admin} />
           <Route component={NotFound} />
         </Switch>
         <ToastContainer

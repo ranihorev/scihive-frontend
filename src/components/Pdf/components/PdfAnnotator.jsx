@@ -70,7 +70,9 @@ const PdfAnnotator = ({
   const [scrolledToHighlightId, setScrolledToHighlightId] = React.useState(EMPTY_ID);
   const [isAreaSelectionInProgress, setIsAreaSelectionInProgress] = React.useState(false);
   const [isDocumentReady, setIsDocumentReady] = React.useState(false);
-  const [currTextLayerPage, setCurrTextLayerPage] = React.useState(0);
+  const [requestRender, setRequestRender] = React.useState(false);
+  const pagesToRenderAcronyms = React.useRef([]);
+  const [firstPageRendered, setFirstPageRendered] = React.useState(false);
   const [acronymPositions, setAcronymPositions] = React.useState({});
 
   const viewer = React.useRef(null);
@@ -308,7 +310,9 @@ const PdfAnnotator = ({
   };
 
   const onTextLayerRendered = event => {
-    setCurrTextLayerPage(event.detail.pageNumber);
+    pagesToRenderAcronyms.current.push(event.detail.pageNumber - 1);
+    setRequestRender(true);
+    setFirstPageRendered(true);
   };
 
   const containerStyle = isVertical
@@ -407,19 +411,24 @@ const PdfAnnotator = ({
   }, [isDocumentReady, acronyms]);
 
   React.useEffect(() => {
-    if (!isDocumentReady || currTextLayerPage === 0 || isEmpty(acronymPositions)) return;
-    const pageIdx = currTextLayerPage - 1;
-    const { textLayer } = viewer.current.getPageView(pageIdx);
-    for (const acronym of Object.keys(acronymPositions)) {
-      const m = convertMatches(acronym.length, acronymPositions[acronym][pageIdx], textLayer);
-      renderMatches(m, 0, textLayer, acronyms[acronym]);
+    if (!isDocumentReady || isEmpty(pagesToRenderAcronyms.current) || isEmpty(acronymPositions) || !requestRender)
+      return;
+    for (const pageIdx of pagesToRenderAcronyms.current) {
+      console.log(`page: ${pageIdx}`);
+      const { textLayer } = viewer.current.getPageView(pageIdx);
+      for (const acronym of Object.keys(acronymPositions)) {
+        const m = convertMatches(acronym.length, acronymPositions[acronym][pageIdx], textLayer);
+        renderMatches(m, 0, textLayer, acronyms[acronym]);
+      }
     }
-  }, [isDocumentReady, currTextLayerPage, acronymPositions]);
+    setRequestRender(false);
+    pagesToRenderAcronyms.current = [];
+  }, [isDocumentReady, requestRender, acronymPositions]);
 
   React.useEffect(() => {
-    if (!isDocumentReady || currTextLayerPage === 0) return;
+    if (!isDocumentReady || !firstPageRendered) return;
     renderHighlights();
-  }, [isDocumentReady, currTextLayerPage, ghostHighlight, isCollapsed, scrolledToHighlightId, highlights]);
+  }, [isDocumentReady, firstPageRendered, ghostHighlight, isCollapsed, scrolledToHighlightId, highlights]);
 
   return (
     <React.Fragment>

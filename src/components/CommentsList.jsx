@@ -11,7 +11,7 @@ import axios from 'axios';
 import { withRouter } from 'react-router';
 import { isEmpty } from 'lodash';
 import Comment from './Comment';
-import { linkButton } from '../utils/presets';
+import { linkButton, themePalette } from '../utils/presets';
 import { actions } from '../actions';
 
 const parseIdFromHash = () => window.location.hash.slice('#comment-'.length);
@@ -20,6 +20,11 @@ const refs = {};
 const containerRef = React.createRef();
 const WELCOME_COOKIE = 'comments-welcome';
 
+const floatingIconCss = css`
+  color: ${themePalette.primary.main};
+  font-size: 14px;
+`;
+
 function CommentsList({
   highlights,
   removeHighlight: removeHighlightAction,
@@ -27,14 +32,14 @@ function CommentsList({
   toggleHighlightsVisiblity,
   isHighlightsHidden,
   match: { params },
-  isVertical
+  isVertical,
 }) {
   const [focusedId, setFocusedId] = useState();
 
   const removeHighlight = highlightId => {
     axios
       .delete(`/paper/${params.PaperId}/comment/${highlightId}`, {
-        id: highlightId
+        id: highlightId,
       })
       .then(() => {
         removeHighlightAction(highlightId);
@@ -74,14 +79,8 @@ function CommentsList({
   const Welcome = !cookies[WELCOME_COOKIE] && (
     <div style={{ padding: '0.2rem 0.7rem' }}>
       <small>
-        <p style={{ marginTop: 0 }}>
-          Leave questions and comments for the community by highlighting the
-          text.
-        </p>
-        <p>
-          Want to comment on a figure? Hold ⌥ on Mac or Alt on Windows and drag
-          over it.
-        </p>
+        <p style={{ marginTop: 0 }}>Leave questions and comments for the community by highlighting the text.</p>
+        <p>Want to comment on a figure? Hold ⌥ on Mac or Alt on Windows and drag over it.</p>
         <div
           css={css`
             width: 100%;
@@ -90,11 +89,7 @@ function CommentsList({
             margin-top: -17px;
           `}
         >
-          <button
-            type="button"
-            css={linkButton}
-            onClick={() => setCookie(WELCOME_COOKIE, 1)}
-          >
+          <button type="button" css={linkButton} onClick={() => setCookie(WELCOME_COOKIE, 1)}>
             Got it
           </button>
         </div>
@@ -138,25 +133,14 @@ function CommentsList({
           }
         `}
       >
-        <Tooltip
-          title={`${isHighlightsHidden ? 'Show' : 'Hide'} all comments`}
-          placement="top"
-        >
+        <Tooltip title={`${isHighlightsHidden ? 'Show' : 'Hide'} all comments`} placement="top">
           <IconButton onClick={() => toggleHighlightsVisiblity()}>
-            <i
-              className={`fas ${
-                isHighlightsHidden ? 'fa-eye-slash' : 'fa-eye'
-              }`}
-              style={{ fontSize: 14 }}
-            />
+            <i className={`fas ${isHighlightsHidden ? 'fa-eye-slash' : 'fa-eye'}`} css={floatingIconCss} />
           </IconButton>
         </Tooltip>
-        <Tooltip
-          title="To create area highlight hold Option/Alt key, then click and drag."
-          placement="top"
-        >
+        <Tooltip title="To create area highlight hold Option/Alt key, then click and drag." placement="top">
           <IconButton>
-            <i className="fas fa-info-circle" style={{ fontSize: 14 }} />
+            <i className="fas fa-info-circle" css={floatingIconCss} />
           </IconButton>
         </Tooltip>
       </div>
@@ -167,7 +151,7 @@ function CommentsList({
 const mapStateToProps = state => {
   return {
     highlights: state.paper.highlights,
-    isHighlightsHidden: !isEmpty(state.paper.hiddenHighlights)
+    isHighlightsHidden: !isEmpty(state.paper.hiddenHighlights),
   };
 };
 
@@ -181,12 +165,12 @@ const mapDispatchToProps = dispatch => {
     },
     toggleHighlightsVisiblity: () => {
       dispatch(actions.toggleHighlightsVisiblity());
-    }
+    },
   };
 };
 const withRedux = connect(
   mapStateToProps,
-  mapDispatchToProps
+  mapDispatchToProps,
 );
 
 export default withRouter(withRedux(CommentsList));

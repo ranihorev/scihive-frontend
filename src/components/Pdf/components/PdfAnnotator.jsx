@@ -419,7 +419,7 @@ const PdfAnnotator = ({
   React.useEffect(() => {
     if (!isDocumentReady || currTextLayerPage === 0) return;
     renderHighlights();
-  }, [isDocumentReady, currTextLayerPage, ghostHighlight, isCollapsed, scrolledToHighlightId]);
+  }, [isDocumentReady, currTextLayerPage, ghostHighlight, isCollapsed, scrolledToHighlightId, highlights]);
 
   return (
     <React.Fragment>

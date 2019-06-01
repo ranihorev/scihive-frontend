@@ -50,3 +50,10 @@ export const popupCss = css`
     margin-bottom: 0;
   }
 `;
+
+export const themePalette = {
+  primary: {
+    main: '#36a0f5',
+    contrastText: 'white',
+  },
+};

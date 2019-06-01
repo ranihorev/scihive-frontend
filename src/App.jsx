@@ -12,15 +12,13 @@ import LoginSignupModal from './components/LoginSignupModal';
 import NotFound from './pages/NotFound';
 import About from './pages/About';
 import chromeExtensionPopup from './utils/chromeExtension';
+import { themePalette } from './utils/presets';
 
 const theme = createMuiTheme({
   palette: {
-    primary: {
-      main: '#36a0f5',
-      contrastText: 'white'
-    }
+    ...themePalette,
   },
-  typography: { useNextVariants: true }
+  typography: { useNextVariants: true },
 });
 
 const App = ({ isLoggedIn }) => {
@@ -68,7 +66,7 @@ const App = ({ isLoggedIn }) => {
 
 const mapStateToProps = state => {
   return {
-    isLoggedIn: !isEmpty(state.user.userData)
+    isLoggedIn: !isEmpty(state.user.userData),
   };
 };
 

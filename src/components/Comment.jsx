@@ -14,6 +14,7 @@ import { withRouter } from 'react-router';
 import Grid from '@material-ui/core/Grid';
 import Linkify from 'react-linkify';
 import Tooltip from '@material-ui/core/Tooltip';
+import * as Latex from 'react-latex';
 import Replies from './Replies';
 import get_age from './timeUtils';
 import NewReply from './NewReply';
@@ -26,19 +27,12 @@ const visibiltyToIcon = {
   private: 'fas fa-user-shield',
   public: 'fas fa-globe',
   anonymous: 'fas fa-globe',
-  group: 'fas fa-users'
+  group: 'fas fa-users',
 };
 
 const capitalize = string => string.charAt(0).toUpperCase() + string.slice(1);
 
-function Comment({
-  isFocused,
-  highlight,
-  removeHighlight,
-  updateHighlight,
-  setRef,
-  match: { params }
-}) {
+function Comment({ isFocused, highlight, removeHighlight, updateHighlight, setRef, match: { params } }) {
   const { image, text } = highlight.content;
   const [editMode, setEditMode] = useState(false);
   const [commentText, setCommentText] = useState(highlight.comment.text);
@@ -52,7 +46,7 @@ function Comment({
     e.preventDefault();
     axios
       .patch(`/paper/${params.PaperId}/comment/${highlight.id}`, {
-        comment: commentText
+        comment: commentText,
       })
       .then(res => {
         updateHighlight(res.data.comment);
@@ -64,7 +58,7 @@ function Comment({
   const submitReply = replyText => {
     axios
       .post(`/paper/${params.PaperId}/comment/${highlight.id}/reply`, {
-        text: replyText
+        text: replyText,
       })
       .then(res => {
         setShowReply(false);
@@ -136,7 +130,7 @@ function Comment({
     ''
   );
   const textMaxLen = 50;
-  const textDom = text ? (
+  const textDom = text && (
     <blockquote
       css={css`
         font-size: 0.7rem;
@@ -158,14 +152,15 @@ function Comment({
       {text.slice(0, textMaxLen)}
       {text.length > textMaxLen ? '...' : ''}{' '}
     </blockquote>
-  ) : (
-    ''
   );
 
   return (
     <div
       css={css`
         width: 100%;
+        .katex {
+          font-size: 0.85rem;
+        }
       `}
       ref={setRef}
     >
@@ -207,12 +202,7 @@ function Comment({
                   }
                 }}
               />
-              <Button
-                type="submit"
-                variant="contained"
-                color="primary"
-                size="small"
-              >
+              <Button type="submit" variant="contained" color="primary" size="small">
                 Save
               </Button>
             </form>
@@ -224,11 +214,8 @@ function Comment({
                 cursor: pointer;
               `}
             >
-              <Linkify
-                properties={{ target: '_blank' }}
-                textDecorator={truncateURL}
-              >
-                {highlight.comment.text}
+              <Linkify properties={{ target: '_blank' }} textDecorator={truncateURL}>
+                <Latex>{highlight.comment.text}</Latex>
               </Linkify>
             </Typography>
           )}

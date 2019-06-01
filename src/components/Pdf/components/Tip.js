@@ -121,7 +121,7 @@ class Tip extends Component<Props, State> {
               border: 1px solid #e8e8e8;
               border-radius: 4px;
               box-shadow: 0 2px 4px rgba(37, 40, 43, 0.2);
-              width: 270px;
+              width: 290px;
               textarea {
                 font-size: 16px;
                 height: 70px;
@@ -151,6 +151,9 @@ class Tip extends Component<Props, State> {
                   }
                 }}
               />
+            </div>
+            <div css={css`${presets.row}; font-size: 0.65rem; color: grey; margin-bottom: 8px;`}>
+              * Type LaTeX formulas using $ signs, e.g. $(3\times 4)$
             </div>
             <div
               css={css`

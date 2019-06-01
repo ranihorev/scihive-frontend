@@ -1,12 +1,12 @@
 /** @jsx jsx */
 import { css, jsx } from '@emotion/core';
 
-import React, { useState } from 'react';
+import React from 'react';
 import Button from '@material-ui/core/Button';
 import TextField from '@material-ui/core/TextField';
 
 const NewReply = ({ onSubmit }) => {
-  const [reply, setReply] = useState('');
+  const [reply, setReply] = React.useState('');
 
   const submitForm = e => {
     e.preventDefault();

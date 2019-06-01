@@ -1,6 +1,6 @@
 /** @jsx jsx */
 import { css, jsx } from '@emotion/core';
-import React, { useState } from 'react';
+import { useState } from 'react';
 
 import Card from '@material-ui/core/Card';
 import CardMedia from '@material-ui/core/CardMedia';
@@ -194,6 +194,9 @@ function Comment({ isFocused, highlight, removeHighlight, updateHighlight, setRe
                 margin="normal"
                 variant="outlined"
                 value={commentText}
+                onKeyDown={e => {
+                  if (e.key === 'Escape') setEditMode(false);
+                }}
                 onChange={event => setCommentText(event.target.value)}
                 style={{ width: '100%' }}
                 inputRef={inp => {
@@ -231,8 +234,8 @@ function Comment({ isFocused, highlight, removeHighlight, updateHighlight, setRe
             </div>
           </div>
           {actions}
-          {highlight.replies ? <Replies replies={highlight.replies} /> : ''}
-          {showReply ? <NewReply onSubmit={submitReply} /> : ''}
+          {highlight.replies && <Replies replies={highlight.replies} />}
+          {showReply && <NewReply onSubmit={submitReply} />}
         </CardContent>
       </Card>
     </div>

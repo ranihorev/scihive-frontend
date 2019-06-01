@@ -1,6 +1,6 @@
 /** @jsx jsx */
 import { css, jsx } from '@emotion/core';
-import React from 'react';
+import * as Latex from 'react-latex';
 
 const Replies = ({ replies }) => {
   return (
@@ -16,9 +16,12 @@ const Replies = ({ replies }) => {
             css={css`
               padding-top: 5px;
               font-size: 0.8rem;
+              .katex {
+                font-size: 0.75rem;
+              }
             `}
           >
-            <b>{reply.user}</b> {reply.text}
+            <b>{reply.user}</b> <Latex>{reply.text}</Latex>
           </div>
         );
       })}

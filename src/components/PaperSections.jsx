@@ -32,7 +32,7 @@ const quantile = (arr, q) => {
 const maxKey = obj => Object.keys(obj).reduce((a, b) => (obj[a] > obj[b] ? a : b));
 
 export const extractSections = (document, onSuccess) => {
-  const regex = new RegExp(`^(\\d+\\.?)+\\s+.{0,50}$`);
+  const regex = new RegExp(`^(\\d+\\.?)+\\s+.{0,60}$`);
   const allHeights = [];
   const optionalSections = [];
   const fontsCount = {};

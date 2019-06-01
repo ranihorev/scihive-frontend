@@ -414,7 +414,6 @@ const PdfAnnotator = ({
     if (!isDocumentReady || isEmpty(pagesToRenderAcronyms.current) || isEmpty(acronymPositions) || !requestRender)
       return;
     for (const pageIdx of pagesToRenderAcronyms.current) {
-      console.log(`page: ${pageIdx}`);
       const { textLayer } = viewer.current.getPageView(pageIdx);
       for (const acronym of Object.keys(acronymPositions)) {
         const m = convertMatches(acronym.length, acronymPositions[acronym][pageIdx], textLayer);

@@ -24,12 +24,7 @@ const logout = () => {
     .catch(err => console.log(err.response));
 };
 
-const MobileMenuRender = ({
-  rootChildren = null,
-  submenuChildren = null,
-  isLoggedIn,
-  toggleLoginModal
-}) => {
+const MobileMenuRender = ({ rootChildren = null, submenuChildren = null, isLoggedIn, toggleLoginModal }) => {
   const [mobileAnchorEl, setMobileAnchorEl] = useState(null);
 
   const handleMobileMenuOpen = event => {
@@ -46,17 +41,13 @@ const MobileMenuRender = ({
   };
 
   const submenuChildrenWithClose = React.Children.map(submenuChildren, child =>
-    React.cloneElement(child, { handleMobileMenuClick })
+    React.cloneElement(child, { handleMobileMenuClick }),
   );
 
   return (
     <React.Fragment>
       {rootChildren}
-      <IconButton
-        aria-haspopup="true"
-        onClick={handleMobileMenuOpen}
-        color="inherit"
-      >
+      <IconButton aria-haspopup="true" onClick={handleMobileMenuOpen} color="inherit">
         <MoreIcon />
       </IconButton>
       <Menu
@@ -64,11 +55,11 @@ const MobileMenuRender = ({
         anchorEl={mobileAnchorEl}
         anchorOrigin={{
           vertical: 'top',
-          horizontal: 'right'
+          horizontal: 'right',
         }}
         transformOrigin={{
           vertical: 'top',
-          horizontal: 'right'
+          horizontal: 'right',
         }}
         open={Boolean(mobileAnchorEl)}
         onClose={handleMobileMenuClose}
@@ -93,17 +84,11 @@ const MobileMenuRender = ({
         </Link>
         <Divider />
         {isLoggedIn ? (
-          <MenuItem
-            color="inherit"
-            onClick={() => handleMobileMenuClick(logout)}
-          >
+          <MenuItem color="inherit" onClick={() => handleMobileMenuClick(logout)}>
             Logout
           </MenuItem>
         ) : (
-          <MenuItem
-            color="inherit"
-            onClick={() => handleMobileMenuClick(toggleLoginModal)}
-          >
+          <MenuItem color="inherit" onClick={() => handleMobileMenuClick(toggleLoginModal)}>
             Login
           </MenuItem>
         )}
@@ -150,11 +135,11 @@ const DesktopMenuRender = ({ children, isLoggedIn, toggleLoginModal }) => {
         anchorEl={anchorEl}
         anchorOrigin={{
           vertical: 'top',
-          horizontal: 'right'
+          horizontal: 'right',
         }}
         transformOrigin={{
           vertical: 'top',
-          horizontal: 'right'
+          horizontal: 'right',
         }}
         open={Boolean(anchorEl)}
         onClose={() => handleMenuClose()}
@@ -165,28 +150,21 @@ const DesktopMenuRender = ({ children, isLoggedIn, toggleLoginModal }) => {
           rel="noopener noreferrer"
           css={simpleLink}
         >
-          <MenuItem onClick={() => handleMenuClose()}>
-            Chrome Extension
-          </MenuItem>
+          <MenuItem onClick={() => handleMenuClose()}>Chrome Extension</MenuItem>
         </a>
-        <a
-          href="https://goo.gl/forms/fiEWkXfk4hLW6i1P2"
-          target="_blank"
-          rel="noopener noreferrer"
-          css={simpleLink}
-        >
+        <a href="https://goo.gl/forms/fiEWkXfk4hLW6i1P2" target="_blank" rel="noopener noreferrer" css={simpleLink}>
           <MenuItem onClick={() => handleMenuClose()}>Our poll</MenuItem>
         </a>
         <Link to="/about" css={simpleLink}>
           <MenuItem color="inherit">About</MenuItem>
         </Link>
         {isLoggedIn ? (
-          <React.Fragment>
+          <div>
             <Divider />
             <MenuItem color="inherit" onClick={() => handleMenuClose(logout)}>
               Logout
             </MenuItem>
-          </React.Fragment>
+          </div>
         ) : null}
       </Menu>
     </React.Fragment>
@@ -195,7 +173,7 @@ const DesktopMenuRender = ({ children, isLoggedIn, toggleLoginModal }) => {
 
 const mapStateToProps = state => {
   return {
-    isLoggedIn: !isEmpty(state.user.userData)
+    isLoggedIn: !isEmpty(state.user.userData),
   };
 };
 
@@ -203,13 +181,13 @@ const mapDispatchToProps = dispatch => {
   return {
     toggleLoginModal: () => {
       dispatch(actions.toggleLoginModal());
-    }
+    },
   };
 };
 
 const withRedux = connect(
   mapStateToProps,
-  mapDispatchToProps
+  mapDispatchToProps,
 );
 export const DesktopMenu = withRedux(DesktopMenuRender);
 export const MobileMenu = withRedux(MobileMenuRender);

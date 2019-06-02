@@ -16,7 +16,7 @@ import getAreaAsPng from '../lib/get-area-as-png';
 import '../style/pdf_viewer.css';
 import '../style/PdfHighlighter.css';
 
-import { getPageFromRange, findOrCreateContainerLayer } from '../lib/pdfjs-dom';
+import { getPageFromRange, findOrCreateContainerLayer, getPageFromElement } from '../lib/pdfjs-dom';
 
 import TipContainer from './TipContainer';
 import MouseSelection from './MouseSelection';
@@ -202,8 +202,46 @@ const PdfAnnotator = ({
     );
   };
 
+  const onSelection = (startTarget, boundingRect, resetSelection) => {
+    const page = getPageFromElement(startTarget);
+
+    if (!page) return;
+
+    const pageBoundingRect = {
+      ...boundingRect,
+      top: boundingRect.top - page.node.offsetTop,
+      left: boundingRect.left - page.node.offsetLeft,
+    };
+
+    const viewportPosition = {
+      boundingRect: pageBoundingRect,
+      rects: [],
+      pageNumber: page.number,
+    };
+
+    const scaledPosition = viewportPositionToScaled(viewportPosition);
+
+    const image = screenshot(pageBoundingRect, page.number);
+
+    renderTipAtPosition(
+      viewportPosition,
+      onSelectionFinished(
+        scaledPosition,
+        { image },
+        () => hideTipAndSelection(),
+        () => {
+          setGhostHighlight({
+            position: scaledPosition,
+            content: { image },
+          });
+        },
+      ),
+    );
+  };
+
   const afterSelection = () => {
     if (!range || isCollapsed) return;
+    console.log('here');
     const page = getPageFromRange(range);
     if (!page) return;
 
@@ -477,7 +515,7 @@ const PdfAnnotator = ({
                 event.target instanceof HTMLElement &&
                 Boolean(event.target.closest('.page'))
               }
-              onSelection={() => {}}
+              onSelection={onSelection}
             />
           ) : null}
         </div>

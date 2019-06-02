@@ -27,5 +27,3 @@ export const withTracker = (WrappedComponent, options = {}) => {
 
   return HOC;
 };
-
-export default withTracker;

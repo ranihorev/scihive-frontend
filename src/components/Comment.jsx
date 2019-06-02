@@ -1,6 +1,6 @@
 /** @jsx jsx */
 import { css, jsx } from '@emotion/core';
-import { useState } from 'react';
+import React from 'react';
 
 import Card from '@material-ui/core/Card';
 import CardMedia from '@material-ui/core/CardMedia';
@@ -12,16 +12,13 @@ import Button from '@material-ui/core/Button';
 import axios from 'axios';
 import { withRouter } from 'react-router';
 import Grid from '@material-ui/core/Grid';
-import Linkify from 'react-linkify';
+
 import Tooltip from '@material-ui/core/Tooltip';
-import * as Latex from 'react-latex';
 import Replies from './Replies';
 import get_age from './timeUtils';
 import NewReply from './NewReply';
 
-const truncateURL = url => {
-  return `${url.replace(/^https?:\/\//, '').substring(0, 20)}...`;
-};
+import { TextLinkifyLatex } from './TextLinkifyLatex';
 
 const visibiltyToIcon = {
   private: 'fas fa-user-shield',
@@ -34,9 +31,9 @@ const capitalize = string => string.charAt(0).toUpperCase() + string.slice(1);
 
 function Comment({ isFocused, highlight, removeHighlight, updateHighlight, setRef, match: { params } }) {
   const { image, text } = highlight.content;
-  const [editMode, setEditMode] = useState(false);
-  const [commentText, setCommentText] = useState(highlight.comment.text);
-  const [showReply, setShowReply] = useState(false);
+  const [editMode, setEditMode] = React.useState(false);
+  const [commentText, setCommentText] = React.useState(highlight.comment.text);
+  const [showReply, setShowReply] = React.useState(false);
 
   const updateHash = () => {
     window.location.hash = `highlight-${highlight.id}`;
@@ -211,15 +208,13 @@ function Comment({ isFocused, highlight, removeHighlight, updateHighlight, setRe
             </form>
           ) : (
             <Typography
-              component="p"
+              component="div"
               onClick={updateHash}
               css={css`
                 cursor: pointer;
               `}
             >
-              <Linkify properties={{ target: '_blank' }} textDecorator={truncateURL}>
-                <Latex>{highlight.comment.text}</Latex>
-              </Linkify>
+              <TextLinkifyLatex text={highlight.comment.text} />
             </Typography>
           )}
           <div

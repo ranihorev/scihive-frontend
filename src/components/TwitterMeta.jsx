@@ -13,12 +13,12 @@ const styles = () => ({
   link: {
     textTransform: 'inherit',
     textDecoration: 'inherit',
-    color: 'inherit'
+    color: 'inherit',
   },
   popover: {
     maxHeight: '150px',
-    overflowY: 'auto'
-  }
+    overflowY: 'auto',
+  },
 });
 
 const TwitterMeta = ({ twtr_score, twtr_links, classes, iconClass }) => {
@@ -53,17 +53,17 @@ const TwitterMeta = ({ twtr_score, twtr_links, classes, iconClass }) => {
         onClose={handleClose}
         anchorOrigin={{
           vertical: 'bottom',
-          horizontal: 'center'
+          horizontal: 'center',
         }}
         transformOrigin={{
           vertical: 'top',
-          horizontal: 'center'
+          horizontal: 'center',
         }}
         classes={{ paper: classes.popover }}
       >
         <List className={classes.links}>
           {links.map((l, idx) => (
-            <a key={idx} className={classes.link} href={l.link} target="_blank">
+            <a key={idx} className={classes.link} href={l.link} target="_blank" rel="noopener noreferrer">
               <ListItem button>
                 <ListItemIcon>
                   <i className="fab fa-twitter" />

@@ -1,20 +1,7 @@
 /** @jsx jsx */
 import { css, jsx } from '@emotion/core';
-import React from 'react';
 import { connect } from 'react-redux';
 import { presets } from '../utils';
-
-const sectionToPadding = {
-  section: 0,
-  subsection: 10,
-  subsubsection: 20,
-};
-
-const sectionToFontSize = {
-  section: 0.9,
-  subsection: 0.8,
-  subsubsection: 0.7,
-};
 
 const asc = arr => arr.sort((a, b) => a - b);
 

@@ -1,6 +1,6 @@
 /** @jsx jsx */
 import { css, jsx } from '@emotion/core';
-import * as Latex from 'react-latex';
+import { TextLinkifyLatex } from './TextLinkifyLatex';
 
 const Replies = ({ replies }) => {
   return (
@@ -21,7 +21,7 @@ const Replies = ({ replies }) => {
               }
             `}
           >
-            <b>{reply.user}</b> <Latex>{reply.text}</Latex>
+            <b>{reply.user}</b> <TextLinkifyLatex text={reply.text} />
           </div>
         );
       })}

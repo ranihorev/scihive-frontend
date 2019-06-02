@@ -1,7 +1,7 @@
 // @flow
 
 import pdfjs from 'pdfjs-dist';
-import React, {Component} from 'react';
+import React from 'react';
 import {connect} from 'react-redux';
 
 import type {T_PDFJS_Document} from '../types';
@@ -32,7 +32,7 @@ type State = {
   number
 };
 
-class PdfLoader extends Component<Props, State> {
+class PdfLoader extends React.Component<Props, State> {
   state = {pdfDocument: null, status: STATUS.LOADING};
 
   componentDidMount() {

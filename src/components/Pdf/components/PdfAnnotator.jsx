@@ -241,7 +241,6 @@ const PdfAnnotator = ({
 
   const afterSelection = () => {
     if (!range || isCollapsed) return;
-    console.log('here');
     const page = getPageFromRange(range);
     if (!page) return;
 

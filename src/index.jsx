@@ -11,7 +11,8 @@ import { store } from './store';
 import { withTracker } from './Tracker';
 import './index.css';
 
-if (process.env.REACT_APP_SENTRY_DSN) Sentry.init({ dsn: process.env.REACT_APP_SENTRY_DSN });
+if (process.env.REACT_APP_SENTRY_DSN && process.env.NODE_ENV === 'production')
+  Sentry.init({ dsn: process.env.REACT_APP_SENTRY_DSN });
 
 axios.defaults.baseURL = process.env.REACT_APP_BASE_URL;
 axios.defaults.withCredentials = true;

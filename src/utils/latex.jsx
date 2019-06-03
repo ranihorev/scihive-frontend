@@ -1,4 +1,5 @@
 // Based  on https://github.com/zzish/react-latex/
+import React from 'react';
 import katex from 'katex';
 
 export const latexString = (string, options) => {
@@ -60,4 +61,15 @@ export const latexString = (string, options) => {
     return newResult;
   };
   return processResult(result);
+};
+
+export const Latex = ({ children, displayMode }) => {
+  const content = latexString(children, { displayMode });
+  return (
+    <span
+      dangerouslySetInnerHTML={{
+        __html: content.map(item => item.string).join(' '),
+      }}
+    />
+  );
 };

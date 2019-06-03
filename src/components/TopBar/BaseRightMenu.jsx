@@ -1,16 +1,12 @@
 /** @jsx jsx */
 import { jsx } from '@emotion/core';
 import React, { useState } from 'react';
-import Button from '@material-ui/core/Button';
 import { Link } from 'react-router-dom';
 import { isEmpty } from 'lodash';
-import IconButton from '@material-ui/core/IconButton/index';
-import MenuItem from '@material-ui/core/MenuItem/index';
-import Menu from '@material-ui/core/Menu/index';
+import { Badge, IconButton, MenuItem, Menu, Divider, Button } from '@material-ui/core';
 import MoreIcon from '@material-ui/icons/MoreVert';
 import axios from 'axios/index';
 import { connect } from 'react-redux';
-import Divider from '@material-ui/core/Divider';
 import { actions } from '../../actions';
 import { simpleLink } from '../../utils/presets';
 
@@ -97,9 +93,12 @@ const MobileMenuRender = ({ rootChildren = null, submenuChildren = null, isLogge
   );
 };
 
-const DesktopMenuRender = ({ children, isLoggedIn, toggleLoginModal }) => {
-  const [anchorEl, setAnchorEl] = useState(null);
+let badgeTimeout;
 
+const DesktopMenuRender = ({ children, isLoggedIn, toggleLoginModal, blinkLibrary }) => {
+  const [anchorEl, setAnchorEl] = React.useState(null);
+  const [showLibraryBadge, setShowLibraryBadge] = React.useState(false);
+  const isInitialMount = React.useRef(true);
   const handleMenuOpen = event => {
     setAnchorEl(event.currentTarget);
   };
@@ -109,15 +108,29 @@ const DesktopMenuRender = ({ children, isLoggedIn, toggleLoginModal }) => {
     if (cb) cb();
   };
 
+  React.useEffect(() => {
+    if (isInitialMount.current) {
+      isInitialMount.current = false;
+      return () => {};
+    }
+    setShowLibraryBadge(true);
+    badgeTimeout = setTimeout(() => setShowLibraryBadge(false), 3000);
+    return () => {
+      if (badgeTimeout) clearTimeout(badgeTimeout);
+    };
+  }, [blinkLibrary]);
+
   return (
     <React.Fragment>
       {children}
       {children ? <Divider /> : null}
       {isLoggedIn ? (
         <Button color="inherit">
-          <Link to="/library" css={simpleLink}>
-            My Library
-          </Link>
+          <Badge color="secondary" badgeContent={showLibraryBadge ? '+1' : null}>
+            <Link to="/library" css={simpleLink}>
+              My Library
+            </Link>
+          </Badge>
         </Button>
       ) : (
         ''
@@ -174,6 +187,7 @@ const DesktopMenuRender = ({ children, isLoggedIn, toggleLoginModal }) => {
 const mapStateToProps = state => {
   return {
     isLoggedIn: !isEmpty(state.user.userData),
+    blinkLibrary: state.user.blinkLibraryState,
   };
 };
 

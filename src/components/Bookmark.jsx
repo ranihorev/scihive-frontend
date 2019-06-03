@@ -1,17 +1,24 @@
-import React, {useState} from "react";
-import StarIcon from "@material-ui/icons/Star";
-import StarBorderIcon from "@material-ui/icons/StarBorder";
-import {isEmpty} from "lodash";
-import {actions} from "../actions";
-import {connect} from "react-redux";
-import axios from "axios";
-import IconButton from "@material-ui/core/IconButton";
-import {withStyles} from "@material-ui/core";
-
-const styles = theme => ({});
+import React, { useState } from 'react';
+import StarIcon from '@material-ui/icons/Star';
+import StarBorderIcon from '@material-ui/icons/StarBorder';
+import { isEmpty } from 'lodash';
+import { connect } from 'react-redux';
+import axios from 'axios';
+import { IconButton } from '@material-ui/core';
+import { actions } from '../actions';
 
 // isBookmarked and setBookmark are from the redux store
-const Bookmark = ({classes, isLoggedIn, toggleLoginModal, paperId, saved_in_library, isBookmarked, setBookmark, color, selectedColor}) => {
+const Bookmark = ({
+  isLoggedIn,
+  toggleLoginModal,
+  paperId,
+  saved_in_library,
+  isBookmarked,
+  setBookmark,
+  color,
+  selectedColor,
+  blinkLibraryBadge,
+}) => {
   const [stateBookmark, setStateBookmark] = useState(saved_in_library);
   const value = stateBookmark !== undefined ? stateBookmark : isBookmarked;
 
@@ -21,44 +28,52 @@ const Bookmark = ({classes, isLoggedIn, toggleLoginModal, paperId, saved_in_libr
       return;
     }
     // Save in database via backend
-    axios.post(`/library/${paperId}/${value ? 'remove' : 'save'}`)
-      .then(res => {
+    axios
+      .post(`/library/${paperId}/${value ? 'remove' : 'save'}`)
+      .then(() => {
         if (stateBookmark !== undefined) {
-          setStateBookmark(!stateBookmark)
+          // List view
+          setStateBookmark(!stateBookmark);
+          if (!stateBookmark) blinkLibraryBadge();
         } else {
-          setBookmark(!isBookmarked)
+          // Paper view
+          setBookmark(!isBookmarked);
         }
       })
-      .catch(err => console.log(err.response))
-  }
+      .catch(err => console.log(err.response));
+  };
 
   return (
-    <IconButton
-      onClick={() => handleBookmarkClick()}
-    >
-      { value ? <StarIcon style={{color: selectedColor || color}} /> : <StarBorderIcon style={{color}}/>}
+    <IconButton onClick={() => handleBookmarkClick()}>
+      {value ? <StarIcon style={{ color: selectedColor || color }} /> : <StarBorderIcon style={{ color }} />}
     </IconButton>
   );
-}
-
-const mapStateToProps = (state, ownProps) => {
-  return {
-    isLoggedIn: !isEmpty(state.user.userData),
-    isBookmarked: state.paper.isBookmarked
-  }
 };
 
-const mapDispatchToProps = (dispatch, ownProps) => {
+const mapStateToProps = state => {
   return {
-    toggleLoginModal: (message) => {
+    isLoggedIn: !isEmpty(state.user.userData),
+    isBookmarked: state.paper.isBookmarked,
+  };
+};
+
+const mapDispatchToProps = dispatch => {
+  return {
+    toggleLoginModal: message => {
       dispatch(actions.toggleLoginModal(message));
     },
-    setBookmark: (value) => {
+    setBookmark: value => {
       dispatch(actions.setBookmark(value));
     },
-  }
-}
+    blinkLibraryBadge: () => {
+      dispatch(actions.blinkLibrary());
+    },
+  };
+};
 
-const withRedux = connect(mapStateToProps, mapDispatchToProps);
+const withRedux = connect(
+  mapStateToProps,
+  mapDispatchToProps,
+);
 
-export default withRedux(withStyles(styles)(Bookmark));
+export default withRedux(Bookmark);

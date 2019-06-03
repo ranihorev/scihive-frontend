@@ -15,86 +15,90 @@ export const UPDATE_HIGHLIGHT = 'UPDATE_HIGHLIGHT';
 export const REMOVE_HIGHLIGHT = 'REMOVE_HIGHLIGHT';
 export const TOGGLE_HIGHLIGHTS = 'TOGGLE_HIGHLIGHTS';
 export const SET_ACRONYMS = 'SET_ACRONYMS';
+export const BLINK_LIBRARY = 'BLINK_LIBRARY';
 
 export const actions = {
   toggleLoginModal: message => {
     return {
       type: TOGGLE_LOGIN_MODAL,
-      payload: message
+      payload: message,
     };
   },
   toggleGroupsModal: state => {
     return {
       type: TOGGLE_GROUPS_MODAL,
-      payload: state
+      payload: state,
     };
   },
   setUser: payload => {
     return {
       type: SET_USER,
-      payload
+      payload,
     };
   },
   updateReadingProgress: payload => {
     return {
       type: READING_PROGRESS,
-      payload
+      payload,
     };
   },
   setBookmark: payload => {
     return {
       type: SET_BOOKMARK,
-      payload
+      payload,
     };
   },
   setDocument: document => {
     return {
       type: SET_DOCUMENT,
-      payload: document
+      payload: document,
     };
   },
   selectGroup: payload => {
     return {
       type: SELECT_GROUP,
-      payload
+      payload,
     };
   },
   setGroups: payload => ({
     type: SET_GROUPS,
-    payload
+    payload,
   }),
   setSections: sections => ({
     type: SET_SECTIONS,
-    payload: sections
+    payload: sections,
   }),
   setReferences: references => ({
     type: SET_REFERNCES,
-    payload: references
+    payload: references,
   }),
   clearPaper: () => ({
-    type: CLEAR_PAPER
+    type: CLEAR_PAPER,
   }),
   addHighlight: highlight => ({
     type: ADD_HIGHLIGHT,
-    payload: highlight
+    payload: highlight,
   }),
   setHighlights: highlights => ({
     type: SET_HIGHLIGHTS,
-    payload: highlights
+    payload: highlights,
   }),
   updateHighlight: highlight => ({
     type: UPDATE_HIGHLIGHT,
-    payload: highlight
+    payload: highlight,
   }),
   removeHighlight: highlightId => ({
     type: REMOVE_HIGHLIGHT,
-    payload: highlightId
+    payload: highlightId,
   }),
   toggleHighlightsVisiblity: () => ({
-    type: TOGGLE_HIGHLIGHTS
+    type: TOGGLE_HIGHLIGHTS,
   }),
   setAcronyms: acronyms => ({
     type: SET_ACRONYMS,
-    payload: acronyms
-  })
+    payload: acronyms,
+  }),
+  blinkLibrary: () => ({
+    type: BLINK_LIBRARY,
+  }),
 };

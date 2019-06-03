@@ -1,12 +1,7 @@
 /** @jsx jsx */
 import { css, jsx } from '@emotion/core';
 import React from 'react';
-import Popover from '@material-ui/core/Popover';
-import Button from '@material-ui/core/Button';
-import { withStyles } from '@material-ui/core';
-import List from '@material-ui/core/List';
-import ListItem from '@material-ui/core/ListItem';
-import ListItemIcon from '@material-ui/core/ListItemIcon';
+import { withStyles, List, ListItem, ListItemIcon, Button, Popover } from '@material-ui/core';
 
 const styles = () => ({
   links: {},
@@ -43,6 +38,10 @@ const TwitterMeta = ({ twtr_score, twtr_links, classes, iconClass }) => {
         aria-haspopup="true"
         onClick={handleClick}
         disabled={links.length === 0}
+        size="small"
+        css={css`
+          padding: 0 4px;
+        `}
       >
         <i className={`fab fa-twitter ${iconClass}`} /> {twtr_score}
       </Button>

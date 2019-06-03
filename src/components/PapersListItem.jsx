@@ -2,8 +2,18 @@
 import { css, jsx } from '@emotion/core';
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Card, Typography, IconButton, CardActions, Grid, Divider, CardContent, Button } from '@material-ui/core';
-import { withStyles } from '@material-ui/core/styles';
+import {
+  Card,
+  Typography,
+  IconButton,
+  CardActions,
+  Grid,
+  Divider,
+  CardContent,
+  Button,
+  withStyles,
+  Tooltip,
+} from '@material-ui/core';
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import moment from 'moment';
 import TextTruncate from 'react-text-truncate';
@@ -129,14 +139,38 @@ const PapersListItem = ({ paper, classes }) => {
         </Grid>
       </CardContent>
       <CardActions disableActionSpacing className={classes.actions}>
-        <Button disabled={true}>
-          <i className={`fas fa-comments ${classes.metadata}`} /> {comments_count || '0'}
-        </Button>
-        <Button disabled={true}>
-          <i className={`fa fa-star ${classes.metadata}`} /> {bookmarks_count || '0'}
-        </Button>
+        <Tooltip title="Paper comments" placement="top">
+          <span>
+            <Button
+              disabled={true}
+              size="small"
+              css={css`
+                padding: 0 4px;
+              `}
+            >
+              <i className={`fas fa-comments ${classes.metadata}`} /> {comments_count || '0'}
+            </Button>
+          </span>
+        </Tooltip>
+        <Tooltip title="Users bookmarked" placement="top">
+          <span>
+            <Button
+              disabled={true}
+              size="small"
+              css={css`
+                padding: 0 4px;
+              `}
+            >
+              <i className={`fa fa-star ${classes.metadata}`} /> {bookmarks_count || '0'}
+            </Button>
+          </span>
+        </Tooltip>
         <div>
-          <TwitterMeta twtr_score={twtr_score} twtr_links={twtr_links} iconClass={classes.metadata} />
+          <Tooltip title="Σ Likes, RTs and replies" placement="top">
+            <span>
+              <TwitterMeta twtr_score={twtr_score} twtr_links={twtr_links} iconClass={classes.metadata} />
+            </span>
+          </Tooltip>
         </div>
         <IconButton
           css={expanded ? expandedOpenCss : expandCss}

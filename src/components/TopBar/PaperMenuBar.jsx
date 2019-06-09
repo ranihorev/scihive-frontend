@@ -1,14 +1,13 @@
 /** @jsx jsx */
-import { css, jsx } from '@emotion/core';
+import { jsx } from '@emotion/core';
 import React, { useState } from 'react';
-import { Divider, IconButton, Menu, MenuItem, Tooltip } from '@material-ui/core';
+import { Divider, Menu, MenuItem, Tooltip } from '@material-ui/core';
 import { withRouter } from 'react-router';
 import { connect } from 'react-redux';
 import { isEmpty } from 'lodash';
 import Bookmark from '../Bookmark';
 import { actions } from '../../actions';
 import { simpleLink } from '../../utils/presets';
-import { presets } from '../../utils';
 import { ButtonIcon } from '../ButtonIcon';
 
 const PaperMenuDekstopRender = ({ match: { params }, toggleGroupsModal, isLoggedIn }) => {

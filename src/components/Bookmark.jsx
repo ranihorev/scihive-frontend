@@ -4,7 +4,7 @@ import StarBorderIcon from '@material-ui/icons/StarBorder';
 import { isEmpty } from 'lodash';
 import { connect } from 'react-redux';
 import axios from 'axios';
-import { IconButton } from '@material-ui/core';
+import { IconButton, Tooltip } from '@material-ui/core';
 import { actions } from '../actions';
 
 // isBookmarked and setBookmark are from the redux store
@@ -44,9 +44,13 @@ const Bookmark = ({
   };
 
   return (
-    <IconButton onClick={() => handleBookmarkClick()}>
-      {value ? <StarIcon style={{ color: selectedColor || color }} /> : <StarBorderIcon style={{ color }} />}
-    </IconButton>
+    <Tooltip title="Add to Library" placement="bottom">
+      <span>
+        <IconButton onClick={() => handleBookmarkClick()}>
+          {value ? <StarIcon style={{ color: selectedColor || color }} /> : <StarBorderIcon style={{ color }} />}
+        </IconButton>
+      </span>
+    </Tooltip>
   );
 };
 

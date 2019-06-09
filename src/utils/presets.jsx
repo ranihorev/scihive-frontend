@@ -11,6 +11,12 @@ export const col = css`
   flex-direction: column;
 `;
 
+export const centered = css`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+`;
+
 export const simpleLink = css`
   text-transform: none;
   text-decoration: none;

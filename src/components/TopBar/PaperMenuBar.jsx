@@ -1,16 +1,15 @@
 /** @jsx jsx */
 import { css, jsx } from '@emotion/core';
 import React, { useState } from 'react';
-import MenuItem from '@material-ui/core/MenuItem/index';
-import Menu from '@material-ui/core/Menu/index';
+import { Divider, IconButton, Menu, MenuItem, Tooltip } from '@material-ui/core';
 import { withRouter } from 'react-router';
-import IconButton from '@material-ui/core/IconButton';
-import Divider from '@material-ui/core/Divider';
 import { connect } from 'react-redux';
 import { isEmpty } from 'lodash';
 import Bookmark from '../Bookmark';
 import { actions } from '../../actions';
 import { simpleLink } from '../../utils/presets';
+import { presets } from '../../utils';
+import { ButtonIcon } from '../ButtonIcon';
 
 const PaperMenuDekstopRender = ({ match: { params }, toggleGroupsModal, isLoggedIn }) => {
   const [anchorEl, setAnchorEl] = useState(null);
@@ -28,15 +27,7 @@ const PaperMenuDekstopRender = ({ match: { params }, toggleGroupsModal, isLogged
   return (
     <React.Fragment>
       <Bookmark paperId={PaperId} color="white" />
-      <IconButton color="inherit" onClick={handleMenuOpen}>
-        <i
-          className="fas fa-link"
-          css={css`
-            font-size: 17px;
-            padding: 0 2px;
-          `}
-        />
-      </IconButton>
+      <ButtonIcon icon="fas fa-link" size={24} iconSize={17} onClick={handleMenuOpen} />
       <Menu
         anchorEl={anchorEl}
         anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
@@ -64,14 +55,11 @@ const PaperMenuDekstopRender = ({ match: { params }, toggleGroupsModal, isLogged
         </a>
       </Menu>
       {isLoggedIn ? (
-        <IconButton color="inherit" onClick={toggleGroupsModal}>
-          <i
-            className="fas fa-users"
-            css={css`
-              font-size: 18px;
-            `}
-          />
-        </IconButton>
+        <Tooltip title="Manage your groups" placement="bottom">
+          <span>
+            <ButtonIcon icon="fas fa-users" size={24} iconSize={18} onClick={toggleGroupsModal} />
+          </span>
+        </Tooltip>
       ) : null}
     </React.Fragment>
   );

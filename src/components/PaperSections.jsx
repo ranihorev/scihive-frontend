@@ -45,6 +45,9 @@ export const extractSections = (document, onSuccess) => {
       const heightThreshold = quantile(allHeights, 0.95);
       const heightMedian = quantile(allHeights, 0.5);
       const mostPopularFont = maxKey(fontsCount);
+      optionalSections.forEach(section => {
+        section.str = section.str.replace(/  +/g, ' ');
+      });
       const sections = optionalSections.filter(
         // big font or median font that is not too common
         section =>

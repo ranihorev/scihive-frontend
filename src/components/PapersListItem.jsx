@@ -24,7 +24,7 @@ import { Latex } from '../utils/latex';
 
 const MAIN_COLOR = '#49a8f5';
 
-const styles = theme => ({
+const styles = () => ({
   root: {
     margin: '10px 0',
     width: '100%',

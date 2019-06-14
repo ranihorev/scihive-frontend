@@ -63,3 +63,8 @@ export const themePalette = {
     contrastText: 'white',
   },
 };
+
+const breakpoints = { s: 576, m: 768, lg: 992, xl: 1200 };
+
+export const mqMin = bp => `@media (min-width: ${breakpoints[bp]}px)`;
+export const mqMax = bp => `@media (max-width: ${breakpoints[bp]}px)`;

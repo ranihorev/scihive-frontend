@@ -1,45 +1,44 @@
+/** @jsx jsx */
+import { css, jsx } from '@emotion/core';
 import React from 'react';
 import axios from 'axios';
-import { withStyles } from '@material-ui/core/styles';
-import Grid from '@material-ui/core/Grid';
 import { withRouter } from 'react-router';
-import Select from '@material-ui/core/Select';
-import MenuItem from '@material-ui/core/MenuItem';
-import FormControl from '@material-ui/core/FormControl';
-import Input from '@material-ui/core/Input';
+import { Input, Select, MenuItem, FormControl, CircularProgress, Grid } from '@material-ui/core';
 import * as queryString from 'query-string';
 import InfiniteScroll from 'react-infinite-scroller';
-import CircularProgress from '@material-ui/core/CircularProgress';
 import PapersListItem from './PapersListItem';
+import * as presets from '../utils/presets';
 
-const styles = theme => ({
-  root: {
-    maxWidth: 992,
-    paddingTop: 10,
-    margin: '10px 0px',
-    [theme.breakpoints.down('lg')]: {
-      margin: '0px 15px',
-    },
-  },
-  formControl: {
-    margin: '8px 0 8px 8px',
-    minWidth: 100,
-  },
-  spinnerEmptyState: {
-    position: 'absolute',
-    top: '50%',
-    left: '50%',
-  },
-  spinner: {
-    textAlign: 'center',
-  },
-  scrollWrapper: {
-    width: '100%',
-  },
-  filters: {
-    marginLeft: 'auto',
-  },
+const formControlCss = css({
+  margin: '8px 0 8px 8px',
+  minWidth: 80,
 });
+
+const spinnerEmptyStateCss = css({
+  position: 'absolute',
+  top: '50%',
+  left: '50%',
+});
+
+const spinnerCss = css({
+  textAlign: 'center',
+});
+const scrollWrapperCss = css({
+  width: '100%',
+});
+
+const filtersCss = css({
+  marginLeft: 'auto',
+});
+
+const filterValueCss = css`
+  font-size: 13px;
+`;
+
+const filterMenuItemCss = css`
+  font-size: 13px;
+  padding: 8px 12px;
+`;
 
 const SET_PAPERS = 'SET_PAPERS';
 const ADD_PAPERS = 'ADD_PAPERS';
@@ -55,7 +54,7 @@ const reducer = (state, action) => {
   }
 };
 
-const PapersList = ({ classes, match, location, history }) => {
+const PapersList = ({ match, location, history }) => {
   const [papersState, dispatch] = React.useReducer(reducer, { papers: [] });
   const isFirstLoad = React.useRef(true);
   const [scrollId, setScrollId] = React.useState(Math.random());
@@ -130,32 +129,63 @@ const PapersList = ({ classes, match, location, history }) => {
   const { papers } = papersState;
   return (
     <React.Fragment>
-      <Grid container className={classes.root}>
+      <Grid
+        container
+        css={css({
+          maxWidth: 992,
+          paddingTop: 10,
+          margin: '10px 0px',
+          [presets.mqMax('lg')]: {
+            margin: '0px 15px',
+          },
+        })}
+      >
         <Grid container direction="row" alignItems="center" justify="space-between">
-          <Grid item className={classes.summary}>
-            {!isLoading ? `${totalPapers} papers` : null}
-          </Grid>
-          <Grid item className={classes.filters}>
-            <FormControl className={classes.formControl}>
+          <Grid item>{!isLoading ? `${totalPapers} papers` : null}</Grid>
+          <Grid item css={filtersCss}>
+            <FormControl css={formControlCss}>
               <Select
                 value={age}
                 onChange={handleFilters}
                 input={<Input name="age" id="filter-helper" />}
-                className={classes.selector}
+                css={filterValueCss}
               >
-                <MenuItem value="day">Today</MenuItem>
-                <MenuItem value="week">This week</MenuItem>
-                <MenuItem value="month">This month</MenuItem>
-                <MenuItem value="all">All</MenuItem>
+                <MenuItem css={filterMenuItemCss} value="day">
+                  Today
+                </MenuItem>
+                <MenuItem css={filterMenuItemCss} value="week">
+                  This week
+                </MenuItem>
+                <MenuItem css={filterMenuItemCss} value="month">
+                  This month
+                </MenuItem>
+                <MenuItem css={filterMenuItemCss} value="all">
+                  All
+                </MenuItem>
               </Select>
             </FormControl>
-            <FormControl className={classes.formControl}>
-              <Select value={sort} onChange={handleFilters} input={<Input name="sort" id="sort-helper" />}>
-                <MenuItem value="date">Date</MenuItem>
+            <FormControl css={formControlCss}>
+              <Select
+                value={sort}
+                onChange={handleFilters}
+                input={<Input name="sort" id="sort-helper" />}
+                css={filterValueCss}
+              >
+                <MenuItem css={filterMenuItemCss} value="date">
+                  Date
+                </MenuItem>
                 {/* <MenuItem value="comments">Comments</MenuItem> */}
-                <MenuItem value="tweets">Tweets</MenuItem>
-                <MenuItem value="bookmarks">Stars</MenuItem>
-                {q && q.q && <MenuItem value="score">Relevance</MenuItem>}
+                <MenuItem css={filterMenuItemCss} value="tweets">
+                  Tweets
+                </MenuItem>
+                <MenuItem css={filterMenuItemCss} value="bookmarks">
+                  Stars
+                </MenuItem>
+                {q && q.q && (
+                  <MenuItem css={filterMenuItemCss} value="score">
+                    Relevance
+                  </MenuItem>
+                )}
               </Select>
             </FormControl>
           </Grid>
@@ -169,11 +199,11 @@ const PapersList = ({ classes, match, location, history }) => {
             }}
             hasMore={hasMorePapers && (papers.length === 0 || !isLoading)}
             loader={
-              <div key={0} className={papers.length === 0 ? classes.spinnerEmptyState : classes.spinner}>
+              <div key={0} css={papers.length === 0 ? spinnerEmptyStateCss : spinnerCss}>
                 <CircularProgress />
               </div>
             }
-            className={classes.scrollWrapper}
+            className={scrollWrapperCss}
           >
             {papers.map(p => (
               <PapersListItem key={p._id} paper={p} />
@@ -185,4 +215,4 @@ const PapersList = ({ classes, match, location, history }) => {
   );
 };
 
-export default withStyles(styles)(withRouter(PapersList));
+export default withRouter(PapersList);

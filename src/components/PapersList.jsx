@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React from 'react';
 import axios from 'axios';
 import { withStyles } from '@material-ui/core/styles';
 import Grid from '@material-ui/core/Grid';
@@ -41,76 +41,69 @@ const styles = theme => ({
   },
 });
 
-class PapersList extends Component {
-  constructor(props) {
-    super(props);
-    this.state = {
-      papers: [],
-      hasMorePapers: true,
-      scrollID: Math.random(),
-      isLoading: true,
-      papersCount: 0,
-    };
-  }
+const SET_PAPERS = 'SET_PAPERS';
+const ADD_PAPERS = 'ADD_PAPERS';
 
-  componentDidUpdate(prevProps, prevState) {
-    if (this.state.sort !== prevState.sort) {
-      // this.loadPapers(1);
-    } else if (
-      prevProps.match.path !== this.props.match.path ||
-      prevProps.location.search !== this.props.location.search
-    ) {
-      this.setState({ scrollID: Math.random() });
-      this.loadPapers(1);
-    }
+const reducer = (state, action) => {
+  switch (action.type) {
+    case SET_PAPERS:
+      return { ...state, papers: action.payload };
+    case ADD_PAPERS:
+      return { ...state, papers: [...state.papers, ...action.payload] };
+    default:
+      throw new Error('Action does not exist');
   }
+};
 
-  getAgeQuery = queryParams => {
-    return queryParams.age || (this.props.match.path === '/library' || queryParams.q ? 'all' : 'week');
+const PapersList = ({ classes, match, location, history }) => {
+  const [papersState, dispatch] = React.useReducer(reducer, { papers: [] });
+  const isFirstLoad = React.useRef(true);
+  const [scrollId, setScrollId] = React.useState(Math.random());
+  const [hasMorePapers, setHasMorePapers] = React.useState(true);
+  const [isLoading, setIsLoading] = React.useState(true);
+  const [totalPapers, setTotalPapers] = React.useState(0);
+
+  const getAgeQuery = queryParams => {
+    return queryParams.age || (match.path === '/library' || queryParams.q ? 'all' : 'week');
   };
 
-  getSortQuery = queryParams => {
+  const getSortQuery = queryParams => {
     return queryParams.sort || (queryParams.q ? 'score' : 'tweets');
   };
 
-  loadPapers = page => {
+  const loadPapers = page => {
     let url = '/papers/all';
-    let { papers } = this.state;
 
-    const q = queryString.parse(this.props.location.search);
-    q.author = this.props.match.params.authorId;
+    const q = queryString.parse(location.search);
+    q.author = match.params.authorId;
     q.page_num = page;
-    q.age = this.getAgeQuery(q);
-    q.sort = this.getSortQuery(q);
+    q.age = getAgeQuery(q);
+    q.sort = getSortQuery(q);
 
-    const { match } = this.props;
     if (match && match.path === '/library') {
       url = '/library';
     }
-
+    setIsLoading(true);
     axios
       .get(url, { params: q })
       .then(result => {
         const newPapers = result.data.papers;
-        const hasMorePapers = newPapers.length !== 0;
         // Everytime we load page 0 we assume it's a new query
         if (page === 1) {
-          papers = newPapers;
+          dispatch({ type: SET_PAPERS, payload: newPapers });
+          setTotalPapers(result.data.count);
         } else {
-          newPapers.forEach(newPaper => papers.push(newPaper));
+          dispatch({ type: ADD_PAPERS, payload: newPapers });
         }
-        this.setState({
-          papers,
-          hasMorePapers,
-          isLoading: false,
-          ...(page === 1 && { papersCount: result.data.count }),
-        });
+        setHasMorePapers(newPapers.length !== 0);
       })
-      .catch(e => console.warn(e));
+      .catch(e => console.warn(e))
+      .finally(() => {
+        setIsLoading(false);
+      });
   };
 
-  handleFilters = event => {
-    const { location, history } = this.props;
+  const handleFilters = event => {
     const newQ = {
       ...queryString.parse(location.search),
       [event.target.name]: event.target.value.toLowerCase(),
@@ -120,68 +113,76 @@ class PapersList extends Component {
       search: queryString.stringify(newQ),
     });
   };
+  React.useEffect(() => {
+    if (isFirstLoad.current) {
+      isFirstLoad.current = false;
+    } else {
+      dispatch({ type: SET_PAPERS, payload: [] });
+      setHasMorePapers(true);
+      setIsLoading(true);
+      setScrollId(Math.random());
+    }
+  }, [match.path, location.search]);
 
-  render() {
-    const { classes, location } = this.props;
-    const { papers, scrollID, isLoading, papersCount } = this.state;
-    const q = queryString.parse(location.search);
-    const age = this.getAgeQuery(q);
-    const sort = this.getSortQuery(q);
-
-    return (
-      <React.Fragment>
-        <Grid container className={classes.root}>
-          <Grid container direction="row" alignItems="center" justify="space-between">
-            <Grid item className={classes.summary}>
-              {!isLoading ? `${papersCount} papers` : null}
-            </Grid>
-            <Grid item className={classes.filters}>
-              <FormControl className={classes.formControl}>
-                {/* <InputLabel htmlFor="sort-helper">Comments</InputLabel> */}
-                <Select
-                  value={age}
-                  onChange={this.handleFilters}
-                  input={<Input name="age" id="filter-helper" />}
-                  className={classes.selector}
-                >
-                  <MenuItem value="day">Today</MenuItem>
-                  <MenuItem value="week">This week</MenuItem>
-                  <MenuItem value="month">This month</MenuItem>
-                  <MenuItem value="all">All</MenuItem>
-                </Select>
-              </FormControl>
-              <FormControl className={classes.formControl}>
-                <Select value={sort} onChange={this.handleFilters} input={<Input name="sort" id="sort-helper" />}>
-                  <MenuItem value="date">Date</MenuItem>
-                  {/* <MenuItem value="comments">Comments</MenuItem> */}
-                  <MenuItem value="tweets">Tweets</MenuItem>
-                  <MenuItem value="bookmarks">Stars</MenuItem>
-                  {q && <MenuItem value="score">Relevance</MenuItem>}
-                </Select>
-              </FormControl>
-            </Grid>
+  const q = queryString.parse(location.search);
+  const age = getAgeQuery(q);
+  const sort = getSortQuery(q);
+  const { papers } = papersState;
+  return (
+    <React.Fragment>
+      <Grid container className={classes.root}>
+        <Grid container direction="row" alignItems="center" justify="space-between">
+          <Grid item className={classes.summary}>
+            {!isLoading ? `${totalPapers} papers` : null}
           </Grid>
-          <Grid container direction="row" key={scrollID}>
-            <InfiniteScroll
-              pageStart={0}
-              loadMore={this.loadPapers}
-              hasMore={this.state.hasMorePapers}
-              loader={
-                <div key={0} className={isLoading ? classes.spinnerEmptyState : classes.spinner}>
-                  <CircularProgress />
-                </div>
-              }
-              className={classes.scrollWrapper}
-            >
-              {papers.map(p => (
-                <PapersListItem key={p._id} paper={p} />
-              ))}
-            </InfiniteScroll>
+          <Grid item className={classes.filters}>
+            <FormControl className={classes.formControl}>
+              <Select
+                value={age}
+                onChange={handleFilters}
+                input={<Input name="age" id="filter-helper" />}
+                className={classes.selector}
+              >
+                <MenuItem value="day">Today</MenuItem>
+                <MenuItem value="week">This week</MenuItem>
+                <MenuItem value="month">This month</MenuItem>
+                <MenuItem value="all">All</MenuItem>
+              </Select>
+            </FormControl>
+            <FormControl className={classes.formControl}>
+              <Select value={sort} onChange={handleFilters} input={<Input name="sort" id="sort-helper" />}>
+                <MenuItem value="date">Date</MenuItem>
+                {/* <MenuItem value="comments">Comments</MenuItem> */}
+                <MenuItem value="tweets">Tweets</MenuItem>
+                <MenuItem value="bookmarks">Stars</MenuItem>
+                {q && q.q && <MenuItem value="score">Relevance</MenuItem>}
+              </Select>
+            </FormControl>
           </Grid>
         </Grid>
-      </React.Fragment>
-    );
-  }
-}
+        <Grid container direction="column" key={scrollId}>
+          <InfiniteScroll
+            pageStart={0}
+            loadMore={page => {
+              console.log(`loading ${page}`);
+              loadPapers(page);
+            }}
+            hasMore={hasMorePapers && (papers.length === 0 || !isLoading)}
+            loader={
+              <div key={0} className={papers.length === 0 ? classes.spinnerEmptyState : classes.spinner}>
+                <CircularProgress />
+              </div>
+            }
+            className={classes.scrollWrapper}
+          >
+            {papers.map(p => (
+              <PapersListItem key={p._id} paper={p} />
+            ))}
+          </InfiniteScroll>
+        </Grid>
+      </Grid>
+    </React.Fragment>
+  );
+};
 
 export default withStyles(styles)(withRouter(PapersList));

@@ -68,6 +68,7 @@ const PaperSectionsRender = ({ sections }) => {
       css={css`
         ${presets.col};
         padding: 20px 10px;
+        overflow-y: auto;
       `}
     >
       {sections.map((section, idx) => {

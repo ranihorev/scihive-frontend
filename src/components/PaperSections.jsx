@@ -1,6 +1,9 @@
 /** @jsx jsx */
 import { css, jsx } from '@emotion/core';
+import React from 'react';
+import ContentLoader from 'react-content-loader';
 import { connect } from 'react-redux';
+import { range } from 'lodash';
 import { presets } from '../utils';
 
 const asc = arr => arr.sort((a, b) => a - b);
@@ -17,6 +20,27 @@ const quantile = (arr, q) => {
 };
 
 const maxKey = obj => Object.keys(obj).reduce((a, b) => (obj[a] > obj[b] ? a : b));
+
+const PlaceholderList = () => {
+  return (
+    <div
+      css={css`
+        padding-top: 10px;
+        padding-left: 5px;
+      `}
+    >
+      {range(0, 5).map(idx => (
+        <ContentLoader key={idx} height="100">
+          <React.Fragment>
+            <rect x="0" y="0" rx="3" ry="3" width="90%" height="13" />
+            <rect x="0" y="30" rx="3" ry="3" width="80%" height="13" />
+            <rect x="20" y="60" rx="3" ry="3" width="80%" height="13" />
+          </React.Fragment>
+        </ContentLoader>
+      ))}
+    </div>
+  );
+};
 
 export const extractSections = (document, onSuccess) => {
   const allHeights = [];
@@ -66,6 +90,7 @@ export const extractSections = (document, onSuccess) => {
             sectionFound = true;
           }
         } else {
+          // TODO: This is ugly, fix this!
           switch (splitNumbers.length) {
             case lastSectionSplit.length + 1:
               // new level
@@ -134,36 +159,38 @@ export const extractSections = (document, onSuccess) => {
 };
 
 const PaperSectionsRender = ({ sections }) => {
-  if (sections === undefined) return null;
-
   return (
     <div
       css={css`
         ${presets.col};
-        padding: 20px 10px;
+        padding: 10px 10px;
         overflow-y: auto;
       `}
     >
-      {sections.map((section, idx) => {
-        return (
-          <a
-            href={`#section-${idx}`}
-            key={idx}
-            css={css`
-              text-decoration: none;
-              padding-top: 8px;
-              margin-left: 0px;
-              color: #5f5f5f;
-              font-size: 0.85rem;
-              &:hover {
-                text-decoration: underline;
-              }
-            `}
-          >
-            {section.str}
-          </a>
-        );
-      })}
+      {sections ? (
+        sections.map((section, idx) => {
+          return (
+            <a
+              href={`#section-${idx}`}
+              key={idx}
+              css={css`
+                text-decoration: none;
+                padding-top: 8px;
+                margin-left: 0px;
+                color: #5f5f5f;
+                font-size: 0.85rem;
+                &:hover {
+                  text-decoration: underline;
+                }
+              `}
+            >
+              {section.str}
+            </a>
+          );
+        })
+      ) : (
+        <PlaceholderList />
+      )}
     </div>
   );
 };

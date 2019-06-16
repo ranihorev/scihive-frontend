@@ -29,15 +29,9 @@ const tabCss = css`
   }
 `;
 
-export const Sidebar = ({
-  height,
-  width,
-  isCollapsed,
-  isVertical,
-  onCollapseClick
-}) => {
+export const Sidebar = ({ height, width, isCollapsed, isVertical, onCollapseClick }) => {
   if (isCollapsed) return null;
-  const [selectedTab, setSelectedTab] = React.useState('Comments');
+  const [selectedTab, setSelectedTab] = React.useState('Sections');
   let content = null;
   switch (selectedTab) {
     case 'Comments':
@@ -77,10 +71,7 @@ export const Sidebar = ({
           ${presets.row}
         `}
       >
-        <CollapseButton
-          direction={isCollapsed ? 'right' : 'left'}
-          onClick={onCollapseClick}
-        />
+        <CollapseButton direction={isCollapsed ? 'right' : 'left'} onClick={onCollapseClick} />
 
         <Tabs
           value={selectedTab}
@@ -92,18 +83,8 @@ export const Sidebar = ({
             min-height: 40px;
           `}
         >
-          <Tab
-            label="Comments"
-            value="Comments"
-            classes={{ labelContainer: 'label-container' }}
-            css={tabCss}
-          />
-          <Tab
-            label="Sections"
-            value="Sections"
-            classes={{ labelContainer: 'label-container' }}
-            css={tabCss}
-          />
+          <Tab label="Comments" value="Comments" classes={{ labelContainer: 'label-container' }} css={tabCss} />
+          <Tab label="Sections" value="Sections" classes={{ labelContainer: 'label-container' }} css={tabCss} />
         </Tabs>
       </div>
       {content}

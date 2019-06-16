@@ -60,7 +60,7 @@ export const popupCss = css`
 export const themePalette = {
   primary: {
     main: '#36a0f5',
-    contrastText: 'white',
+    contrastText: '#ffffff',
   },
 };
 
@@ -68,3 +68,16 @@ const breakpoints = { s: 576, m: 768, lg: 992, xl: 1200 };
 
 export const mqMin = bp => `@media (min-width: ${breakpoints[bp]}px)`;
 export const mqMax = bp => `@media (max-width: ${breakpoints[bp]}px)`;
+
+export const modal = theme => ({
+  position: 'absolute',
+  width: theme.spacing.unit * 50,
+  maxWidth: '75%',
+  backgroundColor: theme.palette.background.paper,
+  boxShadow: theme.shadows[5],
+  padding: theme.spacing.unit * 4,
+  outline: 'none',
+  top: '50%',
+  left: '50%',
+  transform: 'translate(-50%, -50%)',
+});

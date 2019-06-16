@@ -2,7 +2,7 @@
 import { css, jsx } from '@emotion/core';
 
 import React from 'react';
-import {connect} from "react-redux";
+import { connect } from 'react-redux';
 import axios from 'axios';
 import {
   List,
@@ -18,15 +18,14 @@ import {
   ListItemSecondaryAction,
   IconButton,
   withStyles,
-  withMobileDialog
-} from "@material-ui/core";
-import {compose} from "redux";
-import {withRouter} from "react-router";
-import * as queryString from "query-string";
+  withMobileDialog,
+} from '@material-ui/core';
+import { compose } from 'redux';
+import { withRouter } from 'react-router';
+import * as queryString from 'query-string';
 import * as copy from 'clipboard-copy';
-import {toast} from "react-toastify";
-import {actions} from "../actions";
-
+import { toast } from 'react-toastify';
+import { actions } from '../actions';
 
 const styles = () => ({
   faIcon: {
@@ -41,27 +40,36 @@ const styles = () => ({
   newGroupInput: {
     marginRight: '12px',
   },
-  submitButton: {
-  },
+  submitButton: {},
   groupButton: {
     textTransform: 'none',
-  }
+  },
 });
 
-
-const GroupsModal = ({classes, location, history, isGroupsModalOpen, toggleGroupsModal, fullScreen,
-                       selectGroup, selectedGroup, groups, setGroups }) => {
+const GroupsModal = ({
+  classes,
+  location,
+  history,
+  isGroupsModalOpen,
+  toggleGroupsModal,
+  fullScreen,
+  selectGroup,
+  selectedGroup,
+  groups,
+  setGroups,
+}) => {
   const [newGroupName, setNewGroupName] = React.useState('');
   const [isSubmitDisabled, setIsSubmitDisabled] = React.useState(false);
 
   const handleDeleteGroup = id => {
-    axios.delete('/groups/group', {params: {id}})
-      .then( res => {
-        const newQ = {...queryString.parse(location.search)};
+    axios
+      .delete('/groups/group', { params: { id } })
+      .then(res => {
+        const newQ = { ...queryString.parse(location.search) };
         delete newQ.group;
         history.push({
           pathname: location.pathname,
-          search: queryString.stringify(newQ)
+          search: queryString.stringify(newQ),
         });
         setGroups(res.data);
       })
@@ -70,13 +78,14 @@ const GroupsModal = ({classes, location, history, isGroupsModalOpen, toggleGroup
 
   const handleShare = id => {
     copy(`${window.location.origin}${window.location.pathname}?group=${id}`);
-    toast.info(`Link was copied to clipboard`, {autoClose: 2000});
+    toast.info(`Link was copied to clipboard`, { autoClose: 2000 });
   };
 
-  const handleSubmitNewGroup = (event) => {
+  const handleSubmitNewGroup = event => {
     setIsSubmitDisabled(true);
     event.preventDefault();
-    axios.post('/groups/group', {name: newGroupName})
+    axios
+      .post('/groups/group', { name: newGroupName })
       .then(res => {
         setGroups(res.data);
         setNewGroupName('');
@@ -85,11 +94,11 @@ const GroupsModal = ({classes, location, history, isGroupsModalOpen, toggleGroup
       .finally(() => setIsSubmitDisabled(false));
   };
 
-  const switchToGroup = (groupData) => {
-    const newQ = {...queryString.parse(location.search), group: groupData ? groupData.id : undefined};
+  const switchToGroup = groupData => {
+    const newQ = { ...queryString.parse(location.search), group: groupData ? groupData.id : undefined };
     history.push({
       pathname: location.pathname,
-      search: queryString.stringify(newQ)
+      search: queryString.stringify(newQ),
     });
     selectGroup(groupData);
     // auto close the modal after selection
@@ -103,13 +112,10 @@ const GroupsModal = ({classes, location, history, isGroupsModalOpen, toggleGroup
       onClose={toggleGroupsModal}
       disableBackdropClick
       maxWidth="md"
-      aria-labelledby="responsive-dialog-title"
     >
       <DialogTitle>Manage your groups</DialogTitle>
       <DialogContent>
-        <DialogContentText>
-          Groups allow you to share comments with an exclusive team of peers
-        </DialogContentText>
+        <DialogContentText>Groups allow you to share comments with an exclusive team of peers</DialogContentText>
         <form className={classes.form} onSubmit={handleSubmitNewGroup}>
           <TextField
             type="text"
@@ -131,31 +137,33 @@ const GroupsModal = ({classes, location, history, isGroupsModalOpen, toggleGroup
           >
             Create
           </Button>
-
         </form>
         <List>
-            {groups && groups.map(group => (
+          {groups &&
+            groups.map(group => (
               <ListItem key={group.id} disableGutters selected={selectedGroup && group.id === selectedGroup.id}>
-                <ListItemText >
+                <ListItemText>
                   <Button className={classes.groupButton} onClick={() => switchToGroup(group)}>
                     {group.name}
                   </Button>
                 </ListItemText>
                 <ListItemSecondaryAction>
                   <IconButton aria-label="Share" onClick={() => handleShare(group.id)}>
-                    <i className={`fas fa-share-alt ${classes.faIcon}`}></i>
+                    <i className={`fas fa-share-alt ${classes.faIcon}`} />
                   </IconButton>
                   <IconButton aria-label="Delete" onClick={() => handleDeleteGroup(group.id)}>
-                    <i className={`far fa-trash-alt ${classes.faIcon}`}></i>
+                    <i className={`far fa-trash-alt ${classes.faIcon}`} />
                   </IconButton>
                 </ListItemSecondaryAction>
               </ListItem>
             ))}
         </List>
       </DialogContent>
-      <DialogActions css={css`
-        justify-content: space-between;
-      `}>
+      <DialogActions
+        css={css`
+          justify-content: space-between;
+        `}
+      >
         <Button onClick={() => switchToGroup(undefined)} color="primary">
           Back to Public
         </Button>
@@ -164,33 +172,41 @@ const GroupsModal = ({classes, location, history, isGroupsModalOpen, toggleGroup
         </Button>
       </DialogActions>
     </Dialog>
-  )
+  );
 };
 
-const mapStateToProps = (state) => {
-  const {user} = state;
+const mapStateToProps = state => {
+  const { user } = state;
   return {
     isGroupsModalOpen: user.isGroupsModalOpen,
     selectedGroup: user.selectedGroup,
     groups: user.groups,
-  }
+  };
 };
 
-const mapDispatchToProps = (dispatch) => {
+const mapDispatchToProps = dispatch => {
   return {
     toggleGroupsModal: () => {
       dispatch(actions.toggleGroupsModal());
     },
-    selectGroup: (group) => {
+    selectGroup: group => {
       dispatch(actions.selectGroup(group));
     },
-    setGroups: (groups) => {
+    setGroups: groups => {
       dispatch(actions.setGroups(groups));
     },
-  }
+  };
 };
 
-const withRedux = connect(mapStateToProps, mapDispatchToProps);
+const withRedux = connect(
+  mapStateToProps,
+  mapDispatchToProps,
+);
 const withMobile = withMobileDialog();
 
-export default compose(withRedux, withStyles(styles), withMobile, withRouter)(GroupsModal);
+export default compose(
+  withRedux,
+  withStyles(styles),
+  withMobile,
+  withRouter,
+)(GroupsModal);

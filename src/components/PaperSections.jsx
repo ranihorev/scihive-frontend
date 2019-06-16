@@ -177,24 +177,3 @@ const mapStateToProps = state => {
 const withRedux = connect(mapStateToProps);
 
 export const PaperSections = withRedux(PaperSectionsRender);
-
-// {backupSections.map((section, idx) => {
-//   return (
-//     <a
-//       href={`#section-${section[1]}`}
-//       key={idx}
-//       css={css`
-//               text-decoration: none;
-//               padding-top: 8px;
-//               margin-left: ${sectionToPadding[section[0]] || 0}px;
-//               color: #5f5f5f;
-//               font-size: ${sectionToFontSize[section[0]] || 0.9}rem;
-//               &:hover {
-//                 text-decoration: underline;
-//               }
-//             `}
-//     >
-//       {section[1]}
-//     </a>
-//   );
-// })}

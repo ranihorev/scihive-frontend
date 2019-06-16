@@ -46,7 +46,8 @@ export const popupCss = css`
   padding: 12px;
   max-width: 300px;
   max-height: 200px;
-  font-size: 0.85rem;
+  overflow-y: auto;
+  font-size: 0.8rem;
   line-height: 1.4;
   color: #3e3e3e;
   p:first-of-type {

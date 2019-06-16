@@ -18,13 +18,18 @@ const CategoriesModalRender = ({
   toggleCategory,
 }) => {
   const [searchVal, setSearchVal] = React.useState('');
+  const isFirstLoad = React.useRef(true);
 
   React.useLayoutEffect(() => {
     if (isEmpty(allCategories)) axios.get('/papers/categories').then(res => setAllCategories(res.data));
   }, []);
 
   React.useEffect(() => {
-    if (!isEmpty(selectedCategories)) onSelect('categories', selectedCategories.join(';'));
+    if (isFirstLoad.current) {
+      isFirstLoad.current = false;
+    } else {
+      onSelect('categories', selectedCategories.join(';'));
+    }
   }, [selectedCategories]);
 
   const re = new RegExp(searchVal, 'i');

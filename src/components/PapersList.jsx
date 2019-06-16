@@ -13,7 +13,7 @@ import { CategoriesModal } from './Cateogries';
 import { actions } from '../actions/categories';
 
 const formControlCss = css({
-  margin: '8px 0 8px 8px',
+  margin: '8px 8px 8px 0px',
   minWidth: 80,
 });
 
@@ -111,7 +111,7 @@ const PapersList = ({ match, location, history, toggleCategoryModal, setSelected
       ...queryString.parse(location.search),
       [queryParam]: queryValue,
     };
-    if (!queryValue) delete newQ.queryParam;
+    if (!queryValue) delete newQ[queryParam];
     history.push({
       pathname: location.pathname,
       search: queryString.stringify(newQ),
@@ -170,20 +170,6 @@ const PapersList = ({ match, location, history, toggleCategoryModal, setSelected
           {!isLoading ? `${totalPapers} papers` : null}
         </div>
         <div css={filtersCss}>
-          <Chip
-            variant="outlined"
-            size="small"
-            label="Categories"
-            clickable={false}
-            onClick={() => toggleCategoryModal()}
-            css={css`
-              font-size: 13px;
-              &:hover {
-                background-color: rgba(0, 0, 0, 0.08);
-                cursor: pointer;
-              }
-            `}
-          />
           <FormControl css={formControlCss}>
             <Select
               value={age}
@@ -229,6 +215,21 @@ const PapersList = ({ match, location, history, toggleCategoryModal, setSelected
               )}
             </Select>
           </FormControl>
+          <Chip
+            size="small"
+            variant="outlined"
+            label="Categories"
+            clickable={false}
+            onClick={() => toggleCategoryModal()}
+            css={css`
+              font-size: 13px;
+              height: 26px;
+              &:hover {
+                background-color: rgba(0, 0, 0, 0.08);
+                cursor: pointer;
+              }
+            `}
+          />
           <CategoriesModal onSelect={handleFilters} />
         </div>
       </div>

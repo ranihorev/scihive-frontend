@@ -202,7 +202,7 @@ const PdfAnnotator = ({
     );
   };
 
-  const onSelection = (startTarget, boundingRect, resetSelection) => {
+  const onSelection = (startTarget, boundingRect) => {
     const page = getPageFromElement(startTarget);
 
     if (!page) return;

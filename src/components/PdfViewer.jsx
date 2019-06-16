@@ -7,6 +7,7 @@ import { withRouter } from 'react-router';
 import { connect } from 'react-redux';
 import Popper from '@material-ui/core/Popper';
 import Paper from '@material-ui/core/Paper';
+import { isMobile } from 'react-device-detect';
 import { PdfLoader, Tip, Highlight, Popup, AreaHighlight, PdfAnnotator } from './Pdf';
 import { actions } from '../actions';
 import { popupCss } from '../utils/presets';
@@ -172,13 +173,19 @@ class PdfViewer extends Component {
               onReferenceEnter={e => {
                 const cite = e.target.getAttribute('href').replace('#cite.', '');
                 if (references.hasOwnProperty(cite)) {
-                  e.target.onclick = event => {
-                    event.preventDefault();
-                  };
-                  this.setState({
-                    referencePopoverAnchor: e.target,
-                    referenceCite: cite,
-                  });
+                  if (isMobile) {
+                    e.target.onclick = event => {
+                      event.preventDefault();
+                    };
+                  }
+                  if (e.type === 'click' && !isMobile) {
+                    this.setState({ referencePopoverAnchor: undefined, referenceCite: '' });
+                  } else {
+                    this.setState({
+                      referencePopoverAnchor: e.target,
+                      referenceCite: cite,
+                    });
+                  }
                 }
               }}
               onReferenceLeave={this.hideReferencePopover}

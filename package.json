@@ -27,7 +27,6 @@
     "react-ga": "^2.5.7",
     "react-headroom": "^2.2.8",
     "react-helmet": "^5.2.1",
-    "react-infinite-scroller": "^1.2.4",
     "react-linkify": "^1.0.0-alpha",
     "react-pointable": "^1.1.3",
     "react-redux": "^6.0.1",

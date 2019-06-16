@@ -14,18 +14,7 @@ import { actions } from '../actions';
 import * as presets from '../utils/presets';
 
 const styles = theme => ({
-  modal: {
-    position: 'absolute',
-    width: theme.spacing.unit * 50,
-    maxWidth: '75%',
-    backgroundColor: theme.palette.background.paper,
-    boxShadow: theme.shadows[5],
-    padding: theme.spacing.unit * 4,
-    outline: 'none',
-    top: '50%',
-    left: '50%',
-    transform: 'translate(-50%, -50%)'
-  }
+  modal: presets.modal(theme),
 });
 
 const formControl = css`
@@ -37,7 +26,7 @@ function LoginSignupForm({ onSubmitSuccess, loginModalMessage }) {
   const [userData, setUserData] = useState({
     email: '',
     password: '',
-    username: ''
+    username: '',
   });
   const [errMsg, setErrMsg] = useState('');
 
@@ -64,12 +53,7 @@ function LoginSignupForm({ onSubmitSuccess, loginModalMessage }) {
           <span>
             You are now logged in!
             <br />
-            <button
-              type="button"
-              css={presets.linkButton}
-              onClick={onRefresh}
-              style={{ color: 'inherit' }}
-            >
+            <button type="button" css={presets.linkButton} onClick={onRefresh} style={{ color: 'inherit' }}>
               Refresh
             </button>{' '}
             to view your data.
@@ -108,34 +92,16 @@ function LoginSignupForm({ onSubmitSuccess, loginModalMessage }) {
       {!isLogin ? (
         <FormControl css={formControl} fullWidth>
           <InputLabel>User Name (Optional)</InputLabel>
-          <Input
-            name="username"
-            value={userData.username}
-            onChange={handleChange}
-            maxLength={30}
-            required
-          />
+          <Input name="username" value={userData.username} onChange={handleChange} maxLength={30} required />
         </FormControl>
       ) : null}
       <FormControl css={formControl} fullWidth>
         <InputLabel>Email</InputLabel>
-        <Input
-          type="email"
-          name="email"
-          value={userData.email}
-          onChange={handleChange}
-          required
-        />
+        <Input type="email" name="email" value={userData.email} onChange={handleChange} required />
       </FormControl>
       <FormControl css={formControl} fullWidth>
         <InputLabel>Password</InputLabel>
-        <Input
-          name="password"
-          value={userData.password}
-          onChange={handleChange}
-          type="password"
-          required
-        />
+        <Input name="password" value={userData.password} onChange={handleChange} type="password" required />
       </FormControl>
       <div
         css={css`
@@ -172,26 +138,12 @@ function LoginSignupForm({ onSubmitSuccess, loginModalMessage }) {
   );
 }
 
-const LoginSignupModal = ({
-  classes,
-  isLoginModalOpen,
-  toggleLoginModal,
-  onSubmitSuccess,
-  loginModalMessage
-}) => {
+const LoginSignupModal = ({ classes, isLoginModalOpen, toggleLoginModal, onSubmitSuccess, loginModalMessage }) => {
   return (
     <React.Fragment>
-      <Modal
-        aria-labelledby="simple-modal-title"
-        aria-describedby="simple-modal-description"
-        open={isLoginModalOpen}
-        onClose={toggleLoginModal}
-      >
+      <Modal open={isLoginModalOpen} onClose={toggleLoginModal}>
         <div className={classes.modal}>
-          <LoginSignupForm
-            onSubmitSuccess={onSubmitSuccess}
-            loginModalMessage={loginModalMessage}
-          />
+          <LoginSignupForm onSubmitSuccess={onSubmitSuccess} loginModalMessage={loginModalMessage} />
         </div>
       </Modal>
     </React.Fragment>
@@ -203,7 +155,7 @@ const mapStateToProps = state => {
   return {
     isLoginModalOpen: user.isLoginModalOpen,
     userData: user.userData,
-    loginModalMessage: user.loginModalMessage
+    loginModalMessage: user.loginModalMessage,
   };
 };
 
@@ -215,11 +167,11 @@ const mapDispatchToProps = dispatch => {
     onSubmitSuccess: data => {
       dispatch(actions.setUser(data));
       dispatch(actions.toggleLoginModal());
-    }
+    },
   };
 };
 
 export default connect(
   mapStateToProps,
-  mapDispatchToProps
+  mapDispatchToProps,
 )(withStyles(styles)(LoginSignupModal));

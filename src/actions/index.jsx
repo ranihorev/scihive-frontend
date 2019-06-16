@@ -1,3 +1,5 @@
+import { actions as categoriesActions } from './categories';
+
 export const TOGGLE_LOGIN_MODAL = 'TOGGLE_LOGIN_MODAL';
 export const TOGGLE_GROUPS_MODAL = 'TOGGLE_GROUPS_MODAL';
 export const SET_USER = 'SET_USER';
@@ -101,4 +103,5 @@ export const actions = {
   blinkLibrary: () => ({
     type: BLINK_LIBRARY,
   }),
+  ...categoriesActions,
 };

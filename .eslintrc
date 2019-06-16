@@ -37,7 +37,8 @@
     "import/prefer-default-export": "off",
     "no-restricted-syntax": "off",
     "react/no-danger": "off",
-    "no-param-reassign": "off"
+    "no-param-reassign": "off",
+    "class-methods-use-this": "off"
   },
   "globals": {
     "window": true,

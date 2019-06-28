@@ -430,7 +430,7 @@ const PdfAnnotator = ({
           query: acronym,
           caseSensitive: true,
           highlightAll: false,
-          entireWord: false,
+          entireWord: true,
         };
         for (let i = 0; i < pdfDocument.numPages; i++) {
           findController._pendingFindMatches[i] = true;

@@ -11,6 +11,7 @@ import { isMobile } from 'react-device-detect';
 import { PdfLoader, Tip, Highlight, Popup, AreaHighlight, PdfAnnotator } from './Pdf';
 import { actions } from '../actions';
 import { popupCss } from '../utils/presets';
+import { TextLinkifyLatex } from './TextLinkifyLatex';
 
 const parseIdFromHash = type => {
   if (!window.location.hash.includes(`${type}-`)) return undefined;
@@ -21,7 +22,12 @@ const setCommentHash = id => {
   window.location.hash = `comment-${id}`;
 };
 
-const HighlightPopup = ({ comment }) => (comment.text ? <Paper css={popupCss}>{comment.text}</Paper> : null);
+const HighlightPopup = ({ comment }) =>
+  comment.text ? (
+    <Paper css={popupCss}>
+      <TextLinkifyLatex text={comment.text} />
+    </Paper>
+  ) : null;
 
 class PdfViewer extends Component {
   state = {

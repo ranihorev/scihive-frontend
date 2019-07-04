@@ -105,6 +105,7 @@ class PdfViewer extends Component {
         position={highlight.position}
         comment={highlight.comment}
         onClick={() => {
+          this.props.switchSidebarToComments();
           setCommentHash(highlight.id);
         }}
       />
@@ -231,6 +232,9 @@ const mapStateToProps = state => {
 const mapDispatchToProps = dispatch => ({
   addHighlight: highlight => {
     dispatch(actions.addHighlight(highlight));
+  },
+  switchSidebarToComments: () => {
+    dispatch(actions.setSidebarTab('Comments'));
   },
 });
 

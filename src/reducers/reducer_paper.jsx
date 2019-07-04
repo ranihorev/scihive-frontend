@@ -11,7 +11,8 @@ import {
   UPDATE_HIGHLIGHT,
   REMOVE_HIGHLIGHT,
   TOGGLE_HIGHLIGHTS,
-  SET_ACRONYMS
+  SET_ACRONYMS,
+  SET_SIDEBAR_TAB,
 } from '../actions';
 
 const initialState = {
@@ -22,16 +23,15 @@ const initialState = {
   references: {},
   highlights: [],
   hiddenHighlights: [],
-  acronyms: {}
+  acronyms: {},
+  sidebarTab: 'Sections',
 };
 
 const updateHighlight = (state, newHighlight) => {
-  const highlights = state.highlights.map(h =>
-    h.id === newHighlight.id ? newHighlight : h
-  );
+  const highlights = state.highlights.map(h => (h.id === newHighlight.id ? newHighlight : h));
   return {
     ...state,
-    highlights
+    highlights,
   };
 };
 
@@ -58,23 +58,25 @@ export default function dataReducer(state = initialState, action) {
     case REMOVE_HIGHLIGHT:
       return {
         ...state,
-        highlights: state.highlights.filter(h => h.id !== action.payload)
+        highlights: state.highlights.filter(h => h.id !== action.payload),
       };
     case TOGGLE_HIGHLIGHTS:
       if (isEmpty(state.hiddenHighlights)) {
         return {
           ...state,
           highlights: [],
-          hiddenHighlights: state.highlights
+          hiddenHighlights: state.highlights,
         };
       }
       return {
         ...state,
         highlights: [...state.highlights, ...state.hiddenHighlights],
-        hiddenHighlights: []
+        hiddenHighlights: [],
       };
     case SET_ACRONYMS:
       return { ...state, acronyms: action.payload };
+    case SET_SIDEBAR_TAB:
+      return { ...state, sidebarTab: action.payload };
     default:
       return state;
   }

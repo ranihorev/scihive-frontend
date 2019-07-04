@@ -18,6 +18,7 @@ export const REMOVE_HIGHLIGHT = 'REMOVE_HIGHLIGHT';
 export const TOGGLE_HIGHLIGHTS = 'TOGGLE_HIGHLIGHTS';
 export const SET_ACRONYMS = 'SET_ACRONYMS';
 export const BLINK_LIBRARY = 'BLINK_LIBRARY';
+export const SET_SIDEBAR_TAB = 'SET_SIDEBAR_TAB';
 
 export const actions = {
   toggleLoginModal: message => {
@@ -102,6 +103,10 @@ export const actions = {
   }),
   blinkLibrary: () => ({
     type: BLINK_LIBRARY,
+  }),
+  setSidebarTab: tab => ({
+    type: SET_SIDEBAR_TAB,
+    payload: tab,
   }),
   ...categoriesActions,
 };

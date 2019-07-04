@@ -1,12 +1,14 @@
 /** @jsx jsx */
 import { css, jsx } from '@emotion/core';
 import React from 'react';
+import { connect } from 'react-redux';
 import IconButton from '@material-ui/core/IconButton';
 import Tabs from '@material-ui/core/Tabs';
 import Tab from '@material-ui/core/Tab';
 import { presets } from '../utils';
 import CommentsList from './CommentsList';
 import { PaperSections } from './PaperSections';
+import { actions } from '../actions';
 
 export const CollapseButton = ({ direction, onClick }) => (
   <IconButton onClick={() => onClick()}>
@@ -29,9 +31,8 @@ const tabCss = css`
   }
 `;
 
-export const Sidebar = ({ height, width, isCollapsed, isVertical, onCollapseClick }) => {
+const SidebarRender = ({ selectedTab, setSelectedTab, height, width, isCollapsed, isVertical, onCollapseClick }) => {
   if (isCollapsed) return null;
-  const [selectedTab, setSelectedTab] = React.useState('Sections');
   let content = null;
   switch (selectedTab) {
     case 'Comments':
@@ -91,3 +92,18 @@ export const Sidebar = ({ height, width, isCollapsed, isVertical, onCollapseClic
     </div>
   );
 };
+
+const mapStateToProps = state => ({
+  selectedTab: state.paper.sidebarTab,
+});
+
+const mapDispatchToProps = dispatch => ({
+  setSelectedTab: tab => dispatch(actions.setSidebarTab(tab)),
+});
+
+const withRedux = connect(
+  mapStateToProps,
+  mapDispatchToProps,
+);
+
+export const Sidebar = withRedux(SidebarRender);

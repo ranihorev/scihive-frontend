@@ -3,7 +3,7 @@ import { css, jsx } from '@emotion/core';
 import React from 'react';
 import ContentLoader from 'react-content-loader';
 import { connect } from 'react-redux';
-import { range } from 'lodash';
+import { range, isEmpty } from 'lodash';
 import { presets } from '../utils';
 
 const asc = arr => arr.sort((a, b) => a - b);
@@ -152,6 +152,16 @@ export const extractSections = (document, onSuccess) => {
           sections.push(section);
           lastSectionSplit = splitNumbers;
         }
+      }
+      // Fallback to Roman numerals
+      if (isEmpty(sections)) {
+        allContent.forEach((content, pageIdx) => {
+          content.items.forEach(text => {
+            if (text.str.match(/^(IX|IV|VI{0,3}|I{1,3})\.\s+.{0,60}$/)) {
+              sections.push({ ...text, page: pageIdx });
+            }
+          });
+        });
       }
       onSuccess(sections);
     });

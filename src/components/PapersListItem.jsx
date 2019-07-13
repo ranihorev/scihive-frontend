@@ -2,6 +2,7 @@
 import { css, jsx } from '@emotion/core';
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
+import { isEmpty } from 'lodash';
 import {
   Card,
   Typography,
@@ -101,7 +102,7 @@ const expandedOpenCss = css`
 `;
 
 const PapersListItem = ({ paper, classes }) => {
-  const { saved_in_library, comments_count, twtr_score, twtr_links, bookmarks_count } = paper;
+  const { saved_in_library, comments_count, twtr_score, twtr_links, bookmarks_count, github } = paper;
   const [expanded, setExpanded] = useState(false);
 
   const handleExpandClick = e => {
@@ -172,6 +173,27 @@ const PapersListItem = ({ paper, classes }) => {
             </span>
           </Tooltip>
         </div>
+        {!isEmpty(github) && (
+          <span>
+            <a
+              href={github.link}
+              target="_blank"
+              rel="noopener noreferrer"
+              css={css`
+                text-decoration: none;
+              `}
+            >
+              <Button
+                size="small"
+                css={css`
+                  padding: 0 4px;
+                `}
+              >
+                <i className={`fab fa-github ${classes.metadata}`} /> {(github && github.stars) || 0}
+              </Button>
+            </a>
+          </span>
+        )}
         <IconButton
           css={expanded ? expandedOpenCss : expandCss}
           onClick={handleExpandClick}

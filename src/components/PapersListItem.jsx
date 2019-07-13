@@ -174,7 +174,7 @@ const PapersListItem = ({ paper, classes }) => {
           </Tooltip>
         </div>
         {!isEmpty(github) && (
-          <span>
+          <Tooltip title="Provided by PapersWithCode" placement="top">
             <a
               href={github.link}
               target="_blank"
@@ -192,7 +192,7 @@ const PapersListItem = ({ paper, classes }) => {
                 <i className={`fab fa-github ${classes.metadata}`} /> {(github && github.stars) || 0}
               </Button>
             </a>
-          </span>
+          </Tooltip>
         )}
         <IconButton
           css={expanded ? expandedOpenCss : expandCss}

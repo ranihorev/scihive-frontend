@@ -19,7 +19,6 @@ const otherProjects = [
   'FermatsLibrary.com',
   'SemanticScholar.org',
   'scholar.google.com',
-  'paperswithcode.com',
   'BenchSci.com',
   'arXiv.org',
   'biorxiv.org',
@@ -74,11 +73,19 @@ const About = ({ classes }) => {
 
               <h4 style={{ marginTop: 40, marginBottom: 5 }}>Credits</h4>
               <small>
-                SciHive was initially forked from{' '}
-                <a href="http://www.arxiv-sanity.com" target="_blank" rel="noopener noreferrer">
-                  Arxiv-Sanity.com
-                </a>{' '}
-                by Andrej Karpathy.
+                <div>
+                  SciHive was initially forked from{' '}
+                  <a href="http://www.arxiv-sanity.com" target="_blank" rel="noopener noreferrer">
+                    Arxiv-Sanity.com
+                  </a>{' '}
+                  by Andrej Karpathy
+                </div>
+                <div>
+                  Github links are provided by{' '}
+                  <a href="https://www.paperswithcode.com" target="_blank" rel="noopener noreferrer">
+                    PapersWithCode
+                  </a>
+                </div>
               </small>
 
               <h4 style={{ paddingTop: 20, marginBottom: 5 }}>Other cool research-related projects</h4>

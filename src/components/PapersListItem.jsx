@@ -208,6 +208,25 @@ const PapersListItem = ({ paper, classes }) => {
         {expanded ? (
           <div className={classes.summary}>
             <Latex>{paper.summary}</Latex>
+            <div
+              css={css`
+                font-size: 12px;
+                margin-top: 5px;
+                color: grey;
+              `}
+            >
+              * Github link is provided by{' '}
+              <a
+                href="https://www.paperswithcode.com"
+                target="_blank"
+                rel="noopener noreferrer"
+                css={css`
+                  color: inherit;
+                `}
+              >
+                PapersWithCode
+              </a>
+            </div>
           </div>
         ) : (
           <TextTruncate

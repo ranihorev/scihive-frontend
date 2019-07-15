@@ -1,17 +1,18 @@
 /** @jsx jsx */
-import { jsx } from '@emotion/core';
+import { jsx, css } from '@emotion/core';
 import React, { Component } from 'react';
 import AddComment from '@material-ui/icons/AddComment';
 import axios from 'axios';
 import { withRouter } from 'react-router';
 import { connect } from 'react-redux';
-import Popper from '@material-ui/core/Popper';
-import Paper from '@material-ui/core/Paper';
 import { isMobile } from 'react-device-detect';
+import { Link } from 'react-router-dom';
+import { Popper, Paper } from '@material-ui/core';
 import { PdfLoader, Tip, Highlight, Popup, AreaHighlight, PdfAnnotator } from './Pdf';
 import { actions } from '../actions';
 import { popupCss } from '../utils/presets';
 import { TextLinkifyLatex } from './TextLinkifyLatex';
+import { presets } from '../utils';
 
 const parseIdFromHash = type => {
   if (!window.location.hash.includes(`${type}-`)) return undefined;
@@ -42,7 +43,7 @@ class PdfViewer extends Component {
   }
 
   componentWillUnmount(): void {
-    if (this.referenceTimeoutId) clearTimeout(this.referenceTimeoutId);
+    if (this.referenceTimeoutId) this.clearHideReferenceTimeout();
     window.removeEventListener('hashchange', this.scrollToHighlightFromHash);
   }
 
@@ -60,6 +61,11 @@ class PdfViewer extends Component {
         pos: selectedSection.transform[selectedSection.transform.length - 1] + selectedSection.height + 5,
       });
     }
+  };
+
+  clearHideReferenceTimeout = () => {
+    clearTimeout(this.referenceTimeoutId);
+    this.referenceTimeoutId = undefined;
   };
 
   scrollToHighlightFromHash = () => {
@@ -146,6 +152,7 @@ class PdfViewer extends Component {
 
   hideReferencePopover = () => {
     if (this.state.referencePopoverAnchor) {
+      if (this.referenceTimeoutId) return;
       this.referenceTimeoutId = setTimeout(() => {
         this.setState({ referencePopoverAnchor: undefined, referenceCite: '' });
       }, 300);
@@ -192,6 +199,7 @@ class PdfViewer extends Component {
                       referencePopoverAnchor: e.target,
                       referenceCite: cite,
                     });
+                    this.clearHideReferenceTimeout();
                   }
                 }
               }}
@@ -199,23 +207,45 @@ class PdfViewer extends Component {
             />
           )}
         </PdfLoader>
-        <Popper
-          open={Boolean(referencePopoverAnchor)}
-          anchorEl={referencePopoverAnchor}
-          placement="top"
-          style={{ zIndex: 10 }}
-        >
-          <Paper css={popupCss}>
-            <div
-              // eslint-disable-next-line react/no-danger
-              dangerouslySetInnerHTML={{ __html: references[referenceCite] }}
+        {references[referenceCite] && (
+          <Popper
+            open={Boolean(referencePopoverAnchor)}
+            anchorEl={referencePopoverAnchor}
+            placement="top"
+            style={{ zIndex: 10 }}
+          >
+            <Paper
+              css={popupCss}
               onMouseEnter={() => {
-                clearTimeout(this.referenceTimeoutId);
+                this.clearHideReferenceTimeout();
               }}
               onMouseLeave={this.hideReferencePopover}
-            />
-          </Paper>
-        </Popper>
+            >
+              {references[referenceCite].arxivId && (
+                <div
+                  css={css`
+                    ${presets.row};
+                    width: 100%;
+                    justify-content: flex-end;
+                  `}
+                >
+                  <Link
+                    to={`/paper/${references[referenceCite].arxivId}`}
+                    css={css`
+                      color: ${presets.themePalette.primary.main};
+                    `}
+                  >
+                    <i className="fas fa-external-link-alt" />
+                  </Link>
+                </div>
+              )}
+              <div
+                // eslint-disable-next-line react/no-danger
+                dangerouslySetInnerHTML={{ __html: references[referenceCite].html }}
+              />
+            </Paper>
+          </Popper>
+        )}
       </React.Fragment>
     );
   }

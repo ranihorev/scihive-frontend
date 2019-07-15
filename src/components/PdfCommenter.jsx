@@ -73,6 +73,7 @@ const PdfCommenter = ({
   setReferences,
   setHighlights,
   setAcronyms,
+  clearPaper,
 }) => {
   const [url, setUrl] = useState(FETCHING);
   const [title, setTitle] = useState('SciHive');
@@ -110,6 +111,8 @@ const PdfCommenter = ({
 
   useEffect(() => {
     // Fetch paper data
+    setUrl(FETCHING);
+    clearPaper();
     axios
       .get(`/paper/${params.PaperId}`)
       .then(res => {

@@ -14,8 +14,6 @@ import Comment from './Comment';
 import { linkButton, themePalette } from '../utils/presets';
 import { actions } from '../actions';
 
-const parseIdFromHash = () => window.location.hash.slice('#comment-'.length);
-
 const refs = {};
 const containerRef = React.createRef();
 const WELCOME_COOKIE = 'comments-welcome';
@@ -32,7 +30,9 @@ function CommentsList({
   toggleHighlightsVisiblity,
   isHighlightsHidden,
   match: { params },
+  jumpToHighlight,
   isVertical,
+  jumpData,
 }) {
   const [focusedId, setFocusedId] = useState();
 
@@ -51,9 +51,10 @@ function CommentsList({
     return highlights.find(highlight => highlight.id === id);
   };
 
-  const scrollToComment = () => {
-    const id = parseIdFromHash();
-    const highlight = getHighlightById(id);
+  // Event listener to hash change
+  useEffect(() => {
+    if (!jumpData || jumpData.type !== 'comment') return;
+    const highlight = getHighlightById(jumpData.id);
     if (highlight && containerRef.current) {
       containerRef.current.scrollTop = refs[highlight.id].offsetTop - 10;
       setFocusedId(highlight.id);
@@ -61,15 +62,7 @@ function CommentsList({
         setFocusedId(null);
       }, 1000);
     }
-  };
-
-  // Event listener to hash change
-  useEffect(() => {
-    window.addEventListener('hashchange', scrollToComment);
-    return () => {
-      window.removeEventListener('hashchange', scrollToComment);
-    };
-  });
+  }, [jumpData]);
 
   highlights.forEach(h => {
     refs[h.id] = React.createRef();
@@ -120,6 +113,7 @@ function CommentsList({
             highlight={highlight}
             removeHighlight={removeHighlight}
             updateHighlight={updateHighlight}
+            jumpToHighlight={() => jumpToHighlight(highlight.id, highlight.position)}
           />
         ))}
       </div>
@@ -152,6 +146,7 @@ const mapStateToProps = state => {
   return {
     highlights: state.paper.highlights,
     isHighlightsHidden: !isEmpty(state.paper.hiddenHighlights),
+    jumpData: state.paper.jumpData,
   };
 };
 
@@ -165,6 +160,9 @@ const mapDispatchToProps = dispatch => {
     },
     toggleHighlightsVisiblity: () => {
       dispatch(actions.toggleHighlightsVisiblity());
+    },
+    jumpToHighlight: (id, location) => {
+      dispatch(actions.jumpTo({ area: 'paper', type: 'highlight', id, location }));
     },
   };
 };

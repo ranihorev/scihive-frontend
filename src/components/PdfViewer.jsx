@@ -12,16 +12,7 @@ import { PdfLoader, Tip, Highlight, Popup, AreaHighlight, PdfAnnotator } from '.
 import { actions } from '../actions';
 import { popupCss } from '../utils/presets';
 import { TextLinkifyLatex } from './TextLinkifyLatex';
-import { presets } from '../utils';
-
-const parseIdFromHash = type => {
-  if (!window.location.hash.includes(`${type}-`)) return undefined;
-  return window.location.hash.slice(`#${type}-`.length);
-};
-
-const setCommentHash = id => {
-  window.location.hash = `comment-${id}`;
-};
+import { presets, getSectionPosition } from '../utils';
 
 const HighlightPopup = ({ comment }) =>
   comment.text ? (
@@ -39,46 +30,30 @@ class PdfViewer extends Component {
   referenceTimeoutId = null;
 
   componentDidMount() {
-    window.addEventListener('hashchange', this.scrollToHighlightFromHash, false);
+    // const re = new RegExp('(?<type>(section|highlight))-(?<id>.*)');
+    // const whereTo = window.location.hash.match(re);
+    // if (whereTo && whereTo.groups) {
+    //   const { type, id } = whereTo.groups;
+    //   if (type === 'highlight') {
+    //     const highlight = this.props.highlights.find(h => h.id === id);
+    //     if (highlight) {
+    //       this.props.jumpTo(type, id, highlight.position);
+    //     }
+    //   } else if (type === 'section') {
+    //     if (this.props.sections[id]) {
+    //       this.props.jumpTo(type, id, getSectionPosition(this.props.sections[id]));
+    //     }
+    //   }
+    // }
   }
 
   componentWillUnmount(): void {
     if (this.referenceTimeoutId) this.clearHideReferenceTimeout();
-    window.removeEventListener('hashchange', this.scrollToHighlightFromHash);
   }
-
-  getHighlightById(id: string) {
-    const { highlights } = this.props;
-    return highlights.find(highlight => highlight.id === id);
-  }
-
-  scrollToSectionFromHash = sectionId => {
-    const { sections } = this.props;
-    if (sections) {
-      const selectedSection = sections[sectionId];
-      this.scrollViewerTo(undefined, {
-        page: selectedSection.page + 1,
-        pos: selectedSection.transform[selectedSection.transform.length - 1] + selectedSection.height + 5,
-      });
-    }
-  };
 
   clearHideReferenceTimeout = () => {
     clearTimeout(this.referenceTimeoutId);
     this.referenceTimeoutId = undefined;
-  };
-
-  scrollToHighlightFromHash = () => {
-    const highlightId = parseIdFromHash('highlight');
-    const sectionId = parseIdFromHash('section');
-    if (highlightId) {
-      const highlight = this.getHighlightById(highlightId);
-      if (highlight) {
-        this.scrollViewerTo(highlight);
-      }
-    } else if (sectionId) {
-      this.scrollToSectionFromHash(sectionId);
-    }
   };
 
   onSelectionFinished = (position, content, hideTipAndSelection, transformSelection) => {
@@ -102,6 +77,11 @@ class PdfViewer extends Component {
     return <Tip onOpen={transformSelection} onConfirm={submitComment} tooltipText={<AddComment fontSize="small" />} />;
   };
 
+  onHighlightClick = id => {
+    this.props.jumpToComment(id);
+    this.props.history.push({ hash: `comment-${id}` });
+  };
+
   highlightTransform = (highlight, index, setTip, hideTip, viewportToScaled, screenshot, isScrolledTo) => {
     const isTextHighlight = !(highlight.content && highlight.content.image);
 
@@ -112,7 +92,7 @@ class PdfViewer extends Component {
         comment={highlight.comment}
         onClick={() => {
           this.props.switchSidebarToComments();
-          setCommentHash(highlight.id);
+          this.onHighlightClick(highlight.id);
         }}
       />
     ) : (
@@ -128,7 +108,7 @@ class PdfViewer extends Component {
         onClick={event => {
           event.stopPropagation();
           event.preventDefault();
-          setCommentHash(highlight.id);
+          this.onHighlightClick(highlight.id);
         }}
       />
     );
@@ -143,11 +123,6 @@ class PdfViewer extends Component {
         {component}
       </Popup>
     );
-  };
-
-  scrollToRef = scrollTo => {
-    this.scrollViewerTo = scrollTo;
-    this.scrollToHighlightFromHash();
   };
 
   hideReferencePopover = () => {
@@ -180,7 +155,6 @@ class PdfViewer extends Component {
             <PdfAnnotator
               pdfDocument={pdfDocument}
               enableAreaSelection={event => event.altKey}
-              scrollRef={this.scrollToRef}
               onSelectionFinished={this.onSelectionFinished}
               highlightTransform={this.highlightTransform}
               isVertical={isVertical}
@@ -256,6 +230,7 @@ const mapStateToProps = state => {
     sections: state.paper.sections,
     references: state.paper.references,
     highlights: state.paper.highlights,
+    jumpData: state.paper.jumpData,
   };
 };
 
@@ -265,6 +240,15 @@ const mapDispatchToProps = dispatch => ({
   },
   switchSidebarToComments: () => {
     dispatch(actions.setSidebarTab('Comments'));
+  },
+  clearJumpTo: () => {
+    dispatch(actions.clearJumpTo());
+  },
+  jumpTo: (type, id, location) => {
+    dispatch(actions.jumpTo({ area: 'paper', type, id, location }));
+  },
+  jumpToComment: id => {
+    dispatch(actions.jumpTo({ area: 'sidebar', type: 'comment', id }));
   },
 });
 

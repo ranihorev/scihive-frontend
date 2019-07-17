@@ -29,14 +29,24 @@ const visibiltyToIcon = {
 
 const capitalize = string => string.charAt(0).toUpperCase() + string.slice(1);
 
-function Comment({ isFocused, highlight, removeHighlight, updateHighlight, setRef, match: { params } }) {
+function Comment({
+  isFocused,
+  highlight,
+  removeHighlight,
+  updateHighlight,
+  setRef,
+  jumpToHighlight,
+  history,
+  match: { params },
+}) {
   const { image, text } = highlight.content;
   const [editMode, setEditMode] = React.useState(false);
   const [commentText, setCommentText] = React.useState(highlight.comment.text);
   const [showReply, setShowReply] = React.useState(false);
 
-  const updateHash = () => {
-    window.location.hash = `highlight-${highlight.id}`;
+  const updateJumpTo = () => {
+    jumpToHighlight();
+    history.push({ hash: `highlight-${highlight.id}` });
   };
 
   const updateComment = e => {
@@ -169,7 +179,7 @@ function Comment({ isFocused, highlight, removeHighlight, updateHighlight, setRe
         `}
       >
         <div
-          onClick={updateHash}
+          onClick={updateJumpTo}
           css={css`
             cursor: pointer;
           `}
@@ -209,7 +219,7 @@ function Comment({ isFocused, highlight, removeHighlight, updateHighlight, setRe
           ) : (
             <Typography
               component="div"
-              onClick={updateHash}
+              onClick={updateJumpTo}
               css={css`
                 cursor: pointer;
               `}

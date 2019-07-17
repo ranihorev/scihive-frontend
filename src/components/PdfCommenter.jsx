@@ -2,6 +2,7 @@
 import { css, jsx } from '@emotion/core';
 
 import React, { useEffect, useState } from 'react';
+import useDeepCompareEffect from 'use-deep-compare-effect';
 import { withStyles } from '@material-ui/core/styles';
 import axios from 'axios';
 import { withRouter } from 'react-router';
@@ -109,7 +110,7 @@ const PdfCommenter = ({
       });
   };
 
-  useEffect(() => {
+  useDeepCompareEffect(() => {
     // Fetch paper data
     setUrl(FETCHING);
     clearPaper();

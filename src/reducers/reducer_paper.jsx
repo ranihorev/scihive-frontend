@@ -13,6 +13,8 @@ import {
   TOGGLE_HIGHLIGHTS,
   SET_ACRONYMS,
   SET_SIDEBAR_TAB,
+  JUMP_TO,
+  CLEAR_JUMP_TO,
 } from '../actions';
 
 const initialState = {
@@ -25,6 +27,7 @@ const initialState = {
   hiddenHighlights: [],
   acronyms: {},
   sidebarTab: 'Sections',
+  jumpData: {},
 };
 
 const updateHighlight = (state, newHighlight) => {
@@ -77,6 +80,10 @@ export default function dataReducer(state = initialState, action) {
       return { ...state, acronyms: action.payload };
     case SET_SIDEBAR_TAB:
       return { ...state, sidebarTab: action.payload };
+    case JUMP_TO:
+      return { ...state, jumpData: action.payload };
+    case CLEAR_JUMP_TO:
+      return { ...state, jumpData: {} };
     default:
       return state;
   }

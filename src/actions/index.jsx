@@ -19,6 +19,8 @@ export const TOGGLE_HIGHLIGHTS = 'TOGGLE_HIGHLIGHTS';
 export const SET_ACRONYMS = 'SET_ACRONYMS';
 export const BLINK_LIBRARY = 'BLINK_LIBRARY';
 export const SET_SIDEBAR_TAB = 'SET_SIDEBAR_TAB';
+export const JUMP_TO = 'JUMP_TO';
+export const CLEAR_JUMP_TO = 'CLEAR_JUMP_TO';
 
 export const actions = {
   toggleLoginModal: message => {
@@ -107,6 +109,13 @@ export const actions = {
   setSidebarTab: tab => ({
     type: SET_SIDEBAR_TAB,
     payload: tab,
+  }),
+  jumpTo: location => ({
+    type: JUMP_TO,
+    payload: location,
+  }),
+  clearJumpTo: () => ({
+    type: JUMP_TO,
   }),
   ...categoriesActions,
 };

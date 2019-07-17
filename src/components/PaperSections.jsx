@@ -3,8 +3,10 @@ import { css, jsx } from '@emotion/core';
 import React from 'react';
 import ContentLoader from 'react-content-loader';
 import { connect } from 'react-redux';
+import { withRouter } from 'react-router';
 import { range, isEmpty } from 'lodash';
-import { presets } from '../utils';
+import { presets, getSectionPosition } from '../utils';
+import { actions } from '../actions';
 
 const asc = arr => arr.sort((a, b) => a - b);
 
@@ -168,7 +170,7 @@ export const extractSections = (document, onSuccess) => {
   });
 };
 
-const PaperSectionsRender = ({ sections }) => {
+const PaperSectionsRender = ({ sections, jumpToSection, history }) => {
   return (
     <div
       css={css`
@@ -180,13 +182,17 @@ const PaperSectionsRender = ({ sections }) => {
       {sections ? (
         sections.map((section, idx) => {
           return (
-            <a
-              href={`#section-${idx}`}
+            <span
+              onClick={() => {
+                jumpToSection(idx, getSectionPosition(section));
+                history.push({ hash: `section-${idx}` });
+              }}
               key={idx}
               css={css`
                 text-decoration: none;
                 padding-top: 8px;
                 margin-left: 0px;
+                cursor: pointer;
                 color: #5f5f5f;
                 font-size: 0.85rem;
                 &:hover {
@@ -195,7 +201,7 @@ const PaperSectionsRender = ({ sections }) => {
               `}
             >
               {section.str}
-            </a>
+            </span>
           );
         })
       ) : (
@@ -211,6 +217,15 @@ const mapStateToProps = state => {
   };
 };
 
-const withRedux = connect(mapStateToProps);
+const mapDispatchToProps = dispatch => {
+  return {
+    jumpToSection: (id, location) => dispatch(actions.jumpTo({ area: 'paper', type: 'section', id, location })),
+  };
+};
 
-export const PaperSections = withRedux(PaperSectionsRender);
+const withRedux = connect(
+  mapStateToProps,
+  mapDispatchToProps,
+);
+
+export const PaperSections = withRedux(withRouter(PaperSectionsRender));

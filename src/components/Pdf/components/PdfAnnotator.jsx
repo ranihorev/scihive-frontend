@@ -28,8 +28,6 @@ import { APP_BAR_HEIGHT } from '../../TopBar/PrimaryAppBar';
 import { actions } from '../../../actions';
 import { convertMatches, renderMatches } from '../lib/pdfSearchUtils';
 
-const EMPTY_ID = 'empty-id';
-
 const zoomButtonCss = css`
   color: black;
   font-size: 1rem;
@@ -52,7 +50,6 @@ const ZoomButtom = ({ direction, onClick }) => (
 
 const PdfAnnotator = ({
   pdfDocument,
-  scrollRef,
   isVertical,
   enableAreaSelection,
   onReferenceEnter,
@@ -62,12 +59,15 @@ const PdfAnnotator = ({
   acronyms,
   onSelectionFinished,
   updateReadingProgress,
+  clearJumpTo,
+  jumpTo,
+  jumpData,
 }) => {
   const [ghostHighlight, setGhostHighlight] = React.useState(null);
   const [isCollapsed, setIsCollapsed] = React.useState(true);
   const [range, setRange] = React.useState(null);
   const [tip, setTip] = React.useState(null);
-  const [scrolledToHighlightId, setScrolledToHighlightId] = React.useState(EMPTY_ID);
+  // const [scrolledToHighlightId, setScrolledToHighlightId] = React.useState(EMPTY_ID);
   const [isAreaSelectionInProgress, setIsAreaSelectionInProgress] = React.useState(false);
   const [isDocumentReady, setIsDocumentReady] = React.useState(false);
   const [requestRender, setRequestRender] = React.useState(false);
@@ -92,28 +92,15 @@ const PdfAnnotator = ({
     }
   };
 
-  const resetHash = () => {
-    window.location.hash = '';
-  };
-
   const onScroll = () => {
-    resetHash();
-    setScrolledToHighlightId(EMPTY_ID);
+    // TODO: clean hash
+    // window.location.hash = '';
+    clearJumpTo();
     viewer.current.container.removeEventListener('scroll', onScroll);
   };
 
-  const scrollTo = (highlight, otherLocation) => {
-    if (otherLocation) {
-      viewer.current.scrollPageIntoView({
-        pageNumber: otherLocation.page,
-        destArray: [null, { name: 'XYZ' }, 0, otherLocation.pos],
-      });
-      return;
-    }
-
-    const { pageNumber, boundingRect, usePdfCoordinates } = highlight.position;
-    viewer.current.container.removeEventListener('scroll', onScroll);
-
+  const scrollToHighLight = () => {
+    const { pageNumber, boundingRect, usePdfCoordinates } = jumpData.location;
     const pageViewport = viewer.current.getPageView(pageNumber - 1).viewport;
 
     const scrollMargin = 10;
@@ -130,7 +117,25 @@ const PdfAnnotator = ({
         0,
       ],
     });
-    setScrolledToHighlightId(highlight.id);
+  };
+
+  const onJumpToChange = () => {
+    if (isEmpty(jumpData) || jumpData.area !== 'paper') return;
+    viewer.current.container.removeEventListener('scroll', onScroll);
+    if (!jumpData.location) return;
+    if (jumpData.type === 'highlight') {
+      scrollToHighLight();
+    } else {
+      if (!jumpData.location || !jumpData.location.pageNumber || !jumpData.location.position)
+        throw Error('Position is missing');
+      const { pageNumber, position } = jumpData.location;
+
+      viewer.current.scrollPageIntoView({
+        pageNumber,
+        destArray: [null, { name: 'XYZ' }, 0, position],
+      });
+    }
+
     // wait for scrolling to finish
     setTimeout(() => {
       viewer.current.container.addEventListener('scroll', onScroll);
@@ -145,7 +150,7 @@ const PdfAnnotator = ({
     const { viewport } = viewer.current.getPageView(0);
     viewer.current.currentScaleValue = containerNode.current.clientWidth / viewport.width - 0.05;
     setIsDocumentReady(true);
-    scrollRef(scrollTo);
+    onJumpToChange();
   };
 
   const screenshot = (position, pageNumber) => {
@@ -320,7 +325,7 @@ const PdfAnnotator = ({
                 showTip(tip.highlight, tip.callback(viewportHighlight));
               }
 
-              const isScrolledTo = scrolledToHighlightId === highlight.id;
+              const isScrolledTo = jumpData && jumpData.type === 'highlight' && jumpData.id === highlight.id;
 
               return highlightTransform(
                 viewportHighlight,
@@ -462,9 +467,13 @@ const PdfAnnotator = ({
   }, [isDocumentReady, requestRender, acronymPositions]);
 
   React.useEffect(() => {
+    onJumpToChange();
+  }, [jumpData]);
+
+  React.useEffect(() => {
     if (!isDocumentReady || !firstPageRendered) return;
     renderHighlights();
-  }, [isDocumentReady, firstPageRendered, ghostHighlight, isCollapsed, scrolledToHighlightId, highlights]);
+  }, [isDocumentReady, firstPageRendered, ghostHighlight, isCollapsed, jumpData, highlights]);
 
   return (
     <React.Fragment>
@@ -527,6 +536,7 @@ const mapStateToProps = state => {
   return {
     highlights: state.paper.highlights,
     acronyms: state.paper.acronyms,
+    jumpData: state.paper.jumpData,
   };
 };
 
@@ -534,6 +544,12 @@ const mapDispatchToProps = dispatch => {
   return {
     updateReadingProgress: pos => {
       dispatch(actions.updateReadingProgress(pos));
+    },
+    clearJumpTo: () => {
+      dispatch(actions.clearJumpTo());
+    },
+    jumpTo: () => {
+      dispatch(actions.jumpTo());
     },
   };
 };

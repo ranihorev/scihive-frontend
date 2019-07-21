@@ -23,6 +23,8 @@ const PaperMenuDekstopRender = ({ match: { params }, toggleGroupsModal, isLogged
     setAnchorEl(null);
   };
 
+  console.log(codeMeta);
+
   return (
     <React.Fragment>
       <Bookmark paperId={PaperId} color="white" />
@@ -34,12 +36,12 @@ const PaperMenuDekstopRender = ({ match: { params }, toggleGroupsModal, isLogged
         open={isMenuOpen}
         onClose={handleMenuClose}
       >
-        {codeMeta.github && (
+        {codeMeta && codeMeta.github && (
           <a href={codeMeta.github} css={simpleLink} target="_blank" rel="noopener noreferrer">
             <MenuItem onClick={handleMenuClose}>Github</MenuItem>
           </a>
         )}
-        {codeMeta.paperswithcode && (
+        {codeMeta && codeMeta.paperswithcode && (
           <a href={codeMeta.paperswithcode} css={simpleLink} target="_blank" rel="noopener noreferrer">
             <MenuItem onClick={handleMenuClose}>PapersWithCode</MenuItem>
           </a>
@@ -85,12 +87,12 @@ const PaperMenuMobileRender = ({
 
   return (
     <React.Fragment>
-      {codeMeta.github && (
+      {codeMeta && codeMeta.github && (
         <a href={codeMeta.github} css={simpleLink} target="_blank" rel="noopener noreferrer">
           <MenuItem onClick={() => handleMobileMenuClick()}>Github</MenuItem>
         </a>
       )}
-      {codeMeta.paperswithcode && (
+      {codeMeta && codeMeta.paperswithcode && (
         <a href={codeMeta.paperswithcode} css={simpleLink} target="_blank" rel="noopener noreferrer">
           <MenuItem onClick={() => handleMobileMenuClick()}>PapersWithCode</MenuItem>
         </a>

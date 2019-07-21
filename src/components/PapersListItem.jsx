@@ -22,6 +22,7 @@ import TwitterMeta from './TwitterMeta';
 import Bookmark from './Bookmark';
 import * as presets from '../utils/presets';
 import { Latex } from '../utils/latex';
+import CodeMeta from './CodeMeta';
 
 const MAIN_COLOR = '#49a8f5';
 
@@ -173,27 +174,7 @@ const PapersListItem = ({ paper, classes }) => {
             </span>
           </Tooltip>
         </div>
-        {!isEmpty(github) && (
-          <Tooltip title="Provided by PapersWithCode" placement="top">
-            <a
-              href={github.link}
-              target="_blank"
-              rel="noopener noreferrer"
-              css={css`
-                text-decoration: none;
-              `}
-            >
-              <Button
-                size="small"
-                css={css`
-                  padding: 0 4px;
-                `}
-              >
-                <i className={`fab fa-github ${classes.metadata}`} /> {(github && github.stars) || 0}
-              </Button>
-            </a>
-          </Tooltip>
-        )}
+        {!isEmpty(github) && <CodeMeta data={github} iconClass={classes.metadata} />}
         <IconButton
           css={expanded ? expandedOpenCss : expandCss}
           onClick={handleExpandClick}
@@ -208,25 +189,27 @@ const PapersListItem = ({ paper, classes }) => {
         {expanded ? (
           <div className={classes.summary}>
             <Latex>{paper.summary}</Latex>
-            <div
-              css={css`
-                font-size: 12px;
-                margin-top: 5px;
-                color: grey;
-              `}
-            >
-              * Github link is provided by{' '}
-              <a
-                href="https://www.paperswithcode.com"
-                target="_blank"
-                rel="noopener noreferrer"
+            {!isEmpty(github) && (
+              <div
                 css={css`
-                  color: inherit;
+                  font-size: 12px;
+                  margin-top: 5px;
+                  color: grey;
                 `}
               >
-                PapersWithCode
-              </a>
-            </div>
+                * Github link is provided by{' '}
+                <a
+                  href="https://www.paperswithcode.com"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  css={css`
+                    color: inherit;
+                  `}
+                >
+                  PapersWithCode
+                </a>
+              </div>
+            )}
           </div>
         ) : (
           <TextTruncate

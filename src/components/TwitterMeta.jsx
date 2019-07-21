@@ -62,16 +62,29 @@ const TwitterMeta = ({ twtr_score, twtr_links, classes, iconClass }) => {
       >
         <List className={classes.links}>
           {links.map((l, idx) => (
-            <a key={idx} className={classes.link} href={l.link} target="_blank" rel="noopener noreferrer">
+            <a
+              key={idx}
+              className={classes.link}
+              href={l.link}
+              target="_blank"
+              rel="noopener noreferrer"
+              css={css`
+                font-size: 13px;
+              `}
+            >
               <ListItem button>
-                <ListItemIcon>
+                <ListItemIcon
+                  css={css`
+                    margin-right: 8px;
+                  `}
+                >
                   <i className="fab fa-twitter" />
                 </ListItemIcon>
-                {l.name}
+                <span>{l.name}</span>
                 <span
                   css={css`
-                    padding-left: 4px;
-                    font-size: 0.8rem;
+                    padding-left: 5px;
+                    font-size: 12px;
                     color: #bfbfbf;
                   `}
                 >

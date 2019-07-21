@@ -15,6 +15,7 @@ import {
   SET_SIDEBAR_TAB,
   JUMP_TO,
   CLEAR_JUMP_TO,
+  SET_CODE_META,
 } from '../actions';
 
 const initialState = {
@@ -28,6 +29,7 @@ const initialState = {
   acronyms: {},
   sidebarTab: 'Sections',
   jumpData: {},
+  codeMeta: {},
 };
 
 const updateHighlight = (state, newHighlight) => {
@@ -46,6 +48,8 @@ export default function dataReducer(state = initialState, action) {
       return { ...state, readingProgress: action.payload };
     case SET_BOOKMARK:
       return { ...state, isBookmarked: action.payload };
+    case SET_CODE_META:
+      return { ...state, codeMeta: action.payload };
     case SET_DOCUMENT:
       return { ...state, document: action.payload };
     case SET_SECTIONS:

@@ -10,7 +10,7 @@ import { actions } from '../../actions';
 import { simpleLink } from '../../utils/presets';
 import { ButtonIcon } from '../ButtonIcon';
 
-const PaperMenuDekstopRender = ({ match: { params }, toggleGroupsModal, isLoggedIn }) => {
+const PaperMenuDekstopRender = ({ match: { params }, toggleGroupsModal, isLoggedIn, codeMeta }) => {
   const [anchorEl, setAnchorEl] = useState(null);
   const isMenuOpen = Boolean(anchorEl);
   const { PaperId } = params;
@@ -34,6 +34,16 @@ const PaperMenuDekstopRender = ({ match: { params }, toggleGroupsModal, isLogged
         open={isMenuOpen}
         onClose={handleMenuClose}
       >
+        {codeMeta.github && (
+          <a href={codeMeta.github} css={simpleLink} target="_blank" rel="noopener noreferrer">
+            <MenuItem onClick={handleMenuClose}>Github</MenuItem>
+          </a>
+        )}
+        {codeMeta.paperswithcode && (
+          <a href={codeMeta.paperswithcode} css={simpleLink} target="_blank" rel="noopener noreferrer">
+            <MenuItem onClick={handleMenuClose}>PapersWithCode</MenuItem>
+          </a>
+        )}
         <a
           href={`https://arxiv.org/pdf/${PaperId}.pdf?download=1`} // download=1 ensures that the extension will ignore the link
           css={simpleLink}
@@ -64,11 +74,27 @@ const PaperMenuDekstopRender = ({ match: { params }, toggleGroupsModal, isLogged
   );
 };
 
-const PaperMenuMobileRender = ({ match: { params }, handleMobileMenuClick, toggleGroupsModal, isLoggedIn }) => {
+const PaperMenuMobileRender = ({
+  match: { params },
+  handleMobileMenuClick,
+  toggleGroupsModal,
+  isLoggedIn,
+  codeMeta,
+}) => {
   const { PaperId } = params;
 
   return (
     <React.Fragment>
+      {codeMeta.github && (
+        <a href={codeMeta.github} css={simpleLink} target="_blank" rel="noopener noreferrer">
+          <MenuItem onClick={() => handleMobileMenuClick()}>Github</MenuItem>
+        </a>
+      )}
+      {codeMeta.paperswithcode && (
+        <a href={codeMeta.paperswithcode} css={simpleLink} target="_blank" rel="noopener noreferrer">
+          <MenuItem onClick={() => handleMobileMenuClick()}>PapersWithCode</MenuItem>
+        </a>
+      )}
       <a
         href={`https://arxiv.org/pdf/${PaperId}.pdf?download=1`}
         css={simpleLink}
@@ -107,6 +133,7 @@ const PaperMenuMobileRender = ({ match: { params }, handleMobileMenuClick, toggl
 const mapStateToProps = state => {
   return {
     isLoggedIn: !isEmpty(state.user.userData),
+    codeMeta: state.paper.codeMeta,
   };
 };
 

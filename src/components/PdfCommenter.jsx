@@ -65,6 +65,7 @@ const useWindowDimensions = () => {
 
 const PdfCommenter = ({
   setBookmark,
+  setCodeMeta,
   classes,
   location,
   match: { params },
@@ -119,6 +120,7 @@ const PdfCommenter = ({
       .then(res => {
         setUrl(res.data.url);
         setBookmark(res.data.saved_in_library);
+        setCodeMeta(res.data.code);
         if (res.data.title) setTitle(`SciHive - ${res.data.title}`);
         fetch_paper_data();
       })
@@ -337,6 +339,9 @@ const mapDispatchToProps = dispatch => {
     },
     setAcronyms: acronyms => {
       dispatch(actions.setAcronyms(acronyms));
+    },
+    setCodeMeta: meta => {
+      dispatch(actions.setCodeMeta(meta));
     },
   };
 };

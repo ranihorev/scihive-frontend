@@ -21,6 +21,7 @@ export const BLINK_LIBRARY = 'BLINK_LIBRARY';
 export const SET_SIDEBAR_TAB = 'SET_SIDEBAR_TAB';
 export const JUMP_TO = 'JUMP_TO';
 export const CLEAR_JUMP_TO = 'CLEAR_JUMP_TO';
+export const SET_CODE_META = 'SET_CODE_META';
 
 export const actions = {
   toggleLoginModal: message => {
@@ -50,6 +51,12 @@ export const actions = {
   setBookmark: payload => {
     return {
       type: SET_BOOKMARK,
+      payload,
+    };
+  },
+  setCodeMeta: payload => {
+    return {
+      type: SET_CODE_META,
       payload,
     };
   },

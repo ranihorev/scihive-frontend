@@ -3,38 +3,37 @@
 import { css, jsx } from '@emotion/core';
 
 import React, { Component } from 'react';
-import TextField from '@material-ui/core/TextField';
-import Button from '@material-ui/core/Button';
-import Select from '@material-ui/core/Select';
-import Input from '@material-ui/core/Input';
-import MenuItem from '@material-ui/core/MenuItem';
-import FormControl from '@material-ui/core/FormControl';
+import { TextField, Button, Select, Input, MenuItem, FormControl, FormControlLabel, Checkbox } from '@material-ui/core';
 import { isEmpty } from 'lodash';
 import { connect } from 'react-redux';
-import FormControlLabel from '@material-ui/core/FormControlLabel';
-import Checkbox from '@material-ui/core/Checkbox';
 import { actions } from '../../../actions';
 import { presets } from '../../../utils';
 
 type State = {
   compact: boolean,
-  text: string
+  text: string,
 };
 type Visibilty = {
   type: string,
-  id?: string
+  id?: string,
 };
 
 type Props = {
   onConfirm: (comment: { text: string }, visibility: Visibilty) => void,
   onOpen: () => void,
-  onUpdate?: () => void,
-  tooltipText: React.Element,
   isLoggedIn: boolean,
   selectedGroup: { id: string, name: string },
-  toggleLoginModal: () => void,
-  openGroupsModal: () => void
+  openGroupsModal: () => void,
 };
+
+const compactButtonStyle = css`
+  cursor: pointer;
+  padding: 3px;
+  margin: 0px 5px;
+  &:hover {
+    color: ${presets.themePalette.primary.main};
+  }
+`;
 
 class Tip extends Component<Props, State> {
   state: State;
@@ -47,7 +46,7 @@ class Tip extends Component<Props, State> {
       compact: true,
       text: '',
       visibility: props.selectedGroup ? 'group' : 'public',
-      anonymous: false
+      anonymous: false,
     };
   }
 
@@ -83,34 +82,34 @@ class Tip extends Component<Props, State> {
   };
 
   render() {
-    const {
-      onOpen,
-      tooltipText,
-      selectedGroup,
-      isLoggedIn,
-      openGroupsModal
-    } = this.props;
+    const { onOpen, selectedGroup, isLoggedIn, openGroupsModal } = this.props;
     const { compact, text, visibility } = this.state;
     return (
       <div className="Tip">
         {compact ? (
           <div
             css={css`
-              cursor: pointer;
+              ${presets.row};
+              ${presets.centered};
               color: white;
-              padding: 10px 10px 7px 10px;
-              background-color: #9f9f9f;
-              margin: auto;
-              border-radius: 50%;
-              justify-content: center;
+              padding: 5px 7px;
+              background-color: #bbb;
+              border-radius: 10px;
             `}
-            role="button"
-            onClick={() => {
-              onOpen();
-              this.setState({ compact: false });
-            }}
           >
-            {tooltipText}
+            <div
+              css={compactButtonStyle}
+              role="button"
+              onClick={() => {
+                onOpen();
+                this.setState({ compact: false });
+              }}
+            >
+              <i className="fas fa-comment-medical" />
+            </div>
+            <div css={compactButtonStyle} role="button" onClick={this.onSubmit}>
+              <i className="fas fa-highlighter" />
+            </div>
           </div>
         ) : (
           <form
@@ -152,7 +151,14 @@ class Tip extends Component<Props, State> {
                 }}
               />
             </div>
-            <div css={css`${presets.row}; font-size: 0.65rem; color: grey; margin-bottom: 8px;`}>
+            <div
+              css={css`
+                ${presets.row};
+                font-size: 0.65rem;
+                color: grey;
+                margin-bottom: 8px;
+              `}
+            >
               * Type LaTeX formulas using $ signs, e.g. $(3\times 4)$
             </div>
             <div
@@ -163,14 +169,8 @@ class Tip extends Component<Props, State> {
               `}
             >
               <FormControl>
-                <Select
-                  value={visibility}
-                  onChange={this.handleVisibilityChange}
-                  input={<Input name="visiblity" />}
-                >
-                  {selectedGroup ? (
-                    <MenuItem value="group">{selectedGroup.name}</MenuItem>
-                  ) : null}
+                <Select value={visibility} onChange={this.handleVisibilityChange} input={<Input name="visiblity" />}>
+                  {selectedGroup ? <MenuItem value="group">{selectedGroup.name}</MenuItem> : null}
                   <MenuItem value="public">Public</MenuItem>
                   <MenuItem value="private" disabled={!isLoggedIn}>
                     Private
@@ -219,12 +219,7 @@ class Tip extends Component<Props, State> {
                 justify-content: flex-end;
               `}
             >
-              <Button
-                type="submit"
-                variant="contained"
-                color="primary"
-                size="small"
-              >
+              <Button type="submit" variant="contained" color="primary" size="small">
                 Submit
               </Button>
             </div>
@@ -249,23 +244,20 @@ class Tip extends Component<Props, State> {
 const mapStateToProps = state => {
   return {
     isLoggedIn: !isEmpty(state.user.userData),
-    selectedGroup: state.user.selectedGroup
+    selectedGroup: state.user.selectedGroup,
   };
 };
 
 const mapDispatchToProps = dispatch => {
   return {
-    toggleLoginModal: () => {
-      dispatch(actions.toggleLoginModal());
-    },
     openGroupsModal: () => {
       dispatch(actions.toggleGroupsModal(true));
-    }
+    },
   };
 };
 const withRedux = connect(
   mapStateToProps,
-  mapDispatchToProps
+  mapDispatchToProps,
 );
 
 export default withRedux(Tip);

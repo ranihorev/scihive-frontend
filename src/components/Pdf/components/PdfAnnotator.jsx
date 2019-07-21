@@ -60,7 +60,6 @@ const PdfAnnotator = ({
   onSelectionFinished,
   updateReadingProgress,
   clearJumpTo,
-  jumpTo,
   jumpData,
 }) => {
   const [ghostHighlight, setGhostHighlight] = React.useState(null);
@@ -248,7 +247,6 @@ const PdfAnnotator = ({
     if (!range || isCollapsed) return;
     const page = getPageFromRange(range);
     if (!page) return;
-
     const rects = getClientRects(range, page.node);
     if (rects.length === 0) return;
 
@@ -547,9 +545,6 @@ const mapDispatchToProps = dispatch => {
     },
     clearJumpTo: () => {
       dispatch(actions.clearJumpTo());
-    },
-    jumpTo: () => {
-      dispatch(actions.jumpTo());
     },
   };
 };

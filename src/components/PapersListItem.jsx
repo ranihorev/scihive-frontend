@@ -24,7 +24,7 @@ import * as presets from '../utils/presets';
 import { Latex } from '../utils/latex';
 import CodeMeta from './CodeMeta';
 
-const MAIN_COLOR = '#49a8f5';
+const MAIN_COLOR = presets.themePalette.primary.main;
 
 const styles = () => ({
   root: {

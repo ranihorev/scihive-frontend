@@ -1,7 +1,6 @@
 /** @jsx jsx */
 import { jsx, css } from '@emotion/core';
 import React, { Component } from 'react';
-import AddComment from '@material-ui/icons/AddComment';
 import axios from 'axios';
 import { withRouter } from 'react-router';
 import { connect } from 'react-redux';
@@ -74,7 +73,7 @@ class PdfViewer extends Component {
         });
     };
 
-    return <Tip onOpen={transformSelection} onConfirm={submitComment} tooltipText={<AddComment fontSize="small" />} />;
+    return <Tip onOpen={transformSelection} onConfirm={submitComment} />;
   };
 
   onHighlightClick = id => {

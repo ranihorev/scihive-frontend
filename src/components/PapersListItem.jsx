@@ -174,7 +174,13 @@ const PapersListItem = ({ paper, classes }) => {
             </span>
           </Tooltip>
         </div>
-        {!isEmpty(github) && <CodeMeta data={github} iconClass={classes.metadata} />}
+        {!isEmpty(github) && (
+          <Tooltip title="Github stars (by PapersWithCode)" placement="top">
+            <span>
+              <CodeMeta data={github} iconClass={classes.metadata} />
+            </span>
+          </Tooltip>
+        )}
         <IconButton
           css={expanded ? expandedOpenCss : expandCss}
           onClick={handleExpandClick}

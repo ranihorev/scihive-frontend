@@ -23,8 +23,6 @@ const PaperMenuDekstopRender = ({ match: { params }, toggleGroupsModal, isLogged
     setAnchorEl(null);
   };
 
-  console.log(codeMeta);
-
   return (
     <React.Fragment>
       <Bookmark paperId={PaperId} color="white" />

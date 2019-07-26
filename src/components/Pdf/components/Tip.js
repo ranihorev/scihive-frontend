@@ -26,7 +26,7 @@ type Props = {
   openGroupsModal: () => void,
 };
 
-const compactButtonStyle = css`
+export const compactButtonStyle = css`
   cursor: pointer;
   padding: 3px;
   margin: 0px 5px;
@@ -34,6 +34,27 @@ const compactButtonStyle = css`
     color: ${presets.themePalette.primary.main};
   }
 `;
+
+export const CompactTip = ({ children }) => (
+  <div
+    css={css`
+      ${presets.row};
+      ${presets.centered};
+      color: white;
+      padding: 5px 7px;
+      background-color: #bbb;
+      border-radius: 10px;
+    `}
+  >
+    {children}
+  </div>
+);
+
+export const CompactTipButton = ({ onClick, children }) => (
+  <div css={compactButtonStyle} role="button" onClick={onClick}>
+    {children}
+  </div>
+);
 
 class Tip extends Component<Props, State> {
   state: State;
@@ -87,30 +108,19 @@ class Tip extends Component<Props, State> {
     return (
       <div className="Tip">
         {compact ? (
-          <div
-            css={css`
-              ${presets.row};
-              ${presets.centered};
-              color: white;
-              padding: 5px 7px;
-              background-color: #bbb;
-              border-radius: 10px;
-            `}
-          >
-            <div
-              css={compactButtonStyle}
-              role="button"
+          <CompactTip>
+            <CompactTipButton
               onClick={() => {
                 onOpen();
                 this.setState({ compact: false });
               }}
             >
               <i className="fas fa-comment-medical" />
-            </div>
-            <div css={compactButtonStyle} role="button" onClick={this.onSubmit}>
+            </CompactTipButton>
+            <CompactTipButton onClick={this.onSubmit}>
               <i className="fas fa-highlighter" />
-            </div>
-          </div>
+            </CompactTipButton>
+          </CompactTip>
         ) : (
           <form
             css={css`

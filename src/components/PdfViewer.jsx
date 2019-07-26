@@ -7,19 +7,44 @@ import { connect } from 'react-redux';
 import { isMobile } from 'react-device-detect';
 import { Link } from 'react-router-dom';
 import { Popper, Paper } from '@material-ui/core';
+import * as copy from 'clipboard-copy';
+import { toast } from 'react-toastify';
 import { PdfLoader, Tip, Highlight, Popup, AreaHighlight, PdfAnnotator } from './Pdf';
 import { actions } from '../actions';
 import { popupCss } from '../utils/presets';
 import { TextLinkifyLatex } from './TextLinkifyLatex';
 import { presets, getSectionPosition } from '../utils';
+import { compactButtonStyle, CompactTip } from './Pdf/components/Tip';
 
-const HighlightPopup = ({ comment }) =>
-  comment.text ? (
-    <Paper css={popupCss}>
-      <TextLinkifyLatex text={comment.text} />
-    </Paper>
-  ) : null;
-
+const HighlightPopup = ({ content, comment }) => {
+  let copyButton;
+  if (content && content.text) {
+    copyButton = (
+      <span
+        css={compactButtonStyle}
+        role="button"
+        onClick={() => {
+          copy(content.text);
+          toast.success('Highlight has been copied to clipboard', { autoClose: 2000 });
+        }}
+      >
+        <i className="far fa-copy" />
+      </span>
+    );
+  }
+  if (comment.text) {
+    return (
+      <Paper css={popupCss}>
+        <TextLinkifyLatex text={comment.text} />
+        {copyButton}
+      </Paper>
+    );
+  }
+  if (content && content.text) {
+    return <CompactTip>{copyButton}</CompactTip>;
+  }
+  return null;
+};
 class PdfViewer extends Component {
   state = {
     referencePopoverAnchor: undefined,
@@ -111,7 +136,6 @@ class PdfViewer extends Component {
         }}
       />
     );
-
     return (
       <Popup
         popupContent={<HighlightPopup {...highlight} />}

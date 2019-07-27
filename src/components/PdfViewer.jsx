@@ -2,19 +2,20 @@
 import { jsx, css } from '@emotion/core';
 import React, { Component } from 'react';
 import axios from 'axios';
+import { Link } from 'react-router-dom';
 import { withRouter } from 'react-router';
 import { connect } from 'react-redux';
 import { isMobile } from 'react-device-detect';
-import { Link } from 'react-router-dom';
-import { Popper, Paper } from '@material-ui/core';
+import { Paper } from '@material-ui/core';
 import * as copy from 'clipboard-copy';
 import { toast } from 'react-toastify';
-import { PdfLoader, Tip, Highlight, Popup, AreaHighlight, PdfAnnotator } from './Pdf';
+import { PdfLoader, Tip, Highlight, AreaHighlight, PdfAnnotator } from './Pdf';
 import { actions } from '../actions';
 import { popupCss } from '../utils/presets';
 import { TextLinkifyLatex } from './TextLinkifyLatex';
 import { presets, getSectionPosition } from '../utils';
 import { compactButtonStyle, CompactTip } from './Pdf/components/Tip';
+import { PopupManager, Popup } from './Popup';
 
 const HighlightPopup = ({ content, comment }) => {
   let copyButton;
@@ -45,13 +46,44 @@ const HighlightPopup = ({ content, comment }) => {
   }
   return null;
 };
+
+const ReferencesPopupManager = ({ referencePopoverAnchor, clearAnchor, reference }) => {
+  const content = reference ? (
+    <Paper css={popupCss}>
+      {reference.arxivId && (
+        <div
+          css={css`
+            ${presets.row};
+            width: 100%;
+            justify-content: flex-end;
+          `}
+        >
+          <Link
+            to={`/paper/${reference.arxivId}`}
+            css={css`
+              color: ${presets.themePalette.primary.main};
+            `}
+          >
+            <i className="fas fa-external-link-alt" />
+          </Link>
+        </div>
+      )}
+      <div
+        // eslint-disable-next-line react/no-danger
+        dangerouslySetInnerHTML={{ __html: reference.html }}
+      />
+    </Paper>
+  ) : null;
+
+  return <PopupManager anchorEl={referencePopoverAnchor} clearAnchor={clearAnchor} popupContent={content} />;
+};
+
 class PdfViewer extends Component {
   state = {
     referencePopoverAnchor: undefined,
     referenceCite: '',
+    highlightPopoverAnchor: undefined,
   };
-
-  referenceTimeoutId = null;
 
   componentDidMount() {
     // const re = new RegExp('(?<type>(section|highlight))-(?<id>.*)');
@@ -70,15 +102,6 @@ class PdfViewer extends Component {
     //   }
     // }
   }
-
-  componentWillUnmount(): void {
-    if (this.referenceTimeoutId) this.clearHideReferenceTimeout();
-  }
-
-  clearHideReferenceTimeout = () => {
-    clearTimeout(this.referenceTimeoutId);
-    this.referenceTimeoutId = undefined;
-  };
 
   onSelectionFinished = (position, content, hideTipAndSelection, transformSelection) => {
     const submitComment = (comment, visibility) => {
@@ -108,7 +131,6 @@ class PdfViewer extends Component {
 
   highlightTransform = (highlight, index, setTip, hideTip, viewportToScaled, screenshot, isScrolledTo) => {
     const isTextHighlight = !(highlight.content && highlight.content.image);
-
     const component = isTextHighlight ? (
       <Highlight
         isScrolledTo={isScrolledTo}
@@ -136,30 +158,13 @@ class PdfViewer extends Component {
         }}
       />
     );
-    return (
-      <Popup
-        popupContent={<HighlightPopup {...highlight} />}
-        onMouseOver={popupContent => setTip(highlight, () => popupContent)}
-        onMouseOut={hideTip}
-        key={index}
-      >
-        {component}
-      </Popup>
-    );
-  };
-
-  hideReferencePopover = () => {
-    if (this.state.referencePopoverAnchor) {
-      if (this.referenceTimeoutId) return;
-      this.referenceTimeoutId = setTimeout(() => {
-        this.setState({ referencePopoverAnchor: undefined, referenceCite: '' });
-      }, 300);
-    }
+    if (!isTextHighlight) return null;
+    return <Popup popupContent={<HighlightPopup {...highlight} />} key={index} bodyElement={component} />;
   };
 
   render() {
     const { url, isVertical, beforeLoad, references } = this.props;
-    const { referencePopoverAnchor, referenceCite } = this.state;
+    const { referencePopoverAnchor, highlightPopoverAnchor, referenceCite } = this.state;
     const errorStyle = {
       position: 'absolute',
       top: '50%',
@@ -196,53 +201,26 @@ class PdfViewer extends Component {
                       referencePopoverAnchor: e.target,
                       referenceCite: cite,
                     });
-                    this.clearHideReferenceTimeout();
                   }
                 }
               }}
-              onReferenceLeave={this.hideReferencePopover}
             />
           )}
         </PdfLoader>
-        {references[referenceCite] && (
-          <Popper
-            open={Boolean(referencePopoverAnchor)}
-            anchorEl={referencePopoverAnchor}
-            placement="top"
-            style={{ zIndex: 10 }}
-          >
-            <Paper
-              css={popupCss}
-              onMouseEnter={() => {
-                this.clearHideReferenceTimeout();
-              }}
-              onMouseLeave={this.hideReferencePopover}
-            >
-              {references[referenceCite].arxivId && (
-                <div
-                  css={css`
-                    ${presets.row};
-                    width: 100%;
-                    justify-content: flex-end;
-                  `}
-                >
-                  <Link
-                    to={`/paper/${references[referenceCite].arxivId}`}
-                    css={css`
-                      color: ${presets.themePalette.primary.main};
-                    `}
-                  >
-                    <i className="fas fa-external-link-alt" />
-                  </Link>
-                </div>
-              )}
-              <div
-                // eslint-disable-next-line react/no-danger
-                dangerouslySetInnerHTML={{ __html: references[referenceCite].html }}
-              />
-            </Paper>
-          </Popper>
+        {references && (
+          <ReferencesPopupManager
+            referencePopoverAnchor={referencePopoverAnchor}
+            clearAnchor={() => this.setState({ referencePopoverAnchor: undefined, referenceCite: '' })}
+            reference={references[referenceCite]}
+          />
         )}
+        <PopupManager
+          anchorEl={highlightPopoverAnchor}
+          clearAnchor={() => {
+            this.setState({ highlightPopoverAnchor: undefined });
+          }}
+          popupContent={<div>Hello</div>}
+        />
       </React.Fragment>
     );
   }

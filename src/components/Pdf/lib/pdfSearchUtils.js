@@ -1,7 +1,9 @@
 /** @jsx jsx */
 import { css, jsx } from '@emotion/core';
 import ReactDom from 'react-dom';
-import Popup from '../components/Popup2';
+import { Paper } from '@material-ui/core';
+import { Popup } from '../../Popup';
+import { popupCss } from '../../../utils/presets';
 
 export const convertMatches = (queryLen, matches, textLayer) => {
   // Early exit if there is nothing to convert.
@@ -76,23 +78,25 @@ export const renderMatches = (matches, pageIdx, textLayer, tooltipText) => {
       ReactDom.render(
         <Popup
           popupContent={
-            <span
+            <Paper
               css={css`
+                ${popupCss};
                 text-transform: capitalize;
               `}
             >
               {tooltipText}
+            </Paper>
+          }
+          bodyElement={
+            <span
+              css={css`
+                border-bottom: 1px dashed #ffaa2a;
+              `}
+            >
+              {content}
             </span>
           }
-        >
-          <span
-            css={css`
-              border-bottom: 1px dashed #ffaa2a;
-            `}
-          >
-            {content}
-          </span>
-        </Popup>,
+        />,
         span,
       );
     } else {

@@ -501,7 +501,7 @@ const PdfAnnotator = ({
           onMouseOver={e => {
             if (e.target.tagName === 'A' && e.target.getAttribute('href').includes('#cite')) {
               onReferenceEnter(e);
-            } else {
+            } else if (onReferenceLeave) {
               onReferenceLeave();
             }
           }}

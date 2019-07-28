@@ -43,7 +43,7 @@ export const linkButton = css`
 `;
 
 export const popupCss = css`
-  padding: 12px;
+  padding: 10px;
   max-width: 300px;
   max-height: 200px;
   overflow-y: auto;

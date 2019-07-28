@@ -14,12 +14,13 @@ import { actions } from '../actions';
 import { popupCss } from '../utils/presets';
 import { TextLinkifyLatex } from './TextLinkifyLatex';
 import { presets, getSectionPosition } from '../utils';
-import { compactButtonStyle, CompactTip } from './Pdf/components/Tip';
+import { compactButtonStyle } from './Pdf/components/Tip';
 import { PopupManager, Popup } from './Popup';
 
 const HighlightPopup = ({ content, comment }) => {
   let copyButton;
-  if (content && content.text) {
+  const hasContent = content && content.text;
+  if (hasContent) {
     copyButton = (
       <span
         css={compactButtonStyle}
@@ -35,14 +36,43 @@ const HighlightPopup = ({ content, comment }) => {
   }
   if (comment.text) {
     return (
-      <Paper css={popupCss}>
-        <TextLinkifyLatex text={comment.text} />
+      <div>
+        <Paper css={popupCss}>
+          <div
+            css={css`
+              ${presets.row};
+              align-items: center;
+            `}
+          >
+            <div
+              css={
+                hasContent
+                  ? css`
+                      border-right: 1px solid #dadada;
+                      padding-right: 8px;
+                    `
+                  : undefined
+              }
+            >
+              <TextLinkifyLatex text={comment.text} />
+            </div>
+            {copyButton}
+          </div>
+        </Paper>
+      </div>
+    );
+  }
+  if (hasContent) {
+    return (
+      <Paper
+        css={css`
+          ${popupCss};
+          padding: 6px;
+        `}
+      >
         {copyButton}
       </Paper>
     );
-  }
-  if (content && content.text) {
-    return <CompactTip>{copyButton}</CompactTip>;
   }
   return null;
 };
@@ -153,12 +183,11 @@ class PdfViewer extends Component {
         }}
         onClick={event => {
           event.stopPropagation();
-          event.preventDefault();
+          this.props.switchSidebarToComments();
           this.onHighlightClick(highlight.id);
         }}
       />
     );
-    if (!isTextHighlight) return null;
     return <Popup popupContent={<HighlightPopup {...highlight} />} key={index} bodyElement={component} />;
   };
 

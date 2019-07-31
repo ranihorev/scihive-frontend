@@ -99,6 +99,11 @@ const ReferencesPopupManager = ({ referencePopoverAnchor, clearAnchor, reference
         </div>
       )}
       <div
+        css={css`
+          p {
+            margin: 0.2rem;
+          }
+        `}
         // eslint-disable-next-line react/no-danger
         dangerouslySetInnerHTML={{ __html: reference.html }}
       />
@@ -216,7 +221,7 @@ class PdfViewer extends Component {
               highlightTransform={this.highlightTransform}
               isVertical={isVertical}
               onReferenceEnter={e => {
-                const cite = e.target.getAttribute('href').replace('#cite.', '');
+                const cite = decodeURIComponent(e.target.getAttribute('href').replace('#cite.', ''));
                 if (references.hasOwnProperty(cite)) {
                   if (isMobile) {
                     e.target.onclick = event => {

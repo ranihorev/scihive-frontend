@@ -1,13 +1,11 @@
-// @flow
+import { T_LTWH } from '../types.js';
 
-import type { T_LTWH } from "../types.js";
-
-import optimizeClientRects from "./optimize-client-rects";
+import optimizeClientRects from './optimize-client-rects';
 
 const getClientRects = (
   range: Range,
   containerEl: HTMLElement,
-  shouldOptimize: boolean = true
+  shouldOptimize: boolean = true,
 ): Array<T_LTWH> => {
   let clientRects = Array.from(range.getClientRects());
 
@@ -18,7 +16,7 @@ const getClientRects = (
       top: rect.top + containerEl.scrollTop - offset.top,
       left: rect.left + containerEl.scrollLeft - offset.left,
       width: rect.width,
-      height: rect.height
+      height: rect.height,
     };
   });
 

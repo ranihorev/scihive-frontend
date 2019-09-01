@@ -5,7 +5,18 @@ import { Paper } from '@material-ui/core';
 import { Popup } from '../../Popup';
 import { popupCss } from '../../../utils/presets';
 
-export const convertMatches = (queryLen, matches, textLayer) => {
+interface Match {
+  begin: {
+    divIdx: number;
+    offset: number;
+  };
+  end: {
+    divIdx: number;
+    offset: number;
+  };
+}
+
+export const convertMatches = (queryLen: number, matches: number[], textLayer: any) => {
   // Early exit if there is nothing to convert.
   const { textContentItemsStr } = textLayer;
   if (!matches) {
@@ -15,7 +26,7 @@ export const convertMatches = (queryLen, matches, textLayer) => {
   let i = 0;
   let iIndex = 0;
   const end = textContentItemsStr.length - 1;
-  const result = [];
+  const result: Match[] = [];
 
   for (let m = 0, mm = matches.length; m < mm; m++) {
     // Calculate the start position.
@@ -47,16 +58,18 @@ export const convertMatches = (queryLen, matches, textLayer) => {
       i++;
     }
 
-    match.end = {
-      divIdx: i,
-      offset: matchIdx - iIndex,
-    };
-    result.push(match);
+    result.push({
+      ...match,
+      end: {
+        divIdx: i,
+        offset: matchIdx - iIndex,
+      },
+    });
   }
   return result;
 };
 
-export const renderMatches = (matches, pageIdx, textLayer, tooltipText) => {
+export const renderMatches = (matches: Match[], pageIdx: number, textLayer: any, tooltipText: string) => {
   const { textContentItemsStr, textDivs } = textLayer;
 
   if (matches.length === 0) {
@@ -69,7 +82,7 @@ export const renderMatches = (matches, pageIdx, textLayer, tooltipText) => {
     offset: undefined,
   };
 
-  const appendTextToDiv = (divIdx, fromOffset, toOffset, addTooltip = false) => {
+  const appendTextToDiv = (divIdx: number, fromOffset: number, toOffset: number | undefined, addTooltip = false) => {
     const div = textDivs[divIdx];
     const content = textContentItemsStr[divIdx].substring(fromOffset, toOffset);
     if (addTooltip) {
@@ -105,7 +118,7 @@ export const renderMatches = (matches, pageIdx, textLayer, tooltipText) => {
     }
   };
 
-  const beginText = begin => {
+  const beginText = (begin: Match['begin']) => {
     const { divIdx } = begin;
     textDivs[divIdx].textContent = '';
     appendTextToDiv(divIdx, 0, begin.offset);

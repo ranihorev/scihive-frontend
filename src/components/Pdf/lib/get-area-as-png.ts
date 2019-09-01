@@ -1,24 +1,24 @@
 // @flow
 
-import type { T_LTWH } from "../types.js";
+import { T_LTWH } from '../types.js';
 
 const getAreaAsPNG = (canvas: HTMLCanvasElement, position: T_LTWH): string => {
   const { left, top, width, height } = position;
 
   // @TODO: cache this?
-  const newCanvas = document.createElement("canvas");
+  const newCanvas = document.createElement('canvas');
 
   if (!(newCanvas instanceof HTMLCanvasElement)) {
-    return "";
+    return '';
   }
 
   newCanvas.width = width;
   newCanvas.height = height;
 
-  const newCanvasContext = newCanvas.getContext("2d");
+  const newCanvasContext = newCanvas.getContext('2d');
 
   if (!newCanvasContext || !canvas) {
-    return "";
+    return '';
   }
 
   const dpr: number = window.devicePixelRatio;
@@ -32,10 +32,10 @@ const getAreaAsPNG = (canvas: HTMLCanvasElement, position: T_LTWH): string => {
     0,
     0,
     width,
-    height
+    height,
   );
 
-  return newCanvas.toDataURL("image/png");
+  return newCanvas.toDataURL('image/png');
 };
 
 export default getAreaAsPNG;

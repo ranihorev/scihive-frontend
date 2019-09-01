@@ -1,5 +1,3 @@
-// @flow
-
 export const getPageFromElement = (target: HTMLElement) => {
   const node = target.closest(".page");
 

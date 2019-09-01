@@ -3,12 +3,12 @@ import { css, jsx } from '@emotion/core';
 
 import React from 'react';
 import ReactDom from 'react-dom';
-import Pointable from 'react-pointable';
-import { PDFViewer, PDFLinkService, PDFFindController } from 'pdfjs-dist/web/pdf_viewer';
+// @ts-ignore
+import { PDFFindController, PDFLinkService, PDFViewer } from 'pdfjs-dist/web/pdf_viewer';
 import 'pdfjs-dist/web/pdf_viewer.css';
 import Fab from '@material-ui/core/Fab';
 import { connect, Provider } from 'react-redux';
-import { isEmpty, debounce, cloneDeep } from 'lodash';
+import { cloneDeep, debounce, isEmpty } from 'lodash';
 import getBoundingRect from '../lib/get-bounding-rect';
 import getClientRects from '../lib/get-client-rects';
 import getAreaAsPng from '../lib/get-area-as-png';
@@ -16,7 +16,7 @@ import getAreaAsPng from '../lib/get-area-as-png';
 import '../style/pdf_viewer.css';
 import '../style/PdfHighlighter.css';
 
-import { getPageFromRange, findOrCreateContainerLayer, getPageFromElement } from '../lib/pdfjs-dom';
+import { findOrCreateContainerLayer, getPageFromElement, getPageFromRange } from '../lib/pdfjs-dom';
 
 import TipContainer from './TipContainer';
 import MouseSelection from './MouseSelection';
@@ -27,6 +27,8 @@ import { store } from '../../../store';
 import { APP_BAR_HEIGHT } from '../../TopBar/PrimaryAppBar';
 import { actions } from '../../../actions';
 import { convertMatches, renderMatches } from '../lib/pdfSearchUtils';
+import { Dispatch } from 'redux';
+import { Acronyms, T_Highlight, T_LTWH, TipObject } from '../types';
 
 const zoomButtonCss = css`
   color: black;
@@ -34,7 +36,7 @@ const zoomButtonCss = css`
   margin-bottom: 8px;
 `;
 
-const ZoomButtom = ({ direction, onClick }) => (
+const ZoomButtom = ({ direction, onClick }: any) => (
   <div>
     <Fab
       color="default"
@@ -43,49 +45,49 @@ const ZoomButtom = ({ direction, onClick }) => (
       size="small"
       css={zoomButtonCss}
     >
-      <i className={`fas fa-search-${direction === 'in' ? 'plus' : 'minus'}`} />
+      <i className={`fas fa-search-${direction === 'in' ? 'plus' : 'minus'}`}/>
     </Fab>
   </div>
 );
 
 const PdfAnnotator = ({
-  pdfDocument,
-  isVertical,
-  enableAreaSelection,
-  onReferenceEnter,
-  onReferenceLeave,
-  highlightTransform,
-  highlights,
-  acronyms,
-  onSelectionFinished,
-  updateReadingProgress,
-  clearJumpTo,
-  jumpData,
-}) => {
-  const [ghostHighlight, setGhostHighlight] = React.useState(null);
+                        pdfDocument,
+                        isVertical,
+                        enableAreaSelection,
+                        onReferenceEnter,
+                        onReferenceLeave,
+                        highlightTransform,
+                        highlights,
+                        acronyms,
+                        onSelectionFinished,
+                        updateReadingProgress,
+                        clearJumpTo,
+                        jumpData,
+                      }: any) => {
+  const [ghostHighlight, setGhostHighlight] = React.useState<object>();
   const [isCollapsed, setIsCollapsed] = React.useState(true);
-  const [range, setRange] = React.useState(null);
-  const [tip, setTip] = React.useState(null);
+  const [range, setRange] = React.useState<Range>();
+  const [tip, setTip] = React.useState<TipObject>();
   // const [scrolledToHighlightId, setScrolledToHighlightId] = React.useState(EMPTY_ID);
   const [isAreaSelectionInProgress, setIsAreaSelectionInProgress] = React.useState(false);
   const [isDocumentReady, setIsDocumentReady] = React.useState(false);
   const [requestRender, setRequestRender] = React.useState(false);
-  const pagesToRenderAcronyms = React.useRef([]);
+  const pagesToRenderAcronyms = React.useRef<any[]>([]);
   const [firstPageRendered, setFirstPageRendered] = React.useState(false);
-  const [acronymPositions, setAcronymPositions] = React.useState({});
+  const [acronymPositions, setAcronymPositions] = React.useState<Acronyms>({});
 
-  const viewer = React.useRef(null);
-  const linkService = React.useRef(null);
-  const containerNode = React.useRef(null);
+  const viewer = React.useRef<PDFViewer>(null);
+  const linkService = React.useRef<PDFLinkService>(null);
+  const containerNode = React.useRef<HTMLDivElement>(null);
 
   const hideTipAndSelection = () => {
     const tipNode = findOrCreateContainerLayer(viewer.current.viewer, 'PdfHighlighter__tip-layer');
     ReactDom.unmountComponentAtNode(tipNode);
-    setGhostHighlight(null);
-    setTip(null);
+    setGhostHighlight(undefined);
+    setTip(undefined);
   };
 
-  const handleKeyDown = event => {
+  const handleKeyDown = (event: KeyboardEvent) => {
     if (event.code === 'Escape') {
       hideTipAndSelection();
     }
@@ -152,7 +154,7 @@ const PdfAnnotator = ({
     onJumpToChange();
   };
 
-  const screenshot = (position, pageNumber) => {
+  const screenshot = (position: any, pageNumber: number) => {
     const { canvas } = viewer.current.getPageView(pageNumber - 1);
     return getAreaAsPng(canvas, position);
   };
@@ -164,7 +166,7 @@ const PdfAnnotator = ({
 
   const onSelectionChange = () => {
     const selection = window.getSelection();
-    if (selection.isCollapsed) {
+    if (!selection || selection.isCollapsed) {
       setIsCollapsed(true);
       return;
     }
@@ -173,17 +175,17 @@ const PdfAnnotator = ({
     debouncedUpdateSelection(curRange);
   };
 
-  const viewportPositionToScaled = ({ pageNumber, boundingRect, rects }) => {
+  const viewportPositionToScaled = ({ pageNumber, boundingRect, rects }: any) => {
     const { viewport } = viewer.current.getPageView(pageNumber - 1);
 
     return {
       boundingRect: viewportToScaled(boundingRect, viewport),
-      rects: (rects || []).map(rect => viewportToScaled(rect, viewport)),
+      rects: (rects || []).map((rect: any) => viewportToScaled(rect, viewport)),
       pageNumber,
     };
   };
 
-  const renderTipAtPosition = (position, inner) => {
+  const renderTipAtPosition = (position: any, inner: any) => {
     const { boundingRect, pageNumber } = position;
     const page = { node: viewer.current.getPageView(pageNumber - 1).div };
     const pageBoundingRect = page.node.getBoundingClientRect();
@@ -206,7 +208,7 @@ const PdfAnnotator = ({
     );
   };
 
-  const onSelection = (startTarget, boundingRect) => {
+  const onSelection = (startTarget: any, boundingRect: T_LTWH) => {
     const page = getPageFromElement(startTarget);
 
     if (!page) return;
@@ -280,12 +282,12 @@ const PdfAnnotator = ({
     }, {});
   };
 
-  const scaledPositionToViewport = ({ pageNumber, boundingRect, rects, usePdfCoordinates }) => {
+  const scaledPositionToViewport = ({ pageNumber, boundingRect, rects, usePdfCoordinates }: any) => {
     const { viewport } = viewer.current.getPageView(pageNumber - 1);
 
     return {
       boundingRect: scaledToViewport(boundingRect, viewport, usePdfCoordinates),
-      rects: (rects || []).map(rect => scaledToViewport(rect, viewport, usePdfCoordinates)),
+      rects: (rects || []).map((rect: any) => scaledToViewport(rect, viewport, usePdfCoordinates)),
       pageNumber,
     };
   };
@@ -296,7 +298,7 @@ const PdfAnnotator = ({
     return findOrCreateContainerLayer(textLayer.textLayerDiv, 'PdfHighlighter__highlight-layer');
   };
 
-  const showTip = (highlight, content) => {
+  const showTip = (highlight: any, content: any) => {
     const highlightInProgress = !isCollapsed || ghostHighlight;
     if (highlightInProgress || isAreaSelectionInProgress) {
       return;
@@ -305,13 +307,13 @@ const PdfAnnotator = ({
   };
 
   const renderHighlights = () => {
-    const highlightsByPage = groupHighlightsByPage(highlights);
+    const highlightsByPage = groupHighlightsByPage();
     for (let pageNumber = 1; pageNumber <= pdfDocument.numPages; pageNumber++) {
       const highlightLayer = findOrCreateHighlightLayer(pageNumber);
       if (highlightLayer) {
         ReactDom.render(
           <div>
-            {(highlightsByPage[pageNumber] || []).map((highlight, index) => {
+            {(highlightsByPage[pageNumber] || []).map((highlight: any, index: number) => {
               const { position, ...rest } = highlight;
 
               const viewportHighlight = {
@@ -328,17 +330,17 @@ const PdfAnnotator = ({
               return highlightTransform(
                 viewportHighlight,
                 index,
-                (curHighlight, callback) => {
-                  setTip({ curHighlight, callback });
+                (curHighlight: T_Highlight, callback: (h: T_Highlight) => void) => {
+                  setTip({ highlight: curHighlight, callback });
                   showTip(curHighlight, callback(curHighlight));
                 },
                 hideTipAndSelection,
-                rect => {
+                (rect: T_LTWH) => {
                   const { viewport } = viewer.current.getPageView(pageNumber - 1);
 
                   return viewportToScaled(rect, viewport);
                 },
-                boundingRect => screenshot(boundingRect, pageNumber),
+                (boundingRect: T_LTWH) => screenshot(boundingRect, pageNumber),
                 isScrolledTo,
               );
             })}
@@ -349,7 +351,7 @@ const PdfAnnotator = ({
     }
   };
 
-  const onTextLayerRendered = event => {
+  const onTextLayerRendered = (event: any) => {
     pagesToRenderAcronyms.current.push(event.detail.pageNumber - 1);
     setRequestRender(true);
     setFirstPageRendered(true);
@@ -359,13 +361,13 @@ const PdfAnnotator = ({
     ? { height: '100%', width: '100vw' }
     : { height: `calc(100vh - ${APP_BAR_HEIGHT}px)` };
 
-  const onMouseDown = event => {
+  const onMouseDown = (event: React.MouseEvent) => {
     if (!(event.target instanceof HTMLElement)) return;
     if (event.target.closest('.PdfHighlighter__tip-container')) return;
     hideTipAndSelection();
   };
 
-  const toggleTextSelection = flag => {
+  const toggleTextSelection = (flag: boolean) => {
     viewer.current.viewer.classList.toggle('PdfHighlighter--disable-selection', flag);
   };
 
@@ -376,7 +378,7 @@ const PdfAnnotator = ({
     updateReadingProgress(progress);
   };
 
-  const zoom = sign => {
+  const zoom = (sign: number) => {
     viewer.current.currentScaleValue = parseFloat(viewer.current.currentScaleValue) + sign * 0.05;
   };
 
@@ -427,7 +429,7 @@ const PdfAnnotator = ({
     // We are accessing private functions of findController. Not ideal...
     findController._firstPageCapability.promise.then(async () => {
       findController._extractText();
-      const tempAcronymsPos = {};
+      const tempAcronymsPos: Acronyms = {};
       for (const acronym of Object.keys(acronyms)) {
         findController._state = {
           query: acronym,
@@ -437,7 +439,7 @@ const PdfAnnotator = ({
         };
         for (let i = 0; i < pdfDocument.numPages; i++) {
           findController._pendingFindMatches[i] = true;
-          findController._extractTextPromises[i].then(pageIdx => {
+          findController._extractTextPromises[i].then((pageIdx: number) => {
             delete findController._pendingFindMatches[pageIdx];
             findController._calculateMatch(pageIdx);
           });
@@ -483,54 +485,55 @@ const PdfAnnotator = ({
           z-index: 1000;
         `}
       >
-        <ZoomButtom direction="in" onClick={() => zoom(1)} />
-        <ZoomButtom direction="out" onClick={() => zoom(-1)} />
+        <ZoomButtom direction="in" onClick={() => zoom(1)}/>
+        <ZoomButtom direction="out" onClick={() => zoom(-1)}/>
       </div>
-      <Pointable onPointerDown={onMouseDown}>
-        <div
-          ref={containerNode}
-          className="PdfHighlighter"
-          onScroll={onViewerScroll}
-          onContextMenu={e => e.preventDefault()}
-          style={containerStyle}
-          onClick={e => {
-            if (e.target.tagName === 'A' && e.target.getAttribute('href').includes('#cite')) {
-              onReferenceEnter(e);
-            }
-          }}
-          onMouseOver={e => {
-            if (e.target.tagName === 'A' && e.target.getAttribute('href').includes('#cite')) {
-              onReferenceEnter(e);
-            } else if (onReferenceLeave) {
-              onReferenceLeave();
-            }
-          }}
-        >
-          <div className="pdfViewer" />
-          {typeof enableAreaSelection === 'function' ? (
-            <MouseSelection
-              onDragStart={() => toggleTextSelection(true)}
-              onDragEnd={() => toggleTextSelection(false)}
-              onChange={isVisible => {
-                if (isVisible !== isAreaSelectionInProgress) {
-                  setIsAreaSelectionInProgress(isVisible);
-                }
-              }}
-              shouldStart={event =>
-                enableAreaSelection(event) &&
-                event.target instanceof HTMLElement &&
-                Boolean(event.target.closest('.page'))
+      <div
+        ref={containerNode}
+        onMouseDown={onMouseDown}
+        className="PdfHighlighter"
+        onScroll={onViewerScroll}
+        onContextMenu={e => e.preventDefault()}
+        style={containerStyle}
+        onClick={e => {
+          const target = e.target as HTMLElement;
+          if (target.tagName === 'A' && (target.getAttribute('href') || '').includes('#cite')) {
+            onReferenceEnter(e);
+          }
+        }}
+        onMouseOver={e => {
+          const target = e.target as HTMLElement;
+          if (target.tagName === 'A' && (target.getAttribute('href') || '').includes('#cite')) {
+            onReferenceEnter(e);
+          } else if (onReferenceLeave) {
+            onReferenceLeave();
+          }
+        }}
+      >
+        <div className="pdfViewer"/>
+        {typeof enableAreaSelection === 'function' ? (
+          <MouseSelection
+            onDragStart={() => toggleTextSelection(true)}
+            onDragEnd={() => toggleTextSelection(false)}
+            onChange={isVisible => {
+              if (isVisible !== isAreaSelectionInProgress) {
+                setIsAreaSelectionInProgress(isVisible);
               }
-              onSelection={onSelection}
-            />
-          ) : null}
-        </div>
-      </Pointable>
+            }}
+            shouldStart={event =>
+              enableAreaSelection(event) &&
+              event.target instanceof HTMLElement &&
+              Boolean(event.target.closest('.page'))
+            }
+            onSelection={onSelection}
+          />
+        ) : null}
+      </div>
     </React.Fragment>
   );
 };
 
-const mapStateToProps = state => {
+const mapStateToProps = (state: any) => {
   return {
     highlights: state.paper.highlights,
     acronyms: state.paper.acronyms,
@@ -538,9 +541,9 @@ const mapStateToProps = state => {
   };
 };
 
-const mapDispatchToProps = dispatch => {
+const mapDispatchToProps = (dispatch: Dispatch) => {
   return {
-    updateReadingProgress: pos => {
+    updateReadingProgress: (pos: number) => {
       dispatch(actions.updateReadingProgress(pos));
     },
     clearJumpTo: () => {

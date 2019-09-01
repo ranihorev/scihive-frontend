@@ -1,27 +1,25 @@
-// @flow
+import React, { Component } from 'react';
 
-import React, { Component } from "react";
+import '../style/MouseSelection.css';
+import { T_LTWH } from '../types';
 
-import "../style/MouseSelection.css";
 
-import type { T_LTWH } from "../types.js";
-
-type Coords = {
+interface Coords {
   x: number,
   y: number
 };
 
-type State = {
+interface State {
   locked: boolean,
-  start: ?Coords,
-  end: ?Coords
+  start: Coords | null,
+  end: Coords | null
 };
 
 type Props = {
   onSelection: (
     startTarget: HTMLElement,
     boundingRect: T_LTWH,
-    resetSelection: () => void
+    resetSelection: () => void,
   ) => void,
   onDragStart: () => void,
   onDragEnd: () => void,
@@ -33,12 +31,10 @@ class MouseSelection extends Component<Props, State> {
   state: State = {
     locked: false,
     start: null,
-    end: null
+    end: null,
   };
 
-  props: Props;
-
-  root: ?HTMLElement;
+  root?: HTMLDivElement | null;
 
   reset = () => {
     const { onDragEnd } = this.props;
@@ -53,7 +49,7 @@ class MouseSelection extends Component<Props, State> {
       top: Math.min(end.y, start.y),
 
       width: Math.abs(end.x - start.x),
-      height: Math.abs(end.y - start.y)
+      height: Math.abs(end.y - start.y),
     };
   }
 
@@ -81,7 +77,7 @@ class MouseSelection extends Component<Props, State> {
       return;
     }
 
-    let containerBoundingRect = null;
+    let containerBoundingRect: T_LTWH;
 
     const containerCoords = (pageX: number, pageY: number) => {
       if (!containerBoundingRect) {
@@ -90,11 +86,11 @@ class MouseSelection extends Component<Props, State> {
 
       return {
         x: pageX - containerBoundingRect.left + container.scrollLeft,
-        y: pageY - containerBoundingRect.top + container.scrollTop
+        y: pageY - containerBoundingRect.top + container.scrollTop,
       };
     };
 
-    container.addEventListener("mousemove", (event: MouseEvent) => {
+    container.addEventListener('mousemove', (event: MouseEvent) => {
       const { start, locked } = this.state;
 
       if (!start || locked) {
@@ -103,11 +99,11 @@ class MouseSelection extends Component<Props, State> {
 
       that.setState({
         ...this.state,
-        end: containerCoords(event.pageX, event.pageY)
+        end: containerCoords(event.pageX, event.pageY),
       });
     });
 
-    container.addEventListener("mousedown", (event: MouseEvent) => {
+    container.addEventListener('mousedown', (event: MouseEvent) => {
       if (!shouldStart(event)) {
         this.reset();
         return;
@@ -124,12 +120,12 @@ class MouseSelection extends Component<Props, State> {
       this.setState({
         start: containerCoords(event.pageX, event.pageY),
         end: null,
-        locked: false
+        locked: false,
       });
 
-      const onMouseUp = (event: MouseEvent): void => {
+      const onMouseUp = (event: Event): void => {
         // emulate listen once
-        event.currentTarget.removeEventListener("mouseup", onMouseUp);
+        event.currentTarget && event.currentTarget.removeEventListener('mouseup', onMouseUp);
 
         const { start } = this.state;
 
@@ -137,13 +133,14 @@ class MouseSelection extends Component<Props, State> {
           return;
         }
 
-        const end = containerCoords(event.pageX, event.pageY);
+        const mouseEvent = event as MouseEvent;
+        const end = containerCoords(mouseEvent.pageX, mouseEvent.pageY);
 
         const boundingRect = that.getBoundingRect(start, end);
 
         if (
-          !(event.target instanceof HTMLElement) ||
-          !container.contains(event.target) ||
+          !(mouseEvent.target instanceof HTMLElement) ||
+          !container.contains(mouseEvent.target) ||
           !that.shouldRender(boundingRect)
         ) {
           that.reset();
@@ -153,7 +150,7 @@ class MouseSelection extends Component<Props, State> {
         that.setState(
           {
             end,
-            locked: true
+            locked: true,
           },
           () => {
             const { start, end } = that.state;
@@ -167,12 +164,12 @@ class MouseSelection extends Component<Props, State> {
 
               onDragEnd();
             }
-          }
+          },
         );
       };
 
       if (document.body) {
-        document.body.addEventListener("mouseup", onMouseUp);
+        document.body.addEventListener('mouseup', onMouseUp);
       }
     });
   }

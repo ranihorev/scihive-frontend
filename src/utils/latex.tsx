@@ -2,19 +2,24 @@
 import React from 'react';
 import katex from 'katex';
 
-export const latexString = (string, options) => {
+interface LatexItem {
+  type: 'text' | 'latex';
+  string: string;
+}
+
+export const latexString = (text: string, options?: any) => {
   // Remove potential HTML
-  const str = string.replace(/(<([^>]+)>)/gi, '');
+  const strNoHtml = text.replace(/(<([^>]+)>)/gi, '');
   const regularExpression = /\$\$[\s\S]+?\$\$|\$[\s\S]+?\$/g;
 
-  const stripDollars = stringToStrip => {
+  const stripDollars = (stringToStrip: string) => {
     if (stringToStrip[1] === '$') {
       return stringToStrip.slice(2, -2);
     }
     return stringToStrip.slice(1, -1);
   };
 
-  const renderLatexString = s => {
+  const renderLatexString = (s: string) => {
     let renderedString;
     try {
       renderedString = katex.renderToString(s, options);
@@ -25,10 +30,10 @@ export const latexString = (string, options) => {
     return renderedString;
   };
 
-  const result = [];
+  const result: LatexItem[] = [];
 
-  const latexMatch = str.match(regularExpression);
-  const stringWithoutLatex = str.split(regularExpression);
+  const latexMatch = strNoHtml.match(regularExpression);
+  const stringWithoutLatex = strNoHtml.split(regularExpression);
 
   if (latexMatch) {
     stringWithoutLatex.forEach((s, index) => {
@@ -45,12 +50,12 @@ export const latexString = (string, options) => {
     });
   } else {
     result.push({
-      string,
+      string: text,
       type: 'text',
     });
   }
 
-  const processResult = resultToProcess => {
+  const processResult = (resultToProcess: LatexItem[]) => {
     const newResult = resultToProcess.map(r => {
       if (r.type === 'text') {
         return r;
@@ -63,7 +68,7 @@ export const latexString = (string, options) => {
   return processResult(result);
 };
 
-export const Latex = ({ children, displayMode }) => {
+export const Latex: React.FC<{ children: string, displayMode: any }> = ({ children, displayMode }) => {
   const content = latexString(children, { displayMode });
   return (
     <span

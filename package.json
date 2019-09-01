@@ -8,6 +8,10 @@
     "@material-ui/icons": "^3.0.2",
     "@material-ui/styles": "^4.1.1",
     "@sentry/browser": "^5.4.0",
+    "@types/jest": "^24.0.18",
+    "@types/node": "^12.7.3",
+    "@types/react": "^16.9.2",
+    "@types/react-dom": "^16.9.0",
     "autosuggest-highlight": "^3.1.1",
     "axios": "^0.18.0",
     "body-scroll-lock": "^2.6.1",
@@ -34,7 +38,7 @@
     "react-rnd": "^10.0.0",
     "react-router": "^5.0.0",
     "react-router-dom": "^5.0.0",
-    "react-scripts": "2.1.8",
+    "react-scripts": "3.0.0",
     "react-spinners": "^0.5.3",
     "react-text-truncate": "^0.14.1",
     "react-toastify": "^5.0.0-rc.6",
@@ -42,6 +46,7 @@
     "redux": "^4.0.1",
     "redux-devtools-extension": "^2.13.8",
     "redux-thunk": "^2.3.0",
+    "typescript": "^3.6.2",
     "use-deep-compare-effect": "^1.2.0"
   },
   "scripts": {
@@ -60,6 +65,10 @@
     "not op_mini all"
   ],
   "devDependencies": {
+    "@types/katex": "^0.10.1",
+    "@types/lodash": "^4.14.138",
+    "@types/pdfjs-dist": "^2.1.0",
+    "@types/react-redux": "^7.1.2",
     "eslint-config-airbnb": "^17.1.0",
     "eslint-config-prettier": "^4.2.0",
     "eslint-plugin-import": "^2.17.2",

@@ -4,7 +4,7 @@ import React from 'react';
 import axios from 'axios';
 import { withRouter } from 'react-router';
 import { connect } from 'react-redux';
-import { Input, Select, MenuItem, FormControl, CircularProgress, Grid, Chip } from '@material-ui/core';
+import { Chip, CircularProgress, FormControl, Grid, Input, MenuItem, Select } from '@material-ui/core';
 import * as queryString from 'query-string';
 import InfiniteScroll from './InfiniteScroll';
 import PapersListItem from './PapersListItem';
@@ -46,6 +46,7 @@ const filterMenuItemCss = css`
 
 const SET_PAPERS = 'SET_PAPERS';
 const ADD_PAPERS = 'ADD_PAPERS';
+const MAX_RETRIES = 3;
 
 const reducer = (state, action) => {
   switch (action.type) {
@@ -65,6 +66,7 @@ const PapersList = ({ match, location, history, toggleCategoryModal, setSelected
   const [hasMorePapers, setHasMorePapers] = React.useState(true);
   const [isLoading, setIsLoading] = React.useState(false);
   const [totalPapers, setTotalPapers] = React.useState(0);
+  const numRetries = React.useRef(0);
 
   const getAgeQuery = queryParams => {
     return queryParams.age || (match.path === '/library' || queryParams.q ? 'all' : 'week');
@@ -99,8 +101,15 @@ const PapersList = ({ match, location, history, toggleCategoryModal, setSelected
           dispatch({ type: ADD_PAPERS, payload: newPapers });
         }
         setHasMorePapers(newPapers.length !== 0);
+        numRetries.current = 0;
       })
-      .catch(e => console.warn(e))
+      .catch(e => {
+        if (numRetries.current >= MAX_RETRIES) {
+          setHasMorePapers(false);
+          console.warn('Failed to load content', e);
+        }
+        numRetries.current++;
+      })
       .finally(() => {
         setIsLoading(false);
       });
@@ -174,7 +183,7 @@ const PapersList = ({ match, location, history, toggleCategoryModal, setSelected
             <Select
               value={age}
               onChange={handleFiltersEvent}
-              input={<Input name="age" id="filter-helper" />}
+              input={<Input name="age" id="filter-helper"/>}
               css={filterValueCss}
             >
               <MenuItem css={filterMenuItemCss} value="day">
@@ -195,7 +204,7 @@ const PapersList = ({ match, location, history, toggleCategoryModal, setSelected
             <Select
               value={sort}
               onChange={handleFiltersEvent}
-              input={<Input name="sort" id="sort-helper" />}
+              input={<Input name="sort" id="sort-helper"/>}
               css={filterValueCss}
             >
               <MenuItem css={filterMenuItemCss} value="date">
@@ -230,7 +239,7 @@ const PapersList = ({ match, location, history, toggleCategoryModal, setSelected
               }
             `}
           />
-          <CategoriesModal onSelect={handleFilters} />
+          <CategoriesModal onSelect={handleFilters}/>
         </div>
       </div>
       <Grid container direction="column" key={scrollId}>
@@ -243,13 +252,13 @@ const PapersList = ({ match, location, history, toggleCategoryModal, setSelected
           isLoading={isLoading}
           loader={
             <div key={0} css={papers.length === 0 ? spinnerEmptyStateCss : spinnerCss}>
-              <CircularProgress />
+              <CircularProgress/>
             </div>
           }
           className={scrollWrapperCss}
         >
           {papers.map(p => (
-            <PapersListItem key={p._id} paper={p} />
+            <PapersListItem key={p._id} paper={p}/>
           ))}
         </InfiniteScroll>
       </Grid>

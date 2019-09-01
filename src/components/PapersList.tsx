@@ -2,15 +2,16 @@
 import { css, jsx } from '@emotion/core';
 import React from 'react';
 import axios from 'axios';
-import { withRouter } from 'react-router';
+import { RouteComponentProps, withRouter } from 'react-router';
 import { connect } from 'react-redux';
 import { Chip, CircularProgress, FormControl, Grid, Input, MenuItem, Select } from '@material-ui/core';
 import * as queryString from 'query-string';
 import InfiniteScroll from './InfiniteScroll';
-import PapersListItem from './PapersListItem';
+import PapersListItem, { Paper } from './PapersListItem';
 import * as presets from '../utils/presets';
 import { CategoriesModal } from './Cateogries';
 import { actions } from '../actions/categories';
+import { Dispatch } from 'redux';
 
 const formControlCss = css({
   margin: '8px 8px 8px 0px',
@@ -48,7 +49,11 @@ const SET_PAPERS = 'SET_PAPERS';
 const ADD_PAPERS = 'ADD_PAPERS';
 const MAX_RETRIES = 3;
 
-const reducer = (state, action) => {
+interface PapersState {
+  papers: Paper[];
+}
+
+const reducer = (state: PapersState, action: { type: 'SET_PAPERS' | 'ADD_PAPERS'; payload: Paper[] }) => {
   switch (action.type) {
     case SET_PAPERS:
       return { ...state, papers: action.payload };
@@ -58,8 +63,42 @@ const reducer = (state, action) => {
       throw new Error('Action does not exist');
   }
 };
+interface QueryParam {
+  age: string;
+  q: string;
+  sort: string;
+  authorId: string;
+}
 
-const PapersList = ({ match, location, history, toggleCategoryModal, setSelectedCategories }) => {
+interface QueryParams {
+  age?: string;
+  q?: string;
+  sort?: string;
+}
+
+interface RequestParams {
+  age: string;
+  q: string;
+  sort: string;
+  author: string;
+  page_num: number;
+}
+
+interface PapersListProps {
+  match: RouteComponentProps<QueryParam>['match'];
+  location: RouteComponentProps['location'];
+  history: RouteComponentProps['history'];
+  toggleCategoryModal: () => void;
+  setSelectedCategories: (categories: string[]) => void;
+}
+
+const PapersList: React.FC<PapersListProps> = ({
+  match,
+  location,
+  history,
+  toggleCategoryModal,
+  setSelectedCategories,
+}) => {
   const [papersState, dispatch] = React.useReducer(reducer, { papers: [] });
   const isFirstLoad = React.useRef(true);
   const [scrollId, setScrollId] = React.useState(Math.random());
@@ -68,29 +107,31 @@ const PapersList = ({ match, location, history, toggleCategoryModal, setSelected
   const [totalPapers, setTotalPapers] = React.useState(0);
   const numRetries = React.useRef(0);
 
-  const getAgeQuery = queryParams => {
+  const getAgeQuery = (queryParams: QueryParams) => {
     return queryParams.age || (match.path === '/library' || queryParams.q ? 'all' : 'week');
   };
 
-  const getSortQuery = queryParams => {
+  const getSortQuery = (queryParams: QueryParams) => {
     return queryParams.sort || (queryParams.q ? 'score' : 'tweets');
   };
 
-  const loadPapers = page => {
+  const loadPapers = (page: number) => {
     let url = '/papers/all';
 
-    const q = queryString.parse(location.search);
-    q.author = match.params.authorId;
-    q.page_num = page;
-    q.age = getAgeQuery(q);
-    q.sort = getSortQuery(q);
+    const queryParams = queryString.parse(location.search);
+    const requestParams: Partial<RequestParams> = {
+      author: match.params.authorId,
+      page_num: page,
+      age: getAgeQuery(queryParams),
+      sort: getSortQuery(queryParams),
+    };
 
     if (match && match.path === '/library') {
       url = '/library';
     }
     setIsLoading(true);
     axios
-      .get(url, { params: q })
+      .get(url, { params: requestParams })
       .then(result => {
         const newPapers = result.data.papers;
         // Everytime we load page 0 we assume it's a new query
@@ -115,7 +156,7 @@ const PapersList = ({ match, location, history, toggleCategoryModal, setSelected
       });
   };
 
-  const handleFilters = (queryParam, queryValue) => {
+  const handleFilters = (queryParam: string, queryValue: string) => {
     const newQ = {
       ...queryString.parse(location.search),
       [queryParam]: queryValue,
@@ -126,8 +167,10 @@ const PapersList = ({ match, location, history, toggleCategoryModal, setSelected
       search: queryString.stringify(newQ),
     });
   };
-  const handleFiltersEvent = event => {
-    handleFilters(event.target.name, event.target.value.toLowerCase());
+  const handleFiltersEvent = (event: React.ChangeEvent<{ name?: string; value: unknown }>) => {
+    if (!event.target.name) return;
+    const value = event.target.value as string;
+    handleFilters(event.target.name, value.toLowerCase());
   };
 
   React.useEffect(() => {
@@ -143,7 +186,8 @@ const PapersList = ({ match, location, history, toggleCategoryModal, setSelected
 
   React.useLayoutEffect(() => {
     const q = queryString.parse(location.search);
-    if (q.categories) setSelectedCategories(q.categories.split(';'));
+    const categories = q.categories as string;
+    if (categories) setSelectedCategories(categories.split(';'));
   }, []);
 
   const q = queryString.parse(location.search);
@@ -183,7 +227,7 @@ const PapersList = ({ match, location, history, toggleCategoryModal, setSelected
             <Select
               value={age}
               onChange={handleFiltersEvent}
-              input={<Input name="age" id="filter-helper"/>}
+              input={<Input name="age" id="filter-helper" />}
               css={filterValueCss}
             >
               <MenuItem css={filterMenuItemCss} value="day">
@@ -204,7 +248,7 @@ const PapersList = ({ match, location, history, toggleCategoryModal, setSelected
             <Select
               value={sort}
               onChange={handleFiltersEvent}
-              input={<Input name="sort" id="sort-helper"/>}
+              input={<Input name="sort" id="sort-helper" />}
               css={filterValueCss}
             >
               <MenuItem css={filterMenuItemCss} value="date">
@@ -239,26 +283,26 @@ const PapersList = ({ match, location, history, toggleCategoryModal, setSelected
               }
             `}
           />
-          <CategoriesModal onSelect={handleFilters}/>
+          <CategoriesModal onSelect={handleFilters} />
         </div>
       </div>
       <Grid container direction="column" key={scrollId}>
         <InfiniteScroll
           pageStart={0}
-          loadMore={page => {
+          loadMore={(page: number) => {
             loadPapers(page);
           }}
           hasMore={hasMorePapers && !isLoading}
           isLoading={isLoading}
           loader={
             <div key={0} css={papers.length === 0 ? spinnerEmptyStateCss : spinnerCss}>
-              <CircularProgress/>
+              <CircularProgress />
             </div>
           }
           className={scrollWrapperCss}
         >
           {papers.map(p => (
-            <PapersListItem key={p._id} paper={p}/>
+            <PapersListItem key={p._id} paper={p} />
           ))}
         </InfiniteScroll>
       </Grid>
@@ -266,16 +310,20 @@ const PapersList = ({ match, location, history, toggleCategoryModal, setSelected
   );
 };
 
-const mapStateToProps = state => {
+const mapStateToProps = (state: any) => {
   return {
     allCategories: state.papersList.allCategories,
     selectedCategories: state.papersList.selectedCategories,
   };
 };
 
-const mapDispatchToProps = dispatch => ({
-  toggleCategoryModal: () => dispatch(actions.toggleCategoriesModal()),
-  setSelectedCategories: categories => dispatch(actions.setSelectedCategories(categories)),
+const mapDispatchToProps = (dispatch: Dispatch) => ({
+  toggleCategoryModal: () => {
+    dispatch(actions.toggleCategoriesModal());
+  },
+  setSelectedCategories: (categories: string[]) => {
+    dispatch(actions.setSelectedCategories(categories));
+  },
 });
 
 const withRedux = connect(

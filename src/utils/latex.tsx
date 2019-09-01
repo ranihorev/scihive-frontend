@@ -68,7 +68,7 @@ export const latexString = (text: string, options?: any) => {
   return processResult(result);
 };
 
-export const Latex: React.FC<{ children: string, displayMode: any }> = ({ children, displayMode }) => {
+export const Latex: React.FC<{ children: string; displayMode?: any }> = ({ children, displayMode }) => {
   const content = latexString(children, { displayMode });
   return (
     <span

@@ -4,7 +4,8 @@ import axios from 'axios';
 import { isEmpty } from 'lodash';
 import { connect } from 'react-redux';
 import { ToastContainer } from 'react-toastify';
-import { MuiThemeProvider, createMuiTheme } from '@material-ui/core/styles';
+// @ts-ignore
+import { createMuiTheme, MuiThemeProvider } from '@material-ui/core/styles';
 
 import Home from './pages/Home';
 import Paper from './pages/Paper';
@@ -16,13 +17,11 @@ import { themePalette } from './utils/presets';
 import Admin from './pages/Admin';
 
 const theme = createMuiTheme({
-  palette: {
-    ...themePalette,
-  },
-  typography: { useNextVariants: true },
+  palette: themePalette,
+  typography: {},
 });
 
-const App = ({ isLoggedIn }) => {
+const App: React.FC<{ isLoggedIn: boolean }> = ({ isLoggedIn }) => {
   useEffect(() => {
     if (isLoggedIn) {
       axios
@@ -58,7 +57,6 @@ const App = ({ isLoggedIn }) => {
           newestOnTop={false}
           closeOnClick={false}
           rtl={false}
-          pauseOnVisibilityChange
           draggable
         />
       </MuiThemeProvider>
@@ -66,7 +64,7 @@ const App = ({ isLoggedIn }) => {
   );
 };
 
-const mapStateToProps = state => {
+const mapStateToProps = (state: any) => {
   return {
     isLoggedIn: !isEmpty(state.user.userData),
   };

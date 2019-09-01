@@ -25,7 +25,7 @@ if (user) {
 ReactDOM.render(
   <Provider store={store}>
     <Router>
-      <Route component={withTracker(App)} />
+      <Route component={withTracker(App)}/>
     </Router>
   </Provider>,
   document.getElementById('root'),

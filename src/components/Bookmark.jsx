@@ -15,7 +15,7 @@ const Bookmark = ({
   saved_in_library,
   isBookmarked,
   setBookmark,
-  color,
+  color = undefined,
   selectedColor,
   blinkLibraryBadge,
 }) => {

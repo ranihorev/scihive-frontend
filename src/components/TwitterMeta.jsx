@@ -16,7 +16,7 @@ const styles = () => ({
   },
 });
 
-const TwitterMeta = ({ twtr_score, twtr_links, classes, iconClass }) => {
+const TwitterMeta = ({ twtr_score, twtr_links, classes, iconCss }) => {
   const links = twtr_links || [];
   links.sort((a, b) => b.score - a.score);
   const [anchorEl, setAnchorEl] = React.useState(null);
@@ -43,7 +43,7 @@ const TwitterMeta = ({ twtr_score, twtr_links, classes, iconClass }) => {
           padding: 0 4px;
         `}
       >
-        <i className={`fab fa-twitter ${iconClass}`} /> {twtr_score}
+        <i className="fab fa-twitter" css={iconCss} /> {twtr_score}
       </Button>
       <Popover
         id="simple-popper"

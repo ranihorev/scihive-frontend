@@ -15,7 +15,7 @@ const styles = () => ({
   },
 });
 
-const CodeMeta = ({ data, classes, iconClass }) => {
+const CodeMeta = ({ data, classes, iconCss }) => {
   const [anchorEl, setAnchorEl] = React.useState(null);
 
   const handleClick = event => {
@@ -39,7 +39,7 @@ const CodeMeta = ({ data, classes, iconClass }) => {
           padding: 0 4px;
         `}
       >
-        <i className={`fas fa-code ${iconClass}`} /> {data.stars || 0}
+        <i className="fas fa-code" css={iconCss} /> {data.stars || 0}
       </Button>
       <Popover
         id="simple-popper"

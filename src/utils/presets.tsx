@@ -1,5 +1,6 @@
 /** @jsx jsx */
 import { css } from '@emotion/core';
+import { Theme } from '@material-ui/core/styles/createMuiTheme';
 
 export const row = css`
   display: flex;
@@ -63,20 +64,23 @@ export const themePalette = {
     main: '#36a0f5',
     contrastText: '#ffffff',
   },
-};
+  text: {
+    primary: '#ffffff',
+  },
+} as const;
 
 const breakpoints = { s: 576, m: 768, lg: 992, xl: 1200 };
 
-export const mqMin = bp => `@media (min-width: ${breakpoints[bp]}px)`;
-export const mqMax = bp => `@media (max-width: ${breakpoints[bp]}px)`;
+export const mqMin = (bp: keyof typeof breakpoints) => `@media (min-width: ${breakpoints[bp]}px)`;
+export const mqMax = (bp: keyof typeof breakpoints) => `@media (max-width: ${breakpoints[bp]}px)`;
 
-export const modal = theme => ({
+export const modal = (theme: Theme) => ({
   position: 'absolute',
-  width: theme.spacing.unit * 50,
+  width: theme.spacing(50),
   maxWidth: '75%',
   backgroundColor: theme.palette.background.paper,
   boxShadow: theme.shadows[5],
-  padding: theme.spacing.unit * 4,
+  padding: theme.spacing(4),
   outline: 'none',
   top: '50%',
   left: '50%',

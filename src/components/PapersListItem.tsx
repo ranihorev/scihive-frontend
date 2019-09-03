@@ -18,11 +18,12 @@ import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import moment from 'moment';
 // @ts-ignore
 import TextTruncate from 'react-text-truncate';
-import TwitterMeta from './TwitterMeta';
+import TwitterMeta, { TwitterLink } from './TwitterMeta';
 import Bookmark from './Bookmark';
 import * as presets from '../utils/presets';
 import { Latex } from '../utils/latex';
-import CodeMeta from './CodeMeta';
+import CodeMetaRender from './CodeMeta';
+import { CodeMeta } from '../models';
 
 const MAIN_COLOR = presets.themePalette.primary.main;
 
@@ -54,9 +55,9 @@ export interface Paper {
   saved_in_library: boolean;
   comments_count: number;
   twtr_score: number;
-  twtr_links: any;
+  twtr_links: TwitterLink[];
   bookmarks_count: number;
-  github: any;
+  github: CodeMeta;
   title: string;
   authors: { name: string }[];
   time_published: string;
@@ -212,7 +213,7 @@ const PapersListItem: React.FC<PapersListItemProps> = ({ paper }) => {
         {!isEmpty(github) && (
           <Tooltip title="Github stars (by PapersWithCode)" placement="top">
             <span>
-              <CodeMeta data={github} iconCss={metadataCss} />
+              <CodeMetaRender data={github} iconCss={metadataCss} />
             </span>
           </Tooltip>
         )}

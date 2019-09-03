@@ -3,17 +3,15 @@ import { css, jsx, SerializedStyles } from '@emotion/core';
 import React from 'react';
 import { List, ListItem, ListItemIcon, Button, Popover } from '@material-ui/core';
 
-// const styles = () => ({
-//   links: {},
-//   popover: {
-//     maxHeight: '150px',
-//     overflowY: 'auto',
-//   },
-// });
+export interface TwitterLink {
+  link: string;
+  name: string;
+  score: number;
+}
 
 interface Props {
   twtr_score: number;
-  twtr_links: any[];
+  twtr_links: TwitterLink[];
   iconCss: SerializedStyles;
 }
 
@@ -60,7 +58,7 @@ const TwitterMeta: React.FC<Props> = ({ twtr_score, twtr_links, iconCss }) => {
           horizontal: 'center',
         }}
         css={css`
-          &.MuiPopover-paper {
+          > .MuiPopover-paper {
             max-height: 150px;
             overflow-y: auto;
           }

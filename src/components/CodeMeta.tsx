@@ -1,29 +1,36 @@
 /** @jsx jsx */
-import { css, jsx } from '@emotion/core';
+import { css, jsx, SerializedStyles } from '@emotion/core';
 import React from 'react';
-import { withStyles, List, ListItem, ListItemIcon, Button, Popover } from '@material-ui/core';
+import { withStyles, List, ListItem, ListItemIcon, Button, Popover, createStyles, WithStyles } from '@material-ui/core';
+import { CodeMeta } from '../models';
 
-const styles = () => ({
-  link: {
-    textTransform: 'inherit',
-    textDecoration: 'inherit',
-    color: 'inherit',
-  },
-  popover: {
-    maxHeight: '150px',
-    overflowY: 'auto',
-  },
-});
+const styles = () =>
+  createStyles({
+    link: {
+      textTransform: 'inherit',
+      textDecoration: 'inherit',
+      color: 'inherit',
+    },
+    popover: {
+      maxHeight: '150px',
+      overflowY: 'auto',
+    },
+  });
 
-const CodeMeta = ({ data, classes, iconCss }) => {
-  const [anchorEl, setAnchorEl] = React.useState(null);
+interface Props extends WithStyles<typeof styles> {
+  data: CodeMeta;
+  iconCss: SerializedStyles;
+}
 
-  const handleClick = event => {
+const CodeMetaRender: React.FC<Props> = ({ data, classes, iconCss }) => {
+  const [anchorEl, setAnchorEl] = React.useState<Element>();
+
+  const handleClick = (event: React.MouseEvent) => {
     setAnchorEl(event.currentTarget);
   };
 
   const handleClose = () => {
-    setAnchorEl(null);
+    setAnchorEl(undefined);
   };
 
   const open = Boolean(anchorEl);
@@ -116,4 +123,4 @@ const CodeMeta = ({ data, classes, iconCss }) => {
   );
 };
 
-export default withStyles(styles)(CodeMeta);
+export default withStyles(styles)(CodeMetaRender);

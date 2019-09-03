@@ -1,6 +1,4 @@
-// @flow
-
-import { T_LTWH } from '../types.js';
+import { T_LTWH } from '../../../models';
 
 const getBoundingRect = (clientRects: Array<T_LTWH>): T_LTWH => {
   const rects = Array.from(clientRects).map(rect => {

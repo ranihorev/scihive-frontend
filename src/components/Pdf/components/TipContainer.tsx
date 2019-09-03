@@ -1,18 +1,18 @@
 import React, { Component } from 'react';
 
-import { T_LTWH } from '../types';
+import { T_LTWH } from '../../../models';
 
 interface State {
   height: number;
   width: number;
-};
+}
 
 interface Props {
-  style: { top: number, left: number, bottom: number };
+  style: { top: number; left: number; bottom: number };
   scrollTop: number;
   pageBoundingRect: T_LTWH;
-  children: React.ReactElement[]
-};
+  children: React.ReactElement[];
+}
 
 const clamp = (value: number, left: number, right: number) => Math.min(Math.max(value, left), right);
 
@@ -58,11 +58,7 @@ class TipContainer extends Component<Props, State> {
 
     const top = shouldMove ? style.bottom + 5 : style.top - height - 5;
 
-    const left = clamp(
-      style.left - width / 2,
-      0,
-      pageBoundingRect.width - width,
-    );
+    const left = clamp(style.left - width / 2, 0, pageBoundingRect.width - width);
 
     const childrenWithProps = React.Children.map(children, child =>
       React.cloneElement(child, {

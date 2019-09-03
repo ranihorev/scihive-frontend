@@ -70,6 +70,7 @@ const CodeMeta = ({ data, classes, iconCss }) => {
               <ListItemIcon
                 css={css`
                   margin-right: 8px;
+                  min-width: 0;
                 `}
               >
                 <i className="fab fa-github" />
@@ -90,6 +91,7 @@ const CodeMeta = ({ data, classes, iconCss }) => {
               <ListItemIcon
                 css={css`
                   margin-right: 8px;
+                  min-width: 0;
                 `}
               >
                 <svg

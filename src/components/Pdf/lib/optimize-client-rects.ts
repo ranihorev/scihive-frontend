@@ -1,4 +1,4 @@
-import { T_LTWH } from '../types.js';
+import { T_LTWH } from '../../../models';
 
 const sort = (rects: T_LTWH[]) =>
   rects.sort((A, B) => {
@@ -17,10 +17,7 @@ const sameLine = (A: T_LTWH, B: T_LTWH, yMargin = 5) =>
   Math.abs(A.top - B.top) < yMargin && Math.abs(A.height - B.height) < yMargin;
 
 const inside = (A: T_LTWH, B: T_LTWH) =>
-  A.top > B.top &&
-  A.left > B.left &&
-  A.top + A.height < B.top + B.height &&
-  A.left + A.width < B.left + B.width;
+  A.top > B.top && A.left > B.left && A.top + A.height < B.top + B.height && A.left + A.width < B.left + B.width;
 
 const nextTo = (A: T_LTWH, B: T_LTWH, xMargin = 10) => {
   const Aright = A.left + A.width;

@@ -18,7 +18,9 @@ import Admin from './pages/Admin';
 
 const theme = createMuiTheme({
   palette: themePalette,
-  typography: {},
+  typography: {
+    fontFamily: 'Roboto, Helvetica, Arial, sans-serif',
+  },
 });
 
 const App: React.FC<{ isLoggedIn: boolean }> = ({ isLoggedIn }) => {

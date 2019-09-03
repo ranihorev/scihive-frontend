@@ -6,14 +6,18 @@
 // for clarity reasons I decided not to store actual (0, 1) coordinates, but
 // provide width and height, so user can compute ratio himself if needed
 
-import { T_LTWH, T_Scaled, T_VIEWPORT } from '../types';
+import { T_LTWH, T_Scaled } from '../../../models';
 
-type WIDTH_HEIGHT = { width: number, height: number };
+interface T_VIEWPORT {
+  convertToPdfPoint: (x: number, y: number) => Array<number>;
+  convertToViewportRectangle: (pdfRectangle: Array<number>) => Array<number>;
+  width: number;
+  height: number;
+}
 
-export const viewportToScaled = (
-  rect: T_LTWH,
-  { width, height }: WIDTH_HEIGHT,
-): T_Scaled => {
+type WIDTH_HEIGHT = { width: number; height: number };
+
+export const viewportToScaled = (rect: T_LTWH, { width, height }: WIDTH_HEIGHT): T_Scaled => {
   return {
     x1: rect.left,
     y1: rect.top,
@@ -27,12 +31,7 @@ export const viewportToScaled = (
 };
 
 const pdfToViewport = (pdf: T_Scaled, viewport: T_VIEWPORT): T_LTWH => {
-  const [x1, y1, x2, y2] = viewport.convertToViewportRectangle([
-    pdf.x1,
-    pdf.y1,
-    pdf.x2,
-    pdf.y2,
-  ]);
+  const [x1, y1, x2, y2] = viewport.convertToViewportRectangle([pdf.x1, pdf.y1, pdf.x2, pdf.y2]);
 
   return {
     left: x1,
@@ -58,11 +57,11 @@ export const scaledToViewport = (
     throw new Error('You are using old position format, please update');
   }
 
-  const x1 = width * scaled.x1 / scaled.width;
-  const y1 = height * scaled.y1 / scaled.height;
+  const x1 = (width * scaled.x1) / scaled.width;
+  const y1 = (height * scaled.y1) / scaled.height;
 
-  const x2 = width * scaled.x2 / scaled.width;
-  const y2 = height * scaled.y2 / scaled.height;
+  const x2 = (width * scaled.x2) / scaled.width;
+  const y2 = (height * scaled.y2) / scaled.height;
 
   return {
     left: x1,

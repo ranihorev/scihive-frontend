@@ -1,30 +1,24 @@
 import React, { Component } from 'react';
-
+import { T_LTWH } from '../../../models';
 import '../style/MouseSelection.css';
-import { T_LTWH } from '../types';
-
 
 interface Coords {
-  x: number,
-  y: number
-};
+  x: number;
+  y: number;
+}
 
 interface State {
-  locked: boolean,
-  start: Coords | null,
-  end: Coords | null
-};
+  locked: boolean;
+  start: Coords | null;
+  end: Coords | null;
+}
 
 type Props = {
-  onSelection: (
-    startTarget: HTMLElement,
-    boundingRect: T_LTWH,
-    resetSelection: () => void,
-  ) => void,
-  onDragStart: () => void,
-  onDragEnd: () => void,
-  shouldStart: (event: MouseEvent) => boolean,
-  onChange: (isVisible: boolean) => void
+  onSelection: (startTarget: HTMLElement, boundingRect: T_LTWH, resetSelection: () => void) => void;
+  onDragStart: () => void;
+  onDragEnd: () => void;
+  shouldStart: (event: MouseEvent) => boolean;
+  onChange: (isVisible: boolean) => void;
 };
 
 class MouseSelection extends Component<Props, State> {
@@ -182,16 +176,8 @@ class MouseSelection extends Component<Props, State> {
     const { start, end } = this.state;
 
     return (
-      <div
-        className="MouseSelection-container"
-        ref={node => (this.root = node)}
-      >
-        {start && end ? (
-          <div
-            className="MouseSelection"
-            style={this.getBoundingRect(start, end)}
-          />
-        ) : null}
+      <div className="MouseSelection-container" ref={node => (this.root = node)}>
+        {start && end ? <div className="MouseSelection" style={this.getBoundingRect(start, end)} /> : null}
       </div>
     );
   }

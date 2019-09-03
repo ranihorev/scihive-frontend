@@ -7,8 +7,20 @@ import axios from 'axios';
 import { isEmpty } from 'lodash';
 import * as presets from '../utils/presets';
 import { actions } from '../actions/categories';
+import { Category, RootState } from '../models';
+import { Dispatch } from 'redux';
 
-const CategoriesModalRender = ({
+interface Props {
+  onSelect: (queryParam: string, queryValue: string) => void;
+  allCategories: Category[];
+  selectedCategories: string[];
+  setAllCategories: (categories: Category[]) => void;
+  isModalOpen: boolean;
+  toggleCategoriesModal: () => void;
+  toggleCategory: (key: string) => void;
+}
+
+const CategoriesModalRender: React.FC<Props> = ({
   onSelect,
   allCategories,
   selectedCategories,
@@ -80,7 +92,7 @@ const CategoriesModalRender = ({
   );
 };
 
-const mapStateToProps = state => {
+const mapStateToProps = (state: RootState) => {
   return {
     allCategories: state.papersList.allCategories,
     selectedCategories: state.papersList.selectedCategories,
@@ -88,9 +100,9 @@ const mapStateToProps = state => {
   };
 };
 
-const mapDispatchToProps = dispatch => ({
-  setAllCategories: categories => dispatch(actions.setAllCategories(categories)),
-  toggleCategory: category => dispatch(actions.toggleCategory(category)),
+const mapDispatchToProps = (dispatch: Dispatch) => ({
+  setAllCategories: (categories: Category[]) => dispatch(actions.setAllCategories(categories)),
+  toggleCategory: (category: string) => dispatch(actions.toggleCategory(category)),
   toggleCategoriesModal: () => dispatch(actions.toggleCategoriesModal()),
 });
 

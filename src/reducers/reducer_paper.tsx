@@ -1,38 +1,21 @@
 import { isEmpty } from 'lodash';
-import {
-  CLEAR_PAPER,
-  READING_PROGRESS,
-  SET_BOOKMARK,
-  SET_DOCUMENT,
-  SET_REFERNCES,
-  SET_SECTIONS,
-  SET_HIGHLIGHTS,
-  ADD_HIGHLIGHT,
-  UPDATE_HIGHLIGHT,
-  REMOVE_HIGHLIGHT,
-  TOGGLE_HIGHLIGHTS,
-  SET_ACRONYMS,
-  SET_SIDEBAR_TAB,
-  JUMP_TO,
-  CLEAR_JUMP_TO,
-  SET_CODE_META,
-} from '../actions';
+import { RootState, T_Highlight } from '../models';
+import { Action } from '../actions';
 
-const initialState = {
+type PaperState = RootState['paper'];
+
+const initialState: PaperState = {
   readingProgress: 0,
   isBookmarked: false,
-  document: undefined,
-  sections: undefined,
   references: {},
   highlights: [],
   hiddenHighlights: [],
   acronyms: {},
   sidebarTab: 'Sections',
   jumpData: {},
-  codeMeta: {},
 };
 
-const updateHighlight = (state, newHighlight) => {
+const updateHighlight = (state: PaperState, newHighlight: T_Highlight) => {
   const highlights = state.highlights.map(h => (h.id === newHighlight.id ? newHighlight : h));
   return {
     ...state,
@@ -40,34 +23,34 @@ const updateHighlight = (state, newHighlight) => {
   };
 };
 
-export default function dataReducer(state = initialState, action) {
+const dataReducer = (state: PaperState = initialState, action: Action) => {
   switch (action.type) {
-    case CLEAR_PAPER:
+    case 'CLEAR_PAPER':
       return initialState;
-    case READING_PROGRESS:
+    case 'READING_PROGRESS':
       return { ...state, readingProgress: action.payload };
-    case SET_BOOKMARK:
+    case 'SET_BOOKMARK':
       return { ...state, isBookmarked: action.payload };
-    case SET_CODE_META:
+    case 'SET_CODE_META':
       return { ...state, codeMeta: action.payload };
-    case SET_DOCUMENT:
+    case 'SET_DOCUMENT':
       return { ...state, document: action.payload };
-    case SET_SECTIONS:
+    case 'SET_SECTIONS':
       return { ...state, sections: action.payload };
-    case SET_REFERNCES:
+    case 'SET_REFERNCES':
       return { ...state, references: action.payload };
-    case SET_HIGHLIGHTS:
+    case 'SET_HIGHLIGHTS':
       return { ...state, highlights: action.payload };
-    case ADD_HIGHLIGHT:
+    case 'ADD_HIGHLIGHT':
       return { ...state, highlights: [action.payload, ...state.highlights] };
-    case UPDATE_HIGHLIGHT:
+    case 'UPDATE_HIGHLIGHT':
       return updateHighlight(state, action.payload);
-    case REMOVE_HIGHLIGHT:
+    case 'REMOVE_HIGHLIGHT':
       return {
         ...state,
         highlights: state.highlights.filter(h => h.id !== action.payload),
       };
-    case TOGGLE_HIGHLIGHTS:
+    case 'TOGGLE_HIGHLIGHTS':
       if (isEmpty(state.hiddenHighlights)) {
         return {
           ...state,
@@ -80,15 +63,15 @@ export default function dataReducer(state = initialState, action) {
         highlights: [...state.highlights, ...state.hiddenHighlights],
         hiddenHighlights: [],
       };
-    case SET_ACRONYMS:
+    case 'SET_ACRONYMS':
       return { ...state, acronyms: action.payload };
-    case SET_SIDEBAR_TAB:
+    case 'SET_SIDEBAR_TAB':
       return { ...state, sidebarTab: action.payload };
-    case JUMP_TO:
+    case 'JUMP_TO':
       return { ...state, jumpData: action.payload };
-    case CLEAR_JUMP_TO:
-      return { ...state, jumpData: {} };
     default:
       return state;
   }
-}
+};
+
+export default dataReducer;

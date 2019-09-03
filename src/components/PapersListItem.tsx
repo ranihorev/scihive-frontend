@@ -26,12 +26,11 @@ import CodeMeta from './CodeMeta';
 
 const MAIN_COLOR = presets.themePalette.primary.main;
 
-const summaryCss = css`
-    color: rgba(0, 0, 0, 0.8);
-    font-size: 0.875rem;
-    font-weight: 400,
-    font-family: Roboto, Helvetica, Arial, sans-serif;
-    line-height: 1.46429em;
+const paragraphCss = css`
+  color: rgba(0, 0, 0, 0.8);
+  font-size: 0.875rem;
+  font-weight: 400;
+  line-height: 1.46429em;
 `;
 
 const metadataCss = css`
@@ -59,7 +58,7 @@ export interface Paper {
   bookmarks_count: number;
   github: any;
   title: string;
-  authors: any[];
+  authors: { name: string }[];
   time_published: string;
   summary: string;
 }
@@ -125,21 +124,22 @@ const PapersListItem: React.FC<PapersListItemProps> = ({ paper }) => {
               top: -12px;
             `}
           >
-            <svg width="20" height="20" viewBox="0 0 1024 1024" version="1.1">
-              <path d="M405.952 438.24c-80.544 0-143.84-63.264-143.84-143.84a142.464 142.464 0 0 1 143.84-143.84c12.128 0 23.648 1.856 34.816 4.576a259.84 259.84 0 0 1 46.592-44.064 195.936 195.936 0 0 0-81.44-17.984c-109.344 0-201.344 92.032-201.344 201.344 0 69.024 34.528 126.592 86.304 161.088C141.344 507.296 32 645.376 32 812.192c0 17.216 11.52 28.736 28.768 28.736s28.768-11.52 28.768-28.736c0-172.608 143.84-316.416 316.416-316.416 14.56 0 28.768-1.728 42.56-4.8a259.52 259.52 0 0 1-36.96-53.248c-1.92 0.032-3.68 0.512-5.6 0.512zM955.584 755.776H809.92v-145.632c0-21.856-14.56-36.416-36.384-36.416-21.888 0-36.448 14.56-36.448 36.416v145.632h-145.632c-21.856 0-36.416 14.56-36.416 36.448 0 21.824 14.56 36.384 36.416 36.384h145.632v145.664c0 21.856 14.56 36.416 36.448 36.416 21.824 0 36.384-14.56 36.384-36.416v-145.664h145.664c21.856 0 36.416-14.56 36.416-36.384 0-21.888-14.56-36.448-36.416-36.448zM972.864 300.224c0-138.368-116.512-254.848-254.88-254.848s-254.848 116.512-254.848 254.848c0 87.36 43.68 160.192 109.248 203.904-189.344 65.536-327.68 240.32-327.68 451.456-0.032 21.856 14.56 36.416 36.384 36.416s36.416-14.56 36.416-36.416c0-218.464 182.048-400.512 400.512-400.512 138.368 0.032 254.848-116.48 254.848-254.848z m-436.928 0c0-101.952 80.128-182.048 182.048-182.048s182.048 80.096 182.048 182.048-80.128 182.048-182.048 182.048-182.048-80.096-182.048-182.048z" />
-            </svg>
             <Bookmark paperId={paper._id} saved_in_library={saved_in_library} selectedColor={MAIN_COLOR} />
           </Grid>
         </Grid>
         <Grid
           container
           css={css`
-            margin-top: 12;
-            margin-bottom: 12;
+            margin-top: 12px;
           `}
         >
           <Grid item>
-            <Typography>
+            <Typography
+              css={css`
+                ${paragraphCss};
+                margin-bottom: 4px;
+              `}
+            >
               {paper.authors.map((author, index) => (
                 <React.Fragment key={index}>
                   <Link
@@ -147,7 +147,7 @@ const PapersListItem: React.FC<PapersListItemProps> = ({ paper }) => {
                     css={css`
                       color: #656565;
                       text-decoration: none;
-                      &:hover: {
+                      &:hover {
                         color: #878787;
                         text-decoration: underline;
                       }
@@ -228,7 +228,7 @@ const PapersListItem: React.FC<PapersListItemProps> = ({ paper }) => {
       <Divider variant="middle" />
       <CardContent>
         {expanded ? (
-          <div css={summaryCss}>
+          <div css={paragraphCss}>
             <Latex>{paper.summary}</Latex>
             {!isEmpty(github) && (
               <div
@@ -257,7 +257,7 @@ const PapersListItem: React.FC<PapersListItemProps> = ({ paper }) => {
             line={2}
             element="div"
             truncateText="…"
-            css={summaryCss}
+            css={paragraphCss}
             text={paper.summary}
             textTruncateChild={
               <button

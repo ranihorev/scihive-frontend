@@ -1,32 +1,33 @@
 /** @jsx jsx */
-import { css, jsx } from '@emotion/core';
+import { css, jsx, SerializedStyles } from '@emotion/core';
 import React from 'react';
-import { withStyles, List, ListItem, ListItemIcon, Button, Popover } from '@material-ui/core';
+import { List, ListItem, ListItemIcon, Button, Popover } from '@material-ui/core';
 
-const styles = () => ({
-  links: {},
-  link: {
-    textTransform: 'inherit',
-    textDecoration: 'inherit',
-    color: 'inherit',
-  },
-  popover: {
-    maxHeight: '150px',
-    overflowY: 'auto',
-  },
-});
+// const styles = () => ({
+//   links: {},
+//   popover: {
+//     maxHeight: '150px',
+//     overflowY: 'auto',
+//   },
+// });
 
-const TwitterMeta = ({ twtr_score, twtr_links, classes, iconCss }) => {
+interface Props {
+  twtr_score: number;
+  twtr_links: any[];
+  iconCss: SerializedStyles;
+}
+
+const TwitterMeta: React.FC<Props> = ({ twtr_score, twtr_links, iconCss }) => {
   const links = twtr_links || [];
   links.sort((a, b) => b.score - a.score);
-  const [anchorEl, setAnchorEl] = React.useState(null);
+  const [anchorEl, setAnchorEl] = React.useState<Element>();
 
-  const handleClick = event => {
+  const handleClick = (event: React.MouseEvent) => {
     setAnchorEl(event.currentTarget);
   };
 
   const handleClose = () => {
-    setAnchorEl(null);
+    setAnchorEl(undefined);
   };
 
   const open = Boolean(anchorEl);
@@ -58,24 +59,32 @@ const TwitterMeta = ({ twtr_score, twtr_links, classes, iconCss }) => {
           vertical: 'top',
           horizontal: 'center',
         }}
-        classes={{ paper: classes.popover }}
+        css={css`
+          &.MuiPopover-paper {
+            max-height: 150px;
+            overflow-y: auto;
+          }
+        `}
       >
-        <List className={classes.links}>
+        <List>
           {links.map((l, idx) => (
             <a
               key={idx}
-              className={classes.link}
+              css={css`
+                text-transform: inherit;
+                text-decoration: inherit;
+                color: inherit;
+                font-size: 13px;
+              `}
               href={l.link}
               target="_blank"
               rel="noopener noreferrer"
-              css={css`
-                font-size: 13px;
-              `}
             >
               <ListItem button>
                 <ListItemIcon
                   css={css`
                     margin-right: 8px;
+                    min-width: 0;
                   `}
                 >
                   <i className="fab fa-twitter" />
@@ -99,4 +108,4 @@ const TwitterMeta = ({ twtr_score, twtr_links, classes, iconCss }) => {
   );
 };
 
-export default withStyles(styles)(TwitterMeta);
+export default TwitterMeta;

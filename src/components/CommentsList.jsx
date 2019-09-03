@@ -47,14 +47,10 @@ function CommentsList({
       .catch(err => console.log(err.response));
   };
 
-  const getHighlightById = id => {
-    return highlights.find(highlight => highlight.id === id);
-  };
-
   // Event listener to hash change
   useEffect(() => {
     if (!jumpData || jumpData.type !== 'comment') return;
-    const highlight = getHighlightById(jumpData.id);
+    const highlight = highlights.find(h => h.id === jumpData.id);
     if (highlight && containerRef.current) {
       containerRef.current.scrollTop = refs[highlight.id].offsetTop - 10;
       setFocusedId(highlight.id);

@@ -1,6 +1,4 @@
-// @flow
-
-import { T_LTWH } from '../types.js';
+import { T_LTWH } from '../../../models';
 
 const getAreaAsPNG = (canvas: HTMLCanvasElement, position: T_LTWH): string => {
   const { left, top, width, height } = position;
@@ -23,17 +21,7 @@ const getAreaAsPNG = (canvas: HTMLCanvasElement, position: T_LTWH): string => {
 
   const dpr: number = window.devicePixelRatio;
 
-  newCanvasContext.drawImage(
-    canvas,
-    left * dpr,
-    top * dpr,
-    width * dpr,
-    height * dpr,
-    0,
-    0,
-    width,
-    height,
-  );
+  newCanvasContext.drawImage(canvas, left * dpr, top * dpr, width * dpr, height * dpr, 0, 0, width, height);
 
   return newCanvas.toDataURL('image/png');
 };

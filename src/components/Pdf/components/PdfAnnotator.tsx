@@ -28,7 +28,12 @@ import { APP_BAR_HEIGHT } from '../../TopBar/PrimaryAppBar';
 import { actions } from '../../../actions';
 import { convertMatches, renderMatches } from '../lib/pdfSearchUtils';
 import { Dispatch } from 'redux';
-import { Acronyms, T_Highlight, T_LTWH, TipObject } from '../types';
+import { Acronyms, T_Highlight, T_LTWH } from '../../../models';
+
+interface TipObject {
+  highlight: T_Highlight;
+  callback: (h: T_Highlight) => void;
+}
 
 const zoomButtonCss = css`
   color: black;
@@ -45,25 +50,25 @@ const ZoomButtom = ({ direction, onClick }: any) => (
       size="small"
       css={zoomButtonCss}
     >
-      <i className={`fas fa-search-${direction === 'in' ? 'plus' : 'minus'}`}/>
+      <i className={`fas fa-search-${direction === 'in' ? 'plus' : 'minus'}`} />
     </Fab>
   </div>
 );
 
 const PdfAnnotator = ({
-                        pdfDocument,
-                        isVertical,
-                        enableAreaSelection,
-                        onReferenceEnter,
-                        onReferenceLeave,
-                        highlightTransform,
-                        highlights,
-                        acronyms,
-                        onSelectionFinished,
-                        updateReadingProgress,
-                        clearJumpTo,
-                        jumpData,
-                      }: any) => {
+  pdfDocument,
+  isVertical,
+  enableAreaSelection,
+  onReferenceEnter,
+  onReferenceLeave,
+  highlightTransform,
+  highlights,
+  acronyms,
+  onSelectionFinished,
+  updateReadingProgress,
+  clearJumpTo,
+  jumpData,
+}: any) => {
   const [ghostHighlight, setGhostHighlight] = React.useState<object>();
   const [isCollapsed, setIsCollapsed] = React.useState(true);
   const [range, setRange] = React.useState<Range>();
@@ -245,32 +250,6 @@ const PdfAnnotator = ({
     );
   };
 
-  const afterSelection = () => {
-    if (!range || isCollapsed) return;
-    const page = getPageFromRange(range);
-    if (!page) return;
-    const rects = getClientRects(range, page.node);
-    if (rects.length === 0) return;
-
-    const boundingRect = getBoundingRect(rects);
-
-    const viewportPosition = { boundingRect, rects, pageNumber: page.number };
-
-    const content = {
-      text: range.toString(),
-    };
-    const scaledPosition = viewportPositionToScaled(viewportPosition);
-    renderTipAtPosition(
-      viewportPosition,
-      onSelectionFinished(
-        scaledPosition,
-        content,
-        () => hideTipAndSelection(),
-        () => setGhostHighlight({ position: scaledPosition }),
-      ),
-    );
-  };
-
   const groupHighlightsByPage = () => {
     return [...highlights, ghostHighlight].filter(Boolean).reduce((res, highlight) => {
       const { pageNumber } = highlight.position;
@@ -383,7 +362,30 @@ const PdfAnnotator = ({
   };
 
   React.useEffect(() => {
-    afterSelection();
+    // after selection
+    if (!range || isCollapsed) return;
+    const page = getPageFromRange(range);
+    if (!page) return;
+    const rects = getClientRects(range, page.node);
+    if (rects.length === 0) return;
+
+    const boundingRect = getBoundingRect(rects);
+
+    const viewportPosition = { boundingRect, rects, pageNumber: page.number };
+
+    const content = {
+      text: range.toString(),
+    };
+    const scaledPosition = viewportPositionToScaled(viewportPosition);
+    renderTipAtPosition(
+      viewportPosition,
+      onSelectionFinished(
+        scaledPosition,
+        content,
+        () => hideTipAndSelection(),
+        () => setGhostHighlight({ position: scaledPosition }),
+      ),
+    );
   }, [isCollapsed, range]);
 
   React.useEffect(() => {
@@ -485,8 +487,8 @@ const PdfAnnotator = ({
           z-index: 1000;
         `}
       >
-        <ZoomButtom direction="in" onClick={() => zoom(1)}/>
-        <ZoomButtom direction="out" onClick={() => zoom(-1)}/>
+        <ZoomButtom direction="in" onClick={() => zoom(1)} />
+        <ZoomButtom direction="out" onClick={() => zoom(-1)} />
       </div>
       <div
         ref={containerNode}
@@ -510,7 +512,7 @@ const PdfAnnotator = ({
           }
         }}
       >
-        <div className="pdfViewer"/>
+        <div className="pdfViewer" />
         {typeof enableAreaSelection === 'function' ? (
           <MouseSelection
             onDragStart={() => toggleTextSelection(true)}

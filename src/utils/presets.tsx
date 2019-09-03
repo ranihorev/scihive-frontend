@@ -65,7 +65,7 @@ export const themePalette = {
     contrastText: '#ffffff',
   },
   text: {
-    primary: '#ffffff',
+    // primary: '#ffffff',
   },
 } as const;
 

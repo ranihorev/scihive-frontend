@@ -59,7 +59,7 @@ interface Props {
 const PrimaryAppBar: React.FC<Props> = ({ classes, desktopItems, mobileRootItems, mobileSubItems }) => {
   return (
     <Headroom>
-      <AppBar position="relative" style={{ backgroundColor: '#36a0f5' }}>
+      <AppBar position="relative" style={{ backgroundColor: '#36a0f5', color: '#ffffff' }}>
         <Toolbar classes={{ gutters: classes.gutters }} variant="dense">
           <div className={classes.leftMenu}>
             <Link to="/" className={classes.home}>

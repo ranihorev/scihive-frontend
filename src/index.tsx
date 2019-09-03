@@ -6,10 +6,10 @@ import { BrowserRouter as Router, Route } from 'react-router-dom';
 import * as Sentry from '@sentry/browser';
 import App from './App';
 import * as serviceWorker from './serviceWorker';
-import { SET_USER } from './actions';
 import { store } from './store';
 import { withTracker } from './Tracker';
 import './index.css';
+import { actions } from './actions';
 
 if (process.env.REACT_APP_SENTRY_DSN && process.env.NODE_ENV === 'production')
   Sentry.init({ dsn: process.env.REACT_APP_SENTRY_DSN });
@@ -19,13 +19,13 @@ axios.defaults.withCredentials = true;
 const user = localStorage.getItem('username');
 
 if (user) {
-  store.dispatch({ type: SET_USER, payload: user });
+  store.dispatch(actions.setUser({ username: user }));
 }
 
 ReactDOM.render(
   <Provider store={store}>
     <Router>
-      <Route component={withTracker(App)}/>
+      <Route component={withTracker(App)} />
     </Router>
   </Provider>,
   document.getElementById('root'),

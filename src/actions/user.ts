@@ -1,7 +1,7 @@
 import { Group } from '../models';
 
 export const actions = {
-  toggleLoginModal: (message: string) => {
+  toggleLoginModal: (message?: string) => {
     return {
       type: 'TOGGLE_LOGIN_MODAL' as const,
       payload: message,

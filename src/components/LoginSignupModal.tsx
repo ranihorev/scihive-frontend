@@ -1,27 +1,26 @@
 /** @jsx jsx */
 import { css, jsx } from '@emotion/core';
-import React, { useState } from 'react';
-import Modal from '@material-ui/core/Modal';
-import { Button, withStyles } from '@material-ui/core';
-import FormControl from '@material-ui/core/FormControl';
-import InputLabel from '@material-ui/core/InputLabel';
-import Input from '@material-ui/core/Input';
+import { Button, FormControl, Input, InputLabel, Modal } from '@material-ui/core';
 import axios from 'axios';
+import React, { useState } from 'react';
 import { connect } from 'react-redux';
-import 'react-toastify/dist/ReactToastify.css';
 import { toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+import { Dispatch } from 'redux';
 import { actions } from '../actions';
+import { RootState } from '../models';
 import * as presets from '../utils/presets';
-
-const styles = theme => ({
-  modal: presets.modal(theme),
-});
 
 const formControl = css`
   margin-top: 20px;
 `;
 
-function LoginSignupForm({ onSubmitSuccess, loginModalMessage }) {
+interface LoginSignupFormProps {
+  onSubmitSuccess: (data: { username: string }) => void;
+  loginModalMessage?: string;
+}
+
+const LoginSignupForm: React.FC<LoginSignupFormProps> = ({ onSubmitSuccess, loginModalMessage = '' }) => {
   const [isLogin, setIsLogin] = useState(true);
   const [userData, setUserData] = useState({
     email: '',
@@ -30,12 +29,12 @@ function LoginSignupForm({ onSubmitSuccess, loginModalMessage }) {
   });
   const [errMsg, setErrMsg] = useState('');
 
-  const handleChange = e => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const field = e.target.name;
     setUserData({ ...userData, [field]: e.target.value });
   };
 
-  const submitForm = e => {
+  const submitForm = (e: React.FormEvent) => {
     e.preventDefault();
     setErrMsg('');
     const endpoint = `/user${isLogin ? '/login' : '/register'}`;
@@ -45,7 +44,7 @@ function LoginSignupForm({ onSubmitSuccess, loginModalMessage }) {
         localStorage.setItem('username', res.data.username);
         // Redundant: keep it here in case we won't reload the page one day
         onSubmitSuccess(res.data);
-        const onRefresh = refreshEvent => {
+        const onRefresh = (refreshEvent: React.MouseEvent) => {
           refreshEvent.preventDefault();
           window.location.reload();
         };
@@ -72,7 +71,7 @@ function LoginSignupForm({ onSubmitSuccess, loginModalMessage }) {
       });
   };
 
-  const switchForm = e => {
+  const switchForm = (e: React.MouseEvent) => {
     e.preventDefault();
     setIsLogin(!isLogin);
   };
@@ -92,7 +91,7 @@ function LoginSignupForm({ onSubmitSuccess, loginModalMessage }) {
       {!isLogin ? (
         <FormControl css={formControl} fullWidth>
           <InputLabel>User Name (Optional)</InputLabel>
-          <Input name="username" value={userData.username} onChange={handleChange} maxLength={30} required />
+          <Input name="username" value={userData.username} onChange={handleChange} required />
         </FormControl>
       ) : null}
       <FormControl css={formControl} fullWidth>
@@ -136,13 +135,25 @@ function LoginSignupForm({ onSubmitSuccess, loginModalMessage }) {
       </div>
     </form>
   );
+};
+
+interface LoginSignupModalProps {
+  isLoginModalOpen: boolean;
+  toggleLoginModal: () => void;
+  onSubmitSuccess: (data: { username: string }) => void;
+  loginModalMessage?: string;
 }
 
-const LoginSignupModal = ({ classes, isLoginModalOpen, toggleLoginModal, onSubmitSuccess, loginModalMessage }) => {
+const LoginSignupModal: React.FC<LoginSignupModalProps> = ({
+  isLoginModalOpen,
+  toggleLoginModal,
+  onSubmitSuccess,
+  loginModalMessage,
+}) => {
   return (
     <React.Fragment>
       <Modal open={isLoginModalOpen} onClose={toggleLoginModal}>
-        <div className={classes.modal}>
+        <div css={presets.modalCss}>
           <LoginSignupForm onSubmitSuccess={onSubmitSuccess} loginModalMessage={loginModalMessage} />
         </div>
       </Modal>
@@ -150,7 +161,7 @@ const LoginSignupModal = ({ classes, isLoginModalOpen, toggleLoginModal, onSubmi
   );
 };
 
-const mapStateToProps = state => {
+const mapStateToProps = (state: RootState) => {
   const { user } = state;
   return {
     isLoginModalOpen: user.isLoginModalOpen,
@@ -159,12 +170,12 @@ const mapStateToProps = state => {
   };
 };
 
-const mapDispatchToProps = dispatch => {
+const mapDispatchToProps = (dispatch: Dispatch) => {
   return {
     toggleLoginModal: () => {
       dispatch(actions.toggleLoginModal());
     },
-    onSubmitSuccess: data => {
+    onSubmitSuccess: (data: { username: string }) => {
       dispatch(actions.setUser(data));
       dispatch(actions.toggleLoginModal());
     },
@@ -174,4 +185,4 @@ const mapDispatchToProps = dispatch => {
 export default connect(
   mapStateToProps,
   mapDispatchToProps,
-)(withStyles(styles)(LoginSignupModal));
+)(LoginSignupModal);

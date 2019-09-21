@@ -74,15 +74,16 @@ const breakpoints = { s: 576, m: 768, lg: 992, xl: 1200 };
 export const mqMin = (bp: keyof typeof breakpoints) => `@media (min-width: ${breakpoints[bp]}px)`;
 export const mqMax = (bp: keyof typeof breakpoints) => `@media (max-width: ${breakpoints[bp]}px)`;
 
-export const modal = (theme: Theme) => ({
-  position: 'absolute',
-  width: theme.spacing(50),
-  maxWidth: '75%',
-  backgroundColor: theme.palette.background.paper,
-  boxShadow: theme.shadows[5],
-  padding: theme.spacing(4),
-  outline: 'none',
-  top: '50%',
-  left: '50%',
-  transform: 'translate(-50%, -50%)',
-});
+export const modalCss = css`
+  position: absolute;
+  width: 350px;
+  max-width: 90%;
+  background-color: white;
+  box-shadow: 0px 3px 5px -1px rgba(0, 0, 0, 0.2), 0px 5px 8px 0px rgba(0, 0, 0, 0.14),
+    0px 1px 14px 0px rgba(0, 0, 0, 0.12);
+  padding: 32px;
+  outline: none;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+`;

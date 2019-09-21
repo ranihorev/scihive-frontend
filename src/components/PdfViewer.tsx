@@ -90,7 +90,7 @@ const HighlightPopup: React.FC<T_Highlight> = ({ content, comment }) => {
 };
 
 const ReferencesPopupManager: React.FC<{
-  referencePopoverAnchor?: Element;
+  referencePopoverAnchor?: HTMLElement;
   clearAnchor: () => void;
   reference: Reference;
 }> = ({ referencePopoverAnchor, clearAnchor, reference }) => {
@@ -145,9 +145,9 @@ interface PdfViewerProps extends RouteComponentProps {
 }
 
 interface PdfViewerState {
-  referencePopoverAnchor?: Element;
+  referencePopoverAnchor?: HTMLElement;
   referenceCite: string;
-  highlightPopoverAnchor?: Element;
+  highlightPopoverAnchor?: HTMLElement;
 }
 
 class PdfViewer extends Component<PdfViewerProps, PdfViewerState> {

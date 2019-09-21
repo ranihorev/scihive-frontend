@@ -3,9 +3,14 @@ import { jsx } from '@emotion/core';
 import React from 'react';
 import { Popper } from '@material-ui/core';
 
-export const Popup = ({ bodyElement, popupContent }) => {
+interface PopupProps {
+  bodyElement: React.ReactElement;
+  popupContent: React.ReactElement;
+}
+
+export const Popup: React.FC<PopupProps> = ({ bodyElement, popupContent }) => {
   const contentRef = React.useRef(null);
-  const timeoutRef = React.useRef(null);
+  const timeoutRef = React.useRef<NodeJS.Timeout>();
   const [isOpen, setIsOpen] = React.useState(false);
   const showPopup = () => {
     if (timeoutRef.current) clearTimeout(timeoutRef.current);
@@ -41,11 +46,17 @@ export const Popup = ({ bodyElement, popupContent }) => {
   );
 };
 
-export const PopupManager = ({ anchorEl, clearAnchor, popupContent }) => {
-  const popupTimeoutId = React.useRef(null);
+interface PopupManagerProps {
+  clearAnchor: () => void;
+  popupContent: React.ReactElement | null;
+  anchorEl: HTMLElement | undefined;
+}
+
+export const PopupManager: React.FC<PopupManagerProps> = ({ anchorEl, clearAnchor, popupContent }) => {
+  const popupTimeoutId = React.useRef<NodeJS.Timeout>();
 
   const clearHideTimeout = () => {
-    clearTimeout(popupTimeoutId.current);
+    if (popupTimeoutId.current) clearTimeout(popupTimeoutId.current);
     popupTimeoutId.current = undefined;
   };
 
@@ -60,12 +71,10 @@ export const PopupManager = ({ anchorEl, clearAnchor, popupContent }) => {
 
   const onContentLeave = () => {
     closePopover();
-    anchorEl.removeEventListener('mouseleave', onContentLeave);
+    if (anchorEl) anchorEl.removeEventListener('mouseleave', onContentLeave);
   };
 
-  if (anchorEl) {
-    anchorEl.addEventListener('mouseleave', onContentLeave);
-  }
+  if (anchorEl) anchorEl.addEventListener('mouseleave', onContentLeave);
   React.useEffect(() => {
     return () => {
       clearHideTimeout();
@@ -78,7 +87,7 @@ export const PopupManager = ({ anchorEl, clearAnchor, popupContent }) => {
       {popupContent ? (
         React.cloneElement(popupContent, {
           onMouseEnter: () => {
-            anchorEl.removeEventListener('mouseleave', onContentLeave);
+            if (anchorEl) anchorEl.removeEventListener('mouseleave', onContentLeave);
             clearHideTimeout();
           },
           onMouseLeave: () => closePopover(),

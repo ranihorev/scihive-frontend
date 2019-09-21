@@ -5,10 +5,10 @@ import React from 'react';
 import Button from '@material-ui/core/Button';
 import TextField from '@material-ui/core/TextField';
 
-const NewReply = ({ onSubmit }) => {
+const NewReply: React.FC<{ onSubmit: (reply: string) => void }> = ({ onSubmit }) => {
   const [reply, setReply] = React.useState('');
 
-  const submitForm = e => {
+  const submitForm = (e: React.FormEvent) => {
     e.preventDefault();
     onSubmit(reply);
   };

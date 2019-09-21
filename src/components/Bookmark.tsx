@@ -6,9 +6,23 @@ import { connect } from 'react-redux';
 import axios from 'axios';
 import { IconButton, Tooltip } from '@material-ui/core';
 import { actions } from '../actions';
+import { Dispatch } from 'redux';
+import { RootState } from '../models';
+
+interface BookmarkProps {
+  isLoggedIn: boolean;
+  toggleLoginModal: (msg?: string) => void;
+  paperId: string;
+  saved_in_library: boolean;
+  isBookmarked: boolean;
+  setBookmark: (value: boolean) => void;
+  color?: string | undefined;
+  selectedColor: string;
+  blinkLibraryBadge: () => void;
+}
 
 // isBookmarked and setBookmark are from the redux store
-const Bookmark = ({
+const Bookmark: React.FC<BookmarkProps> = ({
   isLoggedIn,
   toggleLoginModal,
   paperId,
@@ -54,19 +68,19 @@ const Bookmark = ({
   );
 };
 
-const mapStateToProps = state => {
+const mapStateToProps = (state: RootState) => {
   return {
     isLoggedIn: !isEmpty(state.user.userData),
     isBookmarked: state.paper.isBookmarked,
   };
 };
 
-const mapDispatchToProps = dispatch => {
+const mapDispatchToProps = (dispatch: Dispatch) => {
   return {
-    toggleLoginModal: message => {
+    toggleLoginModal: (message?: string) => {
       dispatch(actions.toggleLoginModal(message));
     },
-    setBookmark: value => {
+    setBookmark: (value: boolean) => {
       dispatch(actions.setBookmark(value));
     },
     blinkLibraryBadge: () => {

@@ -1,5 +1,6 @@
-function getTimePassed(cur_time) {
-  const t = Math.max(Date.parse(new Date()) - Date.parse(cur_time), 1);
+function getTimePassed(time: Date) {
+  const curTime = new Date();
+  const t = Math.max(Number(curTime) - Number(time), 1);
   const seconds = Math.floor((t / 1000) % 60);
   const minutes = Math.floor((t / 1000 / 60) % 60);
   const hours = Math.floor((t / (1000 * 60 * 60)) % 24);
@@ -13,7 +14,7 @@ function getTimePassed(cur_time) {
   };
 }
 
-export default function get_age(utc_time) {
+export default function get_age(utc_time: string) {
   const post_time = new Date(utc_time);
   // const post_time_local = new Date(post_time.valueOf() - post_time.getTimezoneOffset() * 60000);
   const time_passed = getTimePassed(post_time);

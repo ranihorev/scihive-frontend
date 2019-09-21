@@ -1,6 +1,6 @@
 /** @jsx jsx */
 import { css, jsx } from '@emotion/core';
-import Draggable from 'react-draggable';
+import Draggable, { DraggableBounds } from 'react-draggable';
 
 const baseWrapperCss = css`
   position: absolute;
@@ -46,18 +46,22 @@ const horizontalLineHandleCss = css`
   margin-top: 3px;
 `;
 
-const Resizer = ({ isVerticalLine, initPos, onDrag, bounds, step = 20 }) => {
+interface ResizerProps {
+  isVerticalLine: boolean;
+  initPos: number;
+  onDrag: (pos: { x: number; y: number }) => void;
+  bounds: DraggableBounds;
+  step?: number;
+}
+
+const Resizer: React.FC<ResizerProps> = ({ isVerticalLine, initPos, onDrag, bounds, step = 20 }) => {
   return (
-    <div
-      css={isVerticalLine ? verticalLineWrapperCss : horizontalLineWrapperCss}
-    >
+    <div css={isVerticalLine ? verticalLineWrapperCss : horizontalLineWrapperCss}>
       <Draggable
         axis={isVerticalLine ? 'x' : 'y'}
         handle=".handle"
-        defaultPosition={
-          isVerticalLine ? { x: initPos, y: 0 } : { x: 0, y: initPos }
-        }
-        position={null}
+        defaultPosition={isVerticalLine ? { x: initPos, y: 0 } : { x: 0, y: initPos }}
+        position={undefined}
         grid={[step, step]}
         bounds={bounds}
         scale={1}
@@ -65,10 +69,7 @@ const Resizer = ({ isVerticalLine, initPos, onDrag, bounds, step = 20 }) => {
           onDrag({ x: data.x, y: data.y });
         }}
       >
-        <div
-          className="handle"
-          css={isVerticalLine ? verticalLineHandleCss : horizontalLineHandleCss}
-        />
+        <div className="handle" css={isVerticalLine ? verticalLineHandleCss : horizontalLineHandleCss} />
       </Draggable>
     </div>
   );

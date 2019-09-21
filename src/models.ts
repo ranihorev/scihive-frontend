@@ -47,6 +47,7 @@ export interface T_NewHighlight {
   comment: {
     text: string;
   };
+  visibility: Visibility;
 }
 
 export interface Reply {
@@ -62,7 +63,7 @@ export interface T_Highlight extends T_NewHighlight {
   replies: any;
   user: any;
   canEdit: boolean;
-  visibility: VisibilityType;
+  visibility: Visibility;
 }
 
 export type OptionalExceptFor<T, TRequired extends keyof T> = Partial<T> & Pick<T, TRequired>;

@@ -12,20 +12,19 @@ import { toast } from 'react-toastify';
 import { Dispatch } from 'redux';
 import { actions } from '../actions';
 import {
+  PaperIdParams,
   Reference,
   References,
   RootState,
   Section,
   T_Highlight,
   T_LTWH,
-  T_Scaled,
-  Visibility,
   T_NewHighlight,
-  PaperIdParams,
+  T_Scaled,
 } from '../models';
 import { presets } from '../utils';
 import { popupCss } from '../utils/presets';
-import { AreaHighlight, Highlight, PdfAnnotator, PdfLoader, Tip } from './Pdf';
+import { AreaHighlight, Highlight, PdfAnnotator, PdfLoader } from './Pdf';
 import { compactButtonStyle } from './Pdf/components/Tip';
 import { Popup, PopupManager } from './Popup';
 import { TextLinkifyLatex } from './TextLinkifyLatex';
@@ -189,32 +188,6 @@ class PdfViewer extends Component<PdfViewerProps, PdfViewerState> {
       });
   };
 
-  onSelectionFinished = (
-    position: T_Highlight['position'],
-    content: T_Highlight['content'],
-    hideTipAndSelection: () => void,
-    transformSelection: () => void,
-  ) => {
-    const submitComment = (comment: T_Highlight['comment'], visibility: Visibility) => {
-      const data = { comment, position, content, visibility };
-      const self = this;
-      const {
-        match: { params },
-      } = this.props;
-      axios
-        .post(`/paper/${params.PaperId}/new_comment`, data)
-        .then(res => {
-          self.props.addHighlight(res.data.comment);
-          hideTipAndSelection();
-        })
-        .catch(err => {
-          console.log(err.response);
-        });
-    };
-
-    return <Tip onOpen={transformSelection} onConfirm={submitComment} />;
-  };
-
   onHighlightClick = (id: string) => {
     this.props.jumpToComment(id);
     this.props.history.push({ hash: `comment-${id}` });
@@ -281,7 +254,7 @@ class PdfViewer extends Component<PdfViewerProps, PdfViewerState> {
             <PdfAnnotator
               pdfDocument={pdfDocument}
               enableAreaSelection={event => event.altKey}
-              onSelectionFinished={this.onSelectionFinished}
+              submitHighlight={this.submitComment}
               highlightTransform={this.highlightTransform}
               isVertical={isVertical}
               onReferenceEnter={e => {

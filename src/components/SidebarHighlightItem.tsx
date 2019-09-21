@@ -79,8 +79,8 @@ const SidebarHighlightItem = React.forwardRef<HTMLDivElement, CommentProps>(
     };
 
     const visibility = (
-      <Tooltip title={capitalize(highlight.visibility)} placement="top">
-        <i className={visibiltyToIcon[highlight.visibility]} />
+      <Tooltip title={capitalize(highlight.visibility.type)} placement="top">
+        <i className={visibiltyToIcon[highlight.visibility.type]} />
       </Tooltip>
     );
 

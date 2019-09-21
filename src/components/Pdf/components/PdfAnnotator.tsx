@@ -19,6 +19,9 @@ import {
   T_Highlight,
   T_LTWH,
   T_Scaled,
+  T_NewHighlight,
+  T_ScaledPosition,
+  Visibility,
 } from '../../../models';
 import { store } from '../../../store';
 import { APP_BAR_HEIGHT } from '../../TopBar/PrimaryAppBar';
@@ -32,6 +35,7 @@ import '../style/PdfHighlighter.css';
 import '../style/pdf_viewer.css';
 import MouseSelection from './MouseSelection';
 import TipContainer from './TipContainer';
+import Tip from './Tip';
 
 const zoomButtonCss = css`
   color: black;
@@ -70,12 +74,7 @@ interface PdfAnnotatorProps {
   ) => void;
   highlights: T_Highlight[];
   acronyms: Acronyms;
-  onSelectionFinished: (
-    position: T_Highlight['position'],
-    content: T_Highlight['content'],
-    hideTipAndSelection: () => void,
-    transformSelection: () => void,
-  ) => void;
+  submitHighlight: (data: T_NewHighlight, onSuccess: () => void) => void;
   updateReadingProgress: (progress: number) => void;
   clearJumpTo: () => void;
   jumpData: JumpToData;
@@ -98,7 +97,7 @@ const PdfAnnotator: React.FC<PdfAnnotatorProps> = ({
   highlightTransform,
   highlights,
   acronyms,
-  onSelectionFinished,
+  submitHighlight,
   updateReadingProgress,
   clearJumpTo,
   jumpData,
@@ -214,19 +213,11 @@ const PdfAnnotator: React.FC<PdfAnnotatorProps> = ({
 
     const viewportPosition = { boundingRect, rects, pageNumber: page.number };
 
-    const content = {
+    const content: T_NewHighlight['content'] = {
       text: newRange.toString(),
     };
     const scaledPosition = viewportPositionToScaled(viewportPosition);
-    renderTipAtPosition(
-      viewportPosition,
-      onSelectionFinished(
-        scaledPosition,
-        content,
-        () => hideTipAndSelection(),
-        () => setGhostHighlight({ position: scaledPosition }),
-      ),
-    );
+    renderTipAtPosition(viewportPosition, scaledPosition, content);
   }, 30);
 
   const onTextSelectionChange = () => {
@@ -244,12 +235,16 @@ const PdfAnnotator: React.FC<PdfAnnotatorProps> = ({
 
     return {
       boundingRect: viewportToScaled(boundingRect, viewport),
-      rects: (rects || []).map((rect: any) => viewportToScaled(rect, viewport)),
+      rects: (rects || []).map(rect => viewportToScaled(rect, viewport)),
       pageNumber,
     };
   };
 
-  const renderTipAtPosition = (position: SelectionPosition, inner: any) => {
+  const renderTipAtPosition = (
+    position: SelectionPosition,
+    scaledPosition: T_ScaledPosition,
+    content: T_NewHighlight['content'],
+  ) => {
     const { boundingRect, pageNumber } = position;
     const page = { node: viewer.current.getPageView(pageNumber - 1).div };
     const pageBoundingRect = page.node.getBoundingClientRect();
@@ -265,7 +260,19 @@ const PdfAnnotator: React.FC<PdfAnnotatorProps> = ({
             top: boundingRect.top + page.node.offsetTop,
             bottom: boundingRect.top + page.node.offsetTop + boundingRect.height,
           }}
-          children={inner}
+          children={[
+            <Tip
+              onOpen={() => {
+                setGhostHighlight({
+                  position: scaledPosition,
+                  content,
+                });
+              }}
+              onConfirm={(comment: T_Highlight['comment'], visibility: Visibility) =>
+                submitHighlight({ comment, visibility, content, position: scaledPosition }, hideTipAndSelection)
+              }
+            />,
+          ]}
         />
       </Provider>,
       tipNode,
@@ -292,20 +299,7 @@ const PdfAnnotator: React.FC<PdfAnnotatorProps> = ({
     const scaledPosition = viewportPositionToScaled(viewportPosition);
 
     const image = screenshot(pageBoundingRect, page.number);
-    renderTipAtPosition(
-      viewportPosition,
-      onSelectionFinished(
-        scaledPosition,
-        { image },
-        () => hideTipAndSelection(),
-        () => {
-          setGhostHighlight({
-            position: scaledPosition,
-            content: { image },
-          });
-        },
-      ),
-    );
+    renderTipAtPosition(viewportPosition, scaledPosition, { image });
   };
 
   const groupHighlightsByPage = () => {

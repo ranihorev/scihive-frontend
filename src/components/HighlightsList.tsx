@@ -1,20 +1,18 @@
 /** @jsx jsx */
 import { css, jsx } from '@emotion/core';
-import useReactRouter from 'use-react-router';
-import React, { useEffect, useState } from 'react';
-
-import Tooltip from '@material-ui/core/Tooltip';
 import IconButton from '@material-ui/core/IconButton';
+import Tooltip from '@material-ui/core/Tooltip';
+import axios from 'axios';
+import { isEmpty } from 'lodash';
+import React, { useEffect, useState } from 'react';
 import { useCookies } from 'react-cookie';
 import { connect } from 'react-redux';
-import axios from 'axios';
-import { withRouter } from 'react-router';
-import { isEmpty } from 'lodash';
-import SidebarHighlightItem from './SidebarHighlightItem';
-import { linkButton, themePalette } from '../utils/presets';
-import { actions } from '../actions';
-import { T_Highlight, T_ScaledPosition, RootState, PaperIdParams, JumpToData } from '../models';
 import { Dispatch } from 'redux';
+import useReactRouter from 'use-react-router';
+import { actions } from '../actions';
+import { JumpToData, RootState, T_Highlight, T_ScaledPosition } from '../models';
+import { linkButton, themePalette } from '../utils/presets';
+import SidebarHighlightItem from './SidebarHighlightItem';
 
 const WELCOME_COOKIE = 'comments-welcome';
 

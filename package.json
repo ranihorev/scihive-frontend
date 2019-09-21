@@ -48,7 +48,8 @@
     "redux-devtools-extension": "^2.13.8",
     "redux-thunk": "^2.3.0",
     "typescript": "^3.6.2",
-    "use-deep-compare-effect": "^1.2.0"
+    "use-deep-compare-effect": "^1.2.0",
+    "use-react-router": "^1.0.7"
   },
   "scripts": {
     "start": "react-scripts start",

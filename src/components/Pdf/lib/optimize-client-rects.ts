@@ -31,7 +31,7 @@ const extendWidth = (A: T_LTWH, B: T_LTWH) => {
   A.width = Math.max(B.width - A.left + B.left, A.width);
 };
 
-const optimizeClientRects = (clientRects: Array<T_LTWH>): Array<T_LTWH> => {
+const optimizeClientRects = (clientRects: T_LTWH[]): T_LTWH[] => {
   const rects = sort(clientRects);
 
   const toRemove = new Set();

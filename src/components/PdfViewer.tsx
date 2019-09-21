@@ -11,7 +11,18 @@ import { Link } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import { Dispatch } from 'redux';
 import { actions } from '../actions';
-import { Reference, References, RootState, Section, T_Highlight, T_LTWH, T_Scaled, Visibility } from '../models';
+import {
+  Reference,
+  References,
+  RootState,
+  Section,
+  T_Highlight,
+  T_LTWH,
+  T_Scaled,
+  Visibility,
+  T_NewHighlight,
+  PaperIdParams,
+} from '../models';
 import { presets } from '../utils';
 import { popupCss } from '../utils/presets';
 import { AreaHighlight, Highlight, PdfAnnotator, PdfLoader, Tip } from './Pdf';
@@ -36,7 +47,7 @@ const HighlightPopup: React.FC<T_Highlight> = ({ content, comment }) => {
       </span>
     );
   }
-  if (comment.text) {
+  if (comment && comment.text) {
     return (
       <div>
         <Paper css={popupCss}>
@@ -131,7 +142,7 @@ interface PdfViewerProps extends RouteComponentProps {
   clearJumpTo: () => void;
   jumpToComment: (id: string) => void;
   updateHighlight: (highlight: T_Highlight) => void;
-  match: RouteComponentProps<{ PaperId: string }>['match'];
+  match: PaperIdParams;
 }
 
 interface PdfViewerState {
@@ -160,6 +171,23 @@ class PdfViewer extends Component<PdfViewerProps, PdfViewerState> {
     //   }
     // }
   }
+
+  submitComment = (data: T_NewHighlight, onSuccess: () => void) => {
+    // const data = { comment, position, content, visibility };
+    const self = this;
+    const {
+      match: { params },
+    } = this.props;
+    axios
+      .post(`/paper/${params.PaperId}/new_comment`, data)
+      .then(res => {
+        self.props.addHighlight(res.data.comment);
+        onSuccess();
+      })
+      .catch(err => {
+        console.log(err.response);
+      });
+  };
 
   onSelectionFinished = (
     position: T_Highlight['position'],

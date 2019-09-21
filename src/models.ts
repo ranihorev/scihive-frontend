@@ -1,4 +1,5 @@
 import { PDFDocumentProxy, TextContentItem } from 'pdfjs-dist';
+import { RouteComponentProps } from 'react-router';
 
 export interface T_LTWH {
   left: number;
@@ -48,8 +49,20 @@ export interface T_NewHighlight {
   };
 }
 
+export interface Reply {
+  id: string;
+  user: string;
+  text: string;
+  createdAt: string;
+}
+
 export interface T_Highlight extends T_NewHighlight {
   id: string;
+  createdAt: string;
+  replies: any;
+  user: any;
+  canEdit: boolean;
+  visibility: VisibilityType;
 }
 
 export type OptionalExceptFor<T, TRequired extends keyof T> = Partial<T> & Pick<T, TRequired>;
@@ -120,6 +133,8 @@ interface HighlightPaperJump extends BasePaperJump {
   type: 'highlight';
   location: T_ScaledPosition;
 }
+
+export type PaperIdParams = RouteComponentProps<{ PaperId: string }>['match'];
 
 type PaperJump = SectionPaperJump | HighlightPaperJump;
 

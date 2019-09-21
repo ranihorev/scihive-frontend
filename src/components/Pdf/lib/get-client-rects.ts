@@ -1,7 +1,7 @@
 import { T_LTWH } from '../../../models';
 import optimizeClientRects from './optimize-client-rects';
 
-const getClientRects = (range: Range, containerEl: HTMLElement, shouldOptimize: boolean = true): Array<T_LTWH> => {
+const getClientRects = (range: Range, containerEl: HTMLElement, shouldOptimize: boolean = true): T_LTWH[] => {
   let clientRects = Array.from(range.getClientRects());
 
   const offset = containerEl.getBoundingClientRect();

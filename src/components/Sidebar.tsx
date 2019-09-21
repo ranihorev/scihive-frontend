@@ -6,7 +6,7 @@ import IconButton from '@material-ui/core/IconButton';
 import Tabs from '@material-ui/core/Tabs';
 import Tab from '@material-ui/core/Tab';
 import { presets } from '../utils';
-import CommentsList from './CommentsList';
+import HighlightsList from './HighlightsList';
 import { PaperSections } from './PaperSections';
 import { actions } from '../actions';
 import { Dispatch } from 'redux';
@@ -57,7 +57,7 @@ const SidebarRender: React.FC<Props> = ({
   let content = null;
   switch (selectedTab) {
     case 'Comments':
-      content = <CommentsList isVertical={isVertical} />;
+      content = <HighlightsList isVertical={isVertical} />;
       break;
     case 'Sections':
       content = <PaperSections />;

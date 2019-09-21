@@ -1,6 +1,6 @@
 /** @jsx jsx */
 import { css, jsx } from '@emotion/core';
-
+import useReactRouter from 'use-react-router';
 import React, { useEffect, useState } from 'react';
 
 import Tooltip from '@material-ui/core/Tooltip';
@@ -10,12 +10,12 @@ import { connect } from 'react-redux';
 import axios from 'axios';
 import { withRouter } from 'react-router';
 import { isEmpty } from 'lodash';
-import Comment from './Comment';
+import SidebarHighlightItem from './SidebarHighlightItem';
 import { linkButton, themePalette } from '../utils/presets';
 import { actions } from '../actions';
+import { T_Highlight, T_ScaledPosition, RootState, PaperIdParams, JumpToData } from '../models';
+import { Dispatch } from 'redux';
 
-const refs = {};
-const containerRef = React.createRef();
 const WELCOME_COOKIE = 'comments-welcome';
 
 const floatingIconCss = css`
@@ -23,28 +23,41 @@ const floatingIconCss = css`
   font-size: 14px;
 `;
 
-function CommentsList({
+interface CommentsListProps {
+  highlights: T_Highlight[];
+  removeHighlight: (highlightId: string) => void;
+  updateHighlight: (highlight: T_Highlight) => void;
+  toggleHighlightsVisiblity: () => void;
+  isHighlightsHidden: boolean;
+  jumpToHighlight: (id: string, location: T_ScaledPosition) => void;
+  isVertical: boolean;
+  jumpData?: JumpToData;
+}
+
+const HighlightsList: React.FC<CommentsListProps> = ({
   highlights,
   removeHighlight: removeHighlightAction,
   updateHighlight,
   toggleHighlightsVisiblity,
   isHighlightsHidden,
-  match: { params },
   jumpToHighlight,
   isVertical,
   jumpData,
-}) {
+}) => {
   const [focusedId, setFocusedId] = useState();
+  const containerRef = React.useRef<HTMLDivElement>(null);
+  const highlightsRef = React.useRef<{ [key: string]: React.RefObject<HTMLDivElement> }>({});
+  const {
+    match: { params },
+  } = useReactRouter();
 
-  const removeHighlight = highlightId => {
+  const removeHighlight = (highlightId: string) => {
     axios
-      .delete(`/paper/${params.PaperId}/comment/${highlightId}`, {
-        id: highlightId,
-      })
+      .delete(`/paper/${params.PaperId}/comment/${highlightId}`)
       .then(() => {
         removeHighlightAction(highlightId);
       })
-      .catch(err => console.log(err.response));
+      .catch((err: any) => console.log(err.response));
   };
 
   // Event listener to hash change
@@ -52,7 +65,9 @@ function CommentsList({
     if (!jumpData || jumpData.type !== 'comment') return;
     const highlight = highlights.find(h => h.id === jumpData.id);
     if (highlight && containerRef.current) {
-      containerRef.current.scrollTop = refs[highlight.id].offsetTop - 10;
+      const highlightRef = highlightsRef.current[highlight.id];
+      if (!highlightRef || !highlightRef.current) return;
+      containerRef.current.scrollTop = highlightRef.current.offsetTop - 10;
       setFocusedId(highlight.id);
       setTimeout(() => {
         setFocusedId(null);
@@ -61,7 +76,7 @@ function CommentsList({
   }, [jumpData]);
 
   highlights.forEach(h => {
-    refs[h.id] = React.createRef();
+    highlightsRef.current[h.id] = React.createRef<HTMLDivElement>();
   });
 
   const [cookies, setCookie] = useCookies([WELCOME_COOKIE]);
@@ -99,19 +114,19 @@ function CommentsList({
         ref={containerRef}
       >
         {Welcome}
-        {highlights.map(highlight => (
-          <Comment
-            key={highlight.id}
-            isFocused={highlight.id === focusedId}
-            setRef={el => {
-              refs[highlight.id] = el;
-            }}
-            highlight={highlight}
-            removeHighlight={removeHighlight}
-            updateHighlight={updateHighlight}
-            jumpToHighlight={() => jumpToHighlight(highlight.id, highlight.position)}
-          />
-        ))}
+        {highlights.map(highlight => {
+          return (
+            <SidebarHighlightItem
+              key={highlight.id}
+              isFocused={highlight.id === focusedId}
+              ref={highlightsRef.current[highlight.id]}
+              highlight={highlight}
+              removeHighlight={removeHighlight}
+              updateHighlight={updateHighlight}
+              jumpToHighlight={() => jumpToHighlight(highlight.id, highlight.position)}
+            />
+          );
+        })}
       </div>
       <div
         css={css`
@@ -136,9 +151,9 @@ function CommentsList({
       </div>
     </React.Fragment>
   );
-}
+};
 
-const mapStateToProps = state => {
+const mapStateToProps = (state: RootState) => {
   return {
     highlights: state.paper.highlights,
     isHighlightsHidden: !isEmpty(state.paper.hiddenHighlights),
@@ -146,18 +161,18 @@ const mapStateToProps = state => {
   };
 };
 
-const mapDispatchToProps = dispatch => {
+const mapDispatchToProps = (dispatch: Dispatch) => {
   return {
-    removeHighlight: highlightId => {
+    removeHighlight: (highlightId: string) => {
       dispatch(actions.removeHighlight(highlightId));
     },
-    updateHighlight: highlight => {
+    updateHighlight: (highlight: T_Highlight) => {
       dispatch(actions.updateHighlight(highlight));
     },
     toggleHighlightsVisiblity: () => {
       dispatch(actions.toggleHighlightsVisiblity());
     },
-    jumpToHighlight: (id, location) => {
+    jumpToHighlight: (id: string, location: T_ScaledPosition) => {
       dispatch(actions.jumpTo({ area: 'paper', type: 'highlight', id, location }));
     },
   };
@@ -167,4 +182,4 @@ const withRedux = connect(
   mapDispatchToProps,
 );
 
-export default withRouter(withRedux(CommentsList));
+export default withRedux(HighlightsList);

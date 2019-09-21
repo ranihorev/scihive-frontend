@@ -1,24 +1,24 @@
 /** @jsx jsx */
 import { css, jsx } from '@emotion/core';
-import React from 'react';
-import useReactRouter from 'use-react-router';
 import {
+  Button,
   Card,
-  CardMedia,
   CardContent,
-  Typography,
+  CardMedia,
+  Grid,
   IconButton,
   TextField,
-  Button,
-  Grid,
   Tooltip,
+  Typography,
 } from '@material-ui/core';
 import axios from 'axios';
-import Replies from './Replies';
-import get_age from './timeUtils';
+import React from 'react';
+import useReactRouter from 'use-react-router';
+import { T_Highlight, VisibilityType } from '../models';
 import NewReply from './NewReply';
+import Replies from './Replies';
 import { TextLinkifyLatex } from './TextLinkifyLatex';
-import { T_Highlight, PaperIdParams, VisibilityType } from '../models';
+import get_age from './timeUtils';
 
 const visibiltyToIcon: { [key in VisibilityType]: string } = {
   private: 'fas fa-user-shield',

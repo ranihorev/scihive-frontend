@@ -20,12 +20,12 @@ import {
   T_Highlight,
   T_LTWH,
   T_NewHighlight,
-  T_Scaled,
 } from '../models';
 import { presets } from '../utils';
 import { popupCss } from '../utils/presets';
 import { AreaHighlight, Highlight, PdfAnnotator, PdfLoader } from './Pdf';
 import { compactButtonStyle } from './Pdf/components/Tip';
+import { viewportToScaled } from './Pdf/lib/coordinates';
 import { Popup, PopupManager } from './Popup';
 import { TextLinkifyLatex } from './TextLinkifyLatex';
 
@@ -196,30 +196,28 @@ class PdfViewer extends Component<PdfViewerProps, PdfViewerState> {
   highlightTransform = (
     highlight: T_Highlight,
     index: number,
-    viewportToScaled: (rect: T_LTWH) => T_Scaled,
     screenshot: (boundingRect: T_LTWH) => string,
     isScrolledTo: boolean,
   ) => {
     const isTextHighlight = !(highlight.content && highlight.content.image);
     const component = isTextHighlight ? (
-      // @ts-ignore
       <Highlight
         isScrolledTo={isScrolledTo}
         position={highlight.position}
-        comment={highlight.comment}
         onClick={() => {
           this.props.switchSidebarToComments();
           this.onHighlightClick(highlight.id);
         }}
       />
     ) : (
-      // @ts-ignore
       <AreaHighlight
+        isScrolledTo={isScrolledTo}
         highlight={highlight}
         onChange={(boundingRect: T_LTWH) => {
+          const { width, height } = highlight.position.boundingRect;
           this.props.updateHighlight({
             ...highlight,
-            position: { ...highlight.position, boundingRect: viewportToScaled(boundingRect) },
+            position: { ...highlight.position, boundingRect: viewportToScaled(boundingRect, { width, height }) },
             content: { ...highlight.content, image: screenshot(boundingRect) },
           });
         }}

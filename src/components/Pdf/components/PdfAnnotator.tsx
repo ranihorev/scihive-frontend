@@ -18,7 +18,6 @@ import {
   OptionalExceptFor,
   T_Highlight,
   T_LTWH,
-  T_Scaled,
   T_NewHighlight,
   T_ScaledPosition,
   Visibility,
@@ -34,8 +33,14 @@ import { convertMatches, renderMatches } from '../lib/pdfSearchUtils';
 import '../style/PdfHighlighter.css';
 import '../style/pdf_viewer.css';
 import MouseSelection from './MouseSelection';
-import TipContainer from './TipContainer';
 import Tip from './Tip';
+import TipContainer from './TipContainer';
+
+interface SelectionPosition {
+  pageNumber: number;
+  boundingRect: T_LTWH;
+  rects: T_LTWH[];
+}
 
 const zoomButtonCss = css`
   color: black;
@@ -68,7 +73,7 @@ interface PdfAnnotatorProps {
     index: number,
     // setTip: (highlight: T_Highlight, callback: (h: T_Highlight) => void) => void,,
     // hideTip: () => void,
-    viewportToScaled: (rect: T_LTWH) => T_Scaled,
+    // viewportToScaled: (rect: T_LTWH) => T_Scaled,
     screenshot: (boundingRect: T_LTWH) => string,
     isScrolledTo: boolean,
   ) => void;
@@ -80,13 +85,7 @@ interface PdfAnnotatorProps {
   jumpData: JumpToData;
 }
 
-interface SelectionPosition {
-  pageNumber: number;
-  boundingRect: T_LTWH;
-  rects: T_LTWH[];
-}
-
-type GhostHighlight = OptionalExceptFor<T_Highlight, 'position'>;
+type GhostHighlight = OptionalExceptFor<T_NewHighlight, 'position'>;
 
 const PdfAnnotator: React.FC<PdfAnnotatorProps> = ({
   pdfDocument,
@@ -142,7 +141,7 @@ const PdfAnnotator: React.FC<PdfAnnotatorProps> = ({
     if (jumpData.type !== 'highlight') {
       throw Error('Wrong jump type');
     }
-    const { pageNumber, boundingRect, usePdfCoordinates } = jumpData.location;
+    const { pageNumber, boundingRect } = jumpData.location;
     const pageViewport = viewer.current.getPageView(pageNumber - 1).viewport;
 
     const scrollMargin = 10;
@@ -154,7 +153,8 @@ const PdfAnnotator: React.FC<PdfAnnotatorProps> = ({
         { name: 'XYZ' },
         ...pageViewport.convertToPdfPoint(
           0,
-          scaledToViewport(boundingRect, pageViewport, usePdfCoordinates).top - scrollMargin,
+          // @ts-ignore
+          scaledToViewport(boundingRect, pageViewport, false).top - scrollMargin,
         ),
         0,
       ],
@@ -216,8 +216,7 @@ const PdfAnnotator: React.FC<PdfAnnotatorProps> = ({
     const content: T_NewHighlight['content'] = {
       text: newRange.toString(),
     };
-    const scaledPosition = viewportPositionToScaled(viewportPosition);
-    renderTipAtPosition(viewportPosition, scaledPosition, content);
+    renderTipAtPosition(viewportPosition, content);
   }, 30);
 
   const onTextSelectionChange = () => {
@@ -240,15 +239,12 @@ const PdfAnnotator: React.FC<PdfAnnotatorProps> = ({
     };
   };
 
-  const renderTipAtPosition = (
-    position: SelectionPosition,
-    scaledPosition: T_ScaledPosition,
-    content: T_NewHighlight['content'],
-  ) => {
+  const renderTipAtPosition = (position: SelectionPosition, content: T_NewHighlight['content']) => {
     const { boundingRect, pageNumber } = position;
     const page = { node: viewer.current.getPageView(pageNumber - 1).div };
     const pageBoundingRect = page.node.getBoundingClientRect();
     const tipNode = findOrCreateContainerLayer(viewer.current.viewer, 'PdfHighlighter__tip-layer');
+    const scaledPosition = viewportPositionToScaled(position);
 
     ReactDom.render(
       <Provider store={store}>
@@ -296,10 +292,8 @@ const PdfAnnotator: React.FC<PdfAnnotatorProps> = ({
       pageNumber: page.number,
     };
 
-    const scaledPosition = viewportPositionToScaled(viewportPosition);
-
     const image = screenshot(pageBoundingRect, page.number);
-    renderTipAtPosition(viewportPosition, scaledPosition, { image });
+    renderTipAtPosition(viewportPosition, { image });
   };
 
   const groupHighlightsByPage = () => {
@@ -313,7 +307,7 @@ const PdfAnnotator: React.FC<PdfAnnotatorProps> = ({
     return highlightsByPage;
   };
 
-  const scaledPositionToViewport = ({ pageNumber, boundingRect, rects, usePdfCoordinates }: any) => {
+  const scaledPositionToViewport = ({ pageNumber, boundingRect, rects, usePdfCoordinates }: T_ScaledPosition) => {
     const { viewport } = viewer.current.getPageView(pageNumber - 1);
 
     return {
@@ -354,11 +348,11 @@ const PdfAnnotator: React.FC<PdfAnnotatorProps> = ({
                 //   showTip(curHighlight, callback(curHighlight));
                 // },
                 // hideTipAndSelection,
-                (rect: T_LTWH) => {
-                  const { viewport } = viewer.current.getPageView(pageNumber - 1);
+                // (rect: T_LTWH) => {
+                //   const { viewport } = viewer.current.getPageView(pageNumber - 1);
 
-                  return viewportToScaled(rect, viewport);
-                },
+                //   return viewportToScaled(rect, viewport);
+                // },
                 (boundingRect: T_LTWH) => screenshot(boundingRect, pageNumber),
                 isScrolledTo,
               );

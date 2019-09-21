@@ -1,3 +1,5 @@
+import { PDFDocumentProxy, TextContentItem } from 'pdfjs-dist';
+
 export interface T_LTWH {
   left: number;
   top: number;
@@ -23,6 +25,18 @@ export interface T_ScaledPosition {
   usePdfCoordinates?: boolean;
 }
 
+export interface SimplePosition {
+  pageNumber: number;
+  position: number;
+}
+
+export type VisibilityType = 'public' | 'private' | 'anonymous' | 'group';
+
+export interface Visibility {
+  type: VisibilityType;
+  id?: string;
+}
+
 export interface T_NewHighlight {
   position: T_ScaledPosition;
   content: {
@@ -38,8 +52,21 @@ export interface T_Highlight extends T_NewHighlight {
   id: string;
 }
 
-export type Acronym = { [pageIdx: number]: number[] };
-export type Acronyms = { [key: string]: Acronym };
+export type OptionalExceptFor<T, TRequired extends keyof T> = Partial<T> & Pick<T, TRequired>;
+
+export interface TipObject {
+  highlight: T_Highlight;
+  callback: (h: T_Highlight) => void;
+}
+
+export interface Acronyms {
+  [key: string]: string;
+}
+export interface AcronymPositions {
+  [key: string]: {
+    [pageNumber: number]: number[];
+  };
+}
 
 export interface Category {
   key: string;
@@ -58,10 +85,7 @@ export interface Group {
   created_at: string;
 }
 
-export interface Section {
-  height: number;
-  str: string;
-  fontName: string;
+export interface Section extends TextContentItem {
   page: number;
 }
 
@@ -75,6 +99,31 @@ export interface References {
 }
 
 export type SidebarTab = 'Sections' | 'Comments';
+
+interface CommentJump {
+  id: string;
+  type: 'comment';
+  area: 'sidebar';
+}
+
+interface BasePaperJump {
+  id: string;
+  area: 'paper';
+}
+
+interface SectionPaperJump extends BasePaperJump {
+  type: 'section';
+  location: SimplePosition;
+}
+
+interface HighlightPaperJump extends BasePaperJump {
+  type: 'highlight';
+  location: T_ScaledPosition;
+}
+
+type PaperJump = SectionPaperJump | HighlightPaperJump;
+
+export type JumpToData = PaperJump | CommentJump;
 
 export interface RootState {
   user: {
@@ -91,14 +140,14 @@ export interface RootState {
   paper: {
     readingProgress: number;
     isBookmarked: boolean;
-    document?: any;
-    sections?: any[];
+    document?: PDFDocumentProxy;
+    sections?: Section[];
     references: References;
     highlights: T_Highlight[];
-    hiddenHighlights: any[];
+    hiddenHighlights: T_Highlight[];
     acronyms: {};
     sidebarTab: SidebarTab;
-    jumpData: {};
+    jumpData?: JumpToData;
     codeMeta?: CodeMeta;
   };
   papersList: {

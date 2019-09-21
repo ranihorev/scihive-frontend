@@ -1,16 +1,19 @@
 /** @jsx jsx */
 import { css, jsx } from '@emotion/core';
+import { isEmpty, range } from 'lodash';
+import { PDFDocumentProxy, PDFPageProxy, PDFPromise, TextContent } from 'pdfjs-dist';
 import React from 'react';
 import ContentLoader from 'react-content-loader';
 import { connect } from 'react-redux';
-import { withRouter } from 'react-router';
-import { range, isEmpty } from 'lodash';
-import { presets, getSectionPosition } from '../utils';
+import { RouteComponentProps, withRouter } from 'react-router';
+import { Dispatch } from 'redux';
 import { actions } from '../actions';
+import { RootState, Section, SimplePosition } from '../models';
+import { getSectionPosition, presets } from '../utils';
 
-const asc = arr => arr.sort((a, b) => a - b);
+const asc = (arr: number[]) => arr.sort((a, b) => a - b);
 
-const quantile = (arr, q) => {
+const quantile = (arr: number[], q: number) => {
   const sorted = asc(arr);
   const pos = (sorted.length - 1) * q;
   const base = Math.floor(pos);
@@ -21,7 +24,7 @@ const quantile = (arr, q) => {
   return sorted[base];
 };
 
-const maxKey = obj => Object.keys(obj).reduce((a, b) => (obj[a] > obj[b] ? a : b));
+const maxKey = (obj: { [key: string]: number }) => Object.keys(obj).reduce((a, b) => (obj[a] > obj[b] ? a : b));
 
 const PlaceholderList = () => {
   return (
@@ -32,7 +35,7 @@ const PlaceholderList = () => {
       `}
     >
       {range(0, 5).map(idx => (
-        <ContentLoader key={idx} height="100">
+        <ContentLoader key={idx} height={100}>
           <React.Fragment>
             <rect x="0" y="0" rx="3" ry="3" width="90%" height="13" />
             <rect x="0" y="30" rx="3" ry="3" width="80%" height="13" />
@@ -44,19 +47,19 @@ const PlaceholderList = () => {
   );
 };
 
-export const extractSections = (document, onSuccess) => {
-  const allHeights = [];
-  let optionalSections = [];
-  const fontsCount = {};
+export const extractSections = (document: PDFDocumentProxy, onSuccess: (sections: Section[]) => void) => {
+  const allHeights: number[] = [];
+  let optionalSections: Section[] = [];
+  const fontsCount: { [key: string]: number } = {};
 
-  const pagePromises = [];
+  const pagePromises: PDFPromise<PDFPageProxy>[] = [];
   for (let i = 1; i <= document.numPages; i += 1) {
     pagePromises.push(document.getPage(i));
   }
-  let contentPromises = [];
-  Promise.all(pagePromises).then(allPages => {
-    contentPromises = allPages.map(page => page.getTextContent());
-    Promise.all(contentPromises).then(allContent => {
+  // We cast as unknown because we're too lazy to fight with TS
+  Promise.all((pagePromises as unknown) as Promise<PDFPageProxy>[]).then(allPages => {
+    const contentPromises = allPages.map(page => page.getTextContent());
+    Promise.all((contentPromises as unknown) as Promise<TextContent>[]).then(allContent => {
       allContent.forEach((content, pageIdx) => {
         content.items.forEach(text => {
           allHeights.push(text.height);
@@ -85,8 +88,17 @@ export const extractSections = (document, onSuccess) => {
       let sectionFound;
       for (const section of optionalSections) {
         sectionFound = false;
-        const sectionNumber = section.str.match(/^(\d+\.?)+/)[0];
+        const matches = section.str.match(/^(\d+\.?)+/);
+        if (!matches) {
+          console.warn('No matches for section', section);
+          continue;
+        }
+        const sectionNumber = matches[0];
         const splitNumbers = sectionNumber.match(/\d+/g);
+        if (!splitNumbers) {
+          console.warn('No numbers in section', section);
+          continue;
+        }
         if (!lastSectionSplit) {
           if (splitNumbers[0] === '1') {
             sectionFound = true;
@@ -170,7 +182,12 @@ export const extractSections = (document, onSuccess) => {
   });
 };
 
-const PaperSectionsRender = ({ sections, jumpToSection, history }) => {
+interface PaperSectionsProps extends RouteComponentProps {
+  sections?: Section[];
+  jumpToSection: (index: number, location: { pageNumber: number; position: number }) => void;
+}
+
+const PaperSectionsRender: React.FC<PaperSectionsProps> = ({ sections, jumpToSection, history }) => {
   return (
     <div
       css={css`
@@ -211,15 +228,17 @@ const PaperSectionsRender = ({ sections, jumpToSection, history }) => {
   );
 };
 
-const mapStateToProps = state => {
+const mapStateToProps = (state: RootState) => {
   return {
     sections: state.paper.sections,
   };
 };
 
-const mapDispatchToProps = dispatch => {
+const mapDispatchToProps = (dispatch: Dispatch) => {
   return {
-    jumpToSection: (id, location) => dispatch(actions.jumpTo({ area: 'paper', type: 'section', id, location })),
+    jumpToSection: (id: number, location: SimplePosition) => {
+      dispatch(actions.jumpTo({ area: 'paper', type: 'section', id: id.toString(), location }));
+    },
   };
 };
 

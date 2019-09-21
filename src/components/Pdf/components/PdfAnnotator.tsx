@@ -1,39 +1,38 @@
 /** @jsx jsx */
 import { css, jsx } from '@emotion/core';
-
-import React from 'react';
-import ReactDom from 'react-dom';
+import Fab from '@material-ui/core/Fab';
+import { cloneDeep, debounce, isEmpty } from 'lodash';
+import { PDFDocumentProxy } from 'pdfjs-dist';
 // @ts-ignore
 import { PDFFindController, PDFLinkService, PDFViewer } from 'pdfjs-dist/web/pdf_viewer';
 import 'pdfjs-dist/web/pdf_viewer.css';
-import Fab from '@material-ui/core/Fab';
+import React from 'react';
+import ReactDom from 'react-dom';
 import { connect, Provider } from 'react-redux';
-import { cloneDeep, debounce, isEmpty } from 'lodash';
-import getBoundingRect from '../lib/get-bounding-rect';
-import getClientRects from '../lib/get-client-rects';
-import getAreaAsPng from '../lib/get-area-as-png';
-
-import '../style/pdf_viewer.css';
-import '../style/PdfHighlighter.css';
-
-import { findOrCreateContainerLayer, getPageFromElement, getPageFromRange } from '../lib/pdfjs-dom';
-
-import TipContainer from './TipContainer';
-import MouseSelection from './MouseSelection';
-
-import { scaledToViewport, viewportToScaled } from '../lib/coordinates';
-
+import { Dispatch } from 'redux';
+import { actions } from '../../../actions';
+import {
+  AcronymPositions,
+  Acronyms,
+  JumpToData,
+  OptionalExceptFor,
+  TipObject,
+  T_Highlight,
+  T_LTWH,
+  T_Scaled,
+} from '../../../models';
 import { store } from '../../../store';
 import { APP_BAR_HEIGHT } from '../../TopBar/PrimaryAppBar';
-import { actions } from '../../../actions';
+import { scaledToViewport, viewportToScaled } from '../lib/coordinates';
+import getAreaAsPng from '../lib/get-area-as-png';
+import getBoundingRect from '../lib/get-bounding-rect';
+import getClientRects from '../lib/get-client-rects';
+import { findOrCreateContainerLayer, getPageFromElement, getPageFromRange } from '../lib/pdfjs-dom';
 import { convertMatches, renderMatches } from '../lib/pdfSearchUtils';
-import { Dispatch } from 'redux';
-import { Acronyms, T_Highlight, T_LTWH } from '../../../models';
-
-interface TipObject {
-  highlight: T_Highlight;
-  callback: (h: T_Highlight) => void;
-}
+import '../style/PdfHighlighter.css';
+import '../style/pdf_viewer.css';
+import MouseSelection from './MouseSelection';
+import TipContainer from './TipContainer';
 
 const zoomButtonCss = css`
   color: black;
@@ -55,7 +54,37 @@ const ZoomButtom = ({ direction, onClick }: any) => (
   </div>
 );
 
-const PdfAnnotator = ({
+interface PdfAnnotatorProps {
+  pdfDocument: PDFDocumentProxy;
+  isVertical: boolean;
+  enableAreaSelection: (event: MouseEvent) => boolean;
+  onReferenceEnter: (event: React.MouseEvent) => void;
+  onReferenceLeave?: () => void;
+  highlightTransform: (
+    highlight: T_Highlight,
+    index: number,
+    // setTip: (highlight: T_Highlight, callback: (h: T_Highlight) => void) => void,,
+    // hideTip: () => void,
+    viewportToScaled: (rect: T_LTWH) => T_Scaled,
+    screenshot: (boundingRect: T_LTWH) => string,
+    isScrolledTo: boolean,
+  ) => void;
+  highlights: T_Highlight[];
+  acronyms: Acronyms;
+  onSelectionFinished: (
+    position: T_Highlight['position'],
+    content: T_Highlight['content'],
+    hideTipAndSelection: () => void,
+    transformSelection: () => void,
+  ) => void;
+  updateReadingProgress: (progress: number) => void;
+  clearJumpTo: () => void;
+  jumpData: JumpToData;
+}
+
+type GhostHighlight = OptionalExceptFor<T_Highlight, 'position'>;
+
+const PdfAnnotator: React.FC<PdfAnnotatorProps> = ({
   pdfDocument,
   isVertical,
   enableAreaSelection,
@@ -68,8 +97,8 @@ const PdfAnnotator = ({
   updateReadingProgress,
   clearJumpTo,
   jumpData,
-}: any) => {
-  const [ghostHighlight, setGhostHighlight] = React.useState<object>();
+}) => {
+  const [ghostHighlight, setGhostHighlight] = React.useState<GhostHighlight>();
   const [isCollapsed, setIsCollapsed] = React.useState(true);
   const [range, setRange] = React.useState<Range>();
   const [tip, setTip] = React.useState<TipObject>();
@@ -79,7 +108,7 @@ const PdfAnnotator = ({
   const [requestRender, setRequestRender] = React.useState(false);
   const pagesToRenderAcronyms = React.useRef<any[]>([]);
   const [firstPageRendered, setFirstPageRendered] = React.useState(false);
-  const [acronymPositions, setAcronymPositions] = React.useState<Acronyms>({});
+  const [acronymPositions, setAcronymPositions] = React.useState<AcronymPositions>({});
 
   const viewer = React.useRef<PDFViewer>(null);
   const linkService = React.useRef<PDFLinkService>(null);
@@ -106,6 +135,13 @@ const PdfAnnotator = ({
   };
 
   const scrollToHighLight = () => {
+    if (jumpData.area !== 'paper') {
+      console.warn('Incorrect jump data', jumpData);
+      return;
+    }
+    if (jumpData.type !== 'highlight') {
+      throw Error('Wrong jump type');
+    }
     const { pageNumber, boundingRect, usePdfCoordinates } = jumpData.location;
     const pageViewport = viewer.current.getPageView(pageNumber - 1).viewport;
 
@@ -132,8 +168,11 @@ const PdfAnnotator = ({
     if (jumpData.type === 'highlight') {
       scrollToHighLight();
     } else {
+      // @ts-ignore
       if (!jumpData.location || !jumpData.location.pageNumber || !jumpData.location.position)
         throw Error('Position is missing');
+      console.log(jumpData);
+      // @ts-ignore
       const { pageNumber, position } = jumpData.location;
 
       viewer.current.scrollPageIntoView({
@@ -251,14 +290,14 @@ const PdfAnnotator = ({
   };
 
   const groupHighlightsByPage = () => {
-    return [...highlights, ghostHighlight].filter(Boolean).reduce((res, highlight) => {
-      const { pageNumber } = highlight.position;
-
-      res[pageNumber] = res[pageNumber] || [];
-      res[pageNumber].push(highlight);
-
-      return res;
-    }, {});
+    const allHighlight = ghostHighlight ? [...highlights, ghostHighlight] : highlights;
+    const highlightsByPage: { [page: number]: (T_Highlight | GhostHighlight)[] } = {};
+    for (const h of allHighlight) {
+      const { pageNumber } = h.position;
+      highlightsByPage[pageNumber] = highlightsByPage[pageNumber] || [];
+      highlightsByPage[pageNumber].push(h);
+    }
+    return highlightsByPage;
   };
 
   const scaledPositionToViewport = ({ pageNumber, boundingRect, rects, usePdfCoordinates }: any) => {
@@ -301,6 +340,7 @@ const PdfAnnotator = ({
               };
 
               if (tip && tip.highlight && tip.highlight.id === String(highlight.id)) {
+                console.log('here');
                 showTip(tip.highlight, tip.callback(viewportHighlight));
               }
 
@@ -309,11 +349,11 @@ const PdfAnnotator = ({
               return highlightTransform(
                 viewportHighlight,
                 index,
-                (curHighlight: T_Highlight, callback: (h: T_Highlight) => void) => {
-                  setTip({ highlight: curHighlight, callback });
-                  showTip(curHighlight, callback(curHighlight));
-                },
-                hideTipAndSelection,
+                // (curHighlight: T_Highlight, callback: (h: T_Highlight) => void) => {
+                //   setTip({ highlight: curHighlight, callback });
+                //   showTip(curHighlight, callback(curHighlight));
+                // },
+                // hideTipAndSelection,
                 (rect: T_LTWH) => {
                   const { viewport } = viewer.current.getPageView(pageNumber - 1);
 
@@ -431,7 +471,7 @@ const PdfAnnotator = ({
     // We are accessing private functions of findController. Not ideal...
     findController._firstPageCapability.promise.then(async () => {
       findController._extractText();
-      const tempAcronymsPos: Acronyms = {};
+      const tempAcronymsPos: AcronymPositions = {};
       for (const acronym of Object.keys(acronyms)) {
         findController._state = {
           query: acronym,

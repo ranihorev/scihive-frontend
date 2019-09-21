@@ -1,25 +1,23 @@
 /** @jsx jsx */
 import { css, jsx } from '@emotion/core';
-
-import React, { useEffect, useState } from 'react';
-import useDeepCompareEffect from 'use-deep-compare-effect';
+import CircularProgress from '@material-ui/core/CircularProgress';
 import { withStyles } from '@material-ui/core/styles';
 import axios from 'axios';
-import { withRouter } from 'react-router';
-import CircularProgress from '@material-ui/core/CircularProgress';
-import { connect } from 'react-redux';
-import * as queryString from 'query-string';
-import { toast } from 'react-toastify';
 import { isEmpty } from 'lodash';
+import * as queryString from 'query-string';
+import React, { useEffect, useState } from 'react';
 import { Helmet } from 'react-helmet';
-
-import { actions } from '../actions';
-import ReadingProgress from './ReadingProgress';
-import PdfViewer from './PdfViewer';
-import { APP_BAR_HEIGHT } from './TopBar/PrimaryAppBar';
+import { connect } from 'react-redux';
+import { withRouter } from 'react-router';
+import { toast } from 'react-toastify';
+import useDeepCompareEffect from 'use-deep-compare-effect';
 import { presets } from '../utils';
+import PdfViewer from './PdfViewer';
+import ReadingProgress from './ReadingProgress';
 import Resizer from './Resizer';
 import { CollapseButton, Sidebar } from './Sidebar';
+import { APP_BAR_HEIGHT } from './TopBar/PrimaryAppBar';
+import { actions } from '../actions';
 
 const styles = () => ({
   rootVert: {

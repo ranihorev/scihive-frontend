@@ -13,13 +13,13 @@ interface State {
   end: Coords | null;
 }
 
-type Props = {
+interface Props {
   onSelection: (startTarget: HTMLElement, boundingRect: T_LTWH, resetSelection: () => void) => void;
   onDragStart: () => void;
   onDragEnd: () => void;
   shouldStart: (event: MouseEvent) => boolean;
   onChange: (isVisible: boolean) => void;
-};
+}
 
 class MouseSelection extends Component<Props, State> {
   state: State = {

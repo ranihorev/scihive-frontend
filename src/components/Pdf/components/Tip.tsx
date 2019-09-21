@@ -1,47 +1,30 @@
 /** @jsx jsx */
 import { css, jsx } from '@emotion/core';
-
-import React, { Component } from 'react';
-import {
-  Button,
-  Checkbox,
-  FormControl,
-  FormControlLabel,
-  Input,
-  MenuItem,
-  Select,
-  TextField,
-} from '@material-ui/core';
-import { isEmpty } from 'lodash';
-import { connect } from 'react-redux';
-import { actions } from '../../../actions';
-import { presets } from '../../../utils';
-import { SelectProps } from '@material-ui/core/Select';
+import { Button, Checkbox, FormControl, FormControlLabel, Input, MenuItem, Select, TextField } from '@material-ui/core';
 import { CheckboxProps } from '@material-ui/core/Checkbox';
+import { SelectProps } from '@material-ui/core/Select';
+import { isEmpty } from 'lodash';
+import React, { Component } from 'react';
+import { connect } from 'react-redux';
 import { Dispatch } from 'redux';
-
-
-type VisiblityType = 'group' | 'public' | 'private' | 'anonymous';
+import { actions } from '../../../actions';
+import { T_Highlight, Visibility, VisibilityType } from '../../../models';
+import { presets } from '../../../utils';
 
 interface State {
   compact: boolean;
   text: string;
-  visibility: VisiblityType;
+  visibility: VisibilityType;
   anonymous: boolean;
-};
-
-interface Visibilty {
-  type: VisiblityType;
-  id?: string;
-};
+}
 
 interface Props {
-  onConfirm: (comment: { text: string }, visibility: Visibilty) => void,
-  onOpen: () => void,
-  isLoggedIn: boolean,
-  selectedGroup: { id: string, name: string },
-  openGroupsModal: () => void,
-};
+  onConfirm: (comment: T_Highlight['comment'], visibility: Visibility) => void;
+  onOpen: () => void;
+  isLoggedIn: boolean;
+  selectedGroup: { id: string; name: string };
+  openGroupsModal: () => void;
+}
 
 export const compactButtonStyle = css`
   cursor: pointer;
@@ -87,7 +70,7 @@ class Tip extends Component<Props, State> {
   onSubmit = (event: React.MouseEvent | React.FormEvent) => {
     const { text, visibility, anonymous } = this.state;
     event.preventDefault();
-    let requestVisibility: Visibilty;
+    let requestVisibility: Visibility;
     if (visibility === 'public' && anonymous) {
       requestVisibility = { type: 'anonymous' };
     } else if (visibility === 'group') {
@@ -99,7 +82,7 @@ class Tip extends Component<Props, State> {
   };
 
   handleVisibilityChange: SelectProps['onChange'] = event => {
-    this.setState({ visibility: event.target.value as VisiblityType });
+    this.setState({ visibility: event.target.value as VisibilityType });
   };
 
   handleAnonymousChange: CheckboxProps['onChange'] = event => {
@@ -119,10 +102,10 @@ class Tip extends Component<Props, State> {
                 this.setState({ compact: false });
               }}
             >
-              <i className="fas fa-comment-medical"/>
+              <i className="fas fa-comment-medical" />
             </CompactTipButton>
             <CompactTipButton onClick={this.onSubmit}>
-              <i className="fas fa-highlighter"/>
+              <i className="fas fa-highlighter" />
             </CompactTipButton>
           </CompactTip>
         ) : (
@@ -135,10 +118,6 @@ class Tip extends Component<Props, State> {
               border-radius: 4px;
               box-shadow: 0 2px 4px rgba(37, 40, 43, 0.2);
               width: 290px;
-              textarea {
-                font-size: 16px;
-                height: 70px;
-              }
               input[type='submit'] {
                 margin-top: 5px;
                 font-size: large;
@@ -163,6 +142,13 @@ class Tip extends Component<Props, State> {
                     setTimeout(() => inp.focus(), 100);
                   }
                 }}
+                css={css`
+                  textarea {
+                    font-size: 16px;
+                    min-height: 70px;
+                    padding: 4px 10px;
+                  }
+                `}
               />
             </div>
             <div
@@ -183,7 +169,7 @@ class Tip extends Component<Props, State> {
               `}
             >
               <FormControl>
-                <Select value={visibility} onChange={this.handleVisibilityChange} input={<Input name="visiblity"/>}>
+                <Select value={visibility} onChange={this.handleVisibilityChange} input={<Input name="visiblity" />}>
                   {selectedGroup ? <MenuItem value="group">{selectedGroup.name}</MenuItem> : null}
                   <MenuItem value="public">Public</MenuItem>
                   <MenuItem value="private" disabled={!isLoggedIn}>

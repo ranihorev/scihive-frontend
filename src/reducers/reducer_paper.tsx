@@ -12,7 +12,6 @@ const initialState: PaperState = {
   hiddenHighlights: [],
   acronyms: {},
   sidebarTab: 'Sections',
-  jumpData: {},
 };
 
 const updateHighlight = (state: PaperState, newHighlight: T_Highlight) => {

@@ -1,23 +1,25 @@
 /** @jsx jsx */
-import { jsx, css } from '@emotion/core';
-import React, { Component } from 'react';
-import axios from 'axios';
-import { Link } from 'react-router-dom';
-import { withRouter } from 'react-router';
-import { connect } from 'react-redux';
-import { isMobile } from 'react-device-detect';
+import { css, jsx } from '@emotion/core';
 import { Paper } from '@material-ui/core';
-import * as copy from 'clipboard-copy';
+import axios from 'axios';
+import copy from 'clipboard-copy';
+import React, { Component } from 'react';
+import { isMobile } from 'react-device-detect';
+import { connect } from 'react-redux';
+import { RouteComponentProps, withRouter } from 'react-router';
+import { Link } from 'react-router-dom';
 import { toast } from 'react-toastify';
-import { PdfLoader, Tip, Highlight, AreaHighlight, PdfAnnotator } from './Pdf';
+import { Dispatch } from 'redux';
 import { actions } from '../actions';
+import { Reference, References, RootState, Section, T_Highlight, T_LTWH, T_Scaled, Visibility } from '../models';
+import { presets } from '../utils';
 import { popupCss } from '../utils/presets';
-import { TextLinkifyLatex } from './TextLinkifyLatex';
-import { presets, getSectionPosition } from '../utils';
+import { AreaHighlight, Highlight, PdfAnnotator, PdfLoader, Tip } from './Pdf';
 import { compactButtonStyle } from './Pdf/components/Tip';
-import { PopupManager, Popup } from './Popup';
+import { Popup, PopupManager } from './Popup';
+import { TextLinkifyLatex } from './TextLinkifyLatex';
 
-const HighlightPopup = ({ content, comment }) => {
+const HighlightPopup: React.FC<T_Highlight> = ({ content, comment }) => {
   let copyButton;
   const hasContent = content && content.text;
   if (hasContent) {
@@ -25,8 +27,8 @@ const HighlightPopup = ({ content, comment }) => {
       <span
         css={compactButtonStyle}
         role="button"
-        onClick={() => {
-          copy(content.text);
+        onClick={async () => {
+          await copy(content.text || '');
           toast.success('Highlight has been copied to clipboard', { autoClose: 2000 });
         }}
       >
@@ -77,7 +79,11 @@ const HighlightPopup = ({ content, comment }) => {
   return null;
 };
 
-const ReferencesPopupManager = ({ referencePopoverAnchor, clearAnchor, reference }) => {
+const ReferencesPopupManager: React.FC<{
+  referencePopoverAnchor?: Element;
+  clearAnchor: () => void;
+  reference: Reference;
+}> = ({ referencePopoverAnchor, clearAnchor, reference }) => {
   const content = reference ? (
     <Paper css={popupCss}>
       {reference.arxivId && (
@@ -113,12 +119,29 @@ const ReferencesPopupManager = ({ referencePopoverAnchor, clearAnchor, reference
   return <PopupManager anchorEl={referencePopoverAnchor} clearAnchor={clearAnchor} popupContent={content} />;
 };
 
-class PdfViewer extends Component {
-  state = {
-    referencePopoverAnchor: undefined,
-    referenceCite: '',
-    highlightPopoverAnchor: undefined,
-  };
+interface PdfViewerProps extends RouteComponentProps {
+  url: string;
+  isVertical: boolean;
+  beforeLoad: React.ReactElement;
+  sections?: Section[];
+  references: References;
+  highlights: T_Highlight[];
+  addHighlight: (highlight: T_Highlight) => void;
+  switchSidebarToComments: () => void;
+  clearJumpTo: () => void;
+  jumpToComment: (id: string) => void;
+  updateHighlight: (highlight: T_Highlight) => void;
+  match: RouteComponentProps<{ PaperId: string }>['match'];
+}
+
+interface PdfViewerState {
+  referencePopoverAnchor?: Element;
+  referenceCite: string;
+  highlightPopoverAnchor?: Element;
+}
+
+class PdfViewer extends Component<PdfViewerProps, PdfViewerState> {
+  state: PdfViewerState = { referenceCite: '' };
 
   componentDidMount() {
     // const re = new RegExp('(?<type>(section|highlight))-(?<id>.*)');
@@ -138,8 +161,13 @@ class PdfViewer extends Component {
     // }
   }
 
-  onSelectionFinished = (position, content, hideTipAndSelection, transformSelection) => {
-    const submitComment = (comment, visibility) => {
+  onSelectionFinished = (
+    position: T_Highlight['position'],
+    content: T_Highlight['content'],
+    hideTipAndSelection: () => void,
+    transformSelection: () => void,
+  ) => {
+    const submitComment = (comment: T_Highlight['comment'], visibility: Visibility) => {
       const data = { comment, position, content, visibility };
       const self = this;
       const {
@@ -159,14 +187,21 @@ class PdfViewer extends Component {
     return <Tip onOpen={transformSelection} onConfirm={submitComment} />;
   };
 
-  onHighlightClick = id => {
+  onHighlightClick = (id: string) => {
     this.props.jumpToComment(id);
     this.props.history.push({ hash: `comment-${id}` });
   };
 
-  highlightTransform = (highlight, index, setTip, hideTip, viewportToScaled, screenshot, isScrolledTo) => {
+  highlightTransform = (
+    highlight: T_Highlight,
+    index: number,
+    viewportToScaled: (rect: T_LTWH) => T_Scaled,
+    screenshot: (boundingRect: T_LTWH) => string,
+    isScrolledTo: boolean,
+  ) => {
     const isTextHighlight = !(highlight.content && highlight.content.image);
     const component = isTextHighlight ? (
+      // @ts-ignore
       <Highlight
         isScrolledTo={isScrolledTo}
         position={highlight.position}
@@ -177,16 +212,17 @@ class PdfViewer extends Component {
         }}
       />
     ) : (
+      // @ts-ignore
       <AreaHighlight
         highlight={highlight}
-        onChange={boundingRect => {
-          this.props.updateHighlight(
-            highlight.id,
-            { boundingRect: viewportToScaled(boundingRect) },
-            { image: screenshot(boundingRect) },
-          );
+        onChange={(boundingRect: T_LTWH) => {
+          this.props.updateHighlight({
+            ...highlight,
+            position: { ...highlight.position, boundingRect: viewportToScaled(boundingRect) },
+            content: { ...highlight.content, image: screenshot(boundingRect) },
+          });
         }}
-        onClick={event => {
+        onClick={(event: React.MouseEvent) => {
           event.stopPropagation();
           this.props.switchSidebarToComments();
           this.onHighlightClick(highlight.id);
@@ -204,7 +240,7 @@ class PdfViewer extends Component {
       top: '50%',
       left: '50%',
       transform: 'translate(-50%, -50%)',
-    };
+    } as const;
     return (
       <React.Fragment>
         <PdfLoader
@@ -221,10 +257,12 @@ class PdfViewer extends Component {
               highlightTransform={this.highlightTransform}
               isVertical={isVertical}
               onReferenceEnter={e => {
-                const cite = decodeURIComponent(e.target.getAttribute('href').replace('#cite.', ''));
+                const target = e.target as HTMLElement;
+                if (!target) return;
+                const cite = decodeURIComponent((target.getAttribute('href') || '').replace('#cite.', ''));
                 if (references.hasOwnProperty(cite)) {
                   if (isMobile) {
-                    e.target.onclick = event => {
+                    target.onclick = event => {
                       event.preventDefault();
                     };
                   }
@@ -232,7 +270,7 @@ class PdfViewer extends Component {
                     this.setState({ referencePopoverAnchor: undefined, referenceCite: '' });
                   } else {
                     this.setState({
-                      referencePopoverAnchor: e.target,
+                      referencePopoverAnchor: target,
                       referenceCite: cite,
                     });
                   }
@@ -260,17 +298,16 @@ class PdfViewer extends Component {
   }
 }
 
-const mapStateToProps = state => {
+const mapStateToProps = (state: RootState) => {
   return {
     sections: state.paper.sections,
     references: state.paper.references,
     highlights: state.paper.highlights,
-    jumpData: state.paper.jumpData,
   };
 };
 
-const mapDispatchToProps = dispatch => ({
-  addHighlight: highlight => {
+const mapDispatchToProps = (dispatch: Dispatch) => ({
+  addHighlight: (highlight: T_Highlight) => {
     dispatch(actions.addHighlight(highlight));
   },
   switchSidebarToComments: () => {
@@ -279,11 +316,11 @@ const mapDispatchToProps = dispatch => ({
   clearJumpTo: () => {
     dispatch(actions.clearJumpTo());
   },
-  jumpTo: (type, id, location) => {
-    dispatch(actions.jumpTo({ area: 'paper', type, id, location }));
-  },
-  jumpToComment: id => {
+  jumpToComment: (id: string) => {
     dispatch(actions.jumpTo({ area: 'sidebar', type: 'comment', id }));
+  },
+  updateHighlight: (highlight: T_Highlight) => {
+    dispatch(actions.updateHighlight(highlight));
   },
 });
 

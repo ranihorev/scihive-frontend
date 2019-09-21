@@ -1,7 +1,7 @@
 import { actions as categoriesActions } from './categories';
 import { actions as userActions } from './user';
 import { PDFDocumentProxy } from 'pdfjs-dist';
-import { CodeMeta, Section, References, T_Highlight, SidebarTab, Acronyms } from '../models';
+import { CodeMeta, Section, References, T_Highlight, SidebarTab, Acronyms, JumpToData } from '../models';
 
 export const actions = {
   updateReadingProgress: (payload: number) => {
@@ -69,13 +69,13 @@ export const actions = {
     type: 'SET_SIDEBAR_TAB' as const,
     payload: tab,
   }),
-  jumpTo: (location: T_Highlight) => ({
+  jumpTo: (payload: JumpToData) => ({
     type: 'JUMP_TO' as const,
-    payload: location,
+    payload,
   }),
   clearJumpTo: () => ({
     type: 'JUMP_TO' as const,
-    payload: {},
+    payload: undefined,
   }),
   ...categoriesActions,
   ...userActions,

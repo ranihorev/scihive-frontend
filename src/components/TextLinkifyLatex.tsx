@@ -1,5 +1,4 @@
 import React from 'react';
-// @ts-ignore
 import Linkify from 'react-linkify';
 import { latexString } from '../utils/latex';
 

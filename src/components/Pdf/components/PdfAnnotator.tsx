@@ -15,12 +15,14 @@ import {
   AcronymPositions,
   Acronyms,
   JumpToData,
-  OptionalExceptFor,
+  TempHighlight,
   T_Highlight,
   T_LTWH,
   T_NewHighlight,
+  T_Position,
   T_ScaledPosition,
   Visibility,
+  isValidHighlight,
 } from '../../../models';
 import { store } from '../../../store';
 import { APP_BAR_HEIGHT } from '../../TopBar/PrimaryAppBar';
@@ -35,12 +37,6 @@ import '../style/pdf_viewer.css';
 import MouseSelection from './MouseSelection';
 import Tip from './Tip';
 import TipContainer from './TipContainer';
-
-interface SelectionPosition {
-  pageNumber: number;
-  boundingRect: T_LTWH;
-  rects: T_LTWH[];
-}
 
 const zoomButtonCss = css`
   color: black;
@@ -69,8 +65,9 @@ interface PdfAnnotatorProps {
   onReferenceEnter: (event: React.MouseEvent) => void;
   onReferenceLeave?: () => void;
   highlightTransform: (
-    highlight: T_Highlight,
+    highlight: T_Highlight | TempHighlight,
     index: number,
+    viewportPosition: T_Position,
     // setTip: (highlight: T_Highlight, callback: (h: T_Highlight) => void) => void,,
     // hideTip: () => void,
     // viewportToScaled: (rect: T_LTWH) => T_Scaled,
@@ -84,8 +81,6 @@ interface PdfAnnotatorProps {
   clearJumpTo: () => void;
   jumpData: JumpToData;
 }
-
-type GhostHighlight = OptionalExceptFor<T_NewHighlight, 'position'>;
 
 const PdfAnnotator: React.FC<PdfAnnotatorProps> = ({
   pdfDocument,
@@ -101,7 +96,7 @@ const PdfAnnotator: React.FC<PdfAnnotatorProps> = ({
   clearJumpTo,
   jumpData,
 }) => {
-  const [ghostHighlight, setGhostHighlight] = React.useState<GhostHighlight>();
+  const [tempHighlight, setTempHighlight] = React.useState<TempHighlight>();
   // const [scrolledToHighlightId, setScrolledToHighlightId] = React.useState(EMPTY_ID);
   const [isAreaSelectionInProgress, setIsAreaSelectionInProgress] = React.useState(false);
   const [isDocumentReady, setIsDocumentReady] = React.useState(false);
@@ -117,7 +112,7 @@ const PdfAnnotator: React.FC<PdfAnnotatorProps> = ({
   const hideTipAndSelection = () => {
     const tipNode = findOrCreateContainerLayer(viewer.current.viewer, 'PdfHighlighter__tip-layer');
     ReactDom.unmountComponentAtNode(tipNode);
-    setGhostHighlight(undefined);
+    setTempHighlight(undefined);
   };
 
   const handleKeyDown = (event: KeyboardEvent) => {
@@ -151,11 +146,7 @@ const PdfAnnotator: React.FC<PdfAnnotatorProps> = ({
       destArray: [
         null,
         { name: 'XYZ' },
-        ...pageViewport.convertToPdfPoint(
-          0,
-          // @ts-ignore
-          scaledToViewport(boundingRect, pageViewport, false).top - scrollMargin,
-        ),
+        ...pageViewport.convertToPdfPoint(0, scaledToViewport(boundingRect, pageViewport, false).top - scrollMargin),
         0,
       ],
     });
@@ -168,11 +159,8 @@ const PdfAnnotator: React.FC<PdfAnnotatorProps> = ({
     if (jumpData.type === 'highlight') {
       scrollToHighLight();
     } else {
-      // @ts-ignore
       if (!jumpData.location || !jumpData.location.pageNumber || !jumpData.location.position)
         throw Error('Position is missing');
-      console.log(jumpData);
-      // @ts-ignore
       const { pageNumber, position } = jumpData.location;
 
       viewer.current.scrollPageIntoView({
@@ -229,7 +217,7 @@ const PdfAnnotator: React.FC<PdfAnnotatorProps> = ({
     debouncedOnTextSelection(curRange);
   };
 
-  const viewportPositionToScaled = ({ pageNumber, boundingRect, rects }: SelectionPosition) => {
+  const viewportPositionToScaled = ({ pageNumber, boundingRect, rects }: T_Position) => {
     const { viewport } = viewer.current.getPageView(pageNumber - 1);
 
     return {
@@ -239,7 +227,7 @@ const PdfAnnotator: React.FC<PdfAnnotatorProps> = ({
     };
   };
 
-  const renderTipAtPosition = (position: SelectionPosition, content: T_NewHighlight['content']) => {
+  const renderTipAtPosition = (position: T_Position, content: T_NewHighlight['content']) => {
     const { boundingRect, pageNumber } = position;
     const page = { node: viewer.current.getPageView(pageNumber - 1).div };
     const pageBoundingRect = page.node.getBoundingClientRect();
@@ -259,7 +247,7 @@ const PdfAnnotator: React.FC<PdfAnnotatorProps> = ({
           children={[
             <Tip
               onOpen={() => {
-                setGhostHighlight({
+                setTempHighlight({
                   position: scaledPosition,
                   content,
                 });
@@ -297,8 +285,8 @@ const PdfAnnotator: React.FC<PdfAnnotatorProps> = ({
   };
 
   const groupHighlightsByPage = () => {
-    const allHighlight = ghostHighlight ? [...highlights, ghostHighlight] : highlights;
-    const highlightsByPage: { [page: number]: (T_Highlight | GhostHighlight)[] } = {};
+    const allHighlight = tempHighlight ? [...highlights, tempHighlight] : highlights;
+    const highlightsByPage: { [page: number]: (T_Highlight | TempHighlight)[] } = {};
     for (const h of allHighlight) {
       const { pageNumber } = h.position;
       highlightsByPage[pageNumber] = highlightsByPage[pageNumber] || [];
@@ -330,29 +318,18 @@ const PdfAnnotator: React.FC<PdfAnnotatorProps> = ({
       if (highlightLayer) {
         ReactDom.render(
           <div>
-            {(highlightsByPage[pageNumber] || []).map((highlight: any, index: number) => {
-              const { position, ...rest } = highlight;
-
-              const viewportHighlight = {
-                position: scaledPositionToViewport(position),
-                ...rest,
-              };
-
-              const isScrolledTo = jumpData && jumpData.type === 'highlight' && jumpData.id === highlight.id;
+            {(highlightsByPage[pageNumber] || []).map((highlight, index) => {
+              const viewportPosition = scaledPositionToViewport(highlight.position);
+              const isScrolledTo =
+                isValidHighlight(highlight) &&
+                jumpData &&
+                jumpData.type === 'highlight' &&
+                jumpData.id === highlight.id;
 
               return highlightTransform(
-                viewportHighlight,
+                highlight,
                 index,
-                // (curHighlight: T_Highlight, callback: (h: T_Highlight) => void) => {
-                //   setTip({ highlight: curHighlight, callback });
-                //   showTip(curHighlight, callback(curHighlight));
-                // },
-                // hideTipAndSelection,
-                // (rect: T_LTWH) => {
-                //   const { viewport } = viewer.current.getPageView(pageNumber - 1);
-
-                //   return viewportToScaled(rect, viewport);
-                // },
+                viewportPosition,
                 (boundingRect: T_LTWH) => screenshot(boundingRect, pageNumber),
                 isScrolledTo,
               );
@@ -482,7 +459,7 @@ const PdfAnnotator: React.FC<PdfAnnotatorProps> = ({
   React.useEffect(() => {
     if (!isDocumentReady || !firstPageRendered) return;
     renderHighlights();
-  }, [isDocumentReady, firstPageRendered, ghostHighlight, jumpData, highlights]);
+  }, [isDocumentReady, firstPageRendered, tempHighlight, jumpData, highlights]);
 
   return (
     <React.Fragment>

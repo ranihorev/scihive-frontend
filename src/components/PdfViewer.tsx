@@ -20,6 +20,9 @@ import {
   T_Highlight,
   T_LTWH,
   T_NewHighlight,
+  T_Position,
+  TempHighlight,
+  isValidHighlight,
 } from '../models';
 import { presets } from '../utils';
 import { popupCss } from '../utils/presets';
@@ -194,27 +197,33 @@ class PdfViewer extends Component<PdfViewerProps, PdfViewerState> {
   };
 
   highlightTransform = (
-    highlight: T_Highlight,
+    highlight: T_Highlight | TempHighlight,
     index: number,
+    viewportPosition: T_Position,
     screenshot: (boundingRect: T_LTWH) => string,
     isScrolledTo: boolean,
   ) => {
     const isTextHighlight = !(highlight.content && highlight.content.image);
+    const id = isValidHighlight(highlight) ? highlight.id : `temp-${index}`;
     const component = isTextHighlight ? (
       <Highlight
+        key={`highlight-${id}`}
         isScrolledTo={isScrolledTo}
-        position={highlight.position}
+        position={viewportPosition}
         onClick={() => {
+          if (!isValidHighlight(highlight)) return;
           this.props.switchSidebarToComments();
           this.onHighlightClick(highlight.id);
         }}
       />
     ) : (
       <AreaHighlight
+        key={`area-highlight-${id}`}
         isScrolledTo={isScrolledTo}
-        highlight={highlight}
+        position={viewportPosition}
         onChange={(boundingRect: T_LTWH) => {
           const { width, height } = highlight.position.boundingRect;
+          if (!isValidHighlight(highlight)) return;
           this.props.updateHighlight({
             ...highlight,
             position: { ...highlight.position, boundingRect: viewportToScaled(boundingRect, { width, height }) },
@@ -223,12 +232,18 @@ class PdfViewer extends Component<PdfViewerProps, PdfViewerState> {
         }}
         onClick={(event: React.MouseEvent) => {
           event.stopPropagation();
+          if (!isValidHighlight(highlight)) return;
           this.props.switchSidebarToComments();
           this.onHighlightClick(highlight.id);
         }}
       />
     );
-    return <Popup popupContent={<HighlightPopup {...highlight} />} key={index} bodyElement={component} />;
+    if (isValidHighlight(highlight)) {
+      return (
+        <Popup popupContent={<HighlightPopup {...highlight} />} key={`highligh-popup-${id}`} bodyElement={component} />
+      );
+    }
+    return component;
   };
 
   render() {

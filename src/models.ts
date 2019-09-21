@@ -19,6 +19,12 @@ export interface T_Scaled {
   height: number;
 }
 
+export interface T_Position {
+  pageNumber: number;
+  boundingRect: T_LTWH;
+  rects: T_LTWH[];
+}
+
 export interface T_ScaledPosition {
   boundingRect: T_Scaled;
   rects: T_Scaled[];
@@ -38,8 +44,8 @@ export interface Visibility {
   id?: string;
 }
 
-export interface T_NewHighlight {
-  position: T_ScaledPosition;
+export interface T_NewHighlight<P extends T_ScaledPosition | T_Position = T_ScaledPosition> {
+  position: P;
   content: {
     text?: string;
     image?: string;
@@ -65,6 +71,12 @@ export interface T_Highlight extends T_NewHighlight {
   canEdit: boolean;
   visibility: Visibility;
 }
+
+export type TempHighlight = OptionalExceptFor<T_NewHighlight, 'position'>;
+
+export const isValidHighlight = (highlight: T_Highlight | TempHighlight): highlight is T_Highlight => {
+  return highlight.hasOwnProperty('id');
+};
 
 export type OptionalExceptFor<T, TRequired extends keyof T> = Partial<T> & Pick<T, TRequired>;
 

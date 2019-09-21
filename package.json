@@ -73,6 +73,7 @@
     "@types/react-helmet": "^5.0.10",
     "@types/react-redux": "^7.1.2",
     "@types/react-router-dom": "^4.3.5",
+    "@types/react-text-truncate": "^0.14.0",
     "eslint-config-airbnb": "^17.1.0",
     "eslint-config-prettier": "^4.2.0",
     "eslint-plugin-import": "^2.17.2",

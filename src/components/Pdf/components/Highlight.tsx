@@ -1,9 +1,9 @@
 import React from 'react';
-import { T_ScaledPosition } from '../../../models';
+import { T_Position } from '../../../models';
 import '../style/Highlight.css';
 
 interface HighlightProps {
-  position: T_ScaledPosition;
+  position: T_Position;
   onClick: () => void;
   isScrolledTo: boolean;
   onMouseEnter?: (e: React.MouseEvent) => void;
@@ -13,13 +13,9 @@ interface HighlightProps {
 const Highlight = React.forwardRef<HTMLDivElement, HighlightProps>(
   ({ position, onClick, onMouseEnter, onMouseLeave, isScrolledTo }, ref) => {
     const { rects } = position;
-    // @ts-ignore
     const left = Math.min(...rects.map(rect => rect.left));
-    // @ts-ignore
     const right = Math.max(...rects.map(rect => rect.left + rect.width));
-    // @ts-ignore
     const top = Math.min(...rects.map(rect => rect.top));
-    // @ts-ignore
     const bottom = Math.max(...rects.map(rect => rect.top + rect.height));
     return (
       <React.Fragment>

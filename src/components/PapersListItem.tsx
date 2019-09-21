@@ -16,7 +16,6 @@ import {
 } from '@material-ui/core';
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import moment from 'moment';
-// @ts-ignore
 import TextTruncate from 'react-text-truncate';
 import TwitterMeta, { TwitterLink } from './TwitterMeta';
 import Bookmark from './Bookmark';

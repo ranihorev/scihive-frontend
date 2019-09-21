@@ -2,10 +2,10 @@
 import { css, jsx } from '@emotion/core';
 import React from 'react';
 import { Rnd } from 'react-rnd';
-import { T_Highlight, T_LTWH } from '../../../models';
+import { T_Highlight, T_LTWH, T_Position } from '../../../models';
 
 interface AreaHighlightProps {
-  highlight: T_Highlight;
+  position: T_Position;
   onChange: (rect: T_LTWH) => void;
   onClick: (event: React.MouseEvent) => void;
   isScrolledTo: boolean;
@@ -14,10 +14,10 @@ interface AreaHighlightProps {
 }
 
 const AreaHighlight = React.forwardRef<HTMLDivElement, AreaHighlightProps>(
-  ({ highlight, onChange, onClick, onMouseEnter, isScrolledTo, ...otherProps }, forwardRef) => {
+  ({ position, onChange, onClick, onMouseEnter, isScrolledTo, ...otherProps }, forwardRef) => {
     return (
       <React.Fragment>
-        <span ref={forwardRef} style={{ ...highlight.position.boundingRect, position: 'absolute', zIndex: -1 }} />
+        <span ref={forwardRef} style={{ ...position.boundingRect, position: 'absolute', zIndex: -1 }} />
         <Rnd
           css={css`
             border: 1px dashed rgb(156, 156, 156);
@@ -30,7 +30,7 @@ const AreaHighlight = React.forwardRef<HTMLDivElement, AreaHighlightProps>(
           disableDragging={true}
           onDragStop={(_, data) => {
             const boundingRect = {
-              ...highlight.position.boundingRect,
+              ...position.boundingRect,
               top: data.y,
               left: data.x,
             };
@@ -48,14 +48,12 @@ const AreaHighlight = React.forwardRef<HTMLDivElement, AreaHighlightProps>(
             onChange(boundingRect);
           }}
           position={{
-            // @ts-ignore
-            x: highlight.position.boundingRect.left,
-            // @ts-ignore
-            y: highlight.position.boundingRect.top,
+            x: position.boundingRect.left,
+            y: position.boundingRect.top,
           }}
           size={{
-            width: highlight.position.boundingRect.width,
-            height: highlight.position.boundingRect.height,
+            width: position.boundingRect.width,
+            height: position.boundingRect.height,
           }}
           onClick={onClick}
           onMouseEnter={onMouseEnter}

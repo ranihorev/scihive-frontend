@@ -4,7 +4,6 @@ import axios from 'axios';
 import { isEmpty } from 'lodash';
 import { connect } from 'react-redux';
 import { ToastContainer } from 'react-toastify';
-// @ts-ignore
 import { createMuiTheme, MuiThemeProvider } from '@material-ui/core/styles';
 
 import Home from './pages/Home';

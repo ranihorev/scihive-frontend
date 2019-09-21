@@ -3,7 +3,11 @@ import LinearProgress from '@material-ui/core/LinearProgress';
 import { connect } from 'react-redux';
 import { RootState } from '../models';
 
-const ReadingProgress: React.FC<{ progress: number }> = ({ progress }) => {
+interface ReadingProgressRenderProps {
+  progress: number;
+}
+
+const ReadingProgressRender: React.FC<ReadingProgressRenderProps> = ({ progress }) => {
   return <LinearProgress variant="determinate" value={progress} style={{ zIndex: 1 }} />;
 };
 
@@ -13,9 +17,4 @@ const mapStateToProps = (state: RootState) => {
   };
 };
 
-const withRedux = connect(
-  mapStateToProps,
-  null,
-);
-
-export default withRedux(ReadingProgress);
+export const ReadingProgress = connect(mapStateToProps)(ReadingProgressRender);

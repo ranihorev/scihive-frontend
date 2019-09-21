@@ -1,23 +1,24 @@
 /** @jsx jsx */
 import { css, jsx } from '@emotion/core';
-import CircularProgress from '@material-ui/core/CircularProgress';
-import { withStyles } from '@material-ui/core/styles';
+import { CircularProgress } from '@material-ui/core';
 import axios from 'axios';
 import { isEmpty } from 'lodash';
 import * as queryString from 'query-string';
 import React, { useEffect, useState } from 'react';
 import { Helmet } from 'react-helmet';
 import { connect } from 'react-redux';
-import { withRouter } from 'react-router';
 import { toast } from 'react-toastify';
+import { Dispatch } from 'redux';
 import useDeepCompareEffect from 'use-deep-compare-effect';
+import useReactRouter from 'use-react-router';
+import { actions } from '../actions';
+import { Acronyms, CodeMeta, Group, References, RootState, T_Highlight } from '../models';
 import { presets } from '../utils';
 import PdfViewer from './PdfViewer';
-import ReadingProgress from './ReadingProgress';
+import { ReadingProgress } from './ReadingProgress';
 import Resizer from './Resizer';
 import { CollapseButton, Sidebar } from './Sidebar';
 import { APP_BAR_HEIGHT } from './TopBar/PrimaryAppBar';
-import { actions } from '../actions';
 
 const styles = () => ({
   rootVert: {
@@ -61,12 +62,21 @@ const useWindowDimensions = () => {
   return windowDimensions;
 };
 
-const PdfCommenter = ({
+interface PdfCommenterProps {
+  setBookmark: (value: boolean) => void;
+  setCodeMeta: (meta: CodeMeta) => void;
+  selectGroup: (group: Group) => void;
+  setGroups: (group: Group[]) => void;
+  isLoggedIn: boolean;
+  setReferences: (references: References) => void;
+  setHighlights: (highlights: T_Highlight[]) => void;
+  setAcronyms: (acronyms: Acronyms) => void;
+  clearPaper: () => void;
+}
+
+const PdfCommenter: React.FC<PdfCommenterProps> = ({
   setBookmark,
   setCodeMeta,
-  classes,
-  location,
-  match: { params },
   selectGroup,
   setGroups,
   isLoggedIn,
@@ -84,6 +94,11 @@ const PdfCommenter = ({
     width: defaultPdfPrct,
     height: defaultPdfPrct,
   });
+
+  const {
+    location,
+    match: { params },
+  } = useReactRouter();
 
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
 
@@ -145,7 +160,7 @@ const PdfCommenter = ({
         axios
           .post('/groups/all', { id: selectedGroupId })
           .then(res => {
-            const groups = res.data;
+            const groups: Group[] = res.data;
             setGroups(groups);
             const group = groups.find(g => g.id === selectedGroupId);
             if (group) {
@@ -168,7 +183,13 @@ const PdfCommenter = ({
   }, [params]);
 
   const Loader = (
-    <div className={classes.spinner}>
+    <div
+      css={css`
+        position: absolute;
+        top: 50%;
+        left: 50%;
+      `}
+    >
       <CircularProgress />
     </div>
   );
@@ -192,7 +213,7 @@ const PdfCommenter = ({
     const newState = !isSidebarCollapsed;
     setIsSidebarCollapsed(newState);
     setPdfSectionPrct({
-      ...setPdfSectionPrct,
+      ...pdfSectionPrct,
       width: newState ? 1 : defaultPdfPrct,
     });
   };
@@ -309,36 +330,36 @@ const PdfCommenter = ({
   );
 };
 
-const mapStateToProps = state => {
+const mapStateToProps = (state: RootState) => {
   return {
     isLoggedIn: !isEmpty(state.user.userData),
   };
 };
 
-const mapDispatchToProps = dispatch => {
+const mapDispatchToProps = (dispatch: Dispatch) => {
   return {
-    setBookmark: value => {
+    setBookmark: (value: boolean) => {
       dispatch(actions.setBookmark(value));
     },
-    selectGroup: group => {
+    selectGroup: (group: Group) => {
       dispatch(actions.selectGroup(group));
     },
-    setGroups: groups => {
+    setGroups: (groups: Group[]) => {
       dispatch(actions.setGroups(groups));
     },
     clearPaper: () => {
       dispatch(actions.clearPaper());
     },
-    setReferences: references => {
+    setReferences: (references: References) => {
       dispatch(actions.setReferences(references));
     },
-    setHighlights: highlights => {
+    setHighlights: (highlights: T_Highlight[]) => {
       dispatch(actions.setHighlights(highlights));
     },
-    setAcronyms: acronyms => {
+    setAcronyms: (acronyms: Acronyms) => {
       dispatch(actions.setAcronyms(acronyms));
     },
-    setCodeMeta: meta => {
+    setCodeMeta: (meta: CodeMeta) => {
       dispatch(actions.setCodeMeta(meta));
     },
   };
@@ -348,4 +369,4 @@ const withRedux = connect(
   mapDispatchToProps,
 );
 
-export default withRedux(withStyles(styles)(withRouter(PdfCommenter)));
+export default withRedux(PdfCommenter);

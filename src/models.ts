@@ -63,11 +63,15 @@ export interface Reply {
   createdAt: string;
 }
 
+export interface User {
+  username: string;
+}
+
 export interface T_Highlight extends T_NewHighlight {
   id: string;
   createdAt: string;
-  replies: any;
-  user: any;
+  replies: Reply[];
+  user: User;
   canEdit: boolean;
   visibility: Visibility;
 }
@@ -157,9 +161,7 @@ export interface RootState {
   user: {
     isLoginModalOpen: boolean;
     isGroupsModalOpen: boolean;
-    userData?: {
-      username: string;
-    };
+    userData?: User;
     loginModalMessage?: string;
     blinkLibraryState: boolean;
     groups?: Group[];

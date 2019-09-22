@@ -8,7 +8,7 @@ import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { Dispatch } from 'redux';
 import { actions } from '../actions';
-import { RootState } from '../models';
+import { RootState, User } from '../models';
 import * as presets from '../utils/presets';
 
 const formControl = css`
@@ -16,7 +16,7 @@ const formControl = css`
 `;
 
 interface LoginSignupFormProps {
-  onSubmitSuccess: (data: { username: string }) => void;
+  onSubmitSuccess: (data: User) => void;
   loginModalMessage?: string;
 }
 
@@ -175,7 +175,7 @@ const mapDispatchToProps = (dispatch: Dispatch) => {
     toggleLoginModal: () => {
       dispatch(actions.toggleLoginModal());
     },
-    onSubmitSuccess: (data: { username: string }) => {
+    onSubmitSuccess: (data: User) => {
       dispatch(actions.setUser(data));
       dispatch(actions.toggleLoginModal());
     },

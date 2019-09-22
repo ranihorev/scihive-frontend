@@ -1,4 +1,4 @@
-import { Group } from '../models';
+import { Group, User } from '../models';
 
 export const actions = {
   toggleLoginModal: (message?: string) => {
@@ -13,7 +13,7 @@ export const actions = {
       payload: state,
     };
   },
-  setUser: (payload: { username: string }) => {
+  setUser: (payload: User) => {
     return {
       type: 'SET_USER' as const,
       payload,

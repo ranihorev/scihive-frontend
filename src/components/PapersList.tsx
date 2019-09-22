@@ -1,17 +1,18 @@
 /** @jsx jsx */
 import { css, jsx } from '@emotion/core';
-import React from 'react';
-import axios from 'axios';
-import { RouteComponentProps, withRouter } from 'react-router';
-import { connect } from 'react-redux';
 import { Chip, CircularProgress, FormControl, Grid, Input, MenuItem, Select } from '@material-ui/core';
+import axios from 'axios';
 import * as queryString from 'query-string';
-import InfiniteScroll from './InfiniteScroll';
-import PapersListItem, { Paper } from './PapersListItem';
+import React from 'react';
+import { connect } from 'react-redux';
+import { RouteComponentProps, withRouter } from 'react-router';
+import { Dispatch } from 'redux';
+import { actions } from '../actions/categories';
+import { RootState } from '../models';
 import * as presets from '../utils/presets';
 import { CategoriesModal } from './Cateogries';
-import { actions } from '../actions/categories';
-import { Dispatch } from 'redux';
+import InfiniteScroll from './InfiniteScroll';
+import PapersListItem, { Paper } from './PapersListItem';
 
 const formControlCss = css({
   margin: '8px 8px 8px 0px',
@@ -310,7 +311,7 @@ const PapersList: React.FC<PapersListProps> = ({
   );
 };
 
-const mapStateToProps = (state: any) => {
+const mapStateToProps = (state: RootState) => {
   return {
     allCategories: state.papersList.allCategories,
     selectedCategories: state.papersList.selectedCategories,

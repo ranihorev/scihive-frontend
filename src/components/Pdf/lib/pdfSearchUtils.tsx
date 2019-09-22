@@ -4,6 +4,7 @@ import ReactDom from 'react-dom';
 import { Paper } from '@material-ui/core';
 import { Popup } from '../../Popup';
 import { popupCss } from '../../../utils/presets';
+import { PDFRenderTextLayer } from 'pdfjs-dist';
 
 interface Match {
   begin: {

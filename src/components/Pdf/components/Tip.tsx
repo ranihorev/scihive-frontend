@@ -8,7 +8,7 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { Dispatch } from 'redux';
 import { actions } from '../../../actions';
-import { T_Highlight, Visibility, VisibilityType } from '../../../models';
+import { RootState, T_Highlight, Visibility, VisibilityType, Group } from '../../../models';
 import { presets } from '../../../utils';
 
 interface State {
@@ -22,7 +22,7 @@ interface Props {
   onConfirm: (comment: T_Highlight['comment'], visibility: Visibility) => void;
   onOpen: () => void;
   isLoggedIn: boolean;
-  selectedGroup: { id: string; name: string };
+  selectedGroup?: Group;
   openGroupsModal: () => void;
 }
 
@@ -73,7 +73,7 @@ class Tip extends Component<Props, State> {
     let requestVisibility: Visibility;
     if (visibility === 'public' && anonymous) {
       requestVisibility = { type: 'anonymous' };
-    } else if (visibility === 'group') {
+    } else if (visibility === 'group' && this.props.selectedGroup) {
       requestVisibility = { type: visibility, id: this.props.selectedGroup.id };
     } else {
       requestVisibility = { type: visibility };
@@ -241,7 +241,7 @@ class Tip extends Component<Props, State> {
   }
 }
 
-const mapStateToProps = (state: any) => {
+const mapStateToProps = (state: RootState) => {
   return {
     isLoggedIn: !isEmpty(state.user.userData),
     selectedGroup: state.user.selectedGroup,

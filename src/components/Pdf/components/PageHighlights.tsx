@@ -6,23 +6,19 @@ import React from 'react';
 import { toast } from 'react-toastify';
 import {
   isValidHighlight,
+  JumpToData,
   TempHighlight,
   T_Highlight,
   T_LTWH,
   T_Position,
   T_ScaledPosition,
-  JumpToData,
 } from '../../../models';
 import { presets } from '../../../utils';
 import { Popup } from '../../Popup';
 import { TextLinkifyLatex } from '../../TextLinkifyLatex';
-import { viewportToScaled } from '../lib/coordinates';
 import AreaHighlight from './AreaHighlight';
 import Highlight from './Highlight';
 import { compactButtonStyle } from './Tip';
-import { Dispatch } from 'redux';
-import { actions } from '../../../actions';
-import { connect } from 'react-redux';
 
 const HighlightPopup: React.FC<T_Highlight> = ({ content, comment }) => {
   let copyButton;
@@ -137,7 +133,7 @@ interface AllHighlights {
   screenshot: (boundingRect: T_LTWH) => string;
   onHighlightClick: (id: string) => void;
   scaledPositionToViewport: (position: T_ScaledPosition) => T_Position;
-  jumpData: JumpToData;
+  jumpData?: JumpToData;
 }
 
 export const PageHighlights: React.FC<AllHighlights> = ({
@@ -158,8 +154,9 @@ export const PageHighlights: React.FC<AllHighlights> = ({
     >
       {highlights.map((highlight, index) => {
         const viewportPosition = scaledPositionToViewport(highlight.position);
-        const isScrolledTo =
-          isValidHighlight(highlight) && jumpData && jumpData.type === 'highlight' && jumpData.id === highlight.id;
+        const isScrolledTo = Boolean(
+          isValidHighlight(highlight) && jumpData && jumpData.type === 'highlight' && jumpData.id === highlight.id,
+        );
 
         const id = isValidHighlight(highlight) ? highlight.id : `temp-${index}`;
         return (

@@ -1,15 +1,16 @@
 /** @jsx jsx */
 import { css, jsx } from '@emotion/core';
+import IconButton from '@material-ui/core/IconButton';
+import Tab from '@material-ui/core/Tab';
+import Tabs from '@material-ui/core/Tabs';
 import React from 'react';
 import { connect } from 'react-redux';
-import IconButton from '@material-ui/core/IconButton';
-import Tabs from '@material-ui/core/Tabs';
-import Tab from '@material-ui/core/Tab';
+import { Dispatch } from 'redux';
+import { actions } from '../actions';
+import { RootState } from '../models';
 import { presets } from '../utils';
 import HighlightsList from './HighlightsList';
 import { PaperSections } from './PaperSections';
-import { actions } from '../actions';
-import { Dispatch } from 'redux';
 
 export const CollapseButton: React.FC<{ direction: 'left' | 'right'; onClick: () => void }> = ({
   direction,
@@ -114,7 +115,7 @@ const SidebarRender: React.FC<Props> = ({
   );
 };
 
-const mapStateToProps = (state: any) => ({
+const mapStateToProps = (state: RootState) => ({
   selectedTab: state.paper.sidebarTab,
 });
 

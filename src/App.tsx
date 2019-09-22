@@ -1,19 +1,19 @@
-import React, { useEffect } from 'react';
-import { Route, Switch } from 'react-router-dom';
+import { createMuiTheme, MuiThemeProvider } from '@material-ui/core/styles';
 import axios from 'axios';
 import { isEmpty } from 'lodash';
+import React, { useEffect } from 'react';
 import { connect } from 'react-redux';
+import { Route, Switch } from 'react-router-dom';
 import { ToastContainer } from 'react-toastify';
-import { createMuiTheme, MuiThemeProvider } from '@material-ui/core/styles';
-
-import Home from './pages/Home';
-import Paper from './pages/Paper';
 import LoginSignupModal from './components/LoginSignupModal';
-import NotFound from './pages/NotFound';
+import { RootState } from './models';
 import About from './pages/About';
+import Admin from './pages/Admin';
+import Home from './pages/Home';
+import NotFound from './pages/NotFound';
+import Paper from './pages/Paper';
 import chromeExtensionPopup from './utils/chromeExtension';
 import { themePalette } from './utils/presets';
-import Admin from './pages/Admin';
 
 const theme = createMuiTheme({
   palette: themePalette,
@@ -65,7 +65,7 @@ const App: React.FC<{ isLoggedIn: boolean }> = ({ isLoggedIn }) => {
   );
 };
 
-const mapStateToProps = (state: any) => {
+const mapStateToProps = (state: RootState) => {
   return {
     isLoggedIn: !isEmpty(state.user.userData),
   };

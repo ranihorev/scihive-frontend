@@ -2,7 +2,8 @@
 import { css, jsx } from '@emotion/core';
 import React from 'react';
 import { Rnd } from 'react-rnd';
-import { T_Highlight, T_LTWH, T_Position } from '../../../models';
+import { T_LTWH, T_Position } from '../../../models';
+import { highlightBackgroundColor } from '../../../utils/presets';
 
 interface AreaHighlightProps {
   position: T_Position;
@@ -21,7 +22,7 @@ const AreaHighlight = React.forwardRef<HTMLDivElement, AreaHighlightProps>(
         <Rnd
           css={css`
             border: 1px dashed rgb(156, 156, 156);
-            background-color: rgba(252, 232, 151, 1);
+            background-color: ${highlightBackgroundColor.normal};
             opacity: 1;
             mix-blend-mode: multiply;
             cursor: pointer !important;

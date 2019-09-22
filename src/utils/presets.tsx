@@ -1,6 +1,5 @@
 /** @jsx jsx */
 import { css } from '@emotion/core';
-import { Theme } from '@material-ui/core/styles/createMuiTheme';
 
 export const row = css`
   display: flex;
@@ -87,3 +86,8 @@ export const modalCss = css`
   left: 50%;
   transform: translate(-50%, -50%);
 `;
+
+export const highlightBackgroundColor = {
+  normal: 'rgba(255, 226, 143, 0.8)',
+  active: '#ff4141',
+};

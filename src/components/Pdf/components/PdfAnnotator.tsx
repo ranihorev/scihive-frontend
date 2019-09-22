@@ -340,12 +340,6 @@ const PdfAnnotator: React.FC<PdfAnnotatorProps> = ({
     : { height: `calc(100vh - ${APP_BAR_HEIGHT}px)` };
 
   const onMouseDown = (event: React.MouseEvent) => {
-    if (!(event.target instanceof HTMLElement)) return;
-    if (event.target.closest('.PdfHighlighter__tip-container')) return;
-    if (event.target.closest('.my-tooltip')) {
-      console.log('yay!');
-      return;
-    }
     hideTipAndSelection();
   };
 

@@ -50,7 +50,7 @@ export const TipContainer: React.FC<TipContainerProps> = ({ tooltipData, onSucce
         open={!isEmpty(tooltipData)}
         anchorEl={tooltipNode.current}
         placement="top"
-        className="my-tooltip"
+        className="tooltip-popper"
         disablePortal={true}
         css={css`
           z-index: 100;
@@ -62,6 +62,9 @@ export const TipContainer: React.FC<TipContainerProps> = ({ tooltipData, onSucce
         }}
       >
         <Tip
+          onMouseDown={e => {
+            e.stopPropagation();
+          }}
           onOpen={() => {
             // if (tooltipData) setTempHighlight({ position: tooltipData.position, content: tooltipData.content });
           }}

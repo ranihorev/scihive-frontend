@@ -1,7 +1,6 @@
 /** @jsx jsx */
 import { css, jsx } from '@emotion/core';
 import { Paper } from '@material-ui/core';
-import axios from 'axios';
 import copy from 'clipboard-copy';
 import React, { Component } from 'react';
 import { isMobile } from 'react-device-detect';
@@ -12,17 +11,15 @@ import { toast } from 'react-toastify';
 import { Dispatch } from 'redux';
 import { actions } from '../actions';
 import {
-  PaperIdParams,
+  isValidHighlight,
   Reference,
   References,
   RootState,
   Section,
+  TempHighlight,
   T_Highlight,
   T_LTWH,
-  T_NewHighlight,
   T_Position,
-  TempHighlight,
-  isValidHighlight,
 } from '../models';
 import { presets } from '../utils';
 import { popupCss } from '../utils/presets';
@@ -139,12 +136,10 @@ interface PdfViewerProps extends RouteComponentProps {
   sections?: Section[];
   references: References;
   highlights: T_Highlight[];
-  addHighlight: (highlight: T_Highlight) => void;
   switchSidebarToComments: () => void;
   clearJumpTo: () => void;
   jumpToComment: (id: string) => void;
   updateHighlight: (highlight: T_Highlight) => void;
-  match: PaperIdParams;
 }
 
 interface PdfViewerState {
@@ -173,23 +168,6 @@ class PdfViewer extends Component<PdfViewerProps, PdfViewerState> {
     //   }
     // }
   }
-
-  submitComment = (data: T_NewHighlight, onSuccess: () => void) => {
-    // const data = { comment, position, content, visibility };
-    const self = this;
-    const {
-      match: { params },
-    } = this.props;
-    axios
-      .post(`/paper/${params.PaperId}/new_comment`, data)
-      .then(res => {
-        self.props.addHighlight(res.data.comment);
-        onSuccess();
-      })
-      .catch(err => {
-        console.log(err.response);
-      });
-  };
 
   onHighlightClick = (id: string) => {
     this.props.jumpToComment(id);
@@ -267,7 +245,6 @@ class PdfViewer extends Component<PdfViewerProps, PdfViewerState> {
             <PdfAnnotator
               pdfDocument={pdfDocument}
               enableAreaSelection={event => event.altKey}
-              submitHighlight={this.submitComment}
               highlightTransform={this.highlightTransform}
               isVertical={isVertical}
               onReferenceEnter={e => {
@@ -321,9 +298,6 @@ const mapStateToProps = (state: RootState) => {
 };
 
 const mapDispatchToProps = (dispatch: Dispatch) => ({
-  addHighlight: (highlight: T_Highlight) => {
-    dispatch(actions.addHighlight(highlight));
-  },
   switchSidebarToComments: () => {
     dispatch(actions.setSidebarTab('Comments'));
   },

@@ -1,98 +1,77 @@
-import React, { Component } from 'react';
+/** @jsx jsx */
+import { css, jsx } from '@emotion/core';
+import { Popper } from '@material-ui/core';
+import axios from 'axios';
+import { isEmpty } from 'lodash';
+import useReactRouter from 'use-react-router';
+import React from 'react';
+import { T_Highlight, T_NewHighlight, T_ScaledPosition, Visibility } from '../../../models';
+import Tip from './Tip';
 
-import { T_LTWH } from '../../../models';
-
-interface State {
-  height: number;
-  width: number;
+export interface TooltipData {
+  position: T_ScaledPosition;
+  content: T_NewHighlight['content'];
+  size: { left: number; top: number; bottom: number };
 }
 
-interface Props {
-  style: { top: number; left: number; bottom: number };
-  scrollTop: number;
-  pageBoundingRect: T_LTWH;
-  children: React.ReactElement[];
+interface TipContainerProps {
+  tooltipData: TooltipData | undefined;
+  onSuccess: (highlight: T_Highlight) => void;
 }
 
-const clamp = (value: number, left: number, right: number) => Math.min(Math.max(value, left), right);
+export const TipContainer: React.FC<TipContainerProps> = ({ tooltipData, onSuccess }) => {
+  const tooltipNode = React.useRef<HTMLDivElement>(null);
+  const {
+    match: { params },
+  } = useReactRouter();
 
-class TipContainer extends Component<Props, State> {
-  container = React.createRef<HTMLDivElement>();
-  state = {
-    height: 0,
-    width: 0,
-  };
-
-  componentDidUpdate(nextProps: Props) {
-    if (this.props.children !== nextProps.children) {
-      this.updatePosition();
-    }
-  }
-
-  componentDidMount() {
-    setTimeout(this.updatePosition, 0);
-  }
-
-  updatePosition = () => {
-    try {
-      if (!this.container.current) return;
-      const { offsetHeight, offsetWidth } = this.container.current;
-
-      this.setState({
-        height: offsetHeight,
-        width: offsetWidth,
+  const submitHighlight = (data: T_NewHighlight) => {
+    axios
+      .post(`/paper/${params.PaperId}/new_comment`, data)
+      .then(res => {
+        onSuccess(res.data.comment);
+      })
+      .catch(err => {
+        console.log(err.response);
       });
-    } catch (e) {
-      console.warn(e);
-    }
   };
 
-  render() {
-    const { children, style, scrollTop, pageBoundingRect } = this.props;
-
-    const { height, width } = this.state;
-
-    const isStyleCalculationInProgress = width === 0 && height === 0;
-
-    const shouldMove = style.top - height - 5 < scrollTop;
-
-    const top = shouldMove ? style.bottom + 5 : style.top - height - 5;
-
-    const left = clamp(style.left - width / 2, 0, pageBoundingRect.width - width);
-
-    const childrenWithProps = React.Children.map(children, child =>
-      React.cloneElement(child, {
-        onUpdate: () => {
-          this.setState(
-            {
-              width: 0,
-              height: 0,
-            },
-            () => {
-              setTimeout(this.updatePosition, 0);
-            },
-          );
-        },
-        popup: {
-          position: shouldMove ? 'below' : 'above',
-        },
-      }),
-    );
-
-    return (
+  return (
+    <React.Fragment>
       <div
-        className="PdfHighlighter__tip-container"
-        style={{
-          visibility: isStyleCalculationInProgress ? 'hidden' : 'visible',
-          top,
-          left,
+        className="tooltip-wrapper"
+        ref={tooltipNode}
+        css={css`
+          position: absolute;
+        `}
+        style={tooltipData ? tooltipData.size : undefined}
+      />
+      <Popper
+        open={!isEmpty(tooltipData)}
+        anchorEl={tooltipNode.current}
+        placement="top"
+        className="my-tooltip"
+        disablePortal={true}
+        css={css`
+          z-index: 100;
+        `}
+        modifiers={{
+          flip: {
+            enabled: true,
+          },
         }}
-        ref={this.container}
       >
-        {childrenWithProps}
-      </div>
-    );
-  }
-}
-
-export default TipContainer;
+        <Tip
+          onOpen={() => {
+            // if (tooltipData) setTempHighlight({ position: tooltipData.position, content: tooltipData.content });
+          }}
+          onConfirm={(comment: T_Highlight['comment'], visibility: Visibility) => {
+            if (tooltipData) {
+              submitHighlight({ comment, visibility, content: tooltipData.content, position: tooltipData.position });
+            }
+          }}
+        />
+      </Popper>
+    </React.Fragment>
+  );
+};

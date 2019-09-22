@@ -20,21 +20,6 @@ import Resizer from './Resizer';
 import { CollapseButton, Sidebar } from './Sidebar';
 import { APP_BAR_HEIGHT } from './TopBar/PrimaryAppBar';
 
-const styles = () => ({
-  rootVert: {
-    backgroundColor: '#eeeeee',
-  },
-  rootHorz: {
-    paddingTop: '8px',
-    backgroundColor: '#eeeeee',
-  },
-  spinner: {
-    position: 'absolute',
-    top: '50%',
-    left: '50%',
-  },
-});
-
 const FETCHING = '-1';
 const FAILED = '0';
 const MOBILE_WIDTH = 800;

@@ -8,12 +8,11 @@ import { PDFFindController, PDFLinkService, PDFViewer } from 'pdfjs-dist/web/pdf
 import 'pdfjs-dist/web/pdf_viewer.css';
 import React from 'react';
 import ReactDom from 'react-dom';
-import { connect, Provider } from 'react-redux';
-import { Dispatch } from 'redux';
 import { actions } from '../../../actions';
 import {
   AcronymPositions,
   Acronyms,
+  isValidHighlight,
   JumpToData,
   TempHighlight,
   T_Highlight,
@@ -21,10 +20,7 @@ import {
   T_NewHighlight,
   T_Position,
   T_ScaledPosition,
-  Visibility,
-  isValidHighlight,
 } from '../../../models';
-import { store } from '../../../store';
 import { APP_BAR_HEIGHT } from '../../TopBar/PrimaryAppBar';
 import { scaledToViewport, viewportToScaled } from '../lib/coordinates';
 import getAreaAsPng from '../lib/get-area-as-png';
@@ -35,8 +31,9 @@ import { convertMatches, renderMatches } from '../lib/pdfSearchUtils';
 import '../style/PdfHighlighter.css';
 import '../style/pdf_viewer.css';
 import MouseSelection from './MouseSelection';
-import Tip from './Tip';
-import TipContainer from './TipContainer';
+import { TipContainer, TooltipData } from './TipContainer';
+import { Dispatch } from 'redux';
+import { connect } from 'react-redux';
 
 const zoomButtonCss = css`
   color: black;
@@ -76,10 +73,10 @@ interface PdfAnnotatorProps {
   ) => void;
   highlights: T_Highlight[];
   acronyms: Acronyms;
-  submitHighlight: (data: T_NewHighlight, onSuccess: () => void) => void;
   updateReadingProgress: (progress: number) => void;
   clearJumpTo: () => void;
   jumpData: JumpToData;
+  addHighlight: (highlight: T_Highlight) => void;
 }
 
 const PdfAnnotator: React.FC<PdfAnnotatorProps> = ({
@@ -91,10 +88,10 @@ const PdfAnnotator: React.FC<PdfAnnotatorProps> = ({
   highlightTransform,
   highlights,
   acronyms,
-  submitHighlight,
   updateReadingProgress,
   clearJumpTo,
   jumpData,
+  addHighlight,
 }) => {
   const [tempHighlight, setTempHighlight] = React.useState<TempHighlight>();
   // const [scrolledToHighlightId, setScrolledToHighlightId] = React.useState(EMPTY_ID);
@@ -105,6 +102,8 @@ const PdfAnnotator: React.FC<PdfAnnotatorProps> = ({
   const [firstPageRendered, setFirstPageRendered] = React.useState(false);
   const [acronymPositions, setAcronymPositions] = React.useState<AcronymPositions>({});
 
+  const [tooltipData, setTooltipData] = React.useState<TooltipData | undefined>(undefined);
+
   const viewer = React.useRef<PDFViewer>(null);
   const linkService = React.useRef<PDFLinkService>(null);
   const containerNode = React.useRef<HTMLDivElement>(null);
@@ -113,6 +112,7 @@ const PdfAnnotator: React.FC<PdfAnnotatorProps> = ({
     const tipNode = findOrCreateContainerLayer(viewer.current.viewer, 'PdfHighlighter__tip-layer');
     ReactDom.unmountComponentAtNode(tipNode);
     setTempHighlight(undefined);
+    setTooltipData(undefined);
   };
 
   const handleKeyDown = (event: KeyboardEvent) => {
@@ -230,37 +230,14 @@ const PdfAnnotator: React.FC<PdfAnnotatorProps> = ({
   const renderTipAtPosition = (position: T_Position, content: T_NewHighlight['content']) => {
     const { boundingRect, pageNumber } = position;
     const page = { node: viewer.current.getPageView(pageNumber - 1).div };
-    const pageBoundingRect = page.node.getBoundingClientRect();
-    const tipNode = findOrCreateContainerLayer(viewer.current.viewer, 'PdfHighlighter__tip-layer');
     const scaledPosition = viewportPositionToScaled(position);
 
-    ReactDom.render(
-      <Provider store={store}>
-        <TipContainer
-          scrollTop={viewer.current.container.scrollTop}
-          pageBoundingRect={pageBoundingRect}
-          style={{
-            left: page.node.offsetLeft + boundingRect.left + boundingRect.width / 2,
-            top: boundingRect.top + page.node.offsetTop,
-            bottom: boundingRect.top + page.node.offsetTop + boundingRect.height,
-          }}
-          children={[
-            <Tip
-              onOpen={() => {
-                setTempHighlight({
-                  position: scaledPosition,
-                  content,
-                });
-              }}
-              onConfirm={(comment: T_Highlight['comment'], visibility: Visibility) =>
-                submitHighlight({ comment, visibility, content, position: scaledPosition }, hideTipAndSelection)
-              }
-            />,
-          ]}
-        />
-      </Provider>,
-      tipNode,
-    );
+    const size = {
+      left: page.node.offsetLeft + boundingRect.left + boundingRect.width / 2,
+      top: boundingRect.top + page.node.offsetTop,
+      bottom: boundingRect.top + page.node.offsetTop + boundingRect.height,
+    };
+    setTooltipData({ position: scaledPosition, content, size });
   };
 
   const onAreaSelection = (startTarget: any, boundingRect: T_LTWH) => {
@@ -354,7 +331,15 @@ const PdfAnnotator: React.FC<PdfAnnotatorProps> = ({
   const onMouseDown = (event: React.MouseEvent) => {
     if (!(event.target instanceof HTMLElement)) return;
     if (event.target.closest('.PdfHighlighter__tip-container')) return;
+    if (event.target.closest('.my-tooltip')) {
+      console.log('yay!');
+      return;
+    }
     hideTipAndSelection();
+  };
+
+  const onMouseUp = (e: React.MouseEvent) => {
+    if (tooltipData) setTempHighlight({ position: tooltipData.position, content: tooltipData.content });
   };
 
   const toggleTextSelection = (flag: boolean) => {
@@ -370,6 +355,7 @@ const PdfAnnotator: React.FC<PdfAnnotatorProps> = ({
 
   const zoom = (sign: number) => {
     viewer.current.currentScaleValue = parseFloat(viewer.current.currentScaleValue) + sign * 0.05;
+    // renderHighlights();
   };
 
   React.useEffect(() => {
@@ -477,6 +463,7 @@ const PdfAnnotator: React.FC<PdfAnnotatorProps> = ({
       <div
         ref={containerNode}
         onMouseDown={onMouseDown}
+        onMouseUp={onMouseUp}
         className="PdfHighlighter"
         onScroll={onViewerScroll}
         onContextMenu={e => e.preventDefault()}
@@ -497,6 +484,13 @@ const PdfAnnotator: React.FC<PdfAnnotatorProps> = ({
         }}
       >
         <div className="pdfViewer" />
+        <TipContainer
+          tooltipData={tooltipData}
+          onSuccess={(newHighlight: T_Highlight) => {
+            addHighlight(newHighlight);
+            hideTipAndSelection();
+          }}
+        />
         {typeof enableAreaSelection === 'function' ? (
           <MouseSelection
             onDragStart={() => toggleTextSelection(true)}
@@ -534,6 +528,9 @@ const mapDispatchToProps = (dispatch: Dispatch) => {
     },
     clearJumpTo: () => {
       dispatch(actions.clearJumpTo());
+    },
+    addHighlight: (highlight: T_Highlight) => {
+      dispatch(actions.addHighlight(highlight));
     },
   };
 };

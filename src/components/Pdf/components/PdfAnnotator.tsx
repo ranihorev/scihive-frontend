@@ -29,11 +29,11 @@ import getClientRects from '../lib/get-client-rects';
 import { findOrCreateContainerLayer, getPageFromElement, getPageFromRange } from '../lib/pdfjs-dom';
 import { convertMatches, renderMatches } from '../lib/pdfSearchUtils';
 import '../style/PdfHighlighter.css';
-import '../style/pdf_viewer.css';
 import MouseSelection from './MouseSelection';
 import { TipContainer, TooltipData } from './TipContainer';
 import { Dispatch } from 'redux';
 import { connect } from 'react-redux';
+import { PageHighlights } from './PageHighlights';
 
 const zoomButtonCss = css`
   color: black;
@@ -55,28 +55,49 @@ const ZoomButtom = ({ direction, onClick }: any) => (
   </div>
 );
 
+const pdfViewerCss = css`
+  .textLayer ::selection {
+    background: rgb(255, 172, 0);
+    opacity: 1;
+    mix-blend-mode: multiply;
+  }
+  .page-highlights {
+    z-index: 2;
+    opacity: 1;
+    mix-blend-mode: multiply;
+  }
+
+  .annotationLayer {
+    position: absolute;
+    top: 0;
+    z-index: 3;
+  }
+
+  /* Microsoft Edge Browser 12+ (All) - @supports method */
+  @supports (-ms-ime-align: auto) {
+    .page-highlights {
+      opacity: 0.5;
+    }
+  }
+
+  .page {
+    box-shadow: 0 0 0 0.75pt #d1d1d1, 0 0 3pt 0.75pt #ccc;
+  }
+`;
+
 interface PdfAnnotatorProps {
   pdfDocument: PDFDocumentProxy;
   isVertical: boolean;
   enableAreaSelection: (event: MouseEvent) => boolean;
   onReferenceEnter: (event: React.MouseEvent) => void;
   onReferenceLeave?: () => void;
-  highlightTransform: (
-    highlight: T_Highlight | TempHighlight,
-    index: number,
-    viewportPosition: T_Position,
-    // setTip: (highlight: T_Highlight, callback: (h: T_Highlight) => void) => void,,
-    // hideTip: () => void,
-    // viewportToScaled: (rect: T_LTWH) => T_Scaled,
-    screenshot: (boundingRect: T_LTWH) => string,
-    isScrolledTo: boolean,
-  ) => void;
   highlights: T_Highlight[];
   acronyms: Acronyms;
   updateReadingProgress: (progress: number) => void;
   clearJumpTo: () => void;
   jumpData: JumpToData;
   addHighlight: (highlight: T_Highlight) => void;
+  jumpToComment: (id: string) => void;
 }
 
 const PdfAnnotator: React.FC<PdfAnnotatorProps> = ({
@@ -85,15 +106,18 @@ const PdfAnnotator: React.FC<PdfAnnotatorProps> = ({
   enableAreaSelection,
   onReferenceEnter,
   onReferenceLeave,
-  highlightTransform,
   highlights,
   acronyms,
   updateReadingProgress,
   clearJumpTo,
   jumpData,
   addHighlight,
+  jumpToComment,
 }) => {
+  // TODO: combine tempHighlight and tooltipData
   const [tempHighlight, setTempHighlight] = React.useState<TempHighlight>();
+  const [tooltipData, setTooltipData] = React.useState<TooltipData | undefined>(undefined);
+
   // const [scrolledToHighlightId, setScrolledToHighlightId] = React.useState(EMPTY_ID);
   const [isAreaSelectionInProgress, setIsAreaSelectionInProgress] = React.useState(false);
   const [isDocumentReady, setIsDocumentReady] = React.useState(false);
@@ -102,11 +126,10 @@ const PdfAnnotator: React.FC<PdfAnnotatorProps> = ({
   const [firstPageRendered, setFirstPageRendered] = React.useState(false);
   const [acronymPositions, setAcronymPositions] = React.useState<AcronymPositions>({});
 
-  const [tooltipData, setTooltipData] = React.useState<TooltipData | undefined>(undefined);
-
   const viewer = React.useRef<PDFViewer>(null);
   const linkService = React.useRef<PDFLinkService>(null);
   const containerNode = React.useRef<HTMLDivElement>(null);
+  const highlightLayerNode = React.useRef<HTMLDivElement>(null);
 
   const hideTipAndSelection = () => {
     const tipNode = findOrCreateContainerLayer(viewer.current.viewer, 'PdfHighlighter__tip-layer');
@@ -283,9 +306,9 @@ const PdfAnnotator: React.FC<PdfAnnotatorProps> = ({
   };
 
   const findOrCreateHighlightLayer = (page: number) => {
-    const { textLayer } = viewer.current.getPageView(page - 1);
-    if (!textLayer) return null;
-    return findOrCreateContainerLayer(textLayer.textLayerDiv, 'PdfHighlighter__highlight-layer');
+    const { annotationLayer } = viewer.current.getPageView(page - 1);
+    if (!annotationLayer) return null;
+    return findOrCreateContainerLayer(annotationLayer.pageDiv, 'page-highlights');
   };
 
   const renderHighlights = () => {
@@ -294,24 +317,13 @@ const PdfAnnotator: React.FC<PdfAnnotatorProps> = ({
       const highlightLayer = findOrCreateHighlightLayer(pageNumber);
       if (highlightLayer) {
         ReactDom.render(
-          <div>
-            {(highlightsByPage[pageNumber] || []).map((highlight, index) => {
-              const viewportPosition = scaledPositionToViewport(highlight.position);
-              const isScrolledTo =
-                isValidHighlight(highlight) &&
-                jumpData &&
-                jumpData.type === 'highlight' &&
-                jumpData.id === highlight.id;
-
-              return highlightTransform(
-                highlight,
-                index,
-                viewportPosition,
-                (boundingRect: T_LTWH) => screenshot(boundingRect, pageNumber),
-                isScrolledTo,
-              );
-            })}
-          </div>,
+          <PageHighlights
+            onHighlightClick={jumpToComment}
+            highlights={highlightsByPage[pageNumber]}
+            screenshot={(boundingRect: T_LTWH) => screenshot(boundingRect, pageNumber)}
+            scaledPositionToViewport={scaledPositionToViewport}
+            jumpData={jumpData}
+          />,
           highlightLayer,
         );
       }
@@ -482,6 +494,7 @@ const PdfAnnotator: React.FC<PdfAnnotatorProps> = ({
             onReferenceLeave();
           }
         }}
+        css={pdfViewerCss}
       >
         <div className="pdfViewer" />
         <TipContainer
@@ -491,6 +504,7 @@ const PdfAnnotator: React.FC<PdfAnnotatorProps> = ({
             hideTipAndSelection();
           }}
         />
+        <div ref={highlightLayerNode} />
         {typeof enableAreaSelection === 'function' ? (
           <MouseSelection
             onDragStart={() => toggleTextSelection(true)}
@@ -531,6 +545,10 @@ const mapDispatchToProps = (dispatch: Dispatch) => {
     },
     addHighlight: (highlight: T_Highlight) => {
       dispatch(actions.addHighlight(highlight));
+    },
+    jumpToComment: (id: string) => {
+      dispatch(actions.setSidebarTab('Comments'));
+      dispatch(actions.jumpTo({ area: 'sidebar', type: 'comment', id }));
     },
   };
 };

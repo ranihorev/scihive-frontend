@@ -29,66 +29,6 @@ import { viewportToScaled } from './Pdf/lib/coordinates';
 import { Popup, PopupManager } from './Popup';
 import { TextLinkifyLatex } from './TextLinkifyLatex';
 
-const HighlightPopup: React.FC<T_Highlight> = ({ content, comment }) => {
-  let copyButton;
-  const hasContent = content && content.text;
-  if (hasContent) {
-    copyButton = (
-      <span
-        css={compactButtonStyle}
-        role="button"
-        onClick={async () => {
-          await copy(content.text || '');
-          toast.success('Highlight has been copied to clipboard', { autoClose: 2000 });
-        }}
-      >
-        <i className="far fa-copy" />
-      </span>
-    );
-  }
-  if (comment && comment.text) {
-    return (
-      <div>
-        <Paper css={popupCss}>
-          <div
-            css={css`
-              ${presets.row};
-              align-items: center;
-            `}
-          >
-            <div
-              css={
-                hasContent
-                  ? css`
-                      border-right: 1px solid #dadada;
-                      padding-right: 8px;
-                    `
-                  : undefined
-              }
-            >
-              <TextLinkifyLatex text={comment.text} />
-            </div>
-            {copyButton}
-          </div>
-        </Paper>
-      </div>
-    );
-  }
-  if (hasContent) {
-    return (
-      <Paper
-        css={css`
-          ${popupCss};
-          padding: 6px;
-        `}
-      >
-        {copyButton}
-      </Paper>
-    );
-  }
-  return null;
-};
-
 const ReferencesPopupManager: React.FC<{
   referencePopoverAnchor?: HTMLElement;
   clearAnchor: () => void;
@@ -136,9 +76,7 @@ interface PdfViewerProps extends RouteComponentProps {
   sections?: Section[];
   references: References;
   highlights: T_Highlight[];
-  switchSidebarToComments: () => void;
   clearJumpTo: () => void;
-  jumpToComment: (id: string) => void;
   updateHighlight: (highlight: T_Highlight) => void;
 }
 
@@ -169,61 +107,6 @@ class PdfViewer extends Component<PdfViewerProps, PdfViewerState> {
     // }
   }
 
-  onHighlightClick = (id: string) => {
-    this.props.jumpToComment(id);
-    this.props.history.push({ hash: `comment-${id}` });
-  };
-
-  highlightTransform = (
-    highlight: T_Highlight | TempHighlight,
-    index: number,
-    viewportPosition: T_Position,
-    screenshot: (boundingRect: T_LTWH) => string,
-    isScrolledTo: boolean,
-  ) => {
-    const isTextHighlight = !(highlight.content && highlight.content.image);
-    const id = isValidHighlight(highlight) ? highlight.id : `temp-${index}`;
-    const component = isTextHighlight ? (
-      <Highlight
-        key={`highlight-${id}`}
-        isScrolledTo={isScrolledTo}
-        position={viewportPosition}
-        onClick={() => {
-          if (!isValidHighlight(highlight)) return;
-          this.props.switchSidebarToComments();
-          this.onHighlightClick(highlight.id);
-        }}
-      />
-    ) : (
-      <AreaHighlight
-        key={`area-highlight-${id}`}
-        isScrolledTo={isScrolledTo}
-        position={viewportPosition}
-        onChange={(boundingRect: T_LTWH) => {
-          const { width, height } = highlight.position.boundingRect;
-          if (!isValidHighlight(highlight)) return;
-          this.props.updateHighlight({
-            ...highlight,
-            position: { ...highlight.position, boundingRect: viewportToScaled(boundingRect, { width, height }) },
-            content: { ...highlight.content, image: screenshot(boundingRect) },
-          });
-        }}
-        onClick={(event: React.MouseEvent) => {
-          event.stopPropagation();
-          if (!isValidHighlight(highlight)) return;
-          this.props.switchSidebarToComments();
-          this.onHighlightClick(highlight.id);
-        }}
-      />
-    );
-    if (isValidHighlight(highlight)) {
-      return (
-        <Popup popupContent={<HighlightPopup {...highlight} />} key={`highligh-popup-${id}`} bodyElement={component} />
-      );
-    }
-    return component;
-  };
-
   render() {
     const { url, isVertical, beforeLoad, references } = this.props;
     const { referencePopoverAnchor, highlightPopoverAnchor, referenceCite } = this.state;
@@ -245,7 +128,6 @@ class PdfViewer extends Component<PdfViewerProps, PdfViewerState> {
             <PdfAnnotator
               pdfDocument={pdfDocument}
               enableAreaSelection={event => event.altKey}
-              highlightTransform={this.highlightTransform}
               isVertical={isVertical}
               onReferenceEnter={e => {
                 const target = e.target as HTMLElement;
@@ -298,14 +180,8 @@ const mapStateToProps = (state: RootState) => {
 };
 
 const mapDispatchToProps = (dispatch: Dispatch) => ({
-  switchSidebarToComments: () => {
-    dispatch(actions.setSidebarTab('Comments'));
-  },
   clearJumpTo: () => {
     dispatch(actions.clearJumpTo());
-  },
-  jumpToComment: (id: string) => {
-    dispatch(actions.jumpTo({ area: 'sidebar', type: 'comment', id }));
   },
   updateHighlight: (highlight: T_Highlight) => {
     dispatch(actions.updateHighlight(highlight));

@@ -1,7 +1,7 @@
 /** @jsx jsx */
 import { css, jsx } from '@emotion/core';
 import { isEmpty, range } from 'lodash';
-import { PDFDocumentProxy, PDFPageProxy, PDFPromise, TextContent } from 'pdfjs-dist';
+import { PDFDocumentProxy, PDFPageProxy, PDFPromise, TextContent, TextContentItem } from 'pdfjs-dist';
 import React from 'react';
 import ContentLoader from 'react-content-loader';
 import { connect } from 'react-redux';
@@ -47,6 +47,24 @@ const PlaceholderList = () => {
   );
 };
 
+const mergeSameLineItems = (items: TextContentItem[]) => {
+  let mergedItems: TextContentItem[] = [];
+  let lastItem: TextContentItem | undefined = undefined;
+  for (const item of items) {
+    if (!lastItem || lastItem.transform[5] !== item.transform[5]) {
+      // transform[5] is the y position in the page
+      mergedItems.push(item);
+      lastItem = item;
+    } else {
+      const lastItemRightEdge = lastItem.transform[4] + lastItem.width; // transform[4] is the left position in the page
+      const shouldAddSpace = item.transform[4] - lastItemRightEdge > item.height / 2;
+      lastItem.str += (shouldAddSpace ? ' ' : '') + item.str;
+      lastItem.width = item.transform[4] - lastItem.transform[4] + item.width; // the distance between the left edge of the two items plus the new item width
+    }
+  }
+  return mergedItems;
+};
+
 export const extractSections = (document: PDFDocumentProxy, onSuccess: (sections: Section[]) => void) => {
   const allHeights: number[] = [];
   let optionalSections: Section[] = [];
@@ -61,7 +79,8 @@ export const extractSections = (document: PDFDocumentProxy, onSuccess: (sections
     const contentPromises = allPages.map(page => page.getTextContent());
     Promise.all((contentPromises as unknown) as Promise<TextContent>[]).then(allContent => {
       allContent.forEach((content, pageIdx) => {
-        content.items.forEach(text => {
+        const mergedContent = mergeSameLineItems(content.items);
+        mergedContent.forEach(text => {
           allHeights.push(text.height);
           if (fontsCount[text.fontName] === undefined) fontsCount[text.fontName] = 0;
           fontsCount[text.fontName] += 1;
@@ -86,6 +105,7 @@ export const extractSections = (document: PDFDocumentProxy, onSuccess: (sections
       const sections = [];
       let lastSectionSplit;
       let sectionFound;
+
       for (const section of optionalSections) {
         sectionFound = false;
         const matches = section.str.match(/^(\d+\.?)+/);

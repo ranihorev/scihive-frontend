@@ -6,14 +6,17 @@ import { connect } from 'react-redux';
 import { Route, Switch } from 'react-router-dom';
 import { ToastContainer } from 'react-toastify';
 import LoginSignupModal from './components/LoginSignupModal';
-import { RootState } from './models';
 import About from './pages/About';
 import Admin from './pages/Admin';
+import Groups from './pages/Groups';
 import Home from './pages/Home';
 import NotFound from './pages/NotFound';
 import Paper from './pages/Paper';
 import chromeExtensionPopup from './utils/chromeExtension';
 import { themePalette } from './utils/presets';
+import { useTracker } from './Tracker';
+import { Dispatch } from 'redux';
+import { loadGroups } from './thunks';
 
 const theme = createMuiTheme({
   palette: themePalette,
@@ -22,7 +25,13 @@ const theme = createMuiTheme({
   },
 });
 
-const App: React.FC<{ isLoggedIn: boolean }> = ({ isLoggedIn }) => {
+const App: React.FC<{ isLoggedIn: boolean; loadGroups: () => void }> = ({ isLoggedIn, loadGroups }) => {
+  React.useEffect(() => {
+    if (isLoggedIn) {
+      loadGroups();
+    }
+  }, [isLoggedIn]);
+
   useEffect(() => {
     if (isLoggedIn) {
       axios
@@ -37,6 +46,7 @@ const App: React.FC<{ isLoggedIn: boolean }> = ({ isLoggedIn }) => {
     }
     chromeExtensionPopup();
   }, []);
+  useTracker();
 
   return (
     <React.Fragment>
@@ -49,6 +59,7 @@ const App: React.FC<{ isLoggedIn: boolean }> = ({ isLoggedIn }) => {
           <Route path="/author/:authorId" exact component={Home} />
           <Route path="/paper/:PaperId" exact component={Paper} />
           <Route path="/about" exact component={About} />
+          <Route path="/groups" exact component={Groups} />
           <Route path="/admin" exact component={Admin} />
           <Route component={NotFound} />
         </Switch>
@@ -71,6 +82,17 @@ const mapStateToProps = (state: RootState) => {
   };
 };
 
-const withRedux = connect(mapStateToProps);
+const mapDispatchToProps = (dispatch: RTDispatch) => {
+  return {
+    loadGroups: () => {
+      dispatch(loadGroups());
+    },
+  };
+};
+
+const withRedux = connect(
+  mapStateToProps,
+  mapDispatchToProps,
+);
 
 export default withRedux(App);

@@ -1,5 +1,5 @@
 /** @jsx jsx */
-import { jsx } from '@emotion/core';
+import { jsx, css } from '@emotion/core';
 import { Badge, Button, Divider, IconButton, Menu, MenuItem } from '@material-ui/core';
 import MoreIcon from '@material-ui/icons/MoreVert';
 import axios from 'axios/index';
@@ -75,11 +75,17 @@ const MobileMenuRender: React.FC<MobileMenuProps> = ({
         onClose={handleMobileMenuClose}
       >
         {submenuChildrenWithClose}
-        {isLoggedIn ? (
+        {isLoggedIn && (
           <Link to="/library" css={simpleLink}>
             <MenuItem onClick={handleMobileMenuClose}>My library</MenuItem>
           </Link>
-        ) : null}
+        )}
+
+        {isLoggedIn && (
+          <Link to="/groups" css={simpleLink}>
+            <MenuItem>My groups</MenuItem>
+          </Link>
+        )}
         <Divider />
         <a
           href="https://chrome.google.com/webstore/detail/scihive/dijdhkcfdaocpepndegmbkgphbpomdai"
@@ -145,13 +151,20 @@ const DesktopMenuRender: React.FC<DesktopMenuProps> = ({ children, isLoggedIn, t
       {children}
       {children ? <Divider /> : null}
       {isLoggedIn ? (
-        <Button color="inherit">
-          <Badge color="secondary" badgeContent={showLibraryBadge ? '+1' : null}>
-            <Link to="/library" css={simpleLink}>
-              My Library
+        <React.Fragment>
+          <Button color="inherit">
+            <Link to="/groups" css={simpleLink}>
+              My groups
             </Link>
-          </Badge>
-        </Button>
+          </Button>
+          <Button color="inherit">
+            <Badge color="secondary" badgeContent={showLibraryBadge ? '+1' : null}>
+              <Link to="/library" css={simpleLink}>
+                My Library
+              </Link>
+            </Badge>
+          </Button>
+        </React.Fragment>
       ) : (
         ''
       )}
@@ -176,6 +189,12 @@ const DesktopMenuRender: React.FC<DesktopMenuProps> = ({ children, isLoggedIn, t
         }}
         open={Boolean(anchorEl)}
         onClose={() => handleMenuClose()}
+        css={css`
+          li {
+            font-size: 14px;
+            min-height: 40px;
+          }
+        `}
       >
         <a
           href="https://chrome.google.com/webstore/detail/scihive/dijdhkcfdaocpepndegmbkgphbpomdai"
@@ -187,6 +206,14 @@ const DesktopMenuRender: React.FC<DesktopMenuProps> = ({ children, isLoggedIn, t
         </a>
         <a href="https://goo.gl/forms/fiEWkXfk4hLW6i1P2" target="_blank" rel="noopener noreferrer" css={simpleLink}>
           <MenuItem onClick={() => handleMenuClose()}>Our poll</MenuItem>
+        </a>
+        <a
+          href="http://www.tricider.com/brainstorming/2urLxQ6t9XR"
+          target="_blank"
+          rel="noopener noreferrer"
+          css={simpleLink}
+        >
+          <MenuItem onClick={() => handleMenuClose()}>Suggest a feature</MenuItem>
         </a>
         <Link to="/about" css={simpleLink}>
           <MenuItem color="inherit">About</MenuItem>

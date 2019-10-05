@@ -50,9 +50,6 @@ const useWindowDimensions = () => {
 interface PdfCommenterProps {
   setBookmark: (value: boolean) => void;
   setCodeMeta: (meta: CodeMeta) => void;
-  selectGroup: (group: Group) => void;
-  setGroups: (group: Group[]) => void;
-  isLoggedIn: boolean;
   setReferences: (references: References) => void;
   setHighlights: (highlights: T_Highlight[]) => void;
   setAcronyms: (acronyms: Acronyms) => void;
@@ -62,9 +59,6 @@ interface PdfCommenterProps {
 const PdfCommenter: React.FC<PdfCommenterProps> = ({
   setBookmark,
   setCodeMeta,
-  selectGroup,
-  setGroups,
-  isLoggedIn,
   setReferences,
   setHighlights,
   setAcronyms,
@@ -138,33 +132,6 @@ const PdfCommenter: React.FC<PdfCommenterProps> = ({
       .catch(err => {
         console.log(err.response);
       });
-
-    // Fetch groups
-    if (isLoggedIn) {
-      if (selectedGroupId) {
-        axios
-          .post('/groups/all', { id: selectedGroupId })
-          .then(res => {
-            const groups: Group[] = res.data;
-            setGroups(groups);
-            const group = groups.find(g => g.id === selectedGroupId);
-            if (group) {
-              selectGroup(group);
-              toast.success(<span>Welcome to Group {group.name}</span>, {
-                autoClose: 2000,
-              });
-            }
-          })
-          .catch(e => console.warn(e.message));
-      } else {
-        axios
-          .get('/groups/all')
-          .then(res => {
-            setGroups(res.data);
-          })
-          .catch(e => console.warn(e.message));
-      }
-    }
   }, [params]);
 
   const Loader = (
@@ -316,21 +283,13 @@ const PdfCommenter: React.FC<PdfCommenterProps> = ({
 };
 
 const mapStateToProps = (state: RootState) => {
-  return {
-    isLoggedIn: !isEmpty(state.user.userData),
-  };
+  return {};
 };
 
 const mapDispatchToProps = (dispatch: Dispatch) => {
   return {
     setBookmark: (value: boolean) => {
       dispatch(actions.setBookmark(value));
-    },
-    selectGroup: (group: Group) => {
-      dispatch(actions.selectGroup(group));
-    },
-    setGroups: (groups: Group[]) => {
-      dispatch(actions.setGroups(groups));
     },
     clearPaper: () => {
       dispatch(actions.clearPaper());

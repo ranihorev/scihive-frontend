@@ -1,6 +1,6 @@
 /** @jsx jsx */
 import { jsx } from '@emotion/core';
-import { Divider, Menu, MenuItem, Tooltip } from '@material-ui/core';
+import { Divider, Menu, MenuItem } from '@material-ui/core';
 import { isEmpty } from 'lodash';
 import React, { useState } from 'react';
 import { connect } from 'react-redux';
@@ -15,10 +15,9 @@ import { ButtonIcon } from '../ButtonIcon';
 interface PaperMenuDekstopProps {
   isLoggedIn: boolean;
   codeMeta?: CodeMeta;
-  toggleGroupsModal: () => void;
 }
 
-const PaperMenuDekstopRender: React.FC<PaperMenuDekstopProps> = ({ toggleGroupsModal, isLoggedIn, codeMeta }) => {
+const PaperMenuDekstopRender: React.FC<PaperMenuDekstopProps> = ({ isLoggedIn, codeMeta }) => {
   const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null);
   const isMenuOpen = Boolean(anchorEl);
   const {
@@ -74,13 +73,6 @@ const PaperMenuDekstopRender: React.FC<PaperMenuDekstopProps> = ({ toggleGroupsM
           <MenuItem onClick={handleMenuClose}>Abstract</MenuItem>
         </a>
       </Menu>
-      {isLoggedIn ? (
-        <Tooltip title="Manage your groups" placement="bottom">
-          <span>
-            <ButtonIcon icon="fas fa-users" size={24} iconSize={18} onClick={toggleGroupsModal} />
-          </span>
-        </Tooltip>
-      ) : null}
     </React.Fragment>
   );
 };
@@ -89,12 +81,10 @@ interface PaperMenuMobileProps {
   handleMobileMenuClick?: () => void;
   isLoggedIn: boolean;
   codeMeta?: CodeMeta;
-  toggleGroupsModal: () => void;
 }
 
 const PaperMenuMobileRender: React.FC<PaperMenuMobileProps> = ({
   handleMobileMenuClick = () => {},
-  toggleGroupsModal,
   isLoggedIn,
   codeMeta,
 }) => {
@@ -136,16 +126,6 @@ const PaperMenuMobileRender: React.FC<PaperMenuMobileProps> = ({
         <MenuItem>Download LaTeX</MenuItem>
       </a>
       <Divider />
-      {isLoggedIn ? (
-        <MenuItem
-          onClick={() => {
-            handleMobileMenuClick();
-            toggleGroupsModal();
-          }}
-        >
-          Groups
-        </MenuItem>
-      ) : null}
     </React.Fragment>
   );
 };

@@ -1,20 +1,12 @@
-import React from 'react';
-import { withStyles } from '@material-ui/core/styles/index';
 import Grid from '@material-ui/core/Grid';
+import React from 'react';
 import PapersList from '../components/PapersList';
 import PrimaryAppBar from '../components/TopBar/PrimaryAppBar';
-import { PaperListDekstopMenu, PaperListMobileMenu } from '../components/TopBar/PapersListMenuBar';
-
-const styles = () => ({
-  root: {
-    // backgroundColor: "lightGrey" // theme.palette.background.paper
-  },
-});
 
 const Home = () => {
   return (
     <React.Fragment>
-      <PrimaryAppBar desktopItems={<PaperListDekstopMenu />} mobileSubItems={<PaperListMobileMenu />} />
+      <PrimaryAppBar />
       <Grid container direction="row" justify="center">
         <PapersList />
       </Grid>
@@ -22,4 +14,4 @@ const Home = () => {
   );
 };
 
-export default withStyles(styles)(Home);
+export default Home;

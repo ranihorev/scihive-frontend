@@ -13,11 +13,11 @@ interface BookmarkProps {
   isLoggedIn: boolean;
   toggleLoginModal: (msg?: string) => void;
   paperId: string;
-  saved_in_library: boolean;
+  saved_in_library?: boolean;
   isBookmarked: boolean;
   setBookmark: (value: boolean) => void;
   color?: string | undefined;
-  selectedColor: string;
+  selectedColor?: string;
   blinkLibraryBadge: () => void;
 }
 

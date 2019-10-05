@@ -1,22 +1,33 @@
 /** @jsx jsx */
 import { jsx } from '@emotion/core';
-import React, { useState } from 'react';
 import { Divider, Menu, MenuItem, Tooltip } from '@material-ui/core';
-import { withRouter } from 'react-router';
-import { connect } from 'react-redux';
 import { isEmpty } from 'lodash';
-import Bookmark from '../Bookmark';
+import React, { useState } from 'react';
+import { connect } from 'react-redux';
+import { Dispatch } from 'redux';
+import useReactRouter from 'use-react-router';
 import { actions } from '../../actions';
+import { CodeMeta, RootState } from '../../models';
 import { simpleLink } from '../../utils/presets';
+import Bookmark from '../Bookmark';
 import { ButtonIcon } from '../ButtonIcon';
 
-const PaperMenuDekstopRender = ({ match: { params }, toggleGroupsModal, isLoggedIn, codeMeta }) => {
-  const [anchorEl, setAnchorEl] = useState(null);
+interface PaperMenuDekstopProps {
+  isLoggedIn: boolean;
+  codeMeta?: CodeMeta;
+  toggleGroupsModal: () => void;
+}
+
+const PaperMenuDekstopRender: React.FC<PaperMenuDekstopProps> = ({ toggleGroupsModal, isLoggedIn, codeMeta }) => {
+  const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null);
   const isMenuOpen = Boolean(anchorEl);
+  const {
+    match: { params },
+  } = useReactRouter();
   const { PaperId } = params;
 
-  const handleMenuOpen = event => {
-    setAnchorEl(event.currentTarget);
+  const handleMenuOpen = (event: React.MouseEvent) => {
+    setAnchorEl(event.currentTarget as HTMLElement);
   };
 
   const handleMenuClose = () => {
@@ -74,13 +85,22 @@ const PaperMenuDekstopRender = ({ match: { params }, toggleGroupsModal, isLogged
   );
 };
 
-const PaperMenuMobileRender = ({
-  match: { params },
-  handleMobileMenuClick,
+interface PaperMenuMobileProps {
+  handleMobileMenuClick?: () => void;
+  isLoggedIn: boolean;
+  codeMeta?: CodeMeta;
+  toggleGroupsModal: () => void;
+}
+
+const PaperMenuMobileRender: React.FC<PaperMenuMobileProps> = ({
+  handleMobileMenuClick = () => {},
   toggleGroupsModal,
   isLoggedIn,
   codeMeta,
 }) => {
+  const {
+    match: { params },
+  } = useReactRouter();
   const { PaperId } = params;
 
   return (
@@ -130,14 +150,14 @@ const PaperMenuMobileRender = ({
   );
 };
 
-const mapStateToProps = state => {
+const mapStateToProps = (state: RootState) => {
   return {
     isLoggedIn: !isEmpty(state.user.userData),
     codeMeta: state.paper.codeMeta,
   };
 };
 
-const mapDispatchToProps = dispatch => {
+const mapDispatchToProps = (dispatch: Dispatch) => {
   return {
     toggleGroupsModal: () => {
       dispatch(actions.toggleGroupsModal());
@@ -150,6 +170,6 @@ const withRedux = connect(
   mapDispatchToProps,
 );
 
-export const PaperDekstopMenu = withRedux(withRouter(PaperMenuDekstopRender));
+export const PaperDekstopMenu = withRedux(PaperMenuDekstopRender);
 
-export const PaperMobileMenu = withRedux(withRouter(PaperMenuMobileRender));
+export const PaperMobileMenu = withRedux(PaperMenuMobileRender);

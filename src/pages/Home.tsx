@@ -3,7 +3,7 @@ import { withStyles } from '@material-ui/core/styles/index';
 import Grid from '@material-ui/core/Grid';
 import PapersList from '../components/PapersList';
 import PrimaryAppBar from '../components/TopBar/PrimaryAppBar';
-import { PaperDekstopMenu, PaperMobileMenu } from '../components/TopBar/PapersListMenuBar';
+import { PaperListDekstopMenu, PaperListMobileMenu } from '../components/TopBar/PapersListMenuBar';
 
 const styles = () => ({
   root: {
@@ -14,7 +14,7 @@ const styles = () => ({
 const Home = () => {
   return (
     <React.Fragment>
-      <PrimaryAppBar desktopItems={<PaperDekstopMenu />} mobileSubItems={<PaperMobileMenu />} />
+      <PrimaryAppBar desktopItems={<PaperListDekstopMenu />} mobileSubItems={<PaperListMobileMenu />} />
       <Grid container direction="row" justify="center">
         <PapersList />
       </Grid>

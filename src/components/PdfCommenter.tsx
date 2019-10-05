@@ -95,7 +95,7 @@ const PdfCommenter: React.FC<PdfCommenterProps> = ({
         setReferences(res.data);
       })
       .catch(err => {
-        console.log(err.response);
+        console.warn(err.response);
       });
 
     // Fetch acronyms
@@ -105,7 +105,7 @@ const PdfCommenter: React.FC<PdfCommenterProps> = ({
         setAcronyms(res.data);
       })
       .catch(err => {
-        console.log(err.response);
+        console.warn(err.response);
       });
   };
 

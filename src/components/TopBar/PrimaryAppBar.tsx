@@ -51,9 +51,9 @@ const styles = (theme: Theme) => ({
 
 interface Props {
   classes: { [key: string]: string };
-  desktopItems: React.ReactElement;
-  mobileRootItems: React.ReactElement;
-  mobileSubItems: React.ReactElement;
+  desktopItems?: React.ReactElement;
+  mobileRootItems?: React.ReactElement;
+  mobileSubItems?: React.ReactElement;
 }
 
 const PrimaryAppBar: React.FC<Props> = ({ classes, desktopItems, mobileRootItems, mobileSubItems }) => {

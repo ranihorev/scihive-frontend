@@ -5,7 +5,7 @@ import MenuItem from '@material-ui/core/MenuItem/index';
 import Button from '@material-ui/core/Button';
 import { simpleLink } from '../../utils/presets';
 
-export const PaperDekstopMenu = () => {
+export const PaperListDekstopMenu = () => {
   return (
     <React.Fragment>
       <Button color="inherit">
@@ -21,7 +21,9 @@ export const PaperDekstopMenu = () => {
     </React.Fragment>
   );
 };
-export const PaperMobileMenu = ({ handleMobileMenuClick }) => {
+export const PaperListMobileMenu: React.FC<{ handleMobileMenuClick?: () => void }> = ({
+  handleMobileMenuClick = () => {},
+}) => {
   return (
     <React.Fragment>
       <a

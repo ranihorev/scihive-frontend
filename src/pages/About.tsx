@@ -1,18 +1,9 @@
-import React from 'react';
-import { withStyles } from '@material-ui/core/styles/index';
+/** @jsx jsx */
+import { css, jsx } from '@emotion/core';
 import Grid from '@material-ui/core/Grid';
+import React from 'react';
 import TweetEmbed from 'react-tweet-embed';
 import PrimaryAppBar from '../components/TopBar/PrimaryAppBar';
-
-const styles = () => ({
-  root: {
-    maxWidth: 992,
-    padding: 20,
-    lineHeight: 1.8,
-    fontSize: 16,
-    margin: 'auto',
-  },
-});
 
 const otherProjects = [
   'Arxiv-Sanity.com',
@@ -37,11 +28,20 @@ const otherProjects = [
   'GroundAI.com',
 ];
 
-const About = ({ classes }) => {
+const About: React.FC = () => {
   return (
     <React.Fragment>
       <PrimaryAppBar />
-      <Grid container className={classes.root}>
+      <Grid
+        container
+        css={css`
+          max-width: 992px;
+          padding: 20px;
+          line-height: 1.8;
+          font-size: 16px;
+          margin: auto;
+        `}
+      >
         <Grid container direction="row" justify="center">
           <Grid item>
             <div>
@@ -107,4 +107,4 @@ const About = ({ classes }) => {
   );
 };
 
-export default withStyles(styles)(About);
+export default About;

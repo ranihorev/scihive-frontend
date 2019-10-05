@@ -164,7 +164,7 @@ export interface RootState {
     userData?: User;
     loginModalMessage?: string;
     blinkLibraryState: boolean;
-    groups?: Group[];
+    groups: Group[];
     selectedGroup?: Group;
   };
   paper: {

@@ -7,7 +7,7 @@ export const actions = {
       payload: message,
     };
   },
-  toggleGroupsModal: (state: boolean) => {
+  toggleGroupsModal: (state?: boolean) => {
     return {
       type: 'TOGGLE_GROUPS_MODAL' as const,
       payload: state,
@@ -19,7 +19,7 @@ export const actions = {
       payload,
     };
   },
-  selectGroup: (payload: Group) => {
+  selectGroup: (payload: Group | undefined) => {
     return {
       type: 'SELECT_GROUP' as const,
       payload,

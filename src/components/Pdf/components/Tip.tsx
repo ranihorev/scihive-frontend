@@ -4,11 +4,11 @@ import { Button, Checkbox, FormControl, FormControlLabel, Input, MenuItem, Selec
 import { CheckboxProps } from '@material-ui/core/Checkbox';
 import { SelectProps } from '@material-ui/core/Select';
 import { isEmpty } from 'lodash';
-import React, { Component } from 'react';
+import React from 'react';
 import { connect } from 'react-redux';
 import { Dispatch } from 'redux';
 import { actions } from '../../../actions';
-import { RootState, T_Highlight, Visibility, VisibilityType, Group } from '../../../models';
+import { Group, RootState, T_Highlight, Visibility, VisibilityType } from '../../../models';
 import { presets } from '../../../utils';
 
 interface State {

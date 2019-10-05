@@ -189,7 +189,7 @@ const PapersList: React.FC<PapersListProps> = ({
     const q = queryString.parse(location.search);
     const categories = q.categories as string;
     if (categories) setSelectedCategories(categories.split(';'));
-  }, []);
+  }, [location.search, setSelectedCategories]);
 
   const q = queryString.parse(location.search);
   const age = getAgeQuery(q);

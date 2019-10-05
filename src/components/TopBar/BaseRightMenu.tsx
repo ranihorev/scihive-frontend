@@ -1,13 +1,15 @@
 /** @jsx jsx */
 import { jsx } from '@emotion/core';
-import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
-import { isEmpty } from 'lodash';
-import { Badge, IconButton, MenuItem, Menu, Divider, Button } from '@material-ui/core';
+import { Badge, Button, Divider, IconButton, Menu, MenuItem } from '@material-ui/core';
 import MoreIcon from '@material-ui/icons/MoreVert';
 import axios from 'axios/index';
+import { isEmpty } from 'lodash';
+import React, { useState } from 'react';
 import { connect } from 'react-redux';
+import { Link } from 'react-router-dom';
+import { Dispatch } from 'redux';
 import { actions } from '../../actions';
+import { RootState } from '../../models';
 import { simpleLink } from '../../utils/presets';
 
 const logout = () => {
@@ -20,25 +22,37 @@ const logout = () => {
     .catch(err => console.log(err.response));
 };
 
-const MobileMenuRender = ({ rootChildren = null, submenuChildren = null, isLoggedIn, toggleLoginModal }) => {
-  const [mobileAnchorEl, setMobileAnchorEl] = useState(null);
+interface MobileMenuProps {
+  rootChildren?: React.ReactElement;
+  submenuChildren?: React.ReactElement;
+  isLoggedIn: boolean;
+  toggleLoginModal: () => void;
+}
 
-  const handleMobileMenuOpen = event => {
-    setMobileAnchorEl(event.currentTarget);
+const MobileMenuRender: React.FC<MobileMenuProps> = ({
+  rootChildren,
+  submenuChildren,
+  isLoggedIn,
+  toggleLoginModal,
+}) => {
+  const [mobileAnchorEl, setMobileAnchorEl] = useState<HTMLElement | null>(null);
+
+  const handleMobileMenuOpen = (event: React.MouseEvent) => {
+    setMobileAnchorEl(event.currentTarget as HTMLElement);
   };
 
   const handleMobileMenuClose = () => {
     setMobileAnchorEl(null);
   };
 
-  const handleMobileMenuClick = (cb = null) => {
+  const handleMobileMenuClick = (cb: () => void = () => {}) => {
     handleMobileMenuClose();
-    if (cb) cb();
+    cb();
   };
 
-  const submenuChildrenWithClose = React.Children.map(submenuChildren, child =>
-    React.cloneElement(child, { handleMobileMenuClick }),
-  );
+  const submenuChildrenWithClose = submenuChildren
+    ? React.Children.map(submenuChildren, child => React.cloneElement(child, { handleMobileMenuClick }))
+    : null;
 
   return (
     <React.Fragment>
@@ -93,19 +107,25 @@ const MobileMenuRender = ({ rootChildren = null, submenuChildren = null, isLogge
   );
 };
 
-let badgeTimeout;
+let badgeTimeout: NodeJS.Timeout;
 
-const DesktopMenuRender = ({ children, isLoggedIn, toggleLoginModal, blinkLibrary }) => {
-  const [anchorEl, setAnchorEl] = React.useState(null);
+interface DesktopMenuProps {
+  blinkLibrary: boolean;
+  isLoggedIn: boolean;
+  toggleLoginModal: () => void;
+}
+
+const DesktopMenuRender: React.FC<DesktopMenuProps> = ({ children, isLoggedIn, toggleLoginModal, blinkLibrary }) => {
+  const [anchorEl, setAnchorEl] = React.useState<HTMLElement | null>(null);
   const [showLibraryBadge, setShowLibraryBadge] = React.useState(false);
   const isInitialMount = React.useRef(true);
-  const handleMenuOpen = event => {
-    setAnchorEl(event.currentTarget);
+  const handleMenuOpen = (event: React.MouseEvent) => {
+    setAnchorEl(event.currentTarget as HTMLElement);
   };
 
-  const handleMenuClose = (cb = null) => {
+  const handleMenuClose = (cb: () => void = () => {}) => {
     setAnchorEl(null);
-    if (cb) cb();
+    cb();
   };
 
   React.useEffect(() => {
@@ -184,14 +204,14 @@ const DesktopMenuRender = ({ children, isLoggedIn, toggleLoginModal, blinkLibrar
   );
 };
 
-const mapStateToProps = state => {
+const mapStateToProps = (state: RootState) => {
   return {
     isLoggedIn: !isEmpty(state.user.userData),
     blinkLibrary: state.user.blinkLibraryState,
   };
 };
 
-const mapDispatchToProps = dispatch => {
+const mapDispatchToProps = (dispatch: Dispatch) => {
   return {
     toggleLoginModal: () => {
       dispatch(actions.toggleLoginModal());

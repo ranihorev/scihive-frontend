@@ -1,33 +1,18 @@
 /** @jsx jsx */
 import { css, jsx } from '@emotion/core';
 import { Paper } from '@material-ui/core';
-import copy from 'clipboard-copy';
 import React, { Component } from 'react';
 import { isMobile } from 'react-device-detect';
 import { connect } from 'react-redux';
 import { RouteComponentProps, withRouter } from 'react-router';
 import { Link } from 'react-router-dom';
-import { toast } from 'react-toastify';
 import { Dispatch } from 'redux';
 import { actions } from '../actions';
-import {
-  isValidHighlight,
-  Reference,
-  References,
-  RootState,
-  Section,
-  TempHighlight,
-  T_Highlight,
-  T_LTWH,
-  T_Position,
-} from '../models';
+import { Reference, References, RootState, Section, T_Highlight } from '../models';
 import { presets } from '../utils';
 import { popupCss } from '../utils/presets';
-import { AreaHighlight, Highlight, PdfAnnotator, PdfLoader } from './Pdf';
-import { compactButtonStyle } from './Pdf/components/Tip';
-import { viewportToScaled } from './Pdf/lib/coordinates';
-import { Popup, PopupManager } from './Popup';
-import { TextLinkifyLatex } from './TextLinkifyLatex';
+import { PdfAnnotator, PdfLoader } from './Pdf';
+import { PopupManager } from './Popup';
 
 const ReferencesPopupManager: React.FC<{
   referencePopoverAnchor?: HTMLElement;

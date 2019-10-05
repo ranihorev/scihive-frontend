@@ -1,10 +1,9 @@
 /** @jsx jsx */
 import { css, jsx } from '@emotion/core';
-import ReactDom from 'react-dom';
 import { Paper } from '@material-ui/core';
-import { Popup } from '../../Popup';
+import ReactDom from 'react-dom';
 import { popupCss } from '../../../utils/presets';
-import { PDFRenderTextLayer } from 'pdfjs-dist';
+import { Popup } from '../../Popup';
 
 interface Match {
   begin: {

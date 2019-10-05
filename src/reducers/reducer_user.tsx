@@ -7,6 +7,7 @@ const initialState: UserState = {
   isLoginModalOpen: false,
   isGroupsModalOpen: false,
   blinkLibraryState: false,
+  groups: [],
 };
 
 export default function dataReducer(state: UserState = initialState, action: Action): UserState {

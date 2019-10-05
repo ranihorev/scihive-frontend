@@ -40,6 +40,10 @@ const About: React.FC = () => {
           line-height: 1.8;
           font-size: 16px;
           margin: auto;
+          .twitter-tweet {
+            max-width: 500px !important;
+            width: 100% !important;
+          }
         `}
       >
         <Grid container direction="row" justify="center">

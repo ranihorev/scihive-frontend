@@ -1,72 +1,87 @@
 /** @jsx jsx */
 import { css, jsx } from '@emotion/core';
-import {
-  Button,
-  IconButton,
-  List,
-  ListItem,
-  ListItemSecondaryAction,
-  ListItemText,
-  TextField,
-  Typography,
-} from '@material-ui/core';
+import { Button, IconButton, List, ListItem, TextField, Typography, Input } from '@material-ui/core';
 import axios from 'axios';
 import copy from 'clipboard-copy';
-import * as queryString from 'query-string';
 import React from 'react';
 import { connect } from 'react-redux';
 import { toast } from 'react-toastify';
-import { Dispatch } from 'redux';
-import useReactRouter from 'use-react-router';
 import { actions } from '../actions';
 import { Group, RootState } from '../models';
+import { deleteGroup, createNewGroup } from '../thunks';
 import { presets } from '../utils';
 
 const iconCss = css`
   font-size: 16px;
 `;
 
-interface GroupsModalProps {
-  groups: Group[];
-  setGroups: (groups: Group[]) => void;
+interface GroupProps extends Omit<GroupsProps, 'groups' | 'createNewGroup'> {
+  group: Group;
 }
 
-const Groups: React.FC<GroupsModalProps> = ({ groups, setGroups }) => {
-  const [newGroupName, setNewGroupName] = React.useState('');
-  const [isSubmitDisabled, setIsSubmitDisabled] = React.useState(false);
-  const { history, location } = useReactRouter();
-
-  const handleDeleteGroup = (id: string) => {
-    axios
-      .delete('/groups/group', { params: { id } })
-      .then(res => {
-        const newQ = { ...queryString.parse(location.search) };
-        delete newQ.group;
-        history.push({
-          pathname: location.pathname,
-          search: queryString.stringify(newQ),
-        });
-        setGroups(res.data);
-      })
-      .catch(e => console.warn(e.message));
-  };
-
+const GroupRender: React.FC<GroupProps> = ({ group, deleteGroup }) => {
   const handleShare = (id: string) => {
     copy(`${window.location.origin}${window.location.pathname}?group=${id}`);
     toast.info(`Link was copied to clipboard`, { autoClose: 2000 });
   };
 
+  return (
+    <ListItem disableGutters>
+      <div
+        css={css`
+          ${presets.row};
+          align-items: center;
+          width: 100%;
+        `}
+      >
+        <div
+          css={css`
+            flex-grow: 1;
+          `}
+        >
+          <Input
+            value={group.name}
+            css={css`
+              &::before {
+                border-bottom: none;
+              }
+            `}
+            fullWidth
+          />
+        </div>
+        <div>
+          <IconButton aria-label="Share" onClick={() => handleShare(group.id)}>
+            <i className="fas fa-share-alt" css={iconCss} />
+          </IconButton>
+          <IconButton aria-label="Delete" onClick={() => deleteGroup(group.id)}>
+            <i className="far fa-trash-alt" css={iconCss} />
+          </IconButton>
+        </div>
+      </div>
+    </ListItem>
+  );
+};
+
+interface GroupsProps {
+  groups: Group[];
+  setGroups: (groups: Group[]) => void;
+  deleteGroup: (id: string) => void;
+  createNewGroup: (name: string, finallyCb: () => void) => void;
+}
+
+const Groups: React.FC<GroupsProps> = ({ groups, setGroups, deleteGroup, createNewGroup }) => {
+  const [newGroupName, setNewGroupName] = React.useState('');
+  const [isSubmitDisabled, setIsSubmitDisabled] = React.useState(false);
+
   const handleSubmitNewGroup = (event: React.FormEvent) => {
-    setIsSubmitDisabled(true);
     event.preventDefault();
-    axios
-      .post('/groups/group', { name: newGroupName })
-      .then(res => {
-        setGroups(res.data);
+    setIsSubmitDisabled(true);
+    if (!isSubmitDisabled) {
+      createNewGroup(newGroupName, () => {
+        setIsSubmitDisabled(false);
         setNewGroupName('');
-      })
-      .catch(e => console.warn(e.message))
-      .finally(() => setIsSubmitDisabled(false));
+      });
+    }
   };
 
   return (
@@ -80,10 +95,16 @@ const Groups: React.FC<GroupsModalProps> = ({ groups, setGroups }) => {
       >
         Manage your groups
       </Typography>
-      <div>
-        <Typography>
-          Groups allow you to manage lists of papers and share comments with an exclusive team of peers
-        </Typography>
+
+      <Typography>
+        Groups allow you to manage lists of papers and share comments with an exclusive team of peers
+      </Typography>
+      <div
+        css={css`
+          width: 100%;
+          max-width: 400px;
+        `}
+      >
         <form
           onSubmit={handleSubmitNewGroup}
           css={css`
@@ -91,7 +112,6 @@ const Groups: React.FC<GroupsModalProps> = ({ groups, setGroups }) => {
             margin-bottom: 12px;
             display: inline-flex;
             width: 100%;
-            max-width: 400px;
           `}
         >
           <TextField
@@ -112,17 +132,7 @@ const Groups: React.FC<GroupsModalProps> = ({ groups, setGroups }) => {
         </form>
         <List>
           {groups.map(group => (
-            <ListItem key={group.id} disableGutters>
-              <ListItemText>{group.name}</ListItemText>
-              <ListItemSecondaryAction>
-                <IconButton aria-label="Share" onClick={() => handleShare(group.id)}>
-                  <i className="fas fa-share-alt" css={iconCss} />
-                </IconButton>
-                <IconButton aria-label="Delete" onClick={() => handleDeleteGroup(group.id)}>
-                  <i className="far fa-trash-alt" css={iconCss} />
-                </IconButton>
-              </ListItemSecondaryAction>
-            </ListItem>
+            <GroupRender key={group.id} {...{ group, setGroups, deleteGroup }} />
           ))}
         </List>
       </div>
@@ -137,10 +147,16 @@ const mapStateToProps = (state: RootState) => {
   };
 };
 
-const mapDispatchToProps = (dispatch: Dispatch) => {
+const mapDispatchToProps = (dispatch: RTDispatch) => {
   return {
     setGroups: (groups: Group[]) => {
       dispatch(actions.setGroups(groups));
+    },
+    deleteGroup: (id: string) => {
+      dispatch(deleteGroup(id));
+    },
+    createNewGroup: (name: string, finallyCb: () => void) => {
+      dispatch(createNewGroup(name, finallyCb));
     },
   };
 };

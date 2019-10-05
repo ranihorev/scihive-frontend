@@ -12,11 +12,10 @@ import Groups from './pages/Groups';
 import Home from './pages/Home';
 import NotFound from './pages/NotFound';
 import Paper from './pages/Paper';
+import { loadGroups } from './thunks';
+import { useTracker } from './Tracker';
 import chromeExtensionPopup from './utils/chromeExtension';
 import { themePalette } from './utils/presets';
-import { useTracker } from './Tracker';
-import { Dispatch } from 'redux';
-import { loadGroups } from './thunks';
 
 const theme = createMuiTheme({
   palette: themePalette,

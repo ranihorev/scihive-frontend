@@ -97,7 +97,6 @@ const PapersList: React.FC<PapersListProps> = ({
   };
 
   const loadPapers = (page: number) => {
-    console.log(location);
     let url = '/papers/all';
 
     const queryParams = queryString.parse(location.search);

@@ -38,10 +38,28 @@ export default function dataReducer(state = initialState, action: PapersListActi
       return { ...state, isCategoriesModalOpen: !state.isCategoriesModalOpen };
     case 'SET_SELECTED_CATEGORIES':
       return { ...state, selectedCategories: action.payload };
-    // case 'UPDATE_BOOKMARK':
-    //   return produce(state, draftState => {
-    //     draftState.
-    //   })
+    case 'UPDATE_BOOKMARK':
+      return produce(state, draftState => {
+        for (const paper of draftState.papers) {
+          if (paper._id === action.payload.paperId) {
+            paper.saved_in_library = action.payload.checked;
+          }
+        }
+        return draftState;
+      });
+    case 'UPDATE_PAPER_GROUPS':
+      return produce(state, draftState => {
+        for (const paper of draftState.papers) {
+          if (paper._id === action.payload.paperId) {
+            if (action.payload.shouldAdd) {
+              paper.groups.push(action.payload.groupId);
+            } else {
+              paper.groups = paper.groups.filter(g => g !== action.payload.groupId);
+            }
+          }
+        }
+        return draftState;
+      });
     default:
       return state;
   }

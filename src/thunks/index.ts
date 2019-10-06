@@ -47,7 +47,20 @@ export const bookmarkPaper = (paperId: string, checked: boolean) => (dispatch: D
     .then(() => {
       dispatch(actions.updateBookmark({ paperId, checked }));
     })
-    .catch(err => console.log(err.response));
+    .catch(err => console.log(err));
+};
+
+export const addRemovePaperToGroup = (payload: { paperId: string; shouldAdd: boolean; groupId: string }) => (
+  dispatch: Dispatch,
+  getState: GetState,
+) => {
+  const { paperId, groupId, shouldAdd } = payload;
+  axios
+    .post(`/groups/group/${groupId}`, { paper_id: paperId, add: Number(shouldAdd) })
+    .then(() => {
+      dispatch(actions.updatePaperGroups(payload));
+    })
+    .catch(err => console.log(err));
 };
 
 export interface RequestParams {
@@ -71,9 +84,8 @@ export const fetchPapers = ({
   setHasMorePapers: (value: boolean) => void;
   finallyCb: () => void;
 }) => async (dispatch: Dispatch, getState: GetState) => {
-  const numRetries = 0;
   const page = requestParams.page_num;
-  let shouldRetry = true;
+  // TODO: add retries
   const fetchHelper = () => {
     axios
       .get(url, { params: requestParams })

@@ -39,9 +39,13 @@ export const actions = {
   updateBookmark: (payload: { paperId: string; checked: boolean }) => {
     return {
       type: 'UPDATE_BOOKMARK' as const,
-      payload: payload,
+      payload,
     };
   },
+  updatePaperGroups: (payload: { paperId: string; groupId: string; shouldAdd: boolean }) => ({
+    type: 'UPDATE_PAPER_GROUPS' as const,
+    payload,
+  }),
 };
 
 export type PapersListActions = ReturnType<typeof actions[keyof typeof actions]>;

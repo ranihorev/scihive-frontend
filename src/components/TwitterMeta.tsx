@@ -3,6 +3,7 @@ import { css, jsx, SerializedStyles } from '@emotion/core';
 import { Button, List, ListItem, ListItemIcon, Popover } from '@material-ui/core';
 import React from 'react';
 import { TwitterLink } from '../models';
+import { sortBy } from 'lodash';
 
 interface Props {
   twtr_score: number;
@@ -11,8 +12,9 @@ interface Props {
 }
 
 const TwitterMeta: React.FC<Props> = ({ twtr_score, twtr_links, iconCss }) => {
-  const links = twtr_links || [];
-  links.sort((a, b) => b.score - a.score);
+  let links = twtr_links || [];
+  links = sortBy(links, 'score');
+
   const [anchorEl, setAnchorEl] = React.useState<Element>();
 
   const handleClick = (event: React.MouseEvent) => {

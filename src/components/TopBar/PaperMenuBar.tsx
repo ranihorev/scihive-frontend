@@ -35,7 +35,7 @@ const PaperMenuDekstopRender: React.FC<PaperMenuDekstopProps> = ({ isLoggedIn, c
 
   return (
     <React.Fragment>
-      <Bookmark paperId={PaperId} color="white" />
+      <Bookmark paperId={PaperId} color="white" selectedGroupIds={[]} />
       <ButtonIcon icon="fas fa-link" size={24} iconSize={17} onClick={handleMenuOpen} />
       <Menu
         anchorEl={anchorEl}

@@ -112,7 +112,7 @@ const PapersListItem: React.FC<PapersListItemProps> = ({ paper }) => {
               align-items: center;
             `}
           >
-            <Bookmark paperId={paper._id} size="small" isBookmarked={isBookmarked} />
+            <Bookmark paperId={paper._id} size="small" isBookmarked={isBookmarked} selectedGroupIds={paper.groups} />
           </Grid>
         </Grid>
         <Grid

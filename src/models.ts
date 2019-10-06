@@ -175,6 +175,7 @@ export interface PaperListItem {
   authors: { name: string }[];
   time_published: string;
   summary: string;
+  groups: string[];
 }
 
 export interface RootState {

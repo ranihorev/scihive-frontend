@@ -17,6 +17,7 @@ import { Dispatch } from 'redux';
 import { actions } from '../actions';
 import { AddToListIcon } from '../icons/addToList';
 import { Group, RootState } from '../models';
+import { bookmarkPaper, addRemovePaperToGroup } from '../thunks';
 
 interface BookmarkProps {
   isBookmarked?: boolean;
@@ -24,6 +25,7 @@ interface BookmarkProps {
   size?: SvgIconProps['fontSize'];
   paperId: string;
   position?: 'right' | 'center' | 'left';
+  selectedGroupIds: string[];
 }
 
 interface BookmarkStateProps {
@@ -34,7 +36,8 @@ interface BookmarkStateProps {
 
 interface BookmarkDispatchProps {
   toggleLoginModal: (msg?: string) => void;
-  setBookmark: (value: boolean) => void;
+  setBookmark: (...args: Parameters<typeof bookmarkPaper>) => void;
+  updatePaperGroup: (...args: Parameters<typeof addRemovePaperToGroup>) => void;
 }
 
 // isBookmarked and setBookmark are from the redux store
@@ -42,22 +45,21 @@ const Bookmark: React.FC<BookmarkProps & BookmarkStateProps & BookmarkDispatchPr
   isLoggedIn,
   toggleLoginModal,
   isBookmarked,
+  selectedGroupIds,
   groups,
   paperId,
   setBookmark,
+  updatePaperGroup,
   color = undefined,
   size = 'inherit',
   position = 'right',
 }) => {
   const [anchorEl, setAnchorEl] = React.useState<Element>();
-
-  const handleBookmarkClick = (value: boolean) => {
+  const handleClick = (event: React.MouseEvent) => {
     if (!isLoggedIn) {
       toggleLoginModal('Please login to save bookmarks');
       return;
     }
-  };
-  const handleClick = (event: React.MouseEvent) => {
     setAnchorEl(event.currentTarget);
   };
 
@@ -68,13 +70,13 @@ const Bookmark: React.FC<BookmarkProps & BookmarkStateProps & BookmarkDispatchPr
   const open = Boolean(anchorEl);
 
   return (
-    <React.Fragment>
+    <div>
       <IconButton onClick={handleClick}>
         <AddToListIcon
           style={css`
             width: 18px;
           `}
-          fill="rgba(0, 0, 0, 0.54)"
+          fill="rgba(0, 0, 0, 0.8)"
         />
       </IconButton>
       <Popover
@@ -92,7 +94,7 @@ const Bookmark: React.FC<BookmarkProps & BookmarkStateProps & BookmarkDispatchPr
         }}
         css={css`
           > .MuiPopover-paper {
-            max-height: 150px;
+            max-height: 200px;
             overflow-y: auto;
             width: 200px;
           }
@@ -104,20 +106,38 @@ const Bookmark: React.FC<BookmarkProps & BookmarkStateProps & BookmarkDispatchPr
             width: 100%;
           `}
         >
-          <ListItem button>
+          <ListItem>
             <ListItemText primary="Starred" />
             <ListItemSecondaryAction>
               <Checkbox
                 edge="end"
-                onChange={(e, checked) => handleBookmarkClick(checked)}
+                onChange={(e, checked) => setBookmark(paperId, checked)}
                 checked={isBookmarked}
-                color="default"
+                color="primary"
               />
             </ListItemSecondaryAction>
           </ListItem>
+          {groups.map(group => {
+            const selected = selectedGroupIds.some(id => id === group.id);
+            return (
+              <ListItem key={group.id}>
+                <ListItemText primary={group.name} />
+                <ListItemSecondaryAction>
+                  <Checkbox
+                    edge="end"
+                    onChange={(e, checked) => {
+                      updatePaperGroup({ paperId, groupId: group.id, shouldAdd: !selected });
+                    }}
+                    checked={selected}
+                    color="primary"
+                  />
+                </ListItemSecondaryAction>
+              </ListItem>
+            );
+          })}
         </List>
       </Popover>
-    </React.Fragment>
+    </div>
   );
 };
 
@@ -129,13 +149,16 @@ const mapStateToProps = (state: RootState, props: BookmarkProps) => {
   };
 };
 
-const mapDispatchToProps = (dispatch: Dispatch) => {
+const mapDispatchToProps = (dispatch: RTDispatch): BookmarkDispatchProps => {
   return {
-    toggleLoginModal: (message?: string) => {
+    toggleLoginModal: message => {
       dispatch(actions.toggleLoginModal(message));
     },
-    setBookmark: (value: boolean) => {
-      dispatch(actions.setBookmark(value));
+    setBookmark: (...args) => {
+      dispatch(bookmarkPaper(...args));
+    },
+    updatePaperGroup: payload => {
+      dispatch(addRemovePaperToGroup(payload));
     },
   };
 };

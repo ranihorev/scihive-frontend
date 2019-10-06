@@ -1,14 +1,13 @@
 /** @jsx jsx */
 import { css, jsx } from '@emotion/core';
 import { Chip, CircularProgress, FormControl, Grid, Input, MenuItem, Select } from '@material-ui/core';
-import axios from 'axios';
 import * as queryString from 'query-string';
 import React from 'react';
 import { connect } from 'react-redux';
 import { RouteComponentProps, withRouter } from 'react-router';
-import { Dispatch } from 'redux';
 import { actions } from '../actions/papersList';
-import { RootState, PaperListItem } from '../models';
+import { PaperListItem, RootState } from '../models';
+import { fetchPapers, RequestParams } from '../thunks';
 import * as presets from '../utils/presets';
 import { CategoriesModal } from './Cateogries';
 import InfiniteScroll from './InfiniteScroll';
@@ -46,8 +45,6 @@ const filterMenuItemCss = css`
   padding: 8px 12px;
 `;
 
-const MAX_RETRIES = 3;
-
 interface QueryParam {
   age: string;
   q: string;
@@ -61,18 +58,10 @@ interface QueryParams {
   sort?: string;
 }
 
-interface RequestParams {
-  age: string;
-  q: string;
-  sort: string;
-  author: string;
-  page_num: number;
-}
-
 interface PapersListDispatchProps {
   toggleCategoryModal: () => void;
   setSelectedCategories: (categories: string[]) => void;
-  addPapers: (payload: { papers: PaperListItem[]; total?: number }) => void;
+  fetchPapers: (...args: Parameters<typeof fetchPapers>) => void;
   clearPapers: () => void;
 }
 interface PapersListProps extends PapersListDispatchProps {
@@ -89,7 +78,7 @@ const PapersList: React.FC<PapersListProps> = ({
   history,
   toggleCategoryModal,
   setSelectedCategories,
-  addPapers,
+  fetchPapers,
   clearPapers,
   papers,
   totalPapers,
@@ -98,7 +87,6 @@ const PapersList: React.FC<PapersListProps> = ({
   const [scrollId, setScrollId] = React.useState(Math.random());
   const [hasMorePapers, setHasMorePapers] = React.useState(true);
   const [isLoading, setIsLoading] = React.useState(false);
-  const numRetries = React.useRef(0);
 
   const getAgeQuery = (queryParams: QueryParams) => {
     return queryParams.age || (match.path === '/library' || queryParams.q ? 'all' : 'week');
@@ -109,6 +97,7 @@ const PapersList: React.FC<PapersListProps> = ({
   };
 
   const loadPapers = (page: number) => {
+    console.log(location);
     let url = '/papers/all';
 
     const queryParams = queryString.parse(location.search);
@@ -117,34 +106,15 @@ const PapersList: React.FC<PapersListProps> = ({
       page_num: page,
       age: getAgeQuery(queryParams),
       sort: getSortQuery(queryParams),
+      q: (queryParams.q as string) || undefined,
     };
 
     if (match && match.path === '/library') {
       url = '/library';
     }
+
     setIsLoading(true);
-    axios
-      .get(url, { params: requestParams })
-      .then(result => {
-        const newPapers = result.data.papers;
-        // Everytime we load page 0 we assume it's a new query
-        if (page === 1) {
-          clearPapers();
-        }
-        addPapers({ papers: newPapers, total: page === 1 ? result.data.count : undefined });
-        setHasMorePapers(newPapers.length !== 0);
-        numRetries.current = 0;
-      })
-      .catch(e => {
-        if (numRetries.current >= MAX_RETRIES) {
-          setHasMorePapers(false);
-          console.warn('Failed to load content', e);
-        }
-        numRetries.current++;
-      })
-      .finally(() => {
-        setIsLoading(false);
-      });
+    fetchPapers({ url, requestParams, setHasMorePapers, finallyCb: () => setIsLoading(false) });
   };
 
   const handleFilters = (queryParam: string, queryValue: string) => {
@@ -310,15 +280,15 @@ const mapStateToProps = (state: RootState) => {
   };
 };
 
-const mapDispatchToProps = (dispatch: Dispatch): PapersListDispatchProps => ({
+const mapDispatchToProps = (dispatch: RTDispatch): PapersListDispatchProps => ({
   toggleCategoryModal: () => {
     dispatch(actions.toggleCategoriesModal());
   },
   setSelectedCategories: categories => {
     dispatch(actions.setSelectedCategories(categories));
   },
-  addPapers: payload => {
-    dispatch(actions.addPapers(payload));
+  fetchPapers: payload => {
+    dispatch(fetchPapers(payload));
   },
   clearPapers: () => {
     dispatch(actions.clearPapers());

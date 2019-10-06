@@ -155,7 +155,7 @@ const SearchBar = ({ history, classes, location }) => {
       // TODO search here
       e.preventDefault();
       e.stopPropagation();
-      history.push({ pathname: '/search/', search: `q=${e.target.value}` });
+      history.push({ search: `q=${e.target.value}` });
     }
   };
 

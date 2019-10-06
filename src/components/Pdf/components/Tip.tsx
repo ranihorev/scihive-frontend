@@ -22,7 +22,6 @@ interface TipProps {
   onConfirm: (comment: T_Highlight['comment'], visibility: Visibility) => void;
   onOpen: () => void;
   isLoggedIn: boolean;
-  selectedGroup?: Group;
   openGroupsModal: () => void;
   onMouseDown?: (e: React.MouseEvent) => void;
 }
@@ -57,14 +56,8 @@ export const CompactTipButton: React.FC<{ onClick: (e: React.MouseEvent) => void
   </div>
 );
 
-const Tip: React.FC<TipProps> = ({
-  isLoggedIn,
-  onConfirm,
-  onOpen,
-  openGroupsModal,
-  selectedGroup,
-  onMouseDown = () => {},
-}) => {
+const Tip: React.FC<TipProps> = ({ isLoggedIn, onConfirm, onOpen, openGroupsModal, onMouseDown = () => {} }) => {
+  const selectedGroup = { id: 'temp', name: 'temp' }; // TODO: fix me!!!
   const [isCompact, setIsCompact] = React.useState(true);
   const [text, setText] = React.useState('');
   const [visibility, setVisibility] = React.useState<VisibilityType>(selectedGroup ? 'group' : 'public');
@@ -242,7 +235,6 @@ const Tip: React.FC<TipProps> = ({
 const mapStateToProps = (state: RootState) => {
   return {
     isLoggedIn: !isEmpty(state.user.userData),
-    selectedGroup: state.user.selectedGroup,
   };
 };
 

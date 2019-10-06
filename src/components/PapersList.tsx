@@ -8,11 +8,11 @@ import { connect } from 'react-redux';
 import { RouteComponentProps, withRouter } from 'react-router';
 import { Dispatch } from 'redux';
 import { actions } from '../actions/papersList';
-import { RootState } from '../models';
+import { RootState, PaperListItem } from '../models';
 import * as presets from '../utils/presets';
 import { CategoriesModal } from './Cateogries';
 import InfiniteScroll from './InfiniteScroll';
-import PapersListItem, { Paper } from './PapersListItem';
+import PapersListItem from './PapersListItem';
 
 const formControlCss = css({
   margin: '8px 8px 8px 0px',
@@ -46,24 +46,8 @@ const filterMenuItemCss = css`
   padding: 8px 12px;
 `;
 
-const SET_PAPERS = 'SET_PAPERS';
-const ADD_PAPERS = 'ADD_PAPERS';
 const MAX_RETRIES = 3;
 
-interface PapersState {
-  papers: Paper[];
-}
-
-const reducer = (state: PapersState, action: { type: 'SET_PAPERS' | 'ADD_PAPERS'; payload: Paper[] }) => {
-  switch (action.type) {
-    case SET_PAPERS:
-      return { ...state, papers: action.payload };
-    case ADD_PAPERS:
-      return { ...state, papers: [...state.papers, ...action.payload] };
-    default:
-      throw new Error('Action does not exist');
-  }
-};
 interface QueryParam {
   age: string;
   q: string;
@@ -85,12 +69,18 @@ interface RequestParams {
   page_num: number;
 }
 
-interface PapersListProps {
+interface PapersListDispatchProps {
+  toggleCategoryModal: () => void;
+  setSelectedCategories: (categories: string[]) => void;
+  addPapers: (payload: { papers: PaperListItem[]; total?: number }) => void;
+  clearPapers: () => void;
+}
+interface PapersListProps extends PapersListDispatchProps {
   match: RouteComponentProps<QueryParam>['match'];
   location: RouteComponentProps['location'];
   history: RouteComponentProps['history'];
-  toggleCategoryModal: () => void;
-  setSelectedCategories: (categories: string[]) => void;
+  papers: PaperListItem[];
+  totalPapers: number;
 }
 
 const PapersList: React.FC<PapersListProps> = ({
@@ -99,13 +89,15 @@ const PapersList: React.FC<PapersListProps> = ({
   history,
   toggleCategoryModal,
   setSelectedCategories,
+  addPapers,
+  clearPapers,
+  papers,
+  totalPapers,
 }) => {
-  const [papersState, dispatch] = React.useReducer(reducer, { papers: [] });
   const isFirstLoad = React.useRef(true);
   const [scrollId, setScrollId] = React.useState(Math.random());
   const [hasMorePapers, setHasMorePapers] = React.useState(true);
   const [isLoading, setIsLoading] = React.useState(false);
-  const [totalPapers, setTotalPapers] = React.useState(0);
   const numRetries = React.useRef(0);
 
   const getAgeQuery = (queryParams: QueryParams) => {
@@ -137,11 +129,9 @@ const PapersList: React.FC<PapersListProps> = ({
         const newPapers = result.data.papers;
         // Everytime we load page 0 we assume it's a new query
         if (page === 1) {
-          dispatch({ type: SET_PAPERS, payload: newPapers });
-          setTotalPapers(result.data.count);
-        } else {
-          dispatch({ type: ADD_PAPERS, payload: newPapers });
+          clearPapers();
         }
+        addPapers({ papers: newPapers, total: page === 1 ? result.data.count : undefined });
         setHasMorePapers(newPapers.length !== 0);
         numRetries.current = 0;
       })
@@ -175,10 +165,10 @@ const PapersList: React.FC<PapersListProps> = ({
   };
 
   React.useEffect(() => {
+    clearPapers();
     if (isFirstLoad.current) {
       isFirstLoad.current = false;
     } else {
-      dispatch({ type: SET_PAPERS, payload: [] });
       setHasMorePapers(true);
       setIsLoading(false);
       setScrollId(Math.random());
@@ -194,7 +184,7 @@ const PapersList: React.FC<PapersListProps> = ({
   const q = queryString.parse(location.search);
   const age = getAgeQuery(q);
   const sort = getSortQuery(q);
-  const { papers } = papersState;
+
   return (
     <div
       css={css`
@@ -313,17 +303,25 @@ const PapersList: React.FC<PapersListProps> = ({
 
 const mapStateToProps = (state: RootState) => {
   return {
+    papers: state.papersList.papers,
     allCategories: state.papersList.allCategories,
     selectedCategories: state.papersList.selectedCategories,
+    totalPapers: state.papersList.totalPapers,
   };
 };
 
-const mapDispatchToProps = (dispatch: Dispatch) => ({
+const mapDispatchToProps = (dispatch: Dispatch): PapersListDispatchProps => ({
   toggleCategoryModal: () => {
     dispatch(actions.toggleCategoriesModal());
   },
-  setSelectedCategories: (categories: string[]) => {
+  setSelectedCategories: categories => {
     dispatch(actions.setSelectedCategories(categories));
+  },
+  addPapers: payload => {
+    dispatch(actions.addPapers(payload));
+  },
+  clearPapers: () => {
+    dispatch(actions.clearPapers());
   },
 });
 

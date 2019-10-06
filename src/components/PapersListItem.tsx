@@ -1,29 +1,28 @@
 /** @jsx jsx */
 import { css, jsx } from '@emotion/core';
-import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
-import { isEmpty } from 'lodash';
 import {
-  Card,
-  Typography,
-  IconButton,
-  CardActions,
-  Grid,
-  Divider,
-  CardContent,
   Button,
+  Card,
+  CardActions,
+  CardContent,
+  Divider,
+  Grid,
+  IconButton,
   Tooltip,
+  Typography,
 } from '@material-ui/core';
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
+import { isEmpty } from 'lodash';
 import moment from 'moment';
+import React, { useState } from 'react';
+import { Link } from 'react-router-dom';
 import TextTruncate from 'react-text-truncate';
-import TwitterMeta, { TwitterLink } from './TwitterMeta';
-import Bookmark from './Bookmark';
-import * as presets from '../utils/presets';
+import { PaperListItem } from '../models';
 import { Latex } from '../utils/latex';
+import * as presets from '../utils/presets';
+import Bookmark from './Bookmark';
 import CodeMetaRender from './CodeMeta';
-import { CodeMeta } from '../models';
-import { AddToListIcon } from '../icons/addToList';
+import TwitterMeta from './TwitterMeta';
 
 const MAIN_COLOR = presets.themePalette.primary.main;
 
@@ -50,22 +49,8 @@ const expandedOpenCss = css`
   transform: rotate(180deg);
 `;
 
-export interface Paper {
-  _id: string;
-  saved_in_library: boolean;
-  comments_count: number;
-  twtr_score: number;
-  twtr_links: TwitterLink[];
-  bookmarks_count: number;
-  github: CodeMeta;
-  title: string;
-  authors: { name: string }[];
-  time_published: string;
-  summary: string;
-}
-
 interface PapersListItemProps {
-  paper: Paper;
+  paper: PaperListItem;
 }
 
 const PapersListItem: React.FC<PapersListItemProps> = ({ paper }) => {

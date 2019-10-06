@@ -34,7 +34,6 @@ interface GroupsModalProps {
   isGroupsModalOpen: boolean;
   toggleGroupsModal: (state?: boolean) => void;
   fullScreen: boolean;
-  selectedGroup: Group | undefined;
   groups: Group[];
   setGroups: (groups: Group[]) => void;
 }

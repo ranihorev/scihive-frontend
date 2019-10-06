@@ -157,6 +157,26 @@ type PaperJump = SectionPaperJump | HighlightPaperJump;
 
 export type JumpToData = PaperJump | CommentJump;
 
+export interface TwitterLink {
+  link: string;
+  name: string;
+  score: number;
+}
+
+export interface PaperListItem {
+  _id: string;
+  saved_in_library: boolean;
+  comments_count: number;
+  twtr_score: number;
+  twtr_links: TwitterLink[];
+  bookmarks_count: number;
+  github: CodeMeta;
+  title: string;
+  authors: { name: string }[];
+  time_published: string;
+  summary: string;
+}
+
 export interface RootState {
   user: {
     isLoginModalOpen: boolean;
@@ -165,7 +185,6 @@ export interface RootState {
     loginModalMessage?: string;
     blinkLibraryState: boolean;
     groups: Group[];
-    selectedGroup?: Group;
   };
   paper: {
     readingProgress: number;
@@ -181,6 +200,8 @@ export interface RootState {
     codeMeta?: CodeMeta;
   };
   papersList: {
+    papers: PaperListItem[];
+    totalPapers: number;
     allCategories: Category[];
     selectedCategories: string[];
     isCategoriesModalOpen: boolean;

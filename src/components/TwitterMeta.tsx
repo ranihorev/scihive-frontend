@@ -1,13 +1,8 @@
 /** @jsx jsx */
 import { css, jsx, SerializedStyles } from '@emotion/core';
+import { Button, List, ListItem, ListItemIcon, Popover } from '@material-ui/core';
 import React from 'react';
-import { List, ListItem, ListItemIcon, Button, Popover } from '@material-ui/core';
-
-export interface TwitterLink {
-  link: string;
-  name: string;
-  score: number;
-}
+import { TwitterLink } from '../models';
 
 interface Props {
   twtr_score: number;

@@ -1,6 +1,17 @@
-import { Category } from '../models';
+import { Category, PaperListItem } from '../models';
 
 export const actions = {
+  addPapers: (payload: { papers: PaperListItem[]; total?: number }) => ({
+    type: 'ADD_PAPERS' as const,
+    payload: payload,
+  }),
+  setTotalPapers: (total: number) => ({
+    type: 'SET_TOTAL_PAPERS' as const,
+    payload: total,
+  }),
+  clearPapers: () => ({
+    type: 'CLEAR_PAPERS' as const,
+  }),
   setAllCategories: (categories: Category[]) => {
     return {
       type: 'SET_ALL_CATEGORIES' as const,
@@ -32,3 +43,5 @@ export const actions = {
     };
   },
 };
+
+export type PapersListActions = ReturnType<typeof actions[keyof typeof actions]>;

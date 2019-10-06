@@ -23,6 +23,7 @@ import * as presets from '../utils/presets';
 import { Latex } from '../utils/latex';
 import CodeMetaRender from './CodeMeta';
 import { CodeMeta } from '../models';
+import { AddToListIcon } from '../icons/addToList';
 
 const MAIN_COLOR = presets.themePalette.primary.main;
 
@@ -68,7 +69,7 @@ interface PapersListItemProps {
 }
 
 const PapersListItem: React.FC<PapersListItemProps> = ({ paper }) => {
-  const { saved_in_library, comments_count, twtr_score, twtr_links, bookmarks_count, github } = paper;
+  const { saved_in_library: isBookmarked, comments_count, twtr_score, twtr_links, bookmarks_count, github } = paper;
   const [expanded, setExpanded] = useState(false);
 
   const handleExpandClick = (e: React.MouseEvent) => {
@@ -122,9 +123,11 @@ const PapersListItem: React.FC<PapersListItemProps> = ({ paper }) => {
               position: absolute;
               right: -8px;
               top: -12px;
+              ${presets.col};
+              align-items: center;
             `}
           >
-            <Bookmark paperId={paper._id} saved_in_library={saved_in_library} selectedColor={MAIN_COLOR} />
+            <Bookmark paperId={paper._id} size="small" isBookmarked={isBookmarked} />
           </Grid>
         </Grid>
         <Grid

@@ -19,12 +19,6 @@ export const actions = {
       payload,
     };
   },
-  selectGroup: (payload: Group | undefined) => {
-    return {
-      type: 'SELECT_GROUP' as const,
-      payload,
-    };
-  },
   setGroups: (payload: Group[]) => ({
     type: 'SET_GROUPS' as const,
     payload,

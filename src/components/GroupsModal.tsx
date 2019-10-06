@@ -34,7 +34,6 @@ interface GroupsModalProps {
   isGroupsModalOpen: boolean;
   toggleGroupsModal: (state?: boolean) => void;
   fullScreen: boolean;
-  selectGroup: (group: Group | undefined) => void;
   selectedGroup: Group | undefined;
   groups: Group[];
   setGroups: (groups: Group[]) => void;
@@ -44,8 +43,6 @@ const GroupsModal: React.FC<GroupsModalProps> = ({
   isGroupsModalOpen,
   toggleGroupsModal,
   fullScreen,
-  selectGroup,
-  selectedGroup,
   groups,
   setGroups,
 }) => {
@@ -84,17 +81,6 @@ const GroupsModal: React.FC<GroupsModalProps> = ({
       })
       .catch(e => console.warn(e.message))
       .finally(() => setIsSubmitDisabled(false));
-  };
-
-  const switchToGroup = (groupData: Group | undefined) => {
-    const newQ = { ...queryString.parse(location.search), group: groupData ? groupData.id : undefined };
-    history.push({
-      pathname: location.pathname,
-      search: queryString.stringify(newQ),
-    });
-    selectGroup(groupData);
-    // auto close the modal after selection
-    setTimeout(() => toggleGroupsModal(false), 400);
   };
 
   return (
@@ -136,17 +122,8 @@ const GroupsModal: React.FC<GroupsModalProps> = ({
         <List>
           {groups &&
             groups.map(group => (
-              <ListItem key={group.id} disableGutters selected={selectedGroup && group.id === selectedGroup.id}>
-                <ListItemText>
-                  <Button
-                    onClick={() => switchToGroup(group)}
-                    css={css`
-                      text-transform: none;
-                    `}
-                  >
-                    {group.name}
-                  </Button>
-                </ListItemText>
+              <ListItem key={group.id} disableGutters>
+                <ListItemText>{group.name}</ListItemText>
                 <ListItemSecondaryAction>
                   <IconButton aria-label="Share" onClick={() => handleShare(group.id)}>
                     <i className="fas fa-share-alt" css={iconCss} />
@@ -164,9 +141,6 @@ const GroupsModal: React.FC<GroupsModalProps> = ({
           justify-content: space-between;
         `}
       >
-        <Button onClick={() => switchToGroup(undefined)} color="primary">
-          Back to Public
-        </Button>
         <Button onClick={() => toggleGroupsModal(false)} color="primary">
           Close
         </Button>
@@ -179,7 +153,6 @@ const mapStateToProps = (state: RootState) => {
   const { user } = state;
   return {
     isGroupsModalOpen: user.isGroupsModalOpen,
-    selectedGroup: user.selectedGroup,
     groups: user.groups,
   };
 };
@@ -188,9 +161,6 @@ const mapDispatchToProps = (dispatch: Dispatch) => {
   return {
     toggleGroupsModal: (state?: boolean) => {
       dispatch(actions.toggleGroupsModal(state));
-    },
-    selectGroup: (group: Group | undefined) => {
-      dispatch(actions.selectGroup(group));
     },
     setGroups: (groups: Group[]) => {
       dispatch(actions.setGroups(groups));

@@ -103,6 +103,7 @@ const About: React.FC = () => {
                   </small>
                 </div>
               ))}
+              <div>Icons: add list by Nirbhay from the Noun Project</div>
             </div>
           </Grid>
         </Grid>

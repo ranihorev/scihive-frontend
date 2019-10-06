@@ -7,7 +7,7 @@ import React from 'react';
 import { connect } from 'react-redux';
 import { RouteComponentProps, withRouter } from 'react-router';
 import { Dispatch } from 'redux';
-import { actions } from '../actions/categories';
+import { actions } from '../actions/papersList';
 import { RootState } from '../models';
 import * as presets from '../utils/presets';
 import { CategoriesModal } from './Cateogries';

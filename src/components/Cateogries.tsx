@@ -6,7 +6,7 @@ import { Chip, Dialog, TextField } from '@material-ui/core';
 import axios from 'axios';
 import { isEmpty } from 'lodash';
 import * as presets from '../utils/presets';
-import { actions } from '../actions/categories';
+import { actions } from '../actions/papersList';
 import { Category, RootState } from '../models';
 import { Dispatch } from 'redux';
 

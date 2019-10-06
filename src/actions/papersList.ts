@@ -25,4 +25,10 @@ export const actions = {
       payload: {},
     };
   },
+  updateBookmark: (payload: { paperId: string; checked: boolean }) => {
+    return {
+      type: 'UPDATE_BOOKMARK' as const,
+      payload: payload,
+    };
+  },
 };

@@ -58,7 +58,7 @@ const App: React.FC<{ isLoggedIn: boolean; loadGroups: () => void }> = ({ isLogg
           <Route path="/author/:authorId" exact component={Home} />
           <Route path="/paper/:PaperId" exact component={Paper} />
           <Route path="/about" exact component={About} />
-          <Route path="/groups" exact component={Groups} />
+          <Route path="/lists" exact component={Groups} />
           <Route path="/admin" exact component={Admin} />
           <Route component={NotFound} />
         </Switch>

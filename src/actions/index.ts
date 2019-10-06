@@ -1,5 +1,5 @@
-import { actions as categoriesActions } from './categories';
 import { actions as userActions } from './user';
+import { actions as papersListActions } from './papersList';
 import { PDFDocumentProxy } from 'pdfjs-dist';
 import { CodeMeta, Section, References, T_Highlight, SidebarTab, Acronyms, JumpToData } from '../models';
 
@@ -77,8 +77,8 @@ export const actions = {
     type: 'JUMP_TO' as const,
     payload: undefined,
   }),
-  ...categoriesActions,
   ...userActions,
+  ...papersListActions,
 } as const;
 
 export type Action = ReturnType<typeof actions[keyof typeof actions]>;

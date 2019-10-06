@@ -8,7 +8,7 @@ import { connect } from 'react-redux';
 import { toast } from 'react-toastify';
 import { actions } from '../actions';
 import { Group, RootState } from '../models';
-import { deleteGroup, createNewGroup } from '../thunks';
+import { deleteGroup, createNewGroup, renameGroup } from '../thunks';
 import { presets } from '../utils';
 
 const iconCss = css`
@@ -19,7 +19,8 @@ interface GroupProps extends Omit<GroupsProps, 'groups' | 'createNewGroup'> {
   group: Group;
 }
 
-const GroupRender: React.FC<GroupProps> = ({ group, deleteGroup }) => {
+const GroupRender: React.FC<GroupProps> = ({ group, deleteGroup, renameGroup }) => {
+  const [name, setName] = React.useState(group.name);
   const handleShare = (id: string) => {
     copy(`${window.location.origin}${window.location.pathname}?group=${id}`);
     toast.info(`Link was copied to clipboard`, { autoClose: 2000 });
@@ -40,12 +41,21 @@ const GroupRender: React.FC<GroupProps> = ({ group, deleteGroup }) => {
           `}
         >
           <Input
-            value={group.name}
+            value={name}
             css={css`
               &::before {
                 border-bottom: none;
               }
             `}
+            onChange={e => setName(e.target.value)}
+            onBlur={e => {
+              renameGroup(group.id, name);
+            }}
+            onKeyPress={e => {
+              if (e.key === 'Enter') {
+                (e.target as HTMLInputElement).blur();
+              }
+            }}
             fullWidth
           />
         </div>
@@ -67,9 +77,10 @@ interface GroupsProps {
   setGroups: (groups: Group[]) => void;
   deleteGroup: (id: string) => void;
   createNewGroup: (name: string, finallyCb: () => void) => void;
+  renameGroup: (id: string, name: string) => void;
 }
 
-const Groups: React.FC<GroupsProps> = ({ groups, setGroups, deleteGroup, createNewGroup }) => {
+const Groups: React.FC<GroupsProps> = ({ groups, setGroups, deleteGroup, createNewGroup, renameGroup }) => {
   const [newGroupName, setNewGroupName] = React.useState('');
   const [isSubmitDisabled, setIsSubmitDisabled] = React.useState(false);
 
@@ -93,12 +104,10 @@ const Groups: React.FC<GroupsProps> = ({ groups, setGroups, deleteGroup, createN
           margin-bottom: 15px;
         `}
       >
-        Manage your groups
+        Your Lists
       </Typography>
 
-      <Typography>
-        Groups allow you to manage lists of papers and share comments with an exclusive team of peers
-      </Typography>
+      <Typography>Lists allow you to organize papers and share comments with groups of peers</Typography>
       <div
         css={css`
           width: 100%;
@@ -117,7 +126,7 @@ const Groups: React.FC<GroupsProps> = ({ groups, setGroups, deleteGroup, createN
           <TextField
             type="text"
             name="name"
-            placeholder="Your new group"
+            placeholder="Your new list"
             value={newGroupName}
             onChange={event => setNewGroupName(event.target.value)}
             fullWidth
@@ -132,7 +141,7 @@ const Groups: React.FC<GroupsProps> = ({ groups, setGroups, deleteGroup, createN
         </form>
         <List>
           {groups.map(group => (
-            <GroupRender key={group.id} {...{ group, setGroups, deleteGroup }} />
+            <GroupRender key={group.id} {...{ group, setGroups, deleteGroup, renameGroup }} />
           ))}
         </List>
       </div>
@@ -157,6 +166,9 @@ const mapDispatchToProps = (dispatch: RTDispatch) => {
     },
     createNewGroup: (name: string, finallyCb: () => void) => {
       dispatch(createNewGroup(name, finallyCb));
+    },
+    renameGroup: (id: string, name: string) => {
+      dispatch(renameGroup(id, name));
     },
   };
 };

@@ -83,7 +83,7 @@ const MobileMenuRender: React.FC<MobileMenuProps> = ({
 
         {isLoggedIn && (
           <Link to="/groups" css={simpleLink}>
-            <MenuItem>My groups</MenuItem>
+            <MenuItem>My lists</MenuItem>
           </Link>
         )}
         <Divider />
@@ -153,8 +153,8 @@ const DesktopMenuRender: React.FC<DesktopMenuProps> = ({ children, isLoggedIn, t
       {isLoggedIn ? (
         <React.Fragment>
           <Button color="inherit">
-            <Link to="/groups" css={simpleLink}>
-              My groups
+            <Link to="/lists" css={simpleLink}>
+              My lists
             </Link>
           </Button>
           <Button color="inherit">

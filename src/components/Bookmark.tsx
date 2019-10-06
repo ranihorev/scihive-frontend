@@ -1,77 +1,131 @@
-import React, { useState } from 'react';
-import StarIcon from '@material-ui/icons/Star';
-import StarBorderIcon from '@material-ui/icons/StarBorder';
+/** @jsx jsx */
+import { css, jsx } from '@emotion/core';
+import {
+  IconButton,
+  List,
+  Popover,
+  ListItem,
+  ListItemText,
+  ListItemSecondaryAction,
+  Checkbox,
+} from '@material-ui/core';
+import { SvgIconProps } from '@material-ui/core/SvgIcon';
 import { isEmpty } from 'lodash';
+import React from 'react';
 import { connect } from 'react-redux';
-import axios from 'axios';
-import { IconButton, Tooltip } from '@material-ui/core';
-import { actions } from '../actions';
 import { Dispatch } from 'redux';
-import { RootState } from '../models';
+import { actions } from '../actions';
+import { AddToListIcon } from '../icons/addToList';
+import { Group, RootState } from '../models';
 
 interface BookmarkProps {
-  isLoggedIn: boolean;
-  toggleLoginModal: (msg?: string) => void;
-  paperId: string;
-  saved_in_library?: boolean;
-  isBookmarked: boolean;
-  setBookmark: (value: boolean) => void;
+  isBookmarked?: boolean;
   color?: string | undefined;
-  selectedColor?: string;
-  blinkLibraryBadge: () => void;
+  size?: SvgIconProps['fontSize'];
+  paperId: string;
+  position?: 'right' | 'center' | 'left';
+}
+
+interface BookmarkStateProps {
+  isLoggedIn: boolean;
+  isBookmarked: boolean;
+  groups: Group[];
+}
+
+interface BookmarkDispatchProps {
+  toggleLoginModal: (msg?: string) => void;
+  setBookmark: (value: boolean) => void;
 }
 
 // isBookmarked and setBookmark are from the redux store
-const Bookmark: React.FC<BookmarkProps> = ({
+const Bookmark: React.FC<BookmarkProps & BookmarkStateProps & BookmarkDispatchProps> = ({
   isLoggedIn,
   toggleLoginModal,
-  paperId,
-  saved_in_library,
   isBookmarked,
+  groups,
+  paperId,
   setBookmark,
   color = undefined,
-  selectedColor,
-  blinkLibraryBadge,
+  size = 'inherit',
+  position = 'right',
 }) => {
-  const [stateBookmark, setStateBookmark] = useState(saved_in_library);
-  const value = stateBookmark !== undefined ? stateBookmark : isBookmarked;
+  const [anchorEl, setAnchorEl] = React.useState<Element>();
 
-  const handleBookmarkClick = () => {
+  const handleBookmarkClick = (value: boolean) => {
     if (!isLoggedIn) {
       toggleLoginModal('Please login to save bookmarks');
       return;
     }
-    // Save in database via backend
-    axios
-      .post(`/library/${paperId}/${value ? 'remove' : 'save'}`)
-      .then(() => {
-        if (stateBookmark !== undefined) {
-          // List view
-          setStateBookmark(!stateBookmark);
-          if (!stateBookmark) blinkLibraryBadge();
-        } else {
-          // Paper view
-          setBookmark(!isBookmarked);
-        }
-      })
-      .catch(err => console.log(err.response));
+  };
+  const handleClick = (event: React.MouseEvent) => {
+    setAnchorEl(event.currentTarget);
   };
 
+  const handleClose = () => {
+    setAnchorEl(undefined);
+  };
+
+  const open = Boolean(anchorEl);
+
   return (
-    <Tooltip title="Add to Library" placement="bottom">
-      <span>
-        <IconButton onClick={() => handleBookmarkClick()}>
-          {value ? <StarIcon style={{ color: selectedColor || color }} /> : <StarBorderIcon style={{ color }} />}
-        </IconButton>
-      </span>
-    </Tooltip>
+    <React.Fragment>
+      <IconButton onClick={handleClick}>
+        <AddToListIcon
+          style={css`
+            width: 18px;
+          `}
+          fill="rgba(0, 0, 0, 0.54)"
+        />
+      </IconButton>
+      <Popover
+        id="simple-popper"
+        open={open}
+        anchorEl={anchorEl}
+        onClose={handleClose}
+        anchorOrigin={{
+          vertical: 'bottom',
+          horizontal: position,
+        }}
+        transformOrigin={{
+          vertical: 'top',
+          horizontal: position,
+        }}
+        css={css`
+          > .MuiPopover-paper {
+            max-height: 150px;
+            overflow-y: auto;
+            width: 200px;
+          }
+        `}
+      >
+        <List
+          dense
+          css={css`
+            width: 100%;
+          `}
+        >
+          <ListItem button>
+            <ListItemText primary="Starred" />
+            <ListItemSecondaryAction>
+              <Checkbox
+                edge="end"
+                onChange={(e, checked) => handleBookmarkClick(checked)}
+                checked={isBookmarked}
+                color="default"
+              />
+            </ListItemSecondaryAction>
+          </ListItem>
+        </List>
+      </Popover>
+    </React.Fragment>
   );
 };
 
-const mapStateToProps = (state: RootState) => {
+const mapStateToProps = (state: RootState, props: BookmarkProps) => {
   return {
     isLoggedIn: !isEmpty(state.user.userData),
-    isBookmarked: state.paper.isBookmarked,
+    isBookmarked: props.isBookmarked !== undefined ? props.isBookmarked : state.paper.isBookmarked,
+    groups: state.user.groups,
   };
 };
 
@@ -82,9 +136,6 @@ const mapDispatchToProps = (dispatch: Dispatch) => {
     },
     setBookmark: (value: boolean) => {
       dispatch(actions.setBookmark(value));
-    },
-    blinkLibraryBadge: () => {
-      dispatch(actions.blinkLibrary());
     },
   };
 };

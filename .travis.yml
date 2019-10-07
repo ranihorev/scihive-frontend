@@ -6,6 +6,9 @@ branches:
   only:
     - master
 
+before_install:
+  - pip install --user awscli
+
 script:
   - npm run build
   - aws s3 cp build/ s3://www.scihive.org/ --recursive

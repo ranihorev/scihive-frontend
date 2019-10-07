@@ -2,17 +2,15 @@
 import { css, jsx } from '@emotion/core';
 import { CircularProgress } from '@material-ui/core';
 import axios from 'axios';
-import { isEmpty } from 'lodash';
 import * as queryString from 'query-string';
 import React, { useEffect, useState } from 'react';
 import { Helmet } from 'react-helmet';
 import { connect } from 'react-redux';
-import { toast } from 'react-toastify';
 import { Dispatch } from 'redux';
 import useDeepCompareEffect from 'use-deep-compare-effect';
 import useReactRouter from 'use-react-router';
 import { actions } from '../actions';
-import { Acronyms, CodeMeta, Group, References, RootState, T_Highlight } from '../models';
+import { Acronyms, CodeMeta, References, RootState, T_Highlight } from '../models';
 import { presets } from '../utils';
 import PdfViewer from './PdfViewer';
 import { ReadingProgress } from './ReadingProgress';

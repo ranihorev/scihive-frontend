@@ -78,55 +78,6 @@ const SidebarHighlightItem = React.forwardRef<HTMLDivElement, CommentProps>(
         .catch(err => console.log(err.response));
     };
 
-    const visibility = (
-      <Tooltip title={capitalize(highlight.visibility.type)} placement="top">
-        <i className={visibiltyToIcon[highlight.visibility.type]} />
-      </Tooltip>
-    );
-
-    const actions = (
-      <Grid
-        container
-        alignItems="center"
-        css={css`
-          margin-top: 5px;
-          text-align: center;
-          display: flex;
-          button {
-            font-size: 14px;
-          }
-        `}
-      >
-        <div>
-          <IconButton onClick={() => setShowReply(!showReply)}>
-            <i className="fas fa-reply" />
-          </IconButton>
-        </div>
-        {highlight.canEdit ? (
-          <div>
-            <IconButton onClick={() => setEditMode(!editMode)}>
-              <i className="fas fa-pencil-alt" />
-            </IconButton>
-            <IconButton onClick={() => removeHighlight(highlight.id)}>
-              <i className="far fa-trash-alt" />
-            </IconButton>
-          </div>
-        ) : (
-          ''
-        )}
-        {highlight.canEdit ? (
-          <div
-            css={css`
-              margin-left: auto;
-              font-size: 13px;
-            `}
-          >
-            {visibility}
-          </div>
-        ) : null}
-      </Grid>
-    );
-
     const imageDom = image ? (
       <CardMedia
         css={css`
@@ -242,7 +193,48 @@ const SidebarHighlightItem = React.forwardRef<HTMLDivElement, CommentProps>(
                 {highlight.user || 'Anonymous'}, {get_age(highlight.createdAt)}
               </div>
             </div>
-            {actions}
+            <Grid
+              container
+              alignItems="center"
+              css={css`
+                margin-top: 5px;
+                text-align: center;
+                display: flex;
+                button {
+                  font-size: 14px;
+                }
+              `}
+            >
+              <div>
+                <IconButton onClick={() => setShowReply(!showReply)}>
+                  <i className="fas fa-reply" />
+                </IconButton>
+              </div>
+              {highlight.canEdit ? (
+                <div>
+                  <IconButton onClick={() => setEditMode(!editMode)}>
+                    <i className="fas fa-pencil-alt" />
+                  </IconButton>
+                  <IconButton onClick={() => removeHighlight(highlight.id)}>
+                    <i className="far fa-trash-alt" />
+                  </IconButton>
+                </div>
+              ) : (
+                ''
+              )}
+              {highlight.canEdit && (
+                <div
+                  css={css`
+                    margin-left: auto;
+                    font-size: 13px;
+                  `}
+                >
+                  <Tooltip title={capitalize(highlight.visibility.type)} placement="top">
+                    <i className={visibiltyToIcon[highlight.visibility.type]} />
+                  </Tooltip>
+                </div>
+              )}
+            </Grid>
             {highlight.replies && <Replies replies={highlight.replies} />}
             {showReply && <NewReply onSubmit={submitReply} />}
           </CardContent>

@@ -98,7 +98,7 @@ const Bookmark: React.FC<BookmarkProps & BookmarkStateProps & BookmarkDispatchPr
   const contentRef = React.useRef<HTMLDivElement>(null);
   const handleClick = (event: React.MouseEvent) => {
     if (!isLoggedIn) {
-      toggleLoginModal('Please login to save bookmarks');
+      toggleLoginModal('Please log in to save manage lists and bookmarks');
       return;
     }
     setIsOpen(true);

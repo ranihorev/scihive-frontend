@@ -143,7 +143,7 @@ const PapersList: React.FC<PapersListProps> = ({
       setIsLoading(false);
       setScrollId(Math.random());
     }
-  }, [match.path, location.search]);
+  }, [match.path, location.search, clearPapers]);
 
   React.useLayoutEffect(() => {
     const q = queryString.parse(location.search);

@@ -30,6 +30,7 @@ interface CommentsListProps {
   jumpToHighlight: (id: string, location: T_ScaledPosition) => void;
   isVertical: boolean;
   jumpData?: JumpToData;
+  clearJumpTo: () => void;
 }
 
 const HighlightsList: React.FC<CommentsListProps> = ({
@@ -41,6 +42,7 @@ const HighlightsList: React.FC<CommentsListProps> = ({
   jumpToHighlight,
   isVertical,
   jumpData,
+  clearJumpTo,
 }) => {
   const [focusedId, setFocusedId] = useState();
   const containerRef = React.useRef<HTMLDivElement>(null);
@@ -67,11 +69,12 @@ const HighlightsList: React.FC<CommentsListProps> = ({
       if (!highlightRef || !highlightRef.current) return;
       containerRef.current.scrollTop = highlightRef.current.offsetTop - 10;
       setFocusedId(highlight.id);
+      clearJumpTo();
       setTimeout(() => {
         setFocusedId(null);
       }, 1000);
     }
-  }, [jumpData]);
+  }, [jumpData, highlights]);
 
   highlights.forEach(h => {
     highlightsRef.current[h.id] = React.createRef<HTMLDivElement>();
@@ -172,6 +175,9 @@ const mapDispatchToProps = (dispatch: Dispatch) => {
     },
     jumpToHighlight: (id: string, location: T_ScaledPosition) => {
       dispatch(actions.jumpTo({ area: 'paper', type: 'highlight', id, location }));
+    },
+    clearJumpTo: () => {
+      dispatch(actions.clearJumpTo());
     },
   };
 };

@@ -8,11 +8,6 @@
     "@material-ui/icons": "^4.2.1",
     "@material-ui/styles": "^4.1.1",
     "@sentry/browser": "^5.4.0",
-    "@types/jest": "^24.0.18",
-    "@types/node": "^12.7.3",
-    "@types/react": "^16.9.2",
-    "@types/react-dom": "^16.9.0",
-    "@types/react-headroom": "^2.2.1",
     "autosuggest-highlight": "^3.1.1",
     "axios": "^0.18.0",
     "body-scroll-lock": "^2.6.1",
@@ -53,9 +48,9 @@
     "use-react-router": "^1.0.7"
   },
   "scripts": {
-    "start": "react-scripts start",
-    "build": "react-scripts build",
-    "test": "react-scripts test",
+    "start": "react-app-rewired start",
+    "build": "react-app-rewired build",
+    "test": "react-app-rewired test",
     "eject": "react-scripts eject"
   },
   "eslintConfig": {
@@ -68,9 +63,14 @@
     "not op_mini all"
   ],
   "devDependencies": {
+    "@types/jest": "^24.0.18",
     "@types/katex": "^0.10.1",
     "@types/lodash": "^4.14.138",
+    "@types/node": "^12.7.11",
     "@types/pdfjs-dist": "^2.1.0",
+    "@types/react": "^16.9.5",
+    "@types/react-dom": "^16.9.1",
+    "@types/react-headroom": "^2.2.1",
     "@types/react-helmet": "^5.0.10",
     "@types/react-redux": "^7.1.2",
     "@types/react-router-dom": "^4.3.5",
@@ -82,6 +82,7 @@
     "eslint-plugin-prettier": "^3.1.0",
     "eslint-plugin-react": "^7.13.0",
     "flow-bin": "^0.95.1",
-    "prettier": "^1.17.0"
+    "prettier": "^1.17.0",
+    "react-app-rewired": "^2.1.3"
   }
 }

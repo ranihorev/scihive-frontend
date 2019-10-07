@@ -107,7 +107,7 @@ const Tip: React.FC<TipProps> = ({
       ) : (
         <form
           css={css`
-            padding: 10px;
+            padding: 0px 10px 10px;
             background: #fff;
             background-clip: padding-box;
             border: 1px solid #e8e8e8;
@@ -171,7 +171,7 @@ const Tip: React.FC<TipProps> = ({
                 align-items: center;
               `}
             >
-              {isLoggedIn && (
+              {isLoggedIn ? (
                 <select
                   css={css`
                     height: 28px;
@@ -187,6 +187,15 @@ const Tip: React.FC<TipProps> = ({
                     </option>
                   ))}
                 </select>
+              ) : (
+                <div
+                  css={css`
+                    font-size: 12px;
+                    color: #9f9f9f;
+                  `}
+                >
+                  Please log in to add private and group comments
+                </div>
               )}
             </div>
             <div>
@@ -195,17 +204,6 @@ const Tip: React.FC<TipProps> = ({
               </Button>
             </div>
           </div>
-          {!isLoggedIn ? (
-            <div
-              css={css`
-                margin-top: 12px;
-                font-size: 12px;
-                color: #9f9f9f;
-              `}
-            >
-              Please log in to add private comments
-            </div>
-          ) : null}
         </form>
       )}
     </div>

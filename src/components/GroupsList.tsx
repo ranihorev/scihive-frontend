@@ -1,16 +1,15 @@
 /** @jsx jsx */
 import { css, jsx } from '@emotion/core';
-import { Button, IconButton, List, ListItem, TextField, Typography, Input } from '@material-ui/core';
-import axios from 'axios';
+import { Button, IconButton, Input, List, ListItem, TextField, Typography } from '@material-ui/core';
 import copy from 'clipboard-copy';
 import React from 'react';
 import { connect } from 'react-redux';
+import { Link } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import { actions } from '../actions';
 import { Group, RootState } from '../models';
-import { deleteGroup, createNewGroup, renameGroup } from '../thunks';
+import { createNewGroup, deleteGroup, renameGroup } from '../thunks';
 import { presets } from '../utils';
-import { Link } from 'react-router-dom';
 
 const iconCss = css`
   font-size: 16px;

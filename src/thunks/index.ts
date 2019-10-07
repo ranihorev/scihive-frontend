@@ -20,15 +20,20 @@ export const deleteGroup = (id: string) => (dispatch: Dispatch, getState: GetSta
     .catch(e => console.warn(e.message));
 };
 
-export const createNewGroup = (name: string, finallyCb: () => void) => (dispatch: Dispatch, getState: GetState) => {
+export const createNewGroup = (payload: { name: string; finallyCb?: () => void; onSuccessCb?: () => void }) => (
+  dispatch: Dispatch,
+  getState: GetState,
+) => {
+  const { name, onSuccessCb, finallyCb } = payload;
   return axios
     .post('/groups/new', { name })
     .then(res => {
       dispatch(actions.setGroups(res.data));
+      onSuccessCb && onSuccessCb();
     })
     .catch(e => console.warn(e.message))
     .finally(() => {
-      finallyCb();
+      finallyCb && finallyCb();
     });
 };
 

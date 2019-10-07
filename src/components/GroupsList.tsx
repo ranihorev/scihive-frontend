@@ -171,7 +171,7 @@ const mapDispatchToProps = (dispatch: RTDispatch) => {
       dispatch(deleteGroup(id));
     },
     createNewGroup: (name: string, finallyCb: () => void) => {
-      dispatch(createNewGroup(name, finallyCb));
+      dispatch(createNewGroup({ name, finallyCb }));
     },
     renameGroup: (id: string, name: string) => {
       dispatch(renameGroup(id, name));

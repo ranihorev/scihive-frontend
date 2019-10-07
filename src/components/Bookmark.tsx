@@ -1,25 +1,23 @@
 /** @jsx jsx */
 import { css, jsx } from '@emotion/core';
 import {
-  IconButton,
-  List,
-  Popover,
-  ListItem,
-  ListItemText,
-  ListItemSecondaryAction,
   Checkbox,
-  Popper,
+  IconButton,
+  Input,
+  List,
+  ListItem,
+  ListItemSecondaryAction,
+  ListItemText,
   Paper,
+  Popper,
 } from '@material-ui/core';
-import { SvgIconProps } from '@material-ui/core/SvgIcon';
 import { isEmpty } from 'lodash';
 import React from 'react';
 import { connect } from 'react-redux';
-import { Dispatch } from 'redux';
 import { actions } from '../actions';
 import { AddToListIcon } from '../icons/addToList';
 import { Group, RootState } from '../models';
-import { bookmarkPaper, addRemovePaperToGroup } from '../thunks';
+import { addRemovePaperToGroup, bookmarkPaper, createNewGroup } from '../thunks';
 import { useOnClickOutside } from '../utils/hooks';
 
 interface BookmarkProps {
@@ -42,7 +40,43 @@ interface BookmarkDispatchProps {
   toggleLoginModal: (msg?: string) => void;
   setBookmark: (...args: Parameters<typeof bookmarkPaper>) => void;
   updatePaperGroup: (...args: Parameters<typeof addRemovePaperToGroup>) => void;
+  createGroup: (...args: Parameters<typeof createNewGroup>) => void;
 }
+
+const NewGroup: React.FC<{ createGroup: BookmarkDispatchProps['createGroup'] }> = ({ createGroup }) => {
+  const [value, setValue] = React.useState('');
+  const submitGroup = () => {
+    createGroup({ name: value, onSuccessCb: () => setValue('') });
+  };
+  return (
+    <ListItem
+      css={css`
+        border-top: 1px solid #cecece;
+      `}
+    >
+      <Input
+        value={value}
+        placeholder="New Group"
+        onChange={e => {
+          setValue(e.target.value);
+        }}
+        onKeyPress={e => {
+          if (e.key === 'Enter') submitGroup();
+        }}
+        inputProps={{ style: { padding: '3px 0 4px' } }}
+      />
+      <i
+        className="fas fa-plus"
+        css={css`
+          font-size: 17px;
+          cursor: pointer;
+          margin-left: 5px;
+          margin-right: 2px;
+        `}
+      />
+    </ListItem>
+  );
+};
 
 // isBookmarked and setBookmark are from the redux store
 const Bookmark: React.FC<BookmarkProps & BookmarkStateProps & BookmarkDispatchProps> = ({
@@ -57,6 +91,7 @@ const Bookmark: React.FC<BookmarkProps & BookmarkStateProps & BookmarkDispatchPr
   color = 'rgba(0, 0, 0, 0.8)',
   size = 18,
   type,
+  createGroup,
 }) => {
   const [isOpen, setIsOpen] = React.useState(false);
   const anchorRef = React.useRef<HTMLDivElement>(null);
@@ -100,8 +135,6 @@ const Bookmark: React.FC<BookmarkProps & BookmarkStateProps & BookmarkDispatchPr
       >
         <Paper
           css={css`
-            max-height: 200px;
-            overflow-y: auto;
             width: 200px;
           `}
           ref={contentRef}
@@ -109,7 +142,10 @@ const Bookmark: React.FC<BookmarkProps & BookmarkStateProps & BookmarkDispatchPr
           <List
             dense
             css={css`
+              max-height: 200px;
+              overflow-y: auto;
               width: 100%;
+              padding-bottom: 0;
             `}
           >
             <ListItem>
@@ -142,6 +178,7 @@ const Bookmark: React.FC<BookmarkProps & BookmarkStateProps & BookmarkDispatchPr
               );
             })}
           </List>
+          <NewGroup createGroup={createGroup} />
         </Paper>
       </Popper>
     </div>
@@ -166,6 +203,9 @@ const mapDispatchToProps = (dispatch: RTDispatch): BookmarkDispatchProps => {
     },
     updatePaperGroup: payload => {
       dispatch(addRemovePaperToGroup(payload));
+    },
+    createGroup: payload => {
+      dispatch(createNewGroup(payload));
     },
   };
 };

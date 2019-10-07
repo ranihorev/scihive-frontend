@@ -6,9 +6,11 @@ branches:
   only:
     - master
 
-before_install:
-  - pip install --user awscli
-
 script:
   - npm run build
-  - aws s3 cp build/ s3://www.scihive.org/ --recursive
+
+deploy:
+  provider: s3
+  bucket: www.scihive.org
+  skip_cleanup: true
+  local_dir: build

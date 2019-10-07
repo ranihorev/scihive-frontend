@@ -1,1 +1,11 @@
 language: node_js
+node_js:
+  - 10
+
+branches:
+  only:
+    - master
+
+script:
+  - npm run build
+  - aws s3 cp build/ s3://www.scihive.org/ --recursive

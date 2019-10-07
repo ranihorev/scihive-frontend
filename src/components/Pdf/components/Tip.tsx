@@ -1,14 +1,12 @@
 /** @jsx jsx */
 import { css, jsx } from '@emotion/core';
-import { Button, Checkbox, FormControl, FormControlLabel, Input, MenuItem, Select, TextField } from '@material-ui/core';
-import { CheckboxProps } from '@material-ui/core/Checkbox';
-import { SelectProps } from '@material-ui/core/Select';
+import { Button, TextField } from '@material-ui/core';
 import { isEmpty } from 'lodash';
 import React from 'react';
 import { connect } from 'react-redux';
 import { Dispatch } from 'redux';
 import { actions } from '../../../actions';
-import { Group, RootState, T_Highlight, Visibility, VisibilityType } from '../../../models';
+import { Group, RootState, T_Highlight, VISIBILITIES, Visibility, VisibilityType } from '../../../models';
 import { presets } from '../../../utils';
 
 interface State {
@@ -24,6 +22,7 @@ interface TipProps {
   isLoggedIn: boolean;
   openGroupsModal: () => void;
   onMouseDown?: (e: React.MouseEvent) => void;
+  groups: Group[];
 }
 
 export const compactButtonStyle = css`
@@ -56,32 +55,37 @@ export const CompactTipButton: React.FC<{ onClick: (e: React.MouseEvent) => void
   </div>
 );
 
-const Tip: React.FC<TipProps> = ({ isLoggedIn, onConfirm, onOpen, openGroupsModal, onMouseDown = () => {} }) => {
-  const selectedGroup = { id: 'temp', name: 'temp' }; // TODO: fix me!!!
+const Tip: React.FC<TipProps> = ({
+  isLoggedIn,
+  onConfirm,
+  onOpen,
+  openGroupsModal,
+  onMouseDown = () => {},
+  groups,
+}) => {
+  const firstFocus = React.useRef(true);
   const [isCompact, setIsCompact] = React.useState(true);
   const [text, setText] = React.useState('');
-  const [visibility, setVisibility] = React.useState<VisibilityType>(selectedGroup ? 'group' : 'public');
-  const [isAnonymous, setIsAnonymous] = React.useState(false);
+  const [visibility, setVisibility] = React.useState<VisibilityType>('public');
+  const [selectedGroupId, setSelectedGroupId] = React.useState('');
 
   const onSubmit = (event: React.MouseEvent | React.FormEvent) => {
     event.preventDefault();
-    let requestVisibility: Visibility;
-    if (visibility === 'public' && isAnonymous) {
-      requestVisibility = { type: 'anonymous' };
-    } else if (visibility === 'group' && selectedGroup) {
-      requestVisibility = { type: visibility, id: selectedGroup.id };
-    } else {
-      requestVisibility = { type: visibility };
+    let requestVisibility: Visibility = { type: visibility };
+    if (visibility === 'group') {
+      requestVisibility.id = selectedGroupId;
     }
     onConfirm({ text }, requestVisibility);
   };
 
-  const handleVisibilityChange: SelectProps['onChange'] = event => {
-    setVisibility(event.target.value as VisibilityType);
-  };
-
-  const handleAnonymousChange: CheckboxProps['onChange'] = event => {
-    setIsAnonymous(event.target.checked);
+  const onVisibiltyChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
+    const value = event.target.value;
+    if ((VISIBILITIES as Readonly<string[]>).includes(value)) {
+      setVisibility(value as VisibilityType);
+    } else {
+      setVisibility('group');
+      setSelectedGroupId(value);
+    }
   };
 
   return (
@@ -130,7 +134,8 @@ const Tip: React.FC<TipProps> = ({ isLoggedIn, onConfirm, onOpen, openGroupsModa
               fullWidth
               onChange={event => setText(event.target.value)}
               inputRef={inp => {
-                if (inp) {
+                if (inp && firstFocus.current) {
+                  firstFocus.current = false;
                   setTimeout(() => inp.focus(), 100);
                 }
               }}
@@ -156,64 +161,39 @@ const Tip: React.FC<TipProps> = ({ isLoggedIn, onConfirm, onOpen, openGroupsModa
           <div
             css={css`
               ${presets.row}
-              margin-bottom: 10px;
+              margin-top: 10px;
               justify-content: space-between;
             `}
           >
-            <FormControl>
-              <Select value={visibility} onChange={handleVisibilityChange} input={<Input name="visiblity" />}>
-                {selectedGroup ? <MenuItem value="group">{selectedGroup.name}</MenuItem> : null}
-                <MenuItem value="public">Public</MenuItem>
-                <MenuItem value="private" disabled={!isLoggedIn}>
-                  Private
-                </MenuItem>
-                {!selectedGroup && (
-                  <div>
-                    <MenuItem
-                      value="newGroup"
-                      disabled={!isLoggedIn}
-                      onClick={e => {
-                        e.stopPropagation();
-                        e.preventDefault();
-                        openGroupsModal();
-                      }}
-                    >
-                      New Group
-                    </MenuItem>
-                  </div>
-                )}
-              </Select>
-            </FormControl>
-            {isLoggedIn && visibility === 'public' ? (
-              <FormControlLabel
-                control={
-                  <Checkbox
-                    checked={isAnonymous}
-                    onChange={handleAnonymousChange}
-                    color="primary"
-                    value="anonymous"
-                    css={css`
-                      padding: 3px 5px 3px 12px !important;
-                    `}
-                  />
-                }
-                css={css`
-                  margin: 0;
-                  margin-right: 0 !important;
-                `}
-                label="Post anonymously"
-              />
-            ) : null}
-          </div>
-          <div
-            css={css`
-              ${presets.row}
-              justify-content: flex-end;
-            `}
-          >
-            <Button type="submit" variant="contained" color="primary" size="small">
-              Submit
-            </Button>
+            <div
+              css={css`
+                ${presets.row};
+                align-items: center;
+              `}
+            >
+              {isLoggedIn && (
+                <select
+                  css={css`
+                    height: 28px;
+                  `}
+                  onChange={onVisibiltyChange}
+                >
+                  <option value="public">Public</option>
+                  <option value="private">Private</option>
+                  <option value="anonymous">Anonymous</option>
+                  {groups.map(g => (
+                    <option key={g.id} value={g.id}>
+                      {g.name}
+                    </option>
+                  ))}
+                </select>
+              )}
+            </div>
+            <div>
+              <Button type="submit" variant="contained" color="primary" size="small">
+                Submit
+              </Button>
+            </div>
           </div>
           {!isLoggedIn ? (
             <div
@@ -233,8 +213,10 @@ const Tip: React.FC<TipProps> = ({ isLoggedIn, onConfirm, onOpen, openGroupsModa
 };
 
 const mapStateToProps = (state: RootState) => {
+  const paperGroupsIds = state.paper.groupIds;
   return {
     isLoggedIn: !isEmpty(state.user.userData),
+    groups: state.user.groups.filter(g => paperGroupsIds.includes(g.id)),
   };
 };
 

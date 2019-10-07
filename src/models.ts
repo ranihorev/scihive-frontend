@@ -37,7 +37,8 @@ export interface SimplePosition {
   position: number;
 }
 
-export type VisibilityType = 'public' | 'private' | 'anonymous' | 'group';
+export const VISIBILITIES = ['public', 'private', 'anonymous', 'group'] as const;
+export type VisibilityType = typeof VISIBILITIES[number];
 
 export interface Visibility {
   type: VisibilityType;
@@ -199,6 +200,7 @@ export interface RootState {
     sidebarTab: SidebarTab;
     jumpData?: JumpToData;
     codeMeta?: CodeMeta;
+    groupIds: string[];
   };
   papersList: {
     papers: PaperListItem[];

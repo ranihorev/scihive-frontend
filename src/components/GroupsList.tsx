@@ -10,6 +10,7 @@ import { actions } from '../actions';
 import { Group, RootState } from '../models';
 import { deleteGroup, createNewGroup, renameGroup } from '../thunks';
 import { presets } from '../utils';
+import { Link } from 'react-router-dom';
 
 const iconCss = css`
   font-size: 16px;
@@ -60,6 +61,11 @@ const GroupRender: React.FC<GroupProps> = ({ group, deleteGroup, renameGroup }) 
           />
         </div>
         <div>
+          <Link to={`/?age=all&group=${group.id}`}>
+            <IconButton aria-label="Open">
+              <i className="fas fa-external-link-square-alt" css={iconCss} />
+            </IconButton>
+          </Link>
           <IconButton aria-label="Share" onClick={() => handleShare(group.id)}>
             <i className="fas fa-share-alt" css={iconCss} />
           </IconButton>

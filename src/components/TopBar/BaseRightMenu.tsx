@@ -77,7 +77,7 @@ const MobileMenuRender: React.FC<MobileMenuProps> = ({
         {submenuChildrenWithClose}
         {isLoggedIn && (
           <Link to="/library" css={simpleLink}>
-            <MenuItem onClick={handleMobileMenuClose}>My library</MenuItem>
+            <MenuItem onClick={handleMobileMenuClose}>Starred</MenuItem>
           </Link>
         )}
 
@@ -160,7 +160,7 @@ const DesktopMenuRender: React.FC<DesktopMenuProps> = ({ children, isLoggedIn, t
           <Button color="inherit">
             <Badge color="secondary" badgeContent={showLibraryBadge ? '+1' : null}>
               <Link to="/library" css={simpleLink}>
-                My Library
+                Starred
               </Link>
             </Badge>
           </Button>

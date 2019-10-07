@@ -41,24 +41,37 @@ export const renameGroup = (id: string, name: string) => (dispatch: Dispatch, ge
     .catch(e => console.warn(e.message));
 };
 
-export const bookmarkPaper = (paperId: string, checked: boolean) => (dispatch: Dispatch, getState: GetState) => {
+export const bookmarkPaper = (type: 'single' | 'list', paperId: string, checked: boolean) => (
+  dispatch: Dispatch,
+  getState: GetState,
+) => {
   axios
     .post(`/library/${paperId}/${checked ? 'save' : 'remove'}`)
     .then(() => {
-      dispatch(actions.updateBookmark({ paperId, checked }));
+      if (type === 'list') {
+        dispatch(actions.updateBookmark({ paperId, checked }));
+      } else {
+        dispatch(actions.setBookmark(checked));
+      }
     })
     .catch(err => console.log(err));
 };
 
-export const addRemovePaperToGroup = (payload: { paperId: string; shouldAdd: boolean; groupId: string }) => (
-  dispatch: Dispatch,
-  getState: GetState,
-) => {
-  const { paperId, groupId, shouldAdd } = payload;
+export const addRemovePaperToGroup = (payload: {
+  type: 'single' | 'list';
+  paperId: string;
+  shouldAdd: boolean;
+  groupId: string;
+}) => (dispatch: Dispatch, getState: GetState) => {
+  const { type, paperId, groupId, shouldAdd } = payload;
   axios
     .post(`/groups/group/${groupId}`, { paper_id: paperId, add: Number(shouldAdd) })
     .then(() => {
-      dispatch(actions.updatePaperGroups(payload));
+      if (type === 'list') {
+        dispatch(actions.updatePaperGroups(payload));
+      } else {
+        dispatch(actions.addRemoveGroupIds({ groupIds: [groupId], shouldAdd }));
+      }
     })
     .catch(err => console.log(err));
 };
@@ -69,6 +82,7 @@ export interface RequestParams {
   sort: string;
   author: string;
   page_num: number;
+  group: string;
 }
 
 const MAX_RETRIES = 3;

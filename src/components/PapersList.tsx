@@ -99,13 +99,14 @@ const PapersList: React.FC<PapersListProps> = ({
   const loadPapers = (page: number) => {
     let url = '/papers/all';
 
-    const queryParams = queryString.parse(location.search);
+    const queryParams = queryString.parse(location.search) as Partial<RequestParams>;
     const requestParams: Partial<RequestParams> = {
       author: match.params.authorId,
       page_num: page,
       age: getAgeQuery(queryParams),
       sort: getSortQuery(queryParams),
       q: (queryParams.q as string) || undefined,
+      group: queryParams.group,
     };
 
     if (match && match.path === '/library') {

@@ -1,6 +1,7 @@
 import { isEmpty } from 'lodash';
 import { RootState, T_Highlight } from '../models';
-import { Action } from '../actions';
+import { PaperActions } from '../actions/paper';
+import { produce } from 'immer';
 
 type PaperState = RootState['paper'];
 
@@ -12,6 +13,7 @@ const initialState: PaperState = {
   hiddenHighlights: [],
   acronyms: {},
   sidebarTab: 'Sections',
+  groupIds: [],
 };
 
 const updateHighlight = (state: PaperState, newHighlight: T_Highlight) => {
@@ -22,7 +24,7 @@ const updateHighlight = (state: PaperState, newHighlight: T_Highlight) => {
   };
 };
 
-const dataReducer = (state: PaperState = initialState, action: Action) => {
+const dataReducer = (state: PaperState = initialState, action: PaperActions) => {
   switch (action.type) {
     case 'CLEAR_PAPER':
       return initialState;
@@ -68,6 +70,17 @@ const dataReducer = (state: PaperState = initialState, action: Action) => {
       return { ...state, sidebarTab: action.payload };
     case 'JUMP_TO':
       return { ...state, jumpData: action.payload };
+    case 'ADD_REMOVE_PAPER_GROUPS':
+      // TODO: refactor this code and combine with the list view
+      const { groupIds, shouldAdd } = action.payload;
+      return produce(state, draftState => {
+        if (shouldAdd) {
+          draftState.groupIds = [...draftState.groupIds, ...groupIds];
+        } else {
+          draftState.groupIds = draftState.groupIds.filter(g => !groupIds.includes(g));
+        }
+        return draftState;
+      });
     default:
       return state;
   }

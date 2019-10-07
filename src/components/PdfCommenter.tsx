@@ -47,22 +47,24 @@ const useWindowDimensions = () => {
   return windowDimensions;
 };
 
-interface PdfCommenterProps {
+interface PdfCommenterDispatchProps {
   setBookmark: (value: boolean) => void;
   setCodeMeta: (meta: CodeMeta) => void;
   setReferences: (references: References) => void;
   setHighlights: (highlights: T_Highlight[]) => void;
   setAcronyms: (acronyms: Acronyms) => void;
   clearPaper: () => void;
+  setGroups: (groupIds: string[]) => void;
 }
 
-const PdfCommenter: React.FC<PdfCommenterProps> = ({
+const PdfCommenter: React.FC<PdfCommenterDispatchProps> = ({
   setBookmark,
   setCodeMeta,
   setReferences,
   setHighlights,
   setAcronyms,
   clearPaper,
+  setGroups,
 }) => {
   const [url, setUrl] = useState(FETCHING);
   const [title, setTitle] = useState('SciHive');
@@ -113,6 +115,7 @@ const PdfCommenter: React.FC<PdfCommenterProps> = ({
         setUrl(res.data.url);
         setBookmark(res.data.saved_in_library);
         setCodeMeta(res.data.code);
+        setGroups(res.data.groups);
         if (res.data.title) setTitle(`SciHive - ${res.data.title}`);
         fetch_paper_data();
       })
@@ -286,25 +289,28 @@ const mapStateToProps = (state: RootState) => {
   return {};
 };
 
-const mapDispatchToProps = (dispatch: Dispatch) => {
+const mapDispatchToProps = (dispatch: Dispatch): PdfCommenterDispatchProps => {
   return {
-    setBookmark: (value: boolean) => {
+    setBookmark: value => {
       dispatch(actions.setBookmark(value));
     },
     clearPaper: () => {
       dispatch(actions.clearPaper());
     },
-    setReferences: (references: References) => {
+    setReferences: references => {
       dispatch(actions.setReferences(references));
     },
-    setHighlights: (highlights: T_Highlight[]) => {
+    setHighlights: highlights => {
       dispatch(actions.setHighlights(highlights));
     },
-    setAcronyms: (acronyms: Acronyms) => {
+    setAcronyms: acronyms => {
       dispatch(actions.setAcronyms(acronyms));
     },
-    setCodeMeta: (meta: CodeMeta) => {
+    setCodeMeta: meta => {
       dispatch(actions.setCodeMeta(meta));
+    },
+    setGroups: groupIds => {
+      dispatch(actions.addRemoveGroupIds({ groupIds, shouldAdd: true }));
     },
   };
 };

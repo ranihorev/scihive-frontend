@@ -15,9 +15,10 @@ import { ButtonIcon } from '../ButtonIcon';
 interface PaperMenuDekstopProps {
   isLoggedIn: boolean;
   codeMeta?: CodeMeta;
+  selectedGroupIds: string[];
 }
 
-const PaperMenuDekstopRender: React.FC<PaperMenuDekstopProps> = ({ isLoggedIn, codeMeta }) => {
+const PaperMenuDekstopRender: React.FC<PaperMenuDekstopProps> = ({ isLoggedIn, codeMeta, selectedGroupIds }) => {
   const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null);
   const isMenuOpen = Boolean(anchorEl);
   const {
@@ -35,12 +36,18 @@ const PaperMenuDekstopRender: React.FC<PaperMenuDekstopProps> = ({ isLoggedIn, c
 
   return (
     <React.Fragment>
-      <Bookmark paperId={PaperId} color="white" selectedGroupIds={[]} />
-      <ButtonIcon icon="fas fa-link" size={24} iconSize={17} onClick={handleMenuOpen} />
+      <Bookmark paperId={PaperId} color="white" selectedGroupIds={selectedGroupIds} size={23} type="single" />
+      <ButtonIcon icon="fas fa-link" size={22} iconSize={16} onClick={handleMenuOpen} />
       <Menu
         anchorEl={anchorEl}
-        anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
-        transformOrigin={{ vertical: 'top', horizontal: 'right' }}
+        anchorOrigin={{
+          vertical: 'bottom',
+          horizontal: 'right',
+        }}
+        transformOrigin={{
+          vertical: 'top',
+          horizontal: 'right',
+        }}
         open={isMenuOpen}
         onClose={handleMenuClose}
       >
@@ -134,6 +141,7 @@ const mapStateToProps = (state: RootState) => {
   return {
     isLoggedIn: !isEmpty(state.user.userData),
     codeMeta: state.paper.codeMeta,
+    selectedGroupIds: state.paper.groupIds,
   };
 };
 

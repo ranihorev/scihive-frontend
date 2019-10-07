@@ -1,5 +1,5 @@
 import { PDFDocumentProxy } from 'pdfjs-dist';
-import { CodeMeta, Section, References, T_Highlight, SidebarTab, Acronyms, JumpToData } from '../models';
+import { CodeMeta, Section, References, T_Highlight, SidebarTab, Acronyms, JumpToData, Visibility } from '../models';
 
 export const actions = {
   updateReadingProgress: (payload: number) => {
@@ -77,6 +77,10 @@ export const actions = {
   clearJumpTo: () => ({
     type: 'JUMP_TO' as const,
     payload: undefined,
+  }),
+  setCommentVisibilitySettings: (payload: Visibility) => ({
+    type: 'SET_COMMENT_VISIBILITY_SETTINGS' as const,
+    payload,
   }),
 };
 

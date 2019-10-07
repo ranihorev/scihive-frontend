@@ -201,6 +201,7 @@ export interface RootState {
     jumpData?: JumpToData;
     codeMeta?: CodeMeta;
     groupIds: string[];
+    commentVisibilty: Visibility;
   };
   papersList: {
     papers: PaperListItem[];

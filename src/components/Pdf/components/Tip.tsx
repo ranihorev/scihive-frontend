@@ -9,20 +9,14 @@ import { actions } from '../../../actions';
 import { Group, RootState, T_Highlight, VISIBILITIES, Visibility, VisibilityType } from '../../../models';
 import { presets } from '../../../utils';
 
-interface State {
-  compact: boolean;
-  text: string;
-  visibility: VisibilityType;
-  anonymous: boolean;
-}
-
 interface TipProps {
   onConfirm: (comment: T_Highlight['comment'], visibility: Visibility) => void;
   onOpen: () => void;
   isLoggedIn: boolean;
-  openGroupsModal: () => void;
   onMouseDown?: (e: React.MouseEvent) => void;
   groups: Group[];
+  setCommentVisibilty: (settings: Visibility) => void;
+  visibilitySettings: Visibility;
 }
 
 export const compactButtonStyle = css`
@@ -59,32 +53,26 @@ const Tip: React.FC<TipProps> = ({
   isLoggedIn,
   onConfirm,
   onOpen,
-  openGroupsModal,
   onMouseDown = () => {},
   groups,
+  setCommentVisibilty,
+  visibilitySettings,
 }) => {
   const firstFocus = React.useRef(true);
   const [isCompact, setIsCompact] = React.useState(true);
   const [text, setText] = React.useState('');
-  const [visibility, setVisibility] = React.useState<VisibilityType>('public');
-  const [selectedGroupId, setSelectedGroupId] = React.useState('');
 
   const onSubmit = (event: React.MouseEvent | React.FormEvent) => {
     event.preventDefault();
-    let requestVisibility: Visibility = { type: visibility };
-    if (visibility === 'group') {
-      requestVisibility.id = selectedGroupId;
-    }
-    onConfirm({ text }, requestVisibility);
+    onConfirm({ text }, visibilitySettings);
   };
 
   const onVisibiltyChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
     const value = event.target.value;
     if ((VISIBILITIES as Readonly<string[]>).includes(value)) {
-      setVisibility(value as VisibilityType);
+      setCommentVisibilty({ type: value as VisibilityType });
     } else {
-      setVisibility('group');
-      setSelectedGroupId(value);
+      setCommentVisibilty({ type: 'group', id: value });
     }
   };
 
@@ -177,6 +165,7 @@ const Tip: React.FC<TipProps> = ({
                     height: 28px;
                   `}
                   onChange={onVisibiltyChange}
+                  value={visibilitySettings.type !== 'group' ? visibilitySettings.type : visibilitySettings.id}
                 >
                   <option value="public">Public</option>
                   <option value="private">Private</option>
@@ -215,13 +204,14 @@ const mapStateToProps = (state: RootState) => {
   return {
     isLoggedIn: !isEmpty(state.user.userData),
     groups: state.user.groups.filter(g => paperGroupsIds.includes(g.id)),
+    visibilitySettings: state.paper.commentVisibilty,
   };
 };
 
 const mapDispatchToProps = (dispatch: Dispatch) => {
   return {
-    openGroupsModal: () => {
-      dispatch(actions.toggleGroupsModal(true));
+    setCommentVisibilty: (visibility: Visibility) => {
+      dispatch(actions.setCommentVisibilitySettings(visibility));
     },
   };
 };

@@ -14,6 +14,7 @@ const initialState: PaperState = {
   acronyms: {},
   sidebarTab: 'Sections',
   groupIds: [],
+  commentVisibilty: { type: 'public' },
 };
 
 const updateHighlight = (state: PaperState, newHighlight: T_Highlight) => {
@@ -81,6 +82,8 @@ const dataReducer = (state: PaperState = initialState, action: PaperActions) => 
         }
         return draftState;
       });
+    case 'SET_COMMENT_VISIBILITY_SETTINGS':
+      return { ...state, commentVisibilty: { ...action.payload } };
     default:
       return state;
   }

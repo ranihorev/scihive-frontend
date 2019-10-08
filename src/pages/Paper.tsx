@@ -23,7 +23,6 @@ export default function Paper() {
       <div ref={wrapperRef}>
         <PrimaryAppBar desktopItems={<PaperDekstopMenu />} mobileSubItems={<PaperMobileMenu />} />
         <PdfCommenter />
-        <GroupsModal />
       </div>
     </React.Fragment>
   );

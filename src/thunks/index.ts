@@ -1,19 +1,42 @@
 import axios from 'axios';
 import { Dispatch } from 'redux';
 import { actions } from '../actions';
+import { Group } from '../models';
 
-export const loadGroups = () => (dispatch: Dispatch, getState: GetState) => {
+export const loadGroups = (onSuccess: (groups: Group[]) => void) => (dispatch: Dispatch, getState: GetState) => {
   axios
     .get('/groups/all')
     .then(res => {
       dispatch(actions.setGroups(res.data));
+      onSuccess(res.data);
     })
     .catch(e => console.warn(e.message));
 };
 
+export const joinGroup = (groupId: string, onSuccess: (group: Group) => void, onFail: () => void) => (
+  dispatch: Dispatch,
+  getState: GetState,
+) => {
+  axios
+    .post('/groups/all', { id: groupId })
+    .then(res => {
+      dispatch(actions.setGroups(res.data));
+      const newGroup = (res.data as Group[]).find(g => g.id === groupId);
+      if (newGroup) {
+        onSuccess(newGroup);
+      } else {
+        console.warn('Group not found in the new list');
+      }
+    })
+    .catch(e => {
+      console.warn(e.message);
+      onFail();
+    });
+};
+
 export const deleteGroup = (id: string) => (dispatch: Dispatch, getState: GetState) => {
   axios
-    .delete(`/groups/group/${id}/`)
+    .delete(`/groups/group/${id}`)
     .then(res => {
       dispatch(actions.setGroups(res.data));
     })

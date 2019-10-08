@@ -12,10 +12,10 @@ import Groups from './pages/Groups';
 import Home from './pages/Home';
 import NotFound from './pages/NotFound';
 import Paper from './pages/Paper';
-import { loadGroups } from './thunks';
 import { useTracker } from './Tracker';
 import chromeExtensionPopup from './utils/chromeExtension';
 import { themePalette } from './utils/presets';
+import GroupLoader from './components/GroupLoader';
 
 const theme = createMuiTheme({
   palette: themePalette,
@@ -24,13 +24,7 @@ const theme = createMuiTheme({
   },
 });
 
-const App: React.FC<{ isLoggedIn: boolean; loadGroups: () => void }> = ({ isLoggedIn, loadGroups }) => {
-  React.useEffect(() => {
-    if (isLoggedIn) {
-      loadGroups();
-    }
-  }, [isLoggedIn]);
-
+const App: React.FC<{ isLoggedIn: boolean }> = ({ isLoggedIn }) => {
   useEffect(() => {
     if (isLoggedIn) {
       axios
@@ -45,6 +39,7 @@ const App: React.FC<{ isLoggedIn: boolean; loadGroups: () => void }> = ({ isLogg
     }
     chromeExtensionPopup();
   }, []);
+
   useTracker();
 
   return (
@@ -70,6 +65,7 @@ const App: React.FC<{ isLoggedIn: boolean; loadGroups: () => void }> = ({ isLogg
           rtl={false}
           draggable
         />
+        <GroupLoader />
       </MuiThemeProvider>
     </React.Fragment>
   );
@@ -82,11 +78,7 @@ const mapStateToProps = (state: RootState) => {
 };
 
 const mapDispatchToProps = (dispatch: RTDispatch) => {
-  return {
-    loadGroups: () => {
-      dispatch(loadGroups());
-    },
-  };
+  return {};
 };
 
 const withRedux = connect(

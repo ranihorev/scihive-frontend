@@ -56,7 +56,7 @@ const NewGroup: React.FC<{ createGroup: BookmarkDispatchProps['createGroup'] }> 
     >
       <Input
         value={value}
-        placeholder="New Group"
+        placeholder="New list"
         onChange={e => {
           setValue(e.target.value);
         }}

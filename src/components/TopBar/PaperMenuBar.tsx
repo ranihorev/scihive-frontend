@@ -145,18 +145,7 @@ const mapStateToProps = (state: RootState) => {
   };
 };
 
-const mapDispatchToProps = (dispatch: Dispatch) => {
-  return {
-    toggleGroupsModal: () => {
-      dispatch(actions.toggleGroupsModal());
-    },
-  };
-};
-
-const withRedux = connect(
-  mapStateToProps,
-  mapDispatchToProps,
-);
+const withRedux = connect(mapStateToProps);
 
 export const PaperDekstopMenu = withRedux(PaperMenuDekstopRender);
 

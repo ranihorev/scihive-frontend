@@ -23,7 +23,7 @@ export const useTracker = (options = {}) => {
     } else {
       console.log(`Track: ${location.pathname + location.search}`);
     }
-  }, [location.pathname, location.search]);
+  }, [trackPage, location.pathname, location.search]);
 
   return null;
 };

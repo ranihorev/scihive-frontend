@@ -34,7 +34,7 @@ const CategoriesModalRender: React.FC<Props> = ({
 
   React.useLayoutEffect(() => {
     if (isEmpty(allCategories)) axios.get('/papers/categories').then(res => setAllCategories(res.data));
-  }, []);
+  }, [allCategories, setAllCategories]);
 
   React.useEffect(() => {
     if (isFirstLoad.current) {

@@ -113,8 +113,6 @@ export interface RequestParams {
   group: string;
 }
 
-const MAX_RETRIES = 3;
-
 export const fetchPapers = ({
   url,
   requestParams,

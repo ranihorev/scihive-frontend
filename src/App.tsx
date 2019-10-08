@@ -1,10 +1,13 @@
 import { createMuiTheme, MuiThemeProvider } from '@material-ui/core/styles';
 import axios from 'axios';
 import { isEmpty } from 'lodash';
-import React, { useEffect } from 'react';
+import React from 'react';
+import * as ReactHintFactory from 'react-hint';
 import { connect } from 'react-redux';
+import './react-hint.css';
 import { Route, Switch } from 'react-router-dom';
 import { ToastContainer } from 'react-toastify';
+import GroupLoader from './components/GroupLoader';
 import LoginSignupModal from './components/LoginSignupModal';
 import About from './pages/About';
 import Admin from './pages/Admin';
@@ -15,7 +18,6 @@ import Paper from './pages/Paper';
 import { useTracker } from './Tracker';
 import chromeExtensionPopup from './utils/chromeExtension';
 import { themePalette } from './utils/presets';
-import GroupLoader from './components/GroupLoader';
 
 const theme = createMuiTheme({
   palette: themePalette,
@@ -24,8 +26,10 @@ const theme = createMuiTheme({
   },
 });
 
+const ReactHint = ReactHintFactory(React);
+
 const App: React.FC<{ isLoggedIn: boolean }> = ({ isLoggedIn }) => {
-  useEffect(() => {
+  React.useEffect(() => {
     if (isLoggedIn) {
       axios
         .get('/user/validate')
@@ -65,6 +69,7 @@ const App: React.FC<{ isLoggedIn: boolean }> = ({ isLoggedIn }) => {
           rtl={false}
           draggable
         />
+        <ReactHint autoPosition events={{ hover: true }} delay={{ show: 300, hide: 0 }} />
         <GroupLoader />
       </MuiThemeProvider>
     </React.Fragment>

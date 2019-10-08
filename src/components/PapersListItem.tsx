@@ -170,45 +170,35 @@ const PapersListItem: React.FC<PapersListItemProps> = ({ paper }) => {
           display: flex;
         `}
       >
-        <Tooltip title="Paper comments" placement="top">
-          <span>
-            <Button
-              disabled={true}
-              size="small"
-              css={css`
-                padding: 0 4px;
-              `}
-            >
-              <i className="fas fa-comments" css={metadataCss} /> {comments_count || '0'}
-            </Button>
-          </span>
-        </Tooltip>
-        <Tooltip title="Users bookmarked" placement="top">
-          <span>
-            <Button
-              disabled={true}
-              size="small"
-              css={css`
-                padding: 0 4px;
-              `}
-            >
-              <i className="fa fa-star" css={metadataCss} /> {bookmarks_count || '0'}
-            </Button>
-          </span>
-        </Tooltip>
-        <div>
-          <Tooltip title="Σ Likes, RTs and replies" placement="top">
-            <span>
-              <TwitterMeta twtr_score={twtr_score} twtr_links={twtr_links} iconCss={metadataCss} />
-            </span>
-          </Tooltip>
+        <span data-rh="Paper comments" data-rh-at="top">
+          <Button
+            disabled={true}
+            size="small"
+            css={css`
+              padding: 0 4px;
+            `}
+          >
+            <i className="fas fa-comments" css={metadataCss} /> {comments_count || '0'}
+          </Button>
+        </span>
+        <span data-rh="Users bookmarked" data-rh-at="top">
+          <Button
+            disabled={true}
+            size="small"
+            css={css`
+              padding: 0 4px;
+            `}
+          >
+            <i className="fa fa-star" css={metadataCss} /> {bookmarks_count || '0'}
+          </Button>
+        </span>
+        <div data-rh="Σ Likes, RTs and replies" data-rh-at="top">
+          <TwitterMeta twtr_score={twtr_score} twtr_links={twtr_links} iconCss={metadataCss} />
         </div>
         {!isEmpty(github) && (
-          <Tooltip title="Github stars (by PapersWithCode)" placement="top">
-            <span>
-              <CodeMetaRender data={github} iconCss={metadataCss} />
-            </span>
-          </Tooltip>
+          <div data-rh="Github stars (by PapersWithCode)" data-rh-at="top">
+            <CodeMetaRender data={github} iconCss={metadataCss} />
+          </div>
         )}
         <IconButton
           css={expanded ? expandedOpenCss : expandCss}

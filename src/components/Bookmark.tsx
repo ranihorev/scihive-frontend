@@ -114,7 +114,7 @@ const Bookmark: React.FC<BookmarkProps & BookmarkStateProps & BookmarkDispatchPr
 
   return (
     <div>
-      <div>
+      <div data-rh="Add paper to list">
         <IconButton onClick={handleClick} buttonRef={anchorRef}>
           <AddToListIcon
             style={css`

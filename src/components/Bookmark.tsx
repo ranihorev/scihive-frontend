@@ -135,14 +135,14 @@ const Bookmark: React.FC<BookmarkProps & BookmarkStateProps & BookmarkDispatchPr
       >
         <Paper
           css={css`
-            width: 200px;
+            max-width: 250px;
           `}
           ref={contentRef}
         >
           <List
             dense
             css={css`
-              max-height: 200px;
+              max-height: 250px;
               overflow-y: auto;
               width: 100%;
               padding-bottom: 0;
@@ -163,7 +163,12 @@ const Bookmark: React.FC<BookmarkProps & BookmarkStateProps & BookmarkDispatchPr
               const selected = selectedGroupIds.some(id => id === group.id);
               return (
                 <ListItem key={group.id}>
-                  <ListItemText primary={group.name} />
+                  <ListItemText
+                    primary={group.name}
+                    css={css`
+                      word-break: break-all;
+                    `}
+                  />
                   <ListItemSecondaryAction>
                     <Checkbox
                       edge="end"

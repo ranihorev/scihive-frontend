@@ -22,7 +22,7 @@ interface GroupProps extends Omit<GroupsProps, 'groups' | 'createNewGroup'> {
 const GroupRender: React.FC<GroupProps> = ({ group, deleteGroup, renameGroup }) => {
   const [name, setName] = React.useState(group.name);
   const handleShare = (id: string) => {
-    copy(`${window.location.origin}${window.location.pathname}?group=${id}`);
+    copy(`${window.location.origin}?age=all&group=${id}`);
     toast.info(`Link was copied to clipboard`, { autoClose: 2000 });
   };
 

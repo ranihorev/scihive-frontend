@@ -64,6 +64,7 @@ const NewGroup: React.FC<{ createGroup: BookmarkDispatchProps['createGroup'] }> 
           if (e.key === 'Enter') submitGroup();
         }}
         inputProps={{ style: { padding: '3px 0 4px' } }}
+        fullWidth
       />
       <i
         className="fas fa-plus"

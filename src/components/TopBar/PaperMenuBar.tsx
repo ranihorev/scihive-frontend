@@ -1,16 +1,15 @@
 /** @jsx jsx */
 import { jsx } from '@emotion/core';
-import { Divider, Menu, MenuItem } from '@material-ui/core';
+import { Divider, MenuItem, Popper, Paper, ClickAwayListener } from '@material-ui/core';
 import { isEmpty } from 'lodash';
 import React, { useState } from 'react';
 import { connect } from 'react-redux';
-import { Dispatch } from 'redux';
 import useReactRouter from 'use-react-router';
-import { actions } from '../../actions';
 import { CodeMeta, RootState } from '../../models';
 import { simpleLink } from '../../utils/presets';
 import Bookmark from '../Bookmark';
 import { ButtonIcon } from '../ButtonIcon';
+import { PopoverMenu } from '../PopoverMenu';
 
 interface PaperMenuDekstopProps {
   isLoggedIn: boolean;
@@ -38,19 +37,7 @@ const PaperMenuDekstopRender: React.FC<PaperMenuDekstopProps> = ({ isLoggedIn, c
     <React.Fragment>
       <Bookmark paperId={PaperId} color="white" selectedGroupIds={selectedGroupIds} size={23} type="single" />
       <ButtonIcon icon="fas fa-link" size={22} iconSize={16} onClick={handleMenuOpen} />
-      <Menu
-        anchorEl={anchorEl}
-        anchorOrigin={{
-          vertical: 'bottom',
-          horizontal: 'right',
-        }}
-        transformOrigin={{
-          vertical: 'top',
-          horizontal: 'right',
-        }}
-        open={isMenuOpen}
-        onClose={handleMenuClose}
-      >
+      <PopoverMenu anchorEl={anchorEl} placement="bottom" open={isMenuOpen} onClose={handleMenuClose}>
         {codeMeta && codeMeta.github && (
           <a href={codeMeta.github} css={simpleLink} target="_blank" rel="noopener noreferrer">
             <MenuItem onClick={handleMenuClose}>Github</MenuItem>
@@ -79,7 +66,7 @@ const PaperMenuDekstopRender: React.FC<PaperMenuDekstopProps> = ({ isLoggedIn, c
         >
           <MenuItem onClick={handleMenuClose}>Abstract</MenuItem>
         </a>
-      </Menu>
+      </PopoverMenu>
     </React.Fragment>
   );
 };

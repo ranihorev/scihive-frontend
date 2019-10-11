@@ -6,12 +6,13 @@ import React from 'react';
 import { connect } from 'react-redux';
 import { RouteComponentProps, withRouter } from 'react-router';
 import { actions } from '../actions/papersList';
-import { PaperListItem, RootState } from '../models';
+import { PaperListItem, RootState, Group } from '../models';
 import { fetchPapers, RequestParams } from '../thunks';
 import * as presets from '../utils/presets';
 import { CategoriesModal } from './Cateogries';
 import InfiniteScroll from './InfiniteScroll';
 import PapersListItem from './PapersListItem';
+import { isEmpty } from 'lodash';
 
 const formControlCss = css({
   margin: '8px 8px 8px 0px',
@@ -70,7 +71,10 @@ interface PapersListProps extends PapersListDispatchProps {
   history: RouteComponentProps['history'];
   papers: PaperListItem[];
   totalPapers: number;
+  groups: Group[];
 }
+
+const ALL_LISTS = 'All lists';
 
 const PapersList: React.FC<PapersListProps> = ({
   match,
@@ -82,14 +86,16 @@ const PapersList: React.FC<PapersListProps> = ({
   clearPapers,
   papers,
   totalPapers,
+  groups,
 }) => {
   const isFirstLoad = React.useRef(true);
   const [scrollId, setScrollId] = React.useState(Math.random());
   const [hasMorePapers, setHasMorePapers] = React.useState(true);
   const [isLoading, setIsLoading] = React.useState(false);
+  const isLibrary = match && match.path === '/library';
 
   const getAgeQuery = (queryParams: QueryParams) => {
-    return queryParams.age || (match.path === '/library' || queryParams.q ? 'all' : 'week');
+    return queryParams.age || (isLibrary || queryParams.q ? 'all' : 'week');
   };
 
   const getSortQuery = (queryParams: QueryParams) => {
@@ -109,7 +115,7 @@ const PapersList: React.FC<PapersListProps> = ({
       group: queryParams.group,
     };
 
-    if (match && match.path === '/library') {
+    if (isLibrary) {
       url = '/library';
     }
 
@@ -117,7 +123,7 @@ const PapersList: React.FC<PapersListProps> = ({
     fetchPapers({ url, requestParams, setHasMorePapers, finallyCb: () => setIsLoading(false) });
   };
 
-  const handleFilters = (queryParam: string, queryValue: string) => {
+  const handleFilters = (queryParam: string, queryValue: string | undefined) => {
     const newQ = {
       ...queryString.parse(location.search),
       [queryParam]: queryValue,
@@ -128,10 +134,14 @@ const PapersList: React.FC<PapersListProps> = ({
       search: queryString.stringify(newQ),
     });
   };
-  const handleFiltersEvent = (event: React.ChangeEvent<{ name?: string; value: unknown }>) => {
+  const handleFiltersEvent = (event: React.ChangeEvent<{ name?: string; value: unknown }>, ignoreValue?: string) => {
     if (!event.target.name) return;
-    const value = event.target.value as string;
-    handleFilters(event.target.name, value.toLowerCase());
+    let value: string | undefined = event.target.value as string;
+    if (ignoreValue !== undefined && ignoreValue === value) {
+      value = undefined;
+    }
+    if (value !== undefined) value = value.toLowerCase();
+    handleFilters(event.target.name, value);
   };
 
   React.useEffect(() => {
@@ -187,7 +197,7 @@ const PapersList: React.FC<PapersListProps> = ({
           <FormControl css={formControlCss}>
             <Select
               value={age}
-              onChange={handleFiltersEvent}
+              onChange={e => handleFiltersEvent(e)}
               input={<Input name="age" id="filter-helper" />}
               css={filterValueCss}
             >
@@ -201,14 +211,14 @@ const PapersList: React.FC<PapersListProps> = ({
                 This month
               </MenuItem>
               <MenuItem css={filterMenuItemCss} value="all">
-                All
+                All times
               </MenuItem>
             </Select>
           </FormControl>
           <FormControl css={formControlCss}>
             <Select
               value={sort}
-              onChange={handleFiltersEvent}
+              onChange={e => handleFiltersEvent(e)}
               input={<Input name="sort" id="sort-helper" />}
               css={filterValueCss}
             >
@@ -229,21 +239,51 @@ const PapersList: React.FC<PapersListProps> = ({
               )}
             </Select>
           </FormControl>
-          <Chip
-            size="small"
-            variant="outlined"
-            label="Categories"
-            clickable={false}
-            onClick={() => toggleCategoryModal()}
-            css={css`
-              font-size: 13px;
-              height: 26px;
-              &:hover {
-                background-color: rgba(0, 0, 0, 0.08);
-                cursor: pointer;
-              }
-            `}
-          />
+          {isLibrary ? (
+            !isEmpty(groups) && (
+              <FormControl css={formControlCss}>
+                <Select
+                  value={q.group || ALL_LISTS}
+                  onChange={e => handleFiltersEvent(e, ALL_LISTS)}
+                  input={<Input name="group" id="group-helper" />}
+                  css={filterValueCss}
+                >
+                  <MenuItem css={filterMenuItemCss} value={ALL_LISTS}>
+                    All lists
+                  </MenuItem>
+                  {groups.map(group => (
+                    <MenuItem css={filterMenuItemCss} value={group.id} key={group.id}>
+                      <div
+                        css={css`
+                          max-width: 200px;
+                          overflow-x: hidden;
+                          text-overflow: ellipsis;
+                        `}
+                      >
+                        {group.name}
+                      </div>
+                    </MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
+            )
+          ) : (
+            <Chip
+              size="small"
+              variant="outlined"
+              label="Categories"
+              clickable={false}
+              onClick={() => toggleCategoryModal()}
+              css={css`
+                font-size: 13px;
+                height: 26px;
+                &:hover {
+                  background-color: rgba(0, 0, 0, 0.08);
+                  cursor: pointer;
+                }
+              `}
+            />
+          )}
           <CategoriesModal onSelect={handleFilters} />
         </div>
       </div>
@@ -277,6 +317,7 @@ const mapStateToProps = (state: RootState) => {
     allCategories: state.papersList.allCategories,
     selectedCategories: state.papersList.selectedCategories,
     totalPapers: state.papersList.totalPapers,
+    groups: state.user.groups,
   };
 };
 

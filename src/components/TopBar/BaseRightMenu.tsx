@@ -11,6 +11,7 @@ import { Dispatch } from 'redux';
 import { actions } from '../../actions';
 import { RootState } from '../../models';
 import { simpleLink } from '../../utils/presets';
+import { PopoverMenu } from '../PopoverMenu';
 
 const logout = () => {
   axios
@@ -77,13 +78,7 @@ const MobileMenuRender: React.FC<MobileMenuProps> = ({
         {submenuChildrenWithClose}
         {isLoggedIn && (
           <Link to="/library" css={simpleLink}>
-            <MenuItem onClick={handleMobileMenuClose}>Starred</MenuItem>
-          </Link>
-        )}
-
-        {isLoggedIn && (
-          <Link to="/groups" css={simpleLink}>
-            <MenuItem>My lists</MenuItem>
+            <MenuItem onClick={handleMobileMenuClose}>My Library</MenuItem>
           </Link>
         )}
         <Divider />
@@ -153,14 +148,9 @@ const DesktopMenuRender: React.FC<DesktopMenuProps> = ({ children, isLoggedIn, t
       {isLoggedIn ? (
         <React.Fragment>
           <Button color="inherit">
-            <Link to="/lists" css={simpleLink}>
-              My lists
-            </Link>
-          </Button>
-          <Button color="inherit">
             <Badge color="secondary" badgeContent={showLibraryBadge ? '+1' : null}>
               <Link to="/library" css={simpleLink}>
-                Starred
+                My Library
               </Link>
             </Badge>
           </Button>
@@ -176,57 +166,56 @@ const DesktopMenuRender: React.FC<DesktopMenuProps> = ({ children, isLoggedIn, t
       <IconButton aria-haspopup="true" onClick={handleMenuOpen} color="inherit">
         <MoreIcon />
       </IconButton>
-      <Menu
-        id="menu-appbar"
+      <PopoverMenu
         anchorEl={anchorEl}
-        anchorOrigin={{
-          vertical: 'top',
-          horizontal: 'right',
-        }}
-        transformOrigin={{
-          vertical: 'top',
-          horizontal: 'right',
-        }}
+        placement="bottom-end"
         open={Boolean(anchorEl)}
         onClose={() => handleMenuClose()}
-        css={css`
-          li {
-            font-size: 14px;
-            min-height: 40px;
-          }
-        `}
       >
-        <a
-          href="https://chrome.google.com/webstore/detail/scihive/dijdhkcfdaocpepndegmbkgphbpomdai"
-          target="_blank"
-          rel="noopener noreferrer"
-          css={simpleLink}
+        <div
+          css={css`
+            li {
+              font-size: 14px;
+              min-height: 40px;
+            }
+          `}
         >
-          <MenuItem onClick={() => handleMenuClose()}>Chrome Extension</MenuItem>
-        </a>
-        <a href="https://goo.gl/forms/fiEWkXfk4hLW6i1P2" target="_blank" rel="noopener noreferrer" css={simpleLink}>
-          <MenuItem onClick={() => handleMenuClose()}>Our poll</MenuItem>
-        </a>
-        <a
-          href="http://www.tricider.com/brainstorming/2urLxQ6t9XR"
-          target="_blank"
-          rel="noopener noreferrer"
-          css={simpleLink}
-        >
-          <MenuItem onClick={() => handleMenuClose()}>Suggest a feature</MenuItem>
-        </a>
-        <Link to="/about" css={simpleLink}>
-          <MenuItem color="inherit">About</MenuItem>
-        </Link>
-        {isLoggedIn ? (
-          <div>
-            <Divider />
-            <MenuItem color="inherit" onClick={() => handleMenuClose(logout)}>
-              Logout
-            </MenuItem>
-          </div>
-        ) : null}
-      </Menu>
+          <Link to="/lists" css={simpleLink}>
+            <MenuItem color="inherit">My Lists</MenuItem>
+          </Link>
+          <Divider />
+          <a
+            href="https://chrome.google.com/webstore/detail/scihive/dijdhkcfdaocpepndegmbkgphbpomdai"
+            target="_blank"
+            rel="noopener noreferrer"
+            css={simpleLink}
+          >
+            <MenuItem onClick={() => handleMenuClose()}>Chrome Extension</MenuItem>
+          </a>
+          <a href="https://goo.gl/forms/fiEWkXfk4hLW6i1P2" target="_blank" rel="noopener noreferrer" css={simpleLink}>
+            <MenuItem onClick={() => handleMenuClose()}>Our poll</MenuItem>
+          </a>
+          <a
+            href="http://www.tricider.com/brainstorming/2urLxQ6t9XR"
+            target="_blank"
+            rel="noopener noreferrer"
+            css={simpleLink}
+          >
+            <MenuItem onClick={() => handleMenuClose()}>Suggest a feature</MenuItem>
+          </a>
+          <Link to="/about" css={simpleLink}>
+            <MenuItem color="inherit">About</MenuItem>
+          </Link>
+          {isLoggedIn ? (
+            <div>
+              <Divider />
+              <MenuItem color="inherit" onClick={() => handleMenuClose(logout)}>
+                Logout
+              </MenuItem>
+            </div>
+          ) : null}
+        </div>
+      </PopoverMenu>
     </React.Fragment>
   );
 };

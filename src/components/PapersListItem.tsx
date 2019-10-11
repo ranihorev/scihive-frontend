@@ -85,7 +85,7 @@ const PapersListItem: React.FC<PapersListItemProps> = ({ paper }) => {
           <Grid
             item
             css={css`
-              margin-right: 40;
+              margin-right: 40px;
             `}
           >
             <Link
@@ -132,6 +132,7 @@ const PapersListItem: React.FC<PapersListItemProps> = ({ paper }) => {
               css={css`
                 ${paragraphCss};
                 margin-bottom: 4px;
+                margin-right: 40px;
               `}
             >
               {paper.authors.map((author, index) => (

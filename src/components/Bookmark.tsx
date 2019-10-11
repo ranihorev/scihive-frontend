@@ -11,6 +11,8 @@ import {
   Paper,
   Popper,
 } from '@material-ui/core';
+import StarIcon from '@material-ui/icons/Star';
+import StarBorderIcon from '@material-ui/icons/StarBorder';
 import { isEmpty } from 'lodash';
 import React from 'react';
 import { connect } from 'react-redux';
@@ -19,6 +21,8 @@ import { AddToListIcon } from '../icons/addToList';
 import { Group, RootState } from '../models';
 import { addRemovePaperToGroup, bookmarkPaper, createNewGroup } from '../thunks';
 import { useOnClickOutside } from '../utils/hooks';
+import { ArrowTooltip } from './ArrowTooltip';
+import { presets } from '../utils';
 
 interface BookmarkProps {
   isBookmarked?: boolean;
@@ -89,7 +93,7 @@ const Bookmark: React.FC<BookmarkProps & BookmarkStateProps & BookmarkDispatchPr
   paperId,
   setBookmark,
   updatePaperGroup,
-  color = 'rgba(0, 0, 0, 0.8)',
+  color = 'rgba(0, 0, 0, 0.54)',
   size = 18,
   type,
   createGroup,
@@ -97,12 +101,36 @@ const Bookmark: React.FC<BookmarkProps & BookmarkStateProps & BookmarkDispatchPr
   const [isOpen, setIsOpen] = React.useState(false);
   const anchorRef = React.useRef<HTMLDivElement>(null);
   const contentRef = React.useRef<HTMLDivElement>(null);
-  const handleClick = (event: React.MouseEvent) => {
+
+  const timeoutId = React.useRef<NodeJS.Timeout>();
+  const [isListsTooltipOpen, setIsListsTooltipOpen] = React.useState(false);
+
+  const onListsClick = (event: React.MouseEvent) => {
     if (!isLoggedIn) {
       toggleLoginModal('Please log in to save manage lists and bookmarks');
       return;
     }
     setIsOpen(true);
+  };
+
+  const clearTimeoutHelper = () => {
+    if (timeoutId.current !== undefined) {
+      clearTimeout(timeoutId.current);
+      timeoutId.current = undefined;
+    }
+  };
+
+  React.useEffect(() => {
+    return () => clearTimeoutHelper();
+  }, []);
+
+  const setBookmarkWrapper = (...args: Parameters<typeof setBookmark>) => {
+    setIsListsTooltipOpen(true);
+
+    timeoutId.current = setTimeout(() => {
+      setIsListsTooltipOpen(false);
+    }, 5000);
+    setBookmark(...args);
   };
 
   useOnClickOutside(
@@ -113,19 +141,43 @@ const Bookmark: React.FC<BookmarkProps & BookmarkStateProps & BookmarkDispatchPr
     isOpen,
   );
 
+  const Star = isBookmarked ? StarIcon : StarBorderIcon;
+
   return (
-    <div>
-      <div data-rh="Add paper to list">
-        <IconButton onClick={handleClick} buttonRef={anchorRef}>
-          <AddToListIcon
-            style={css`
-              width: ${size}px;
-              height: ${size}px;
-            `}
-            fill={color}
-          />
+    <div
+      css={css`
+        display: flex;
+        flex-direction: ${type === 'single' ? 'row-reverse' : 'column'};
+      `}
+    >
+      <div {...(!isBookmarked ? { 'data-rh': 'Add to my library' } : {})} data-rh-at="left">
+        <IconButton onClick={() => setBookmarkWrapper(type, paperId, !isBookmarked)} buttonRef={anchorRef}>
+          <Star style={{ width: size, height: size, color }} />
         </IconButton>
       </div>
+      {isBookmarked && (
+        <div {...(timeoutId.current === undefined ? { 'data-rh': 'Add to lists' } : {})} data-rh-at="left">
+          <ArrowTooltip
+            open={isListsTooltipOpen}
+            disableFocusListener
+            disableHoverListener
+            disableTouchListener
+            placement="left"
+            title="Add to lists"
+          >
+            <IconButton onClick={onListsClick} buttonRef={anchorRef}>
+              <AddToListIcon
+                style={css`
+                  width: ${size}px;
+                  height: ${size}px;
+                `}
+                fill={color}
+              />
+            </IconButton>
+          </ArrowTooltip>
+        </div>
+      )}
+      <div />
       <Popper
         open={isOpen}
         anchorEl={anchorRef.current}
@@ -149,17 +201,6 @@ const Bookmark: React.FC<BookmarkProps & BookmarkStateProps & BookmarkDispatchPr
               padding-bottom: 0;
             `}
           >
-            <ListItem>
-              <ListItemText primary="Starred" />
-              <ListItemSecondaryAction>
-                <Checkbox
-                  edge="end"
-                  onChange={(e, checked) => setBookmark(type, paperId, checked)}
-                  checked={isBookmarked}
-                  color="primary"
-                />
-              </ListItemSecondaryAction>
-            </ListItem>
             {groups.map(group => {
               const selected = selectedGroupIds.some(id => id === group.id);
               return (

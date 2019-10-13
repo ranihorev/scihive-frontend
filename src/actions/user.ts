@@ -23,8 +23,4 @@ export const actions = {
     type: 'SET_GROUPS' as const,
     payload,
   }),
-  blinkLibrary: () => ({
-    type: 'BLINK_LIBRARY' as const,
-    payload: {},
-  }),
 };

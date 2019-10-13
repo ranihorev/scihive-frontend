@@ -6,7 +6,6 @@ type UserState = RootState['user'];
 const initialState: UserState = {
   isLoginModalOpen: false,
   isGroupsModalOpen: false,
-  blinkLibraryState: false,
   groups: [],
 };
 
@@ -20,8 +19,6 @@ export default function dataReducer(state: UserState = initialState, action: Act
       return { ...state, userData: action.payload };
     case 'SET_GROUPS':
       return { ...state, groups: action.payload };
-    case 'BLINK_LIBRARY':
-      return { ...state, blinkLibraryState: !state.blinkLibraryState };
     default:
       return state;
   }

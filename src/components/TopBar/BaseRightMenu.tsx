@@ -1,5 +1,5 @@
 /** @jsx jsx */
-import { jsx, css } from '@emotion/core';
+import { css, jsx } from '@emotion/core';
 import { Badge, Button, Divider, IconButton, Menu, MenuItem } from '@material-ui/core';
 import MoreIcon from '@material-ui/icons/MoreVert';
 import axios from 'axios/index';
@@ -10,6 +10,7 @@ import { Link } from 'react-router-dom';
 import { Dispatch } from 'redux';
 import { actions } from '../../actions';
 import { RootState } from '../../models';
+import { createListener, MyCustomEvent, removeListener } from '../../utils';
 import { simpleLink } from '../../utils/presets';
 import { PopoverMenu } from '../PopoverMenu';
 
@@ -111,15 +112,13 @@ const MobileMenuRender: React.FC<MobileMenuProps> = ({
 let badgeTimeout: NodeJS.Timeout;
 
 interface DesktopMenuProps {
-  blinkLibrary: boolean;
   isLoggedIn: boolean;
   toggleLoginModal: () => void;
 }
 
-const DesktopMenuRender: React.FC<DesktopMenuProps> = ({ children, isLoggedIn, toggleLoginModal, blinkLibrary }) => {
+const DesktopMenuRender: React.FC<DesktopMenuProps> = ({ children, isLoggedIn, toggleLoginModal }) => {
   const [anchorEl, setAnchorEl] = React.useState<HTMLElement | null>(null);
   const [showLibraryBadge, setShowLibraryBadge] = React.useState(false);
-  const isInitialMount = React.useRef(true);
   const handleMenuOpen = (event: React.MouseEvent) => {
     setAnchorEl(event.currentTarget as HTMLElement);
   };
@@ -130,16 +129,20 @@ const DesktopMenuRender: React.FC<DesktopMenuProps> = ({ children, isLoggedIn, t
   };
 
   React.useEffect(() => {
-    if (isInitialMount.current) {
-      isInitialMount.current = false;
-      return () => {};
-    }
-    setShowLibraryBadge(true);
-    badgeTimeout = setTimeout(() => setShowLibraryBadge(false), 3000);
+    let badgeTimeout: NodeJS.Timeout;
+    const onUpdateLibrary = ({ detail }: MyCustomEvent<'updateLibrary'>) => {
+      setShowLibraryBadge(detail.checked);
+      if (badgeTimeout) clearTimeout(badgeTimeout);
+      if (detail.checked) {
+        badgeTimeout = setTimeout(() => setShowLibraryBadge(false), 300000);
+      }
+    };
+    createListener('updateLibrary', onUpdateLibrary);
     return () => {
       if (badgeTimeout) clearTimeout(badgeTimeout);
+      removeListener('updateLibrary', onUpdateLibrary);
     };
-  }, [blinkLibrary]);
+  }, []);
 
   return (
     <React.Fragment>
@@ -148,7 +151,17 @@ const DesktopMenuRender: React.FC<DesktopMenuProps> = ({ children, isLoggedIn, t
       {isLoggedIn ? (
         <React.Fragment>
           <Button color="inherit">
-            <Badge color="secondary" badgeContent={showLibraryBadge ? '+1' : null}>
+            <Badge
+              color="secondary"
+              badgeContent={showLibraryBadge ? '+1' : null}
+              css={css`
+                > .MuiBadge-badge {
+                  right: -10px;
+                  font-size: 11px;
+                  top: 2px;
+                }
+              `}
+            >
               <Link to="/library" css={simpleLink}>
                 My Library
               </Link>
@@ -223,7 +236,6 @@ const DesktopMenuRender: React.FC<DesktopMenuProps> = ({ children, isLoggedIn, t
 const mapStateToProps = (state: RootState) => {
   return {
     isLoggedIn: !isEmpty(state.user.userData),
-    blinkLibrary: state.user.blinkLibraryState,
   };
 };
 

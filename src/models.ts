@@ -185,7 +185,6 @@ export interface RootState {
     isGroupsModalOpen: boolean;
     userData?: User;
     loginModalMessage?: string;
-    blinkLibraryState: boolean;
     groups: Group[];
   };
   paper: {

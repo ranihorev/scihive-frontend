@@ -2,6 +2,7 @@ import axios from 'axios';
 import { Dispatch } from 'redux';
 import { actions } from '../actions';
 import { Group } from '../models';
+import { eventsGenerator } from '../utils';
 
 export const loadGroups = (onSuccess: (groups: Group[]) => void) => (dispatch: Dispatch, getState: GetState) => {
   axios
@@ -81,6 +82,7 @@ export const bookmarkPaper = (type: 'single' | 'list', paperId: string, checked:
       } else {
         dispatch(actions.setBookmark(checked));
       }
+      document.dispatchEvent(eventsGenerator.updateLibrary({ checked }));
     })
     .catch(err => console.log(err));
 };

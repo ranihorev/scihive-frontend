@@ -1,6 +1,6 @@
 /** @jsx jsx */
 import { jsx } from '@emotion/core';
-import { Divider, MenuItem, Popper, Paper, ClickAwayListener } from '@material-ui/core';
+import { Divider, MenuItem } from '@material-ui/core';
 import { isEmpty } from 'lodash';
 import React, { useState } from 'react';
 import { connect } from 'react-redux';

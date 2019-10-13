@@ -5,8 +5,7 @@ import { connect } from 'react-redux';
 import { toast } from 'react-toastify';
 import useReactRouter from 'use-react-router';
 import { Group } from '../models';
-import { loadGroups as loadGroupsThunk, joinGroup as joinGroupThunk } from '../thunks';
-import { Link } from 'react-router-dom';
+import { joinGroup as joinGroupThunk, loadGroups as loadGroupsThunk } from '../thunks';
 
 interface GroupJoinerDispatchProps {
   loadGroups: (onSuccess: (groups: Group[]) => void) => void;

@@ -12,6 +12,7 @@
     "axios": "^0.18.0",
     "body-scroll-lock": "^2.6.1",
     "clipboard-copy": "^3.1.0",
+    "color": "^3.1.2",
     "immer": "^4.0.1",
     "katex": "^0.10.2",
     "lodash": "^4.17.14",
@@ -64,6 +65,7 @@
     "not op_mini all"
   ],
   "devDependencies": {
+    "@types/color": "^3.0.0",
     "@types/jest": "^24.0.18",
     "@types/katex": "^0.10.1",
     "@types/lodash": "^4.14.138",

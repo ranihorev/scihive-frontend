@@ -1,26 +1,136 @@
 /** @jsx jsx */
 import { css, jsx } from '@emotion/core';
-import { Button, IconButton, Input, List, ListItem, TextField, Typography } from '@material-ui/core';
+import { Button, IconButton, List, ListItem, TextField, Typography } from '@material-ui/core';
+import DoneIcon from '@material-ui/icons/Done';
 import copy from 'clipboard-copy';
+import Color from 'color';
 import React from 'react';
 import { connect } from 'react-redux';
 import { Link } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import { actions } from '../actions';
 import { Group, RootState } from '../models';
-import { createNewGroup, deleteGroup, renameGroup } from '../thunks';
+import { createNewGroup, deleteGroup, editGroup } from '../thunks';
 import { presets } from '../utils';
+import { BASE_GROUP_COLOR, GroupColor, GROUP_COLORS } from '../utils/presets';
+import { PopoverMenu } from './PopoverMenu';
 
 const iconCss = css`
   font-size: 16px;
 `;
 
+interface EditGroupProps {
+  group: Group;
+  editGroup: (...args: Parameters<typeof editGroup>) => void;
+  onFinishEdit: () => void;
+}
+
+export const EditGroup: React.FC<EditGroupProps> = ({ group, editGroup, onFinishEdit }) => {
+  const colorMargin = 10;
+  const [name, setName] = React.useState(group.name);
+  const [selectedColor, setSelectedColor] = React.useState<GroupColor | undefined>(group.color);
+  return (
+    <div
+      css={css`
+        padding: 10px;
+      `}
+    >
+      <div>
+        <TextField
+          label="Name"
+          value={name}
+          onChange={e => setName(e.target.value)}
+          margin="normal"
+          error={name === ''}
+          css={css`
+            margin-top: 0;
+          `}
+          fullWidth
+          autoFocus
+        />
+      </div>
+      <div
+        css={css`
+          ${presets.row};
+          flex-wrap: wrap;
+          margin-left: ${-1 * colorMargin}px;
+          margin-top: ${-1 * colorMargin}px;
+        `}
+      >
+        {Object.keys(GROUP_COLORS).map(colorName => {
+          const currentColor = GROUP_COLORS[colorName as GroupColor];
+          const hoverColor = Color(currentColor)
+            .darken(0.1)
+            .string();
+          return (
+            <div
+              key={colorName}
+              css={css`
+                width: 60px;
+                height: 27px;
+                margin-top: ${colorMargin}px;
+                margin-left: ${colorMargin}px;
+                border-radius: 4px;
+                ${presets.row};
+                ${presets.centered};
+                background-color: ${currentColor};
+                cursor: pointer;
+                &:hover {
+                  background-color: ${hoverColor};
+                }
+              `}
+              onClick={() => setSelectedColor(colorName as GroupColor)}
+            >
+              {selectedColor === colorName && <DoneIcon />}
+            </div>
+          );
+        })}
+      </div>
+      <div
+        css={css`
+          ${presets.row};
+          margin-top: 20px;
+          justify-content: space-evenly;
+        `}
+      >
+        <Button
+          variant="outlined"
+          color="primary"
+          size="small"
+          css={css`
+            width: 75px;
+          `}
+          onClick={async () => {
+            if (name === '') return;
+            await editGroup(group.id, { name, color: selectedColor });
+            onFinishEdit();
+          }}
+        >
+          Save
+        </Button>
+        <Button
+          variant="outlined"
+          color="secondary"
+          size="small"
+          css={css`
+            width: 75px;
+          `}
+          onClick={() => onFinishEdit()}
+        >
+          Cancel
+        </Button>
+      </div>
+    </div>
+  );
+};
+
 interface GroupProps extends Omit<GroupsProps, 'groups' | 'createNewGroup'> {
   group: Group;
 }
 
-const GroupRender: React.FC<GroupProps> = ({ group, deleteGroup, renameGroup }) => {
-  const [name, setName] = React.useState(group.name);
+const GroupRender: React.FC<GroupProps> = ({ group, deleteGroup, editGroup }) => {
+  const [isEditOpen, setIsEditOpen] = React.useState(false);
+  const editRef = React.useRef<HTMLDivElement>(null);
   const handleShare = (id: string) => {
     copy(`${window.location.origin}?age=all&group=${id}`);
     toast.info(`Link was copied to clipboard`, { autoClose: 2000 });
@@ -37,29 +147,31 @@ const GroupRender: React.FC<GroupProps> = ({ group, deleteGroup, renameGroup }) 
       >
         <div
           css={css`
+            width: 15px;
+            height: 15px;
+            border-radius: 3px;
+            margin-right: 6px;
+          `}
+          style={{ backgroundColor: GROUP_COLORS[group.color || BASE_GROUP_COLOR] }}
+        />
+        <div
+          css={css`
             flex-grow: 1;
           `}
         >
-          <Input
-            value={name}
-            css={css`
-              &::before {
-                border-bottom: none;
-              }
-            `}
-            onChange={e => setName(e.target.value)}
-            onBlur={e => {
-              renameGroup(group.id, name);
-            }}
-            onKeyPress={e => {
-              if (e.key === 'Enter') {
-                (e.target as HTMLInputElement).blur();
-              }
-            }}
-            fullWidth
-          />
+          {group.name}
         </div>
-        <div>
+        <div css={presets.row}>
+          <div ref={editRef}>
+            <IconButton
+              aria-label="Open"
+              onClick={() => {
+                setIsEditOpen(true);
+              }}
+            >
+              <i className="fas fa-pencil-alt" css={iconCss} />
+            </IconButton>
+          </div>
           <Link to={`/?age=all&group=${group.id}`}>
             <IconButton aria-label="Open">
               <i className="fas fa-external-link-square-alt" css={iconCss} />
@@ -72,20 +184,34 @@ const GroupRender: React.FC<GroupProps> = ({ group, deleteGroup, renameGroup }) 
             <i className="far fa-trash-alt" css={iconCss} />
           </IconButton>
         </div>
+        <PopoverMenu
+          open={isEditOpen}
+          onClose={() => setIsEditOpen(false)}
+          anchorEl={editRef.current}
+          placement="bottom-end"
+          contentCss={css`
+            width: 230px;
+          `}
+        >
+          <EditGroup editGroup={editGroup} group={group} onFinishEdit={() => setIsEditOpen(false)} />
+        </PopoverMenu>
       </div>
     </ListItem>
   );
 };
 
-interface GroupsProps {
-  groups: Group[];
+interface GroupsDispatchProps {
   setGroups: (groups: Group[]) => void;
   deleteGroup: (id: string) => void;
   createNewGroup: (name: string, finallyCb: () => void) => void;
-  renameGroup: (id: string, name: string) => void;
+  editGroup: (...args: Parameters<typeof editGroup>) => void;
 }
 
-const Groups: React.FC<GroupsProps> = ({ groups, setGroups, deleteGroup, createNewGroup, renameGroup }) => {
+interface GroupsProps extends GroupsDispatchProps {
+  groups: Group[];
+}
+
+const Groups: React.FC<GroupsProps> = ({ groups, setGroups, deleteGroup, createNewGroup, editGroup }) => {
   const [newGroupName, setNewGroupName] = React.useState('');
   const [isSubmitDisabled, setIsSubmitDisabled] = React.useState(false);
 
@@ -116,7 +242,7 @@ const Groups: React.FC<GroupsProps> = ({ groups, setGroups, deleteGroup, createN
       <div
         css={css`
           width: 100%;
-          max-width: 400px;
+          max-width: 450px;
         `}
       >
         <form
@@ -146,7 +272,7 @@ const Groups: React.FC<GroupsProps> = ({ groups, setGroups, deleteGroup, createN
         </form>
         <List>
           {groups.map(group => (
-            <GroupRender key={group.id} {...{ group, setGroups, deleteGroup, renameGroup }} />
+            <GroupRender key={group.id} {...{ group, setGroups, deleteGroup, editGroup: editGroup }} />
           ))}
         </List>
       </div>
@@ -161,19 +287,19 @@ const mapStateToProps = (state: RootState) => {
   };
 };
 
-const mapDispatchToProps = (dispatch: RTDispatch) => {
+const mapDispatchToProps = (dispatch: RTDispatch): GroupsDispatchProps => {
   return {
-    setGroups: (groups: Group[]) => {
+    setGroups: groups => {
       dispatch(actions.setGroups(groups));
     },
-    deleteGroup: (id: string) => {
+    deleteGroup: id => {
       dispatch(deleteGroup(id));
     },
-    createNewGroup: (name: string, finallyCb: () => void) => {
+    createNewGroup: (name, finallyCb) => {
       dispatch(createNewGroup({ name, finallyCb }));
     },
-    renameGroup: (id: string, name: string) => {
-      dispatch(renameGroup(id, name));
+    editGroup: (id, payload) => {
+      dispatch(editGroup(id, payload));
     },
   };
 };

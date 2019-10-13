@@ -134,7 +134,7 @@ const DesktopMenuRender: React.FC<DesktopMenuProps> = ({ children, isLoggedIn, t
       setShowLibraryBadge(detail.checked);
       if (badgeTimeout) clearTimeout(badgeTimeout);
       if (detail.checked) {
-        badgeTimeout = setTimeout(() => setShowLibraryBadge(false), 300000);
+        badgeTimeout = setTimeout(() => setShowLibraryBadge(false), 5000);
       }
     };
     createListener('updateLibrary', onUpdateLibrary);

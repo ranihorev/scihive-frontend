@@ -3,6 +3,7 @@ import { Dispatch } from 'redux';
 import { actions } from '../actions';
 import { Group } from '../models';
 import { eventsGenerator } from '../utils';
+import { GroupColor } from '../utils/presets';
 
 export const loadGroups = (onSuccess: (groups: Group[]) => void) => (dispatch: Dispatch, getState: GetState) => {
   axios
@@ -61,9 +62,12 @@ export const createNewGroup = (payload: { name: string; finallyCb?: () => void; 
     });
 };
 
-export const renameGroup = (id: string, name: string) => (dispatch: Dispatch, getState: GetState) => {
+export const editGroup = (id: string, payload: { name?: string; color?: GroupColor }) => (
+  dispatch: Dispatch,
+  getState: GetState,
+) => {
   return axios
-    .patch(`/groups/group/${id}`, { name })
+    .patch(`/groups/group/${id}`, payload)
     .then(res => {
       dispatch(actions.setGroups(res.data));
     })

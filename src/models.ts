@@ -1,5 +1,6 @@
 import { PDFDocumentProxy, TextContentItem } from 'pdfjs-dist';
 import { RouteComponentProps } from 'react-router';
+import { GroupColor } from './utils/presets';
 
 export interface T_LTWH {
   left: number;
@@ -114,6 +115,7 @@ export interface Group {
   id: string;
   name: string;
   created_at: string;
+  color?: GroupColor;
 }
 
 export interface Section extends TextContentItem {

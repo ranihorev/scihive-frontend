@@ -51,9 +51,11 @@ const expandedOpenCss = css`
 
 interface PapersListItemProps {
   paper: PaperListItem;
+  showAbstract?: boolean;
+  showMetadata?: boolean;
 }
 
-const PapersListItem: React.FC<PapersListItemProps> = ({ paper }) => {
+const PapersListItem: React.FC<PapersListItemProps> = ({ paper, showAbstract = true, showMetadata = true }) => {
   const { saved_in_library: isBookmarked, comments_count, twtr_score, twtr_links, bookmarks_count, github } = paper;
   const [expanded, setExpanded] = useState(false);
 
@@ -207,7 +209,7 @@ const PapersListItem: React.FC<PapersListItemProps> = ({ paper }) => {
           aria-expanded={expanded}
           aria-label="Show more"
         >
-          <ExpandMoreIcon />
+          <ExpandMoreIcon fontSize="small" />
         </IconButton>{' '}
       </CardActions>
       <Divider variant="middle" />

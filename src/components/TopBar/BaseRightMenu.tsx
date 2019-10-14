@@ -78,9 +78,14 @@ const MobileMenuRender: React.FC<MobileMenuProps> = ({
       >
         {submenuChildrenWithClose}
         {isLoggedIn && (
-          <Link to="/library" css={simpleLink}>
-            <MenuItem onClick={handleMobileMenuClose}>My Library</MenuItem>
-          </Link>
+          <React.Fragment>
+            <Link to="/library" css={simpleLink}>
+              <MenuItem onClick={handleMobileMenuClose}>My Library</MenuItem>
+            </Link>
+            <Link to="/lists" css={simpleLink}>
+              <MenuItem onClick={handleMobileMenuClose}>My Lists</MenuItem>
+            </Link>
+          </React.Fragment>
         )}
         <Divider />
         <a

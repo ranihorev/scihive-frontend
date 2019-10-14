@@ -56,36 +56,51 @@ interface PapersListItemProps {
   showMetadata?: boolean;
 }
 
+const SingleGroupMarker: React.FC<{ group?: Group; index: number }> = ({ group, index }) => {
+  const [isHover, setIsHover] = React.useState(false);
+  if (group) {
+    return (
+      <div
+        css={css`
+          border-radius: 0 0 3px 3px;
+          max-width: 100px;
+          min-width: 50px;
+          font-size: 10px;
+          margin-right: 5px;
+          padding: 1px;
+          text-align: center;
+          overflow: hidden;
+          white-space: nowrap;
+          text-overflow: ellipsis;
+        `}
+        onMouseEnter={() => setIsHover(true)}
+        onMouseLeave={() => setIsHover(false)}
+        style={{
+          backgroundColor: presets.getGroupColor(group.color),
+          height: isHover ? 'auto' : 6,
+        }}
+      >
+        {isHover ? group.name : ''}
+      </div>
+    );
+  }
+  return null;
+};
+
 const GroupMarkers: React.FC<{ paperGroupIds: string[]; groups: Group[] }> = ({ paperGroupIds, groups }) => {
-  const baseMargin = 10;
   return (
-    <div>
-      {paperGroupIds.map((groupId, index) => {
-        const currentGroup = groups.find(g => g.id === groupId);
-        const width = 45;
-        const padding = 5;
-        if (currentGroup) {
-          return (
-            <div
-              key={groupId}
-              css={css`
-                width: ${width}px;
-                height: 6px;
-                position: absolute;
-                top: 0;
-                cursor: help;
-                border-radius: 0 0 3px 3px;
-              `}
-              data-rh={currentGroup.name}
-              style={{
-                right: baseMargin + index * (width + padding),
-                backgroundColor: presets.getGroupColor(currentGroup.color),
-              }}
-            />
-          );
-        }
-        return null;
-      })}
+    <div
+      css={css`
+        display: flex;
+        flex-direction: row-reverse;
+        position: absolute;
+        top: 0;
+        right: 10px;
+      `}
+    >
+      {paperGroupIds.map((groupId, index) => (
+        <SingleGroupMarker group={groups.find(g => g.id === groupId)} index={index} key={groupId} />
+      ))}
     </div>
   );
 };

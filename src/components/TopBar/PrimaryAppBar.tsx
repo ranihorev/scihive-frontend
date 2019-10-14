@@ -39,6 +39,7 @@ const styles = (theme: Theme) => ({
     display: 'none',
     [theme.breakpoints.up('md')]: {
       display: 'flex',
+      alignItems: 'center',
     },
   },
   sectionMobile: {

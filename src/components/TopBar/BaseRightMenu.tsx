@@ -78,9 +78,14 @@ const MobileMenuRender: React.FC<MobileMenuProps> = ({
       >
         {submenuChildrenWithClose}
         {isLoggedIn && (
-          <Link to="/library" css={simpleLink}>
-            <MenuItem onClick={handleMobileMenuClose}>My Library</MenuItem>
-          </Link>
+          <React.Fragment>
+            <Link to="/library" css={simpleLink}>
+              <MenuItem onClick={handleMobileMenuClose}>My Library</MenuItem>
+            </Link>
+            <Link to="/lists" css={simpleLink}>
+              <MenuItem onClick={handleMobileMenuClose}>My Lists</MenuItem>
+            </Link>
+          </React.Fragment>
         )}
         <Divider />
         <a
@@ -109,8 +114,6 @@ const MobileMenuRender: React.FC<MobileMenuProps> = ({
   );
 };
 
-let badgeTimeout: NodeJS.Timeout;
-
 interface DesktopMenuProps {
   isLoggedIn: boolean;
   toggleLoginModal: () => void;
@@ -134,7 +137,7 @@ const DesktopMenuRender: React.FC<DesktopMenuProps> = ({ children, isLoggedIn, t
       setShowLibraryBadge(detail.checked);
       if (badgeTimeout) clearTimeout(badgeTimeout);
       if (detail.checked) {
-        badgeTimeout = setTimeout(() => setShowLibraryBadge(false), 300000);
+        badgeTimeout = setTimeout(() => setShowLibraryBadge(false), 50000);
       }
     };
     createListener('updateLibrary', onUpdateLibrary);
@@ -158,6 +161,7 @@ const DesktopMenuRender: React.FC<DesktopMenuProps> = ({ children, isLoggedIn, t
                 > .MuiBadge-badge {
                   right: -10px;
                   font-size: 11px;
+                  line-height: 0;
                   top: 2px;
                 }
               `}

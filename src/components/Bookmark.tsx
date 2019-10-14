@@ -1,28 +1,23 @@
 /** @jsx jsx */
 import { css, jsx } from '@emotion/core';
-import {
-  Checkbox,
-  IconButton,
-  Input,
-  List,
-  ListItem,
-  ListItemSecondaryAction,
-  ListItemText,
-  Paper,
-  Popper,
-} from '@material-ui/core';
+import { IconButton, Input, List, ListItem } from '@material-ui/core';
+import CreateIcon from '@material-ui/icons/Create';
+import DoneIcon from '@material-ui/icons/Done';
 import StarIcon from '@material-ui/icons/Star';
 import StarBorderIcon from '@material-ui/icons/StarBorder';
+import Color from 'color';
 import { isEmpty } from 'lodash';
 import React from 'react';
 import { connect } from 'react-redux';
 import { actions } from '../actions';
 import { AddToListIcon } from '../icons/addToList';
 import { Group, RootState } from '../models';
-import { addRemovePaperToGroup, bookmarkPaper, createNewGroup } from '../thunks';
-import { useOnClickOutside } from '../utils/hooks';
-import { ArrowTooltip } from './ArrowTooltip';
+import { addRemovePaperToGroup, bookmarkPaper, createNewGroup, editGroup } from '../thunks';
 import { presets } from '../utils';
+import { GroupColor, GROUP_COLORS, BASE_GROUP_COLOR, smallIconPadding } from '../utils/presets';
+import { ArrowTooltip } from './ArrowTooltip';
+import { PopoverMenu } from './PopoverMenu';
+import { EditGroup } from './GroupsList';
 
 interface BookmarkProps {
   isBookmarked?: boolean;
@@ -45,6 +40,7 @@ interface BookmarkDispatchProps {
   setBookmark: (...args: Parameters<typeof bookmarkPaper>) => void;
   updatePaperGroup: (...args: Parameters<typeof addRemovePaperToGroup>) => void;
   createGroup: (...args: Parameters<typeof createNewGroup>) => void;
+  editGroup: (...args: Parameters<typeof editGroup>) => void;
 }
 
 const NewGroup: React.FC<{ createGroup: BookmarkDispatchProps['createGroup'] }> = ({ createGroup }) => {
@@ -77,8 +73,85 @@ const NewGroup: React.FC<{ createGroup: BookmarkDispatchProps['createGroup'] }> 
           cursor: pointer;
           margin-left: 5px;
           margin-right: 2px;
+          color: #a5a5a5;
         `}
       />
+    </ListItem>
+  );
+};
+
+interface GroupRenderProps {
+  group: Group;
+  selected: boolean;
+  type: BookmarkProps['type'];
+  paperId: string;
+  updatePaperGroup: BookmarkDispatchProps['updatePaperGroup'];
+  onEdit: () => void;
+}
+
+const baseGroupCss = css`
+  ${presets.row};
+  align-items: center;
+  flex-grow: 1;
+  justify-content: space-between;
+  cursor: pointer;
+  border-radius: 4px;
+  font-size: 13px;
+  min-height: 20px;
+  padding: 7px;
+`;
+
+const GroupRender: React.FC<GroupRenderProps> = ({ group, selected, paperId, type, updatePaperGroup, onEdit }) => {
+  let backgroundHoverColor;
+  const backgroundColor = GROUP_COLORS[group.color || BASE_GROUP_COLOR];
+  try {
+    backgroundHoverColor = Color(backgroundColor);
+  } catch (e) {
+    backgroundHoverColor = Color(GROUP_COLORS[BASE_GROUP_COLOR]);
+  }
+  backgroundHoverColor = backgroundHoverColor.darken(0.1).string();
+  return (
+    <ListItem key={group.id}>
+      <div
+        css={css`
+          ${presets.row};
+          width: 100%;
+          align-items: center;
+        `}
+      >
+        <div
+          css={css`
+            ${baseGroupCss};
+            background-color: ${backgroundColor};
+            &:hover {
+              background-color: ${backgroundHoverColor};
+            }
+          `}
+          onClick={() => {
+            updatePaperGroup({ type, paperId, groupId: group.id, shouldAdd: !selected });
+          }}
+        >
+          <div>{group.name}</div>
+          {selected && <DoneIcon fontSize="small" />}
+        </div>
+        <div
+          css={css`
+            cursor: pointer;
+            color: #a5a5a5;
+            &:hover {
+              color: black;
+            }
+          `}
+          onClick={() => onEdit()}
+        >
+          <CreateIcon
+            css={css`
+              font-size: 14px;
+              padding: 5px 0 5px 5px;
+            `}
+          />
+        </div>
+      </div>
     </ListItem>
   );
 };
@@ -97,10 +170,11 @@ const Bookmark: React.FC<BookmarkProps & BookmarkStateProps & BookmarkDispatchPr
   size = 18,
   type,
   createGroup,
+  editGroup,
 }) => {
   const [isOpen, setIsOpen] = React.useState(false);
+  const [groupInEdit, setGroupInEdit] = React.useState<Group | undefined>(undefined);
   const anchorRef = React.useRef<HTMLDivElement>(null);
-  const contentRef = React.useRef<HTMLDivElement>(null);
 
   const timeoutId = React.useRef<NodeJS.Timeout>();
   const [isListsTooltipOpen, setIsListsTooltipOpen] = React.useState(false);
@@ -133,14 +207,6 @@ const Bookmark: React.FC<BookmarkProps & BookmarkStateProps & BookmarkDispatchPr
     setBookmark(...args);
   };
 
-  useOnClickOutside(
-    contentRef,
-    () => {
-      setIsOpen(false);
-    },
-    isOpen,
-  );
-
   const Star = isBookmarked ? StarIcon : StarBorderIcon;
 
   return (
@@ -151,8 +217,8 @@ const Bookmark: React.FC<BookmarkProps & BookmarkStateProps & BookmarkDispatchPr
       `}
     >
       <div {...(!isBookmarked ? { 'data-rh': 'Add to my library' } : {})} data-rh-at="left">
-        <IconButton onClick={() => setBookmarkWrapper(type, paperId, !isBookmarked)} buttonRef={anchorRef}>
-          <Star style={{ width: size, height: size, color }} />
+        <IconButton onClick={() => setBookmarkWrapper(type, paperId, !isBookmarked)} buttonRef={anchorRef} size="small">
+          <Star style={{ width: size, height: size, color, padding: smallIconPadding }} />
         </IconButton>
       </div>
       {isBookmarked && (
@@ -165,11 +231,12 @@ const Bookmark: React.FC<BookmarkProps & BookmarkStateProps & BookmarkDispatchPr
             placement="left"
             title="Add to lists"
           >
-            <IconButton onClick={onListsClick} buttonRef={anchorRef}>
+            <IconButton onClick={onListsClick} buttonRef={anchorRef} size="small">
               <AddToListIcon
                 style={css`
                   width: ${size}px;
                   height: ${size}px;
+                  padding: ${smallIconPadding}px;
                 `}
                 fill={color}
               />
@@ -178,56 +245,56 @@ const Bookmark: React.FC<BookmarkProps & BookmarkStateProps & BookmarkDispatchPr
         </div>
       )}
       <div />
-      <Popper
+      <PopoverMenu
         open={isOpen}
+        onClose={() => setIsOpen(false)}
         anchorEl={anchorRef.current}
         placement="bottom-end"
-        css={css`
-          z-index: 1;
+        contentCss={css`
+          width: 230px;
         `}
       >
-        <Paper
-          css={css`
-            max-width: 250px;
-          `}
-          ref={contentRef}
-        >
-          <List
-            dense
-            css={css`
-              max-height: 250px;
-              overflow-y: auto;
-              width: 100%;
-              padding-bottom: 0;
-            `}
-          >
-            {groups.map(group => {
-              const selected = selectedGroupIds.some(id => id === group.id);
-              return (
-                <ListItem key={group.id}>
-                  <ListItemText
-                    primary={group.name}
+        {groupInEdit ? (
+          <EditGroup group={groupInEdit} editGroup={editGroup} onFinishEdit={() => setGroupInEdit(undefined)} />
+        ) : (
+          <React.Fragment>
+            <List
+              dense
+              css={css`
+                max-height: 250px;
+                overflow-y: auto;
+                width: 100%;
+              `}
+            >
+              {isEmpty(groups) && (
+                <ListItem>
+                  <div
                     css={css`
-                      word-break: break-all;
+                      font-size: 14px;
+                      color: #333;
+                      line-height: 1.5;
                     `}
-                  />
-                  <ListItemSecondaryAction>
-                    <Checkbox
-                      edge="end"
-                      onChange={(e, checked) => {
-                        updatePaperGroup({ type, paperId, groupId: group.id, shouldAdd: !selected });
-                      }}
-                      checked={selected}
-                      color="primary"
-                    />
-                  </ListItemSecondaryAction>
+                  >
+                    Add lists to organize your papers according to topic or collaborators you wish to share the list
+                    with
+                  </div>
                 </ListItem>
-              );
-            })}
-          </List>
-          <NewGroup createGroup={createGroup} />
-        </Paper>
-      </Popper>
+              )}
+              {groups.map(group => {
+                const selected = selectedGroupIds.some(id => id === group.id);
+                return (
+                  <GroupRender
+                    key={group.id}
+                    {...{ group, paperId, type, selected, updatePaperGroup }}
+                    onEdit={() => setGroupInEdit(group)}
+                  />
+                );
+              })}
+            </List>
+            <NewGroup createGroup={createGroup} />
+          </React.Fragment>
+        )}
+      </PopoverMenu>
     </div>
   );
 };
@@ -253,6 +320,9 @@ const mapDispatchToProps = (dispatch: RTDispatch): BookmarkDispatchProps => {
     },
     createGroup: payload => {
       dispatch(createNewGroup(payload));
+    },
+    editGroup: (id, payload) => {
+      dispatch(editGroup(id, payload));
     },
   };
 };

@@ -91,3 +91,28 @@ export const highlightBackgroundColor = {
   normal: 'rgba(255, 226, 143, 0.8)',
   active: '#ff4141',
 };
+
+export const GROUP_COLORS = {
+  BLUE: '#1C8DF0',
+  AQUA: '#7FDBFF',
+  TEAL: '#39CCCC',
+  OLIVE: '#3D9970',
+  GREEN: '#2ECC40',
+  LIME: '#01FF70',
+  YELLOW: '#FFDC00',
+  ORANGE: '#FF851B',
+  RED: '#FF4136',
+  MAROON: '#a4195e',
+  FUCHSIA: '#F012BE',
+  PURPLE: '#B10DC9',
+  GRAY: '#AAAAAA',
+  SILVER: '#DDDDDD',
+};
+
+export const BASE_GROUP_COLOR: GroupColor = 'SILVER';
+
+export const getGroupColor = (color: GroupColor | undefined) => GROUP_COLORS[color || BASE_GROUP_COLOR];
+
+export type GroupColor = keyof typeof GROUP_COLORS;
+
+export const smallIconPadding = 4;

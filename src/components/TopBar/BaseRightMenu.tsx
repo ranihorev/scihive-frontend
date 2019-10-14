@@ -109,8 +109,6 @@ const MobileMenuRender: React.FC<MobileMenuProps> = ({
   );
 };
 
-let badgeTimeout: NodeJS.Timeout;
-
 interface DesktopMenuProps {
   isLoggedIn: boolean;
   toggleLoginModal: () => void;
@@ -134,7 +132,7 @@ const DesktopMenuRender: React.FC<DesktopMenuProps> = ({ children, isLoggedIn, t
       setShowLibraryBadge(detail.checked);
       if (badgeTimeout) clearTimeout(badgeTimeout);
       if (detail.checked) {
-        badgeTimeout = setTimeout(() => setShowLibraryBadge(false), 5000);
+        badgeTimeout = setTimeout(() => setShowLibraryBadge(false), 50000);
       }
     };
     createListener('updateLibrary', onUpdateLibrary);
@@ -158,6 +156,7 @@ const DesktopMenuRender: React.FC<DesktopMenuProps> = ({ children, isLoggedIn, t
                 > .MuiBadge-badge {
                   right: -10px;
                   font-size: 11px;
+                  line-height: 0;
                   top: 2px;
                 }
               `}

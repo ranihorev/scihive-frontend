@@ -111,4 +111,8 @@ export const GROUP_COLORS = {
 
 export const BASE_GROUP_COLOR: GroupColor = 'SILVER';
 
+export const getGroupColor = (color: GroupColor | undefined) => GROUP_COLORS[color || BASE_GROUP_COLOR];
+
 export type GroupColor = keyof typeof GROUP_COLORS;
+
+export const smallIconPadding = 4;

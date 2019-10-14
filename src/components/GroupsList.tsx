@@ -12,7 +12,7 @@ import { actions } from '../actions';
 import { Group, RootState } from '../models';
 import { createNewGroup, deleteGroup, editGroup } from '../thunks';
 import { presets } from '../utils';
-import { BASE_GROUP_COLOR, GroupColor, GROUP_COLORS } from '../utils/presets';
+import { getGroupColor, GroupColor, GROUP_COLORS } from '../utils/presets';
 import { PopoverMenu } from './PopoverMenu';
 
 const iconCss = css`
@@ -152,7 +152,7 @@ const GroupRender: React.FC<GroupProps> = ({ group, deleteGroup, editGroup }) =>
             border-radius: 3px;
             margin-right: 6px;
           `}
-          style={{ backgroundColor: GROUP_COLORS[group.color || BASE_GROUP_COLOR] }}
+          style={{ backgroundColor: getGroupColor(group.color) }}
         />
         <div
           css={css`

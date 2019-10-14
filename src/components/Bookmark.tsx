@@ -14,7 +14,7 @@ import { AddToListIcon } from '../icons/addToList';
 import { Group, RootState } from '../models';
 import { addRemovePaperToGroup, bookmarkPaper, createNewGroup, editGroup } from '../thunks';
 import { presets } from '../utils';
-import { GroupColor, GROUP_COLORS, BASE_GROUP_COLOR } from '../utils/presets';
+import { GroupColor, GROUP_COLORS, BASE_GROUP_COLOR, smallIconPadding } from '../utils/presets';
 import { ArrowTooltip } from './ArrowTooltip';
 import { PopoverMenu } from './PopoverMenu';
 import { EditGroup } from './GroupsList';
@@ -175,7 +175,6 @@ const Bookmark: React.FC<BookmarkProps & BookmarkStateProps & BookmarkDispatchPr
   const [isOpen, setIsOpen] = React.useState(false);
   const [groupInEdit, setGroupInEdit] = React.useState<Group | undefined>(undefined);
   const anchorRef = React.useRef<HTMLDivElement>(null);
-  const contentRef = React.useRef<HTMLDivElement>(null);
 
   const timeoutId = React.useRef<NodeJS.Timeout>();
   const [isListsTooltipOpen, setIsListsTooltipOpen] = React.useState(false);
@@ -218,8 +217,8 @@ const Bookmark: React.FC<BookmarkProps & BookmarkStateProps & BookmarkDispatchPr
       `}
     >
       <div {...(!isBookmarked ? { 'data-rh': 'Add to my library' } : {})} data-rh-at="left">
-        <IconButton onClick={() => setBookmarkWrapper(type, paperId, !isBookmarked)} buttonRef={anchorRef}>
-          <Star style={{ width: size, height: size, color }} />
+        <IconButton onClick={() => setBookmarkWrapper(type, paperId, !isBookmarked)} buttonRef={anchorRef} size="small">
+          <Star style={{ width: size, height: size, color, padding: smallIconPadding }} />
         </IconButton>
       </div>
       {isBookmarked && (
@@ -232,11 +231,12 @@ const Bookmark: React.FC<BookmarkProps & BookmarkStateProps & BookmarkDispatchPr
             placement="left"
             title="Add to lists"
           >
-            <IconButton onClick={onListsClick} buttonRef={anchorRef}>
+            <IconButton onClick={onListsClick} buttonRef={anchorRef} size="small">
               <AddToListIcon
                 style={css`
                   width: ${size}px;
                   height: ${size}px;
+                  padding: ${smallIconPadding}px;
                 `}
                 fill={color}
               />

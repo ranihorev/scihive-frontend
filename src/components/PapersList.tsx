@@ -28,9 +28,6 @@ const spinnerEmptyStateCss = css({
 const spinnerCss = css({
   textAlign: 'center',
 });
-const scrollWrapperCss = css({
-  width: '100%',
-});
 
 const filtersCss = css`
   ${presets.row};
@@ -300,10 +297,9 @@ const PapersList: React.FC<PapersListProps> = ({
               <CircularProgress />
             </div>
           }
-          className={scrollWrapperCss}
         >
           {papers.map(p => (
-            <PapersListItem key={p._id} paper={p} />
+            <PapersListItem key={p._id} paper={p} groups={groups} showAbstract={!isLibrary} showMetadata={!isLibrary} />
           ))}
         </InfiniteScroll>
       </Grid>

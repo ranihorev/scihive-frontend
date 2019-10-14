@@ -17,7 +17,7 @@ import moment from 'moment';
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import TextTruncate from 'react-text-truncate';
-import { PaperListItem } from '../models';
+import { PaperListItem, Group } from '../models';
 import { Latex } from '../utils/latex';
 import * as presets from '../utils/presets';
 import Bookmark from './Bookmark';
@@ -51,12 +51,105 @@ const expandedOpenCss = css`
 
 interface PapersListItemProps {
   paper: PaperListItem;
+  groups: Group[];
   showAbstract?: boolean;
   showMetadata?: boolean;
 }
 
-const PapersListItem: React.FC<PapersListItemProps> = ({ paper, showAbstract = true, showMetadata = true }) => {
-  const { saved_in_library: isBookmarked, comments_count, twtr_score, twtr_links, bookmarks_count, github } = paper;
+const GroupMarkers: React.FC<{ paperGroupIds: string[]; groups: Group[] }> = ({ paperGroupIds, groups }) => {
+  const baseMargin = 10;
+  return (
+    <div>
+      {paperGroupIds.map((groupId, index) => {
+        const currentGroup = groups.find(g => g.id === groupId);
+        const width = 45;
+        const padding = 5;
+        if (currentGroup) {
+          return (
+            <div
+              key={groupId}
+              css={css`
+                width: ${width}px;
+                height: 6px;
+                position: absolute;
+                top: 0;
+                cursor: help;
+                border-radius: 0 0 3px 3px;
+              `}
+              data-rh={currentGroup.name}
+              style={{
+                right: baseMargin + index * (width + padding),
+                backgroundColor: presets.getGroupColor(currentGroup.color),
+              }}
+            />
+          );
+        }
+        return null;
+      })}
+    </div>
+  );
+};
+
+const PaperMetadata: React.FC<{ paper: PaperListItem }> = ({ paper }) => {
+  const { comments_count, twtr_score, twtr_links, bookmarks_count, github } = paper;
+  return (
+    <React.Fragment>
+      <span data-rh="Paper comments" data-rh-at="top">
+        <Button
+          disabled={true}
+          size="small"
+          css={css`
+            padding: 0 4px;
+          `}
+        >
+          <i className="fas fa-comments" css={metadataCss} /> {comments_count || '0'}
+        </Button>
+      </span>
+      <span data-rh="Users bookmarked" data-rh-at="top">
+        <Button
+          disabled={true}
+          size="small"
+          css={css`
+            padding: 0 4px;
+          `}
+        >
+          <i className="fa fa-star" css={metadataCss} /> {bookmarks_count || '0'}
+        </Button>
+      </span>
+      <div data-rh="Σ Likes, RTs and replies" data-rh-at="top">
+        <TwitterMeta twtr_score={twtr_score} twtr_links={twtr_links} iconCss={metadataCss} />
+      </div>
+      {!isEmpty(github) && (
+        <div data-rh="Github stars (by PapersWithCode)" data-rh-at="top">
+          <CodeMetaRender data={github} iconCss={metadataCss} />
+        </div>
+      )}
+    </React.Fragment>
+  );
+};
+
+const ExpandPaper: React.FC<{ expanded: boolean; handleExpandClick: (e: React.MouseEvent) => void }> = ({
+  expanded,
+  handleExpandClick,
+}) => (
+  <IconButton
+    css={expanded ? expandedOpenCss : expandCss}
+    onClick={handleExpandClick}
+    aria-expanded={expanded}
+    aria-label="Show more"
+    size="small"
+  >
+    <ExpandMoreIcon
+      fontSize="small"
+      css={css`
+        padding: ${presets.smallIconPadding}px;
+      `}
+    />
+  </IconButton>
+);
+
+const PapersListItem: React.FC<PapersListItemProps> = ({ paper, groups, showAbstract = true, showMetadata = true }) => {
+  const { saved_in_library: isBookmarked, github } = paper;
   const [expanded, setExpanded] = useState(false);
 
   const handleExpandClick = (e: React.MouseEvent) => {
@@ -69,11 +162,16 @@ const PapersListItem: React.FC<PapersListItemProps> = ({ paper, showAbstract = t
       css={css`
         margin: 10px 0;
         width: 100%;
+        position: relative;
+        padding: 16px 0;
       `}
     >
+      <GroupMarkers groups={groups} paperGroupIds={paper.groups} />
       <CardContent
         css={css`
-          padding-bottom: 0;
+          position: relative;
+          padding-bottom: 12px;
+          padding-top: 0;
         `}
       >
         <Grid
@@ -103,24 +201,6 @@ const PapersListItem: React.FC<PapersListItemProps> = ({ paper, showAbstract = t
             >
               <Latex>{paper.title}</Latex>
             </Link>
-          </Grid>
-          <Grid
-            item
-            css={css`
-              position: absolute;
-              right: -8px;
-              top: -12px;
-              ${presets.col};
-              align-items: center;
-            `}
-          >
-            <Bookmark
-              paperId={paper._id}
-              size={20}
-              isBookmarked={isBookmarked}
-              selectedGroupIds={paper.groups}
-              type="list"
-            />
           </Grid>
         </Grid>
         <Grid
@@ -166,102 +246,103 @@ const PapersListItem: React.FC<PapersListItemProps> = ({ paper, showAbstract = t
             </Typography>
           </Grid>
         </Grid>
+        {!showMetadata && (
+          <div
+            css={css`
+              position: absolute;
+              bottom: -8px;
+              right: 8px;
+            `}
+          >
+            <ExpandPaper {...{ expanded, handleExpandClick }} />
+          </div>
+        )}
       </CardContent>
-      <CardActions
-        disableSpacing
+      <div
         css={css`
-          display: flex;
+          position: absolute;
+          right: 8px;
+          top: 8px;
+          ${presets.col};
+          align-items: center;
         `}
       >
-        <span data-rh="Paper comments" data-rh-at="top">
-          <Button
-            disabled={true}
-            size="small"
-            css={css`
-              padding: 0 4px;
-            `}
-          >
-            <i className="fas fa-comments" css={metadataCss} /> {comments_count || '0'}
-          </Button>
-        </span>
-        <span data-rh="Users bookmarked" data-rh-at="top">
-          <Button
-            disabled={true}
-            size="small"
-            css={css`
-              padding: 0 4px;
-            `}
-          >
-            <i className="fa fa-star" css={metadataCss} /> {bookmarks_count || '0'}
-          </Button>
-        </span>
-        <div data-rh="Σ Likes, RTs and replies" data-rh-at="top">
-          <TwitterMeta twtr_score={twtr_score} twtr_links={twtr_links} iconCss={metadataCss} />
-        </div>
-        {!isEmpty(github) && (
-          <div data-rh="Github stars (by PapersWithCode)" data-rh-at="top">
-            <CodeMetaRender data={github} iconCss={metadataCss} />
-          </div>
-        )}
-        <IconButton
-          css={expanded ? expandedOpenCss : expandCss}
-          onClick={handleExpandClick}
-          aria-expanded={expanded}
-          aria-label="Show more"
+        <Bookmark
+          paperId={paper._id}
+          size={20}
+          isBookmarked={isBookmarked}
+          selectedGroupIds={paper.groups}
+          type="list"
+        />
+      </div>
+
+      {showMetadata && (
+        <CardActions
+          disableSpacing
+          css={css`
+            display: flex;
+            padding-top: 0;
+          `}
         >
-          <ExpandMoreIcon fontSize="small" />
-        </IconButton>{' '}
-      </CardActions>
-      <Divider variant="middle" />
-      <CardContent>
-        {expanded ? (
-          <div css={paragraphCss}>
-            <Latex>{paper.summary}</Latex>
-            {!isEmpty(github) && (
-              <div
-                css={css`
-                  font-size: 12px;
-                  margin-top: 5px;
-                  color: grey;
-                `}
-              >
-                * Github link is provided by{' '}
-                <a
-                  href="https://www.paperswithcode.com"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  css={css`
-                    color: inherit;
-                  `}
-                >
-                  PapersWithCode
-                </a>
+          <PaperMetadata paper={paper} />
+          <ExpandPaper {...{ expanded, handleExpandClick }} />
+        </CardActions>
+      )}
+
+      {(showAbstract || expanded) && (
+        <React.Fragment>
+          <Divider variant="middle" />
+          <CardContent style={{ paddingBottom: 0 }}>
+            {expanded ? (
+              <div css={paragraphCss}>
+                <Latex>{paper.summary}</Latex>
+                {!isEmpty(github) && (
+                  <div
+                    css={css`
+                      font-size: 12px;
+                      margin-top: 5px;
+                      color: grey;
+                    `}
+                  >
+                    * Github link is provided by{' '}
+                    <a
+                      href="https://www.paperswithcode.com"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      css={css`
+                        color: inherit;
+                      `}
+                    >
+                      PapersWithCode
+                    </a>
+                  </div>
+                )}
               </div>
+            ) : (
+              <TextTruncate
+                line={2}
+                element="div"
+                truncateText="…"
+                css={paragraphCss}
+                text={paper.summary}
+                textTruncateChild={
+                  <button
+                    type="button"
+                    css={css`
+                      ${presets.linkButton};
+                      text-decoration: none;
+                      color: #8a8a8a;
+                    `}
+                    onClick={handleExpandClick}
+                  >
+                    Read more
+                  </button>
+                }
+              />
             )}
-          </div>
-        ) : (
-          <TextTruncate
-            line={2}
-            element="div"
-            truncateText="…"
-            css={paragraphCss}
-            text={paper.summary}
-            textTruncateChild={
-              <button
-                type="button"
-                css={css`
-                  ${presets.linkButton};
-                  text-decoration: none;
-                  color: #8a8a8a;
-                `}
-                onClick={handleExpandClick}
-              >
-                Read more
-              </button>
-            }
-          />
-        )}
-      </CardContent>
+          </CardContent>
+        </React.Fragment>
+      )}
     </Card>
   );
 };

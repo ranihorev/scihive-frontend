@@ -14,10 +14,10 @@ import { AddToListIcon } from '../icons/addToList';
 import { Group, RootState } from '../models';
 import { addRemovePaperToGroup, bookmarkPaper, createNewGroup, editGroup } from '../thunks';
 import { presets } from '../utils';
-import { GroupColor, GROUP_COLORS, BASE_GROUP_COLOR, smallIconPadding } from '../utils/presets';
+import { BASE_GROUP_COLOR, GROUP_COLORS, smallIconPadding } from '../utils/presets';
 import { ArrowTooltip } from './ArrowTooltip';
-import { PopoverMenu } from './PopoverMenu';
 import { EditGroup } from './GroupsList';
+import { PopoverMenu } from './PopoverMenu';
 
 interface BookmarkProps {
   isBookmarked?: boolean;
@@ -133,7 +133,13 @@ const GroupRender: React.FC<GroupRenderProps> = ({ group, selected, paperId, typ
             updatePaperGroup({ type, paperId, groupId: group.id, shouldAdd: !selected });
           }}
         >
-          <div>{group.name}</div>
+          <div
+            css={css`
+              word-break: break-word;
+            `}
+          >
+            {group.name}
+          </div>
           {selected && <DoneIcon fontSize="small" />}
         </div>
         <div

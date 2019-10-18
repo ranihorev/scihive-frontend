@@ -46,6 +46,7 @@ interface BookmarkDispatchProps {
 const NewGroup: React.FC<{ createGroup: BookmarkDispatchProps['createGroup'] }> = ({ createGroup }) => {
   const [value, setValue] = React.useState('');
   const submitGroup = () => {
+    if (isEmpty(value)) return;
     createGroup({ name: value, onSuccessCb: () => setValue('') });
   };
   return (
@@ -75,6 +76,7 @@ const NewGroup: React.FC<{ createGroup: BookmarkDispatchProps['createGroup'] }> 
           margin-right: 2px;
           color: #a5a5a5;
         `}
+        onClick={() => submitGroup()}
       />
     </ListItem>
   );
@@ -275,7 +277,7 @@ const Bookmark: React.FC<BookmarkProps & BookmarkStateProps & BookmarkDispatchPr
                       line-height: 1.5;
                     `}
                   >
-                    Add lists to organize your papers according to topic or collaborators you wish to share the list
+                    Add lists to organize your papers according to topics or collaborators you wish to share the list
                     with
                   </div>
                 </ListItem>

@@ -1,23 +1,13 @@
 /** @jsx jsx */
 import { css, jsx } from '@emotion/core';
-import {
-  Button,
-  Card,
-  CardActions,
-  CardContent,
-  Divider,
-  Grid,
-  IconButton,
-  Tooltip,
-  Typography,
-} from '@material-ui/core';
+import { Button, Card, CardActions, CardContent, Divider, Grid, IconButton, Typography } from '@material-ui/core';
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import { isEmpty } from 'lodash';
 import moment from 'moment';
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import TextTruncate from 'react-text-truncate';
-import { PaperListItem, Group } from '../models';
+import { Group, PaperListItem } from '../models';
 import { Latex } from '../utils/latex';
 import * as presets from '../utils/presets';
 import Bookmark from './Bookmark';
@@ -72,6 +62,8 @@ const SingleGroupMarker: React.FC<{ group?: Group; index: number }> = ({ group, 
           overflow: hidden;
           white-space: nowrap;
           text-overflow: ellipsis;
+          font-weight: 500;
+          color: white;
         `}
         onMouseEnter={() => setIsHover(true)}
         onMouseLeave={() => setIsHover(false)}

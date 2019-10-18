@@ -17,7 +17,7 @@ const chromeExtensionPopup = () => {
                 href="https://chrome.google.com/webstore/detail/scihive/dijdhkcfdaocpepndegmbkgphbpomdai"
                 target="_blank"
                 rel="noopener noreferrer"
-                style={{ color: 'white' }}
+                style={{ color: 'inherit' }}
               >
                 Download
               </a>{' '}

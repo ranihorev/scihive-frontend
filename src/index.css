@@ -14,8 +14,18 @@ code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New', monospace;
 }
 
+.Toastify__toast--info {
+  background-color: #b9e3ff;
+  color: #333333;
+}
+
+@media only screen and (min-width: 480px) {
+  .base-toast {
+    width: 400px;
+    margin-left: -200px;
+  }
+}
+
 .download-extesion {
-  width: 400px;
   text-align: center;
-  margin-left: -40px;
 }

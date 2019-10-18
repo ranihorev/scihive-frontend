@@ -4,7 +4,6 @@ import { isEmpty } from 'lodash';
 import React from 'react';
 import * as ReactHintFactory from 'react-hint';
 import { connect } from 'react-redux';
-import './react-hint.css';
 import { Route, Switch } from 'react-router-dom';
 import { ToastContainer } from 'react-toastify';
 import GroupLoader from './components/GroupLoader';
@@ -15,6 +14,7 @@ import Groups from './pages/Groups';
 import Home from './pages/Home';
 import NotFound from './pages/NotFound';
 import Paper from './pages/Paper';
+import './react-hint.css';
 import { useTracker } from './Tracker';
 import chromeExtensionPopup from './utils/chromeExtension';
 import { themePalette } from './utils/presets';
@@ -66,6 +66,7 @@ const App: React.FC<{ isLoggedIn: boolean }> = ({ isLoggedIn }) => {
           autoClose={false}
           newestOnTop={false}
           closeOnClick={false}
+          className="base-toast"
           rtl={false}
           draggable
         />

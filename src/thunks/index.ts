@@ -1,11 +1,10 @@
 import axios from 'axios';
 import { Dispatch } from 'redux';
 import { actions } from '../actions';
-import { Group } from '../models';
+import { notifyOnNewGroup } from '../notifications/newGroup';
+import { getGroups, getIsLoggedIn } from '../selectors/user';
 import { eventsGenerator } from '../utils';
 import { GroupColor } from '../utils/presets';
-import { getIsLoggedIn, getGroups } from '../selectors/user';
-import { notifyOnNewGroup } from '../notifications/newGroup';
 
 export const loadGroups = (groupId: string | undefined) => async (dispatch: RTDispatch, getState: GetState) => {
   try {
@@ -24,7 +23,9 @@ export const loadGroups = (groupId: string | undefined) => async (dispatch: RTDi
         return;
       }
       dispatch(actions.setSelectedGroup(group));
-      notifyOnNewGroup(group, () => dispatch(joinGroup(groupId)));
+      notifyOnNewGroup(group, () => {
+        dispatch(joinGroup(groupId));
+      });
     }
   } catch (e) {
     console.warn(e.message);

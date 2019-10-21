@@ -54,6 +54,7 @@ const ChromeExtensionPopup: React.FC = () => {
     } catch (e) {
       console.warn('failed to send message to extension');
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   return null;

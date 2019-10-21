@@ -1,9 +1,8 @@
+import { clearAllBodyScrollLocks, disableBodyScroll } from 'body-scroll-lock';
 import React from 'react';
-import { disableBodyScroll, clearAllBodyScrollLocks } from 'body-scroll-lock';
 import PdfCommenter from '../components/PdfCommenter';
-import PrimaryAppBar from '../components/TopBar/PrimaryAppBar';
 import { PaperDekstopMenu, PaperMobileMenu } from '../components/TopBar/PaperMenuBar';
-import GroupsModal from '../components/GroupsModal';
+import PrimaryAppBar from '../components/TopBar/PrimaryAppBar';
 
 export default function Paper() {
   const wrapperRef = React.useRef<HTMLDivElement>(null);

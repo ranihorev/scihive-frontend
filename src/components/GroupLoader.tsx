@@ -14,12 +14,12 @@ interface GroupJoinerProps extends GroupJoinerDispatchProps {}
 const GroupLoader: React.FC<GroupJoinerProps> = ({ loadGroups }) => {
   const history = useHistory();
   const location = useLocation();
-  const match = matchPath<PaperListRouterParams>(history.location.pathname, {
-    // You can share this string as a constant if you want
-    path: '/list/:groupId',
-  });
 
   React.useEffect(() => {
+    const match = matchPath<PaperListRouterParams>(history.location.pathname, {
+      // You can share this string as a constant if you want
+      path: '/list/:groupId',
+    });
     const groupId = match ? match.params.groupId : undefined;
     const onSuccess = () => {
       history.push({
@@ -31,7 +31,7 @@ const GroupLoader: React.FC<GroupJoinerProps> = ({ loadGroups }) => {
       });
     };
     loadGroups(groupId, onSuccess);
-  }, [history, location]);
+  }, [history, location, loadGroups]);
 
   return null;
 };

@@ -41,6 +41,7 @@ const App: React.FC<{ isLoggedIn: boolean }> = ({ isLoggedIn }) => {
           }
         });
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   useTracker();

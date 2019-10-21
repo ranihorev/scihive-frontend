@@ -116,6 +116,7 @@ export interface Group {
   name: string;
   created_at: string;
   color?: GroupColor;
+  num_papers: number;
 }
 
 export interface Section extends TextContentItem {
@@ -181,6 +182,11 @@ export interface PaperListItem {
   groups: string[];
 }
 
+export interface PaperListRouterParams {
+  authorId?: string;
+  groupId?: string;
+}
+
 export interface RootState {
   user: {
     isLoginModalOpen: boolean;
@@ -210,5 +216,6 @@ export interface RootState {
     allCategories: Category[];
     selectedCategories: string[];
     isCategoriesModalOpen: boolean;
+    inviteGroup?: Group;
   };
 }

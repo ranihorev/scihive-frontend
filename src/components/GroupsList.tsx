@@ -132,7 +132,7 @@ const GroupRender: React.FC<GroupProps> = ({ group, deleteGroup, editGroup }) =>
   const [isEditOpen, setIsEditOpen] = React.useState(false);
   const editRef = React.useRef<HTMLDivElement>(null);
   const handleShare = (id: string) => {
-    copy(`${window.location.origin}?age=all&group=${id}`);
+    copy(`${window.location.origin}/list/${group.id}/`);
     toast.info(`Link was copied to clipboard`, { autoClose: 2000 });
   };
 
@@ -172,7 +172,7 @@ const GroupRender: React.FC<GroupProps> = ({ group, deleteGroup, editGroup }) =>
               <i className="fas fa-pencil-alt" css={iconCss} />
             </IconButton>
           </div>
-          <Link to={`/?age=all&group=${group.id}`}>
+          <Link to={`/list/${group.id}/`}>
             <IconButton aria-label="Open">
               <i className="fas fa-external-link-square-alt" css={iconCss} />
             </IconButton>
@@ -235,7 +235,7 @@ const Groups: React.FC<GroupsProps> = ({ groups, setGroups, deleteGroup, createN
           margin-bottom: 15px;
         `}
       >
-        Your Lists
+        My Lists
       </Typography>
 
       <Typography>Lists allow you to organize papers and share comments with groups of peers</Typography>

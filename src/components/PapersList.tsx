@@ -1,18 +1,18 @@
 /** @jsx jsx */
 import { css, jsx } from '@emotion/core';
-import { Chip, CircularProgress, FormControl, Grid, Input, MenuItem, Select } from '@material-ui/core';
+import { Chip, CircularProgress, FormControl, Grid, Input, MenuItem, Select, Typography } from '@material-ui/core';
+import { isEmpty } from 'lodash';
 import * as queryString from 'query-string';
 import React from 'react';
 import { connect } from 'react-redux';
 import { RouteComponentProps, withRouter } from 'react-router';
 import { actions } from '../actions/papersList';
-import { PaperListItem, RootState, Group } from '../models';
+import { Group, PaperListItem, PaperListRouterParams, RootState } from '../models';
 import { fetchPapers, RequestParams } from '../thunks';
 import * as presets from '../utils/presets';
 import { CategoriesModal } from './Cateogries';
 import InfiniteScroll from './InfiniteScroll';
 import PapersListItem from './PapersListItem';
-import { isEmpty } from 'lodash';
 
 const formControlCss = css({
   margin: '8px 8px 8px 0px',
@@ -43,13 +43,6 @@ const filterMenuItemCss = css`
   padding: 8px 12px;
 `;
 
-interface QueryParam {
-  age: string;
-  q: string;
-  sort: string;
-  authorId: string;
-}
-
 interface QueryParams {
   age?: string;
   q?: string;
@@ -63,15 +56,23 @@ interface PapersListDispatchProps {
   clearPapers: () => void;
 }
 interface PapersListProps extends PapersListDispatchProps {
-  match: RouteComponentProps<QueryParam>['match'];
+  match: RouteComponentProps<PaperListRouterParams>['match'];
   location: RouteComponentProps['location'];
   history: RouteComponentProps['history'];
   papers: PaperListItem[];
   totalPapers: number;
   groups: Group[];
+  inviteGroup?: Group;
 }
 
 const ALL_LISTS = 'All lists';
+
+const getGroupName = (groups: Group[], groupId: string | undefined) => {
+  if (!groupId) return undefined;
+  const group = groups.find(g => g.id === groupId);
+  if (group) return group.name;
+  return undefined;
+};
 
 const PapersList: React.FC<PapersListProps> = ({
   match,
@@ -84,15 +85,20 @@ const PapersList: React.FC<PapersListProps> = ({
   papers,
   totalPapers,
   groups,
+  inviteGroup,
 }) => {
   const isFirstLoad = React.useRef(true);
   const [scrollId, setScrollId] = React.useState(Math.random());
   const [hasMorePapers, setHasMorePapers] = React.useState(true);
   const [isLoading, setIsLoading] = React.useState(false);
-  const isLibrary = match && match.path === '/library';
+  const isLibraryMode = match.path === '/library';
+
+  const { groupId, authorId } = match.params;
+  let groupName = getGroupName(inviteGroup ? [...groups, inviteGroup] : groups, groupId);
 
   const getAgeQuery = (queryParams: QueryParams) => {
-    return queryParams.age || (isLibrary || queryParams.q ? 'all' : 'week');
+    const isDefaultAgeToAll = isLibraryMode || queryParams.q || !isEmpty(match.params);
+    return queryParams.age || (isLibraryMode || isDefaultAgeToAll ? 'all' : 'week');
   };
 
   const getSortQuery = (queryParams: QueryParams) => {
@@ -104,15 +110,15 @@ const PapersList: React.FC<PapersListProps> = ({
 
     const queryParams = queryString.parse(location.search) as Partial<RequestParams>;
     const requestParams: Partial<RequestParams> = {
-      author: match.params.authorId,
+      author: authorId,
       page_num: page,
       age: getAgeQuery(queryParams),
       sort: getSortQuery(queryParams),
       q: (queryParams.q as string) || undefined,
-      group: queryParams.group,
+      group: groupId,
     };
 
-    if (isLibrary) {
+    if (isLibraryMode) {
       url = '/library';
     }
 
@@ -175,6 +181,19 @@ const PapersList: React.FC<PapersListProps> = ({
         }
       `}
     >
+      {(isLibraryMode || authorId || groupId) && (
+        <div>
+          <Typography
+            variant="h5"
+            css={css({
+              marginBottom: 5,
+              fontWeight: 700,
+            })}
+          >
+            {isLibraryMode ? 'My Library' : authorId ? authorId : groupName}
+          </Typography>
+        </div>
+      )}
       <div
         css={css`
           ${presets.row};
@@ -236,11 +255,11 @@ const PapersList: React.FC<PapersListProps> = ({
               )}
             </Select>
           </FormControl>
-          {isLibrary ? (
+          {isLibraryMode ? (
             !isEmpty(groups) && (
               <FormControl css={formControlCss}>
                 <Select
-                  value={q.group || ALL_LISTS}
+                  value={groupId || ALL_LISTS}
                   onChange={e => handleFiltersEvent(e, ALL_LISTS)}
                   input={<Input name="group" id="group-helper" />}
                   css={filterValueCss}
@@ -299,7 +318,13 @@ const PapersList: React.FC<PapersListProps> = ({
           }
         >
           {papers.map(p => (
-            <PapersListItem key={p._id} paper={p} groups={groups} showAbstract={!isLibrary} showMetadata={!isLibrary} />
+            <PapersListItem
+              key={p._id}
+              paper={p}
+              groups={groups}
+              showAbstract={!isLibraryMode}
+              showMetadata={!isLibraryMode}
+            />
           ))}
         </InfiniteScroll>
       </Grid>
@@ -314,6 +339,7 @@ const mapStateToProps = (state: RootState) => {
     selectedCategories: state.papersList.selectedCategories,
     totalPapers: state.papersList.totalPapers,
     groups: state.user.groups,
+    inviteGroup: state.papersList.inviteGroup,
   };
 };
 

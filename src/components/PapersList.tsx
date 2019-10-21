@@ -13,6 +13,7 @@ import * as presets from '../utils/presets';
 import { CategoriesModal } from './Cateogries';
 import InfiniteScroll from './InfiniteScroll';
 import PapersListItem from './PapersListItem';
+import GroupShare from './GroupShare';
 
 const formControlCss = css({
   margin: '8px 8px 8px 0px',
@@ -182,16 +183,18 @@ const PapersList: React.FC<PapersListProps> = ({
       `}
     >
       {(isLibraryMode || authorId || groupId) && (
-        <div>
+        <div css={[presets.row, css({ alignItems: 'center', marginBottom: 5 })]}>
           <Typography
             variant="h5"
             css={css({
-              marginBottom: 5,
               fontWeight: 700,
+              marginRight: 5,
+              paddingBottom: 1,
             })}
           >
             {isLibraryMode ? 'My Library' : authorId ? authorId : groupName}
           </Typography>
+          {groupId && groupName && <GroupShare size={12} groupId={groupId} />}
         </div>
       )}
       <div

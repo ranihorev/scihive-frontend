@@ -2,22 +2,20 @@
 import { css, jsx } from '@emotion/core';
 import { Button, IconButton, List, ListItem, TextField, Typography } from '@material-ui/core';
 import DoneIcon from '@material-ui/icons/Done';
-import copy from 'clipboard-copy';
 import Color from 'color';
 import React from 'react';
 import { connect } from 'react-redux';
 import { Link } from 'react-router-dom';
-import { toast } from 'react-toastify';
 import { actions } from '../actions';
 import { Group, RootState } from '../models';
 import { createNewGroup, deleteGroup, editGroup } from '../thunks';
 import { presets } from '../utils';
 import { getGroupColor, GroupColor, GROUP_COLORS } from '../utils/presets';
 import { PopoverMenu } from './PopoverMenu';
+import GroupShare from './GroupShare';
 
-const iconCss = css`
-  font-size: 16px;
-`;
+const ICON_SIZE = 16;
+const iconCss = css({ fontSize: ICON_SIZE });
 
 interface EditGroupProps {
   group: Group;
@@ -131,10 +129,6 @@ interface GroupProps extends Omit<GroupsProps, 'groups' | 'createNewGroup'> {
 const GroupRender: React.FC<GroupProps> = ({ group, deleteGroup, editGroup }) => {
   const [isEditOpen, setIsEditOpen] = React.useState(false);
   const editRef = React.useRef<HTMLDivElement>(null);
-  const handleShare = (id: string) => {
-    copy(`${window.location.origin}/list/${group.id}/`);
-    toast.info(`Link was copied to clipboard`, { autoClose: 2000 });
-  };
 
   return (
     <ListItem disableGutters>
@@ -177,9 +171,7 @@ const GroupRender: React.FC<GroupProps> = ({ group, deleteGroup, editGroup }) =>
               <i className="fas fa-external-link-square-alt" css={iconCss} />
             </IconButton>
           </Link>
-          <IconButton aria-label="Share" onClick={() => handleShare(group.id)}>
-            <i className="fas fa-share-alt" css={iconCss} />
-          </IconButton>
+          <GroupShare size={ICON_SIZE} groupId={group.id} />
           <IconButton aria-label="Delete" onClick={() => deleteGroup(group.id)}>
             <i className="far fa-trash-alt" css={iconCss} />
           </IconButton>

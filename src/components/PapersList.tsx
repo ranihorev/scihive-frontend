@@ -115,7 +115,7 @@ const PapersList: React.FC<PapersListProps> = ({
       age: getAgeQuery(queryParams),
       sort: getSortQuery(queryParams),
       q: (queryParams.q as string) || undefined,
-      group: groupId,
+      group: groupId || queryParams.group,
     };
 
     if (isLibraryMode) {

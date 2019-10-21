@@ -1,4 +1,4 @@
-import { Category, PaperListItem } from '../models';
+import { Category, PaperListItem, Group } from '../models';
 
 export const actions = {
   addPapers: (payload: { papers: PaperListItem[]; total?: number }) => ({
@@ -45,6 +45,10 @@ export const actions = {
   updatePaperGroups: (payload: { paperId: string; groupId: string; shouldAdd: boolean }) => ({
     type: 'UPDATE_PAPER_GROUPS' as const,
     payload,
+  }),
+  setSelectedGroup: (group: Group | undefined) => ({
+    type: 'SET_INVITE_GROUP' as const,
+    payload: group,
   }),
 };
 

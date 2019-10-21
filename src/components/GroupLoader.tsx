@@ -1,63 +1,28 @@
-import { isEmpty } from 'lodash';
-import * as queryString from 'query-string';
+/** @jsx jsx */
 import React from 'react';
 import { connect } from 'react-redux';
-import { toast } from 'react-toastify';
-import useReactRouter from 'use-react-router';
-import { Group } from '../models';
-import { joinGroup as joinGroupThunk, loadGroups as loadGroupsThunk } from '../thunks';
-
+import { matchPath, useHistory } from 'react-router-dom';
+import { PaperListRouterParams } from '../models';
+import { loadGroups as loadGroupsThunk } from '../thunks';
 interface GroupJoinerDispatchProps {
-  loadGroups: (onSuccess: (groups: Group[]) => void) => void;
-  joinGroup: (groupId: string, onSuccess: (group: Group) => void, onFail: () => void) => void;
+  loadGroups: (groupId?: string) => void;
 }
 
-interface GroupJoinerProps extends GroupJoinerDispatchProps {
-  isLoggedIn: boolean;
-  groups: Group[];
-}
+interface GroupJoinerProps extends GroupJoinerDispatchProps {}
 
-const GroupLoader: React.FC<GroupJoinerProps> = ({ isLoggedIn, groups, loadGroups, joinGroup }) => {
-  const { location } = useReactRouter();
-  const groupLoaded = React.useRef(false);
-
-  const onLoadGroups = React.useCallback(
-    (groups: Group[]) => {
-      const params = queryString.parse(location.search);
-      if (params.group && !groups.some(g => g.id === params.group)) {
-        joinGroup(
-          params.group as string,
-          group => {
-            toast.info(
-              <span>
-                You were added to <b>{group.name}</b>!
-              </span>,
-              { autoClose: 4000 },
-            );
-          },
-          () => {
-            toast.error('List does not exist');
-          },
-        );
-      }
-    },
-    [location.search, groups],
-  );
+const GroupLoader: React.FC<GroupJoinerProps> = ({ loadGroups }) => {
+  const history = useHistory();
+  const match = matchPath<PaperListRouterParams>(history.location.pathname, {
+    // You can share this string as a constant if you want
+    path: '/list/:groupId',
+  });
 
   React.useEffect(() => {
-    if (isLoggedIn && !groupLoaded.current) {
-      loadGroups(onLoadGroups);
-      groupLoaded.current = true;
-    }
-  }, [isLoggedIn]);
-  return null;
-};
+    const groupId = match ? match.params.groupId : undefined;
+    loadGroups(groupId);
+  }, []);
 
-const mapStateToProps = (state: RootState) => {
-  return {
-    isLoggedIn: !isEmpty(state.user.userData),
-    groups: state.user.groups,
-  };
+  return null;
 };
 
 const mapDispatchToProps = (dispatch: RTDispatch): GroupJoinerDispatchProps => {
@@ -65,14 +30,11 @@ const mapDispatchToProps = (dispatch: RTDispatch): GroupJoinerDispatchProps => {
     loadGroups: onSuccess => {
       dispatch(loadGroupsThunk(onSuccess));
     },
-    joinGroup: (...args) => {
-      dispatch(joinGroupThunk(...args));
-    },
   };
 };
 
 const withRedux = connect(
-  mapStateToProps,
+  null,
   mapDispatchToProps,
 );
 

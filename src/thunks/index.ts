@@ -4,36 +4,37 @@ import { actions } from '../actions';
 import { Group } from '../models';
 import { eventsGenerator } from '../utils';
 import { GroupColor } from '../utils/presets';
+import { getIsLoggedIn, getGroups } from '../selectors/user';
+import { notifyOnNewGroup } from '../notifications/newGroup';
 
-export const loadGroups = (onSuccess: (groups: Group[]) => void) => (dispatch: Dispatch, getState: GetState) => {
-  axios
-    .get('/groups/all')
-    .then(res => {
+export const loadGroups = (groupId: string | undefined) => async (dispatch: RTDispatch, getState: GetState) => {
+  try {
+    if (getIsLoggedIn(getState())) {
+      const res = await axios.get('/groups/all');
       dispatch(actions.setGroups(res.data));
-      onSuccess(res.data);
-    })
-    .catch(e => console.warn(e.message));
+    }
+    const groups = getGroups(getState());
+    if (!groupId) return;
+    let group = groups.find(g => g.id === groupId);
+    if (!group) {
+      const res = await axios.get(`/groups/group/${groupId}`);
+      group = res.data;
+      if (!group) {
+        console.warn('Group not found');
+        return;
+      }
+      dispatch(actions.setSelectedGroup(group));
+      notifyOnNewGroup(group, () => dispatch(joinGroup(groupId)));
+    }
+  } catch (e) {
+    console.warn(e.message);
+  }
 };
 
-export const joinGroup = (groupId: string, onSuccess: (group: Group) => void, onFail: () => void) => (
-  dispatch: Dispatch,
-  getState: GetState,
-) => {
-  axios
-    .post('/groups/all', { id: groupId })
-    .then(res => {
-      dispatch(actions.setGroups(res.data));
-      const newGroup = (res.data as Group[]).find(g => g.id === groupId);
-      if (newGroup) {
-        onSuccess(newGroup);
-      } else {
-        console.warn('Group not found in the new list');
-      }
-    })
-    .catch(e => {
-      console.warn(e.message);
-      onFail();
-    });
+export const joinGroup = (groupId: string) => (dispatch: Dispatch, getState: GetState) => {
+  return axios.post('/groups/all', { id: groupId }).then(res => {
+    dispatch(actions.setGroups(res.data));
+  });
 };
 
 export const deleteGroup = (id: string) => (dispatch: Dispatch, getState: GetState) => {

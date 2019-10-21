@@ -60,6 +60,8 @@ export default function dataReducer(state = initialState, action: PapersListActi
         }
         return draftState;
       });
+    case 'SET_INVITE_GROUP':
+      return { ...state, inviteGroup: action.payload };
     default:
       return state;
   }

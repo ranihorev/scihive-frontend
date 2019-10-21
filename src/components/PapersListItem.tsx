@@ -50,8 +50,10 @@ const SingleGroupMarker: React.FC<{ group?: Group; index: number }> = ({ group, 
   const [isHover, setIsHover] = React.useState(false);
   if (group) {
     return (
-      <div
+      <Link
+        to={`/list/${group.id}/`}
         css={css`
+          ${presets.simpleLink};
           border-radius: 0 0 3px 3px;
           max-width: 100px;
           min-width: 50px;
@@ -64,6 +66,7 @@ const SingleGroupMarker: React.FC<{ group?: Group; index: number }> = ({ group, 
           text-overflow: ellipsis;
           font-weight: 500;
           color: white;
+          pointer: cursor;
         `}
         onMouseEnter={() => setIsHover(true)}
         onMouseLeave={() => setIsHover(false)}
@@ -73,7 +76,7 @@ const SingleGroupMarker: React.FC<{ group?: Group; index: number }> = ({ group, 
         }}
       >
         {isHover ? group.name : ''}
-      </div>
+      </Link>
     );
   }
   return null;

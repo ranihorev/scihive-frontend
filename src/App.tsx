@@ -16,7 +16,7 @@ import NotFound from './pages/NotFound';
 import Paper from './pages/Paper';
 import './react-hint.css';
 import { useTracker } from './Tracker';
-import chromeExtensionPopup from './utils/chromeExtension';
+import ChromeExtensionPopup from './utils/chromeExtension';
 import { themePalette } from './utils/presets';
 
 const theme = createMuiTheme({
@@ -41,7 +41,6 @@ const App: React.FC<{ isLoggedIn: boolean }> = ({ isLoggedIn }) => {
           }
         });
     }
-    chromeExtensionPopup();
   }, []);
 
   useTracker();
@@ -56,11 +55,13 @@ const App: React.FC<{ isLoggedIn: boolean }> = ({ isLoggedIn }) => {
           <Route path="/search/" exact component={Home} />
           <Route path="/author/:authorId" exact component={Home} />
           <Route path="/paper/:PaperId" exact component={Paper} />
+          <Route path="/list/:groupId" exact component={Home} />
           <Route path="/about" exact component={About} />
           <Route path="/lists" exact component={Groups} />
           <Route path="/admin" exact component={Admin} />
           <Route component={NotFound} />
         </Switch>
+        <GroupLoader />
         <ToastContainer
           position="bottom-center"
           autoClose={false}
@@ -71,7 +72,7 @@ const App: React.FC<{ isLoggedIn: boolean }> = ({ isLoggedIn }) => {
           draggable
         />
         <ReactHint autoPosition events={{ hover: true }} delay={{ show: 300, hide: 0 }} />
-        <GroupLoader />
+        <ChromeExtensionPopup />
       </MuiThemeProvider>
     </React.Fragment>
   );

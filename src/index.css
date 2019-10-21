@@ -15,8 +15,8 @@ code {
 }
 
 .Toastify__toast--info {
-  background-color: #b9e3ff;
-  color: #333333;
+  background-color: #ceebff;
+  color: #444444;
 }
 
 @media only screen and (min-width: 480px) {

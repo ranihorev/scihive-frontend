@@ -6,7 +6,10 @@ import { getGroups, getIsLoggedIn } from '../selectors/user';
 import { eventsGenerator } from '../utils';
 import { GroupColor } from '../utils/presets';
 
-export const loadGroups = (groupId: string | undefined) => async (dispatch: RTDispatch, getState: GetState) => {
+export const loadGroups = (groupId: string | undefined, onSuccess: () => void) => async (
+  dispatch: RTDispatch,
+  getState: GetState,
+) => {
   try {
     if (getIsLoggedIn(getState())) {
       const res = await axios.get('/groups/all');
@@ -24,7 +27,7 @@ export const loadGroups = (groupId: string | undefined) => async (dispatch: RTDi
       }
       dispatch(actions.setSelectedGroup(group));
       notifyOnNewGroup(group, () => {
-        dispatch(joinGroup(groupId));
+        dispatch(joinGroup(groupId, onSuccess));
       });
     }
   } catch (e) {
@@ -32,9 +35,10 @@ export const loadGroups = (groupId: string | undefined) => async (dispatch: RTDi
   }
 };
 
-export const joinGroup = (groupId: string) => (dispatch: Dispatch, getState: GetState) => {
+export const joinGroup = (groupId: string, onSuccess: () => void) => (dispatch: Dispatch, getState: GetState) => {
   return axios.post('/groups/all', { id: groupId }).then(res => {
     dispatch(actions.setGroups(res.data));
+    onSuccess();
   });
 };
 

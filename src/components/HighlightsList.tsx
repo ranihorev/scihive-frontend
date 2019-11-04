@@ -74,7 +74,7 @@ const HighlightsList: React.FC<CommentsListProps> = ({
         setFocusedId(null);
       }, 1000);
     }
-  }, [jumpData, highlights]);
+  }, [jumpData, highlights, clearJumpTo]);
 
   highlights.forEach(h => {
     highlightsRef.current[h.id] = React.createRef<HTMLDivElement>();

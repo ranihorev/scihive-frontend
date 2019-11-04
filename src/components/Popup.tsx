@@ -60,19 +60,19 @@ export const PopupManager: React.FC<PopupManagerProps> = ({ anchorEl, clearAncho
     popupTimeoutId.current = undefined;
   };
 
-  const closePopover = () => {
+  const closePopover = React.useCallback(() => {
     if (anchorEl) {
       if (popupTimeoutId.current) return;
       popupTimeoutId.current = setTimeout(() => {
         clearAnchor();
       }, 300);
     }
-  };
+  }, [clearAnchor, anchorEl]);
 
-  const onContentLeave = () => {
+  const onContentLeave = React.useCallback(() => {
     closePopover();
     if (anchorEl) anchorEl.removeEventListener('mouseleave', onContentLeave);
-  };
+  }, [closePopover, anchorEl]);
 
   if (anchorEl) anchorEl.addEventListener('mouseleave', onContentLeave);
   React.useEffect(() => {
@@ -80,7 +80,7 @@ export const PopupManager: React.FC<PopupManagerProps> = ({ anchorEl, clearAncho
       clearHideTimeout();
       if (anchorEl) anchorEl.removeEventListener('mouseleave', onContentLeave);
     };
-  }, [anchorEl]);
+  }, [anchorEl, onContentLeave]);
 
   return (
     <Popper open={Boolean(anchorEl)} anchorEl={anchorEl} placement="top" style={{ zIndex: 10 }}>

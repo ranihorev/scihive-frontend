@@ -6,11 +6,11 @@ import * as queryString from 'query-string';
 import React, { useEffect, useState } from 'react';
 import { Helmet } from 'react-helmet';
 import { connect } from 'react-redux';
+import { useLocation, useParams } from 'react-router-dom';
 import { Dispatch } from 'redux';
 import useDeepCompareEffect from 'use-deep-compare-effect';
-import useReactRouter from 'use-react-router';
 import { actions } from '../actions';
-import { Acronyms, CodeMeta, References, RootState, T_Highlight } from '../models';
+import { Acronyms, CodeMeta, References, RootState, T_Highlight, Visibility } from '../models';
 import { presets } from '../utils';
 import PdfViewer from './PdfViewer';
 import { ReadingProgress } from './ReadingProgress';
@@ -53,6 +53,7 @@ interface PdfCommenterDispatchProps {
   setAcronyms: (acronyms: Acronyms) => void;
   clearPaper: () => void;
   setGroups: (groupIds: string[]) => void;
+  setNewCommentsVisibilitySettings: (visibility: Visibility) => void;
 }
 
 const PdfCommenter: React.FC<PdfCommenterDispatchProps> = ({
@@ -63,6 +64,7 @@ const PdfCommenter: React.FC<PdfCommenterDispatchProps> = ({
   setAcronyms,
   clearPaper,
   setGroups,
+  setNewCommentsVisibilitySettings,
 }) => {
   const [url, setUrl] = useState(FETCHING);
   const [title, setTitle] = useState('SciHive');
@@ -74,10 +76,8 @@ const PdfCommenter: React.FC<PdfCommenterDispatchProps> = ({
     height: defaultPdfPrct,
   });
 
-  const {
-    location,
-    match: { params },
-  } = useReactRouter();
+  const params = useParams<{ PaperId: string }>();
+  const location = useLocation();
 
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
 
@@ -114,6 +114,10 @@ const PdfCommenter: React.FC<PdfCommenterDispatchProps> = ({
         setBookmark(res.data.saved_in_library);
         setCodeMeta(res.data.code);
         setGroups(res.data.groups);
+        const selectedGroupId = queryString.parse(location.search).list;
+        if (selectedGroupId) {
+          setNewCommentsVisibilitySettings({ type: 'group', id: selectedGroupId as string });
+        }
         if (res.data.title) setTitle(`SciHive - ${res.data.title}`);
         fetch_paper_data();
       })
@@ -121,11 +125,10 @@ const PdfCommenter: React.FC<PdfCommenterDispatchProps> = ({
         setUrl(FAILED);
       });
 
-    const selectedGroupId = queryString.parse(location.search).group;
     // Fetch comments
     axios
       .get(`/paper/${params.PaperId}/comments`, {
-        params: { group: selectedGroupId },
+        //params: { group: selectedGroupId },
       })
       .then(res => {
         setHighlights(res.data.comments);
@@ -309,6 +312,9 @@ const mapDispatchToProps = (dispatch: Dispatch): PdfCommenterDispatchProps => {
     },
     setGroups: groupIds => {
       dispatch(actions.addRemoveGroupIds({ groupIds, shouldAdd: true }));
+    },
+    setNewCommentsVisibilitySettings: visibility => {
+      dispatch(actions.setCommentVisibilitySettings(visibility));
     },
   };
 };

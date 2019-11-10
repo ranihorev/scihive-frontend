@@ -5,7 +5,7 @@ import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import { isEmpty } from 'lodash';
 import moment from 'moment';
 import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useParams } from 'react-router-dom';
 import TextTruncate from 'react-text-truncate';
 import { Group, PaperListItem } from '../models';
 import { Latex } from '../utils/latex';
@@ -161,6 +161,7 @@ const ExpandPaper: React.FC<{ expanded: boolean; handleExpandClick: (e: React.Mo
 const PapersListItem: React.FC<PapersListItemProps> = ({ paper, groups, showAbstract = true, showMetadata = true }) => {
   const { saved_in_library: isBookmarked, github } = paper;
   const [expanded, setExpanded] = useState(false);
+  const params = useParams<{ groupId?: string }>();
 
   const handleExpandClick = (e: React.MouseEvent) => {
     e.preventDefault();
@@ -199,7 +200,7 @@ const PapersListItem: React.FC<PapersListItemProps> = ({ paper, groups, showAbst
             `}
           >
             <Link
-              to={`/paper/${paper._id}`}
+              to={`/paper/${paper._id}?${params.groupId ? `list=${params.groupId}` : ``}`}
               css={css`
                 color: #333;
                 font-weight: 500;

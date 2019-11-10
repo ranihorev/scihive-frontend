@@ -105,8 +105,8 @@ export const GROUP_COLORS = {
   MAROON: '#a4195e',
   FUCHSIA: '#F012BE',
   PURPLE: '#B10DC9',
-  GRAY: '#AAAAAA',
-  SILVER: '#DDDDDD',
+  GRAY: '#717171',
+  SILVER: '#C8C8C8',
 };
 
 export const BASE_GROUP_COLOR: GroupColor = 'SILVER';

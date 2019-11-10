@@ -1,19 +1,18 @@
 /** @jsx jsx */
 import { css, jsx } from '@emotion/core';
-import { Chip, CircularProgress, FormControl, Grid, Input, MenuItem, Select, Typography } from '@material-ui/core';
+import { CircularProgress, FormControl, Grid, Input, MenuItem, Select, Typography } from '@material-ui/core';
 import { isEmpty } from 'lodash';
 import * as queryString from 'query-string';
 import React from 'react';
 import { connect } from 'react-redux';
-import { RouteComponentProps, withRouter } from 'react-router';
+import { RouteComponentProps, withRouter, Redirect } from 'react-router';
 import { actions } from '../actions/papersList';
 import { Group, PaperListItem, PaperListRouterParams, RootState } from '../models';
 import { fetchPapers, RequestParams } from '../thunks';
 import * as presets from '../utils/presets';
-import { CategoriesModal } from './Cateogries';
+import GroupShare from './GroupShare';
 import InfiniteScroll from './InfiniteScroll';
 import PapersListItem from './PapersListItem';
-import GroupShare from './GroupShare';
 
 const formControlCss = css({
   margin: '8px 8px 8px 0px',
@@ -258,52 +257,38 @@ const PapersList: React.FC<PapersListProps> = ({
               )}
             </Select>
           </FormControl>
-          {isLibraryMode ? (
-            !isEmpty(groups) && (
-              <FormControl css={formControlCss}>
-                <Select
-                  value={groupId || ALL_LISTS}
-                  onChange={e => handleFiltersEvent(e, ALL_LISTS)}
-                  input={<Input name="group" id="group-helper" />}
-                  css={filterValueCss}
-                >
-                  <MenuItem css={filterMenuItemCss} value={ALL_LISTS}>
-                    All lists
+          {(isLibraryMode || groupId) && !isEmpty(groups) && (
+            <FormControl css={formControlCss}>
+              <Select
+                value={groupId || ALL_LISTS}
+                onChange={e => {
+                  history.push({
+                    pathname: e.target.value === ALL_LISTS ? '/library' : `/list/${e.target.value}`,
+                    search: location.search,
+                  });
+                }}
+                input={<Input name="group" id="group-helper" />}
+                css={filterValueCss}
+              >
+                <MenuItem css={filterMenuItemCss} value={ALL_LISTS}>
+                  All lists
+                </MenuItem>
+                {groups.map(group => (
+                  <MenuItem css={filterMenuItemCss} value={group.id} key={group.id}>
+                    <div
+                      css={css`
+                        max-width: 200px;
+                        overflow-x: hidden;
+                        text-overflow: ellipsis;
+                      `}
+                    >
+                      {group.name}
+                    </div>
                   </MenuItem>
-                  {groups.map(group => (
-                    <MenuItem css={filterMenuItemCss} value={group.id} key={group.id}>
-                      <div
-                        css={css`
-                          max-width: 200px;
-                          overflow-x: hidden;
-                          text-overflow: ellipsis;
-                        `}
-                      >
-                        {group.name}
-                      </div>
-                    </MenuItem>
-                  ))}
-                </Select>
-              </FormControl>
-            )
-          ) : (
-            <Chip
-              size="small"
-              variant="outlined"
-              label="Categories"
-              clickable={false}
-              onClick={() => toggleCategoryModal()}
-              css={css`
-                font-size: 13px;
-                height: 26px;
-                &:hover {
-                  background-color: rgba(0, 0, 0, 0.08);
-                  cursor: pointer;
-                }
-              `}
-            />
+                ))}
+              </Select>
+            </FormControl>
           )}
-          <CategoriesModal onSelect={handleFilters} />
         </div>
       </div>
       <Grid container direction="column" key={scrollId}>
@@ -325,8 +310,8 @@ const PapersList: React.FC<PapersListProps> = ({
               key={p._id}
               paper={p}
               groups={groups}
-              showAbstract={!isLibraryMode}
-              showMetadata={!isLibraryMode}
+              showAbstract={!(isLibraryMode || groupId)}
+              showMetadata={true}
             />
           ))}
         </InfiniteScroll>

@@ -19,22 +19,12 @@ interface TipProps {
   visibilitySettings: Visibility;
 }
 
-export const compactButtonStyle = css`
-  cursor: pointer;
-  padding: 3px;
-  margin: 0px 5px;
-  &:hover {
-    color: ${presets.themePalette.primary.main};
-  }
-`;
-
 export const CompactTip: React.FunctionComponent = ({ children }) => (
   <div
     css={css`
-      ${presets.row};
-      ${presets.centered};
+      ${presets.col};
       color: white;
-      padding: 5px 7px;
+      padding: 7px 7px;
       background-color: #bbb;
       border-radius: 10px;
     `}
@@ -43,9 +33,31 @@ export const CompactTip: React.FunctionComponent = ({ children }) => (
   </div>
 );
 
-export const CompactTipButton: React.FC<{ onClick: (e: React.MouseEvent) => void }> = ({ onClick, children }) => (
-  <div css={compactButtonStyle} role="button" onClick={onClick}>
-    {children}
+const CompactTipButton: React.FC<{ onClick: (e: React.MouseEvent) => void; icon: string; text: string }> = ({
+  onClick,
+  icon,
+  text,
+}) => (
+  <div
+    css={[
+      presets.row,
+      {
+        alignItems: 'center',
+        fontSize: 14,
+        cursor: 'pointer',
+        marginBottom: 5,
+        padding: 3,
+        '&:hover': { color: presets.themePalette.primary.main },
+        '&:last-child': {
+          marginBottom: 0,
+        },
+      },
+    ]}
+    role="button"
+    onClick={onClick}
+  >
+    <i className={icon} css={{ marginRight: 6 }} />
+    <div>{text}</div>
   </div>
 );
 
@@ -85,12 +97,10 @@ const Tip: React.FC<TipProps> = ({
               onOpen();
               setIsCompact(false);
             }}
-          >
-            <i className="fas fa-comment-medical" />
-          </CompactTipButton>
-          <CompactTipButton onClick={onSubmit}>
-            <i className="fas fa-highlighter" />
-          </CompactTipButton>
+            icon="fas fa-comment-medical"
+            text="Comment"
+          />
+          <CompactTipButton onClick={onSubmit} icon="fas fa-highlighter" text="Highlight" />
         </CompactTip>
       ) : (
         <form

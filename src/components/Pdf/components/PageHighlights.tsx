@@ -18,7 +18,6 @@ import { Popup } from '../../Popup';
 import { TextLinkifyLatex } from '../../TextLinkifyLatex';
 import AreaHighlight from './AreaHighlight';
 import Highlight from './Highlight';
-import { compactButtonStyle } from './Tip';
 
 const HighlightPopup: React.FC<T_Highlight> = ({ content, comment }) => {
   let copyButton;
@@ -26,7 +25,14 @@ const HighlightPopup: React.FC<T_Highlight> = ({ content, comment }) => {
   if (hasContent) {
     copyButton = (
       <span
-        css={compactButtonStyle}
+        css={css`
+          cursor: pointer;
+          padding: 3px;
+          margin: 0px 5px;
+          &:hover {
+            color: ${presets.themePalette.primary.main};
+          }
+        `}
         role="button"
         onClick={async () => {
           await copy(content.text || '');

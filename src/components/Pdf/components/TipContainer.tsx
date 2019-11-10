@@ -1,10 +1,11 @@
 /** @jsx jsx */
 import { css, jsx } from '@emotion/core';
 import { Popper } from '@material-ui/core';
+import { PopperProps } from '@material-ui/core/Popper';
 import axios from 'axios';
 import { isEmpty } from 'lodash';
-import useReactRouter from 'use-react-router';
 import React from 'react';
+import useReactRouter from 'use-react-router';
 import { T_Highlight, T_NewHighlight, T_ScaledPosition, Visibility } from '../../../models';
 import Tip from './Tip';
 
@@ -20,7 +21,9 @@ interface TipContainerProps {
 }
 
 export const TipContainer: React.FC<TipContainerProps> = ({ tooltipData, onSuccess }) => {
+  // const [key, setKey] = React.useState(false); // used to reload the popper
   const tooltipNode = React.useRef<HTMLDivElement>(null);
+  const popperRef: PopperProps['popperRef'] = React.useRef(null);
   const {
     match: { params },
   } = useReactRouter();
@@ -52,6 +55,7 @@ export const TipContainer: React.FC<TipContainerProps> = ({ tooltipData, onSucce
         placement="top"
         className="tooltip-popper"
         disablePortal={true}
+        popperRef={popperRef}
         css={css`
           z-index: 100;
         `}
@@ -66,7 +70,9 @@ export const TipContainer: React.FC<TipContainerProps> = ({ tooltipData, onSucce
             e.stopPropagation();
           }}
           onOpen={() => {
-            // if (tooltipData) setTempHighlight({ position: tooltipData.position, content: tooltipData.content });
+            if (popperRef.current) {
+              popperRef.current.update();
+            }
           }}
           onConfirm={(comment: T_Highlight['comment'], visibility: Visibility) => {
             if (tooltipData) {

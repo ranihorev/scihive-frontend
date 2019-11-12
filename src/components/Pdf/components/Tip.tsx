@@ -1,6 +1,6 @@
 /** @jsx jsx */
 import { css, jsx } from '@emotion/core';
-import { Button, TextField } from '@material-ui/core';
+import { Button, FormControl, MenuItem, Select, TextField } from '@material-ui/core';
 import { isEmpty } from 'lodash';
 import React from 'react';
 import { connect } from 'react-redux';
@@ -13,6 +13,7 @@ interface TipProps {
   onConfirm: (comment: T_Highlight['comment'], visibility: Visibility) => void;
   onOpen: () => void;
   isLoggedIn: boolean;
+  username?: string;
   onMouseDown?: (e: React.MouseEvent) => void;
   groups: Group[];
   setCommentVisibilty: (settings: Visibility) => void;
@@ -32,6 +33,67 @@ export const CompactTip: React.FunctionComponent = ({ children }) => (
     {children}
   </div>
 );
+
+interface VisibilityControlProps extends Pick<TipProps, 'visibilitySettings' | 'groups' | 'username'> {
+  onVisibiltyChange: (e: React.ChangeEvent<{ value: unknown }>) => void;
+}
+
+const VisibilityControl: React.FC<VisibilityControlProps> = ({
+  visibilitySettings,
+  onVisibiltyChange,
+  groups,
+  username,
+}) => {
+  const fontSize = 13;
+  const textMinWidth = 70;
+  return (
+    <div css={[presets.col, { fontSize }]}>
+      <div css={[presets.row, { alignItems: 'center' }]}>
+        <div css={{ minWidth: textMinWidth }}>Share with:</div>
+        <Select
+          value={
+            visibilitySettings.type === 'group'
+              ? visibilitySettings.id
+              : visibilitySettings.type === 'anonymous'
+              ? 'public'
+              : visibilitySettings.type
+          }
+          css={{ marginLeft: 5, minWidth: 120, '& .MuiSelect-select': { fontSize } }}
+          onChange={onVisibiltyChange}
+        >
+          <MenuItem value="public" css={{ fontSize }}>
+            Public
+          </MenuItem>
+          <MenuItem value="private" css={{ fontSize }}>
+            Private
+          </MenuItem>
+          {groups.map(g => (
+            <MenuItem key={g.id} value={g.id} css={{ fontSize }}>
+              {g.name}
+            </MenuItem>
+          ))}
+        </Select>
+      </div>
+      {['anonymous', 'public'].includes(visibilitySettings.type) && (
+        <div css={[presets.row, { alignItems: 'center', marginTop: 5 }]}>
+          <div css={{ minWidth: textMinWidth }}>Share as:</div>
+          <Select
+            value={visibilitySettings.type}
+            css={{ marginLeft: 5, minWidth: 120, '& .MuiSelect-select': { fontSize } }}
+            onChange={onVisibiltyChange}
+          >
+            <MenuItem value="public" css={{ fontSize }}>
+              {username}
+            </MenuItem>
+            <MenuItem value="anonymous" css={{ fontSize }}>
+              Anonymous
+            </MenuItem>
+          </Select>
+        </div>
+      )}
+    </div>
+  );
+};
 
 const CompactTipButton: React.FC<{ onClick: (e: React.MouseEvent) => void; icon: string; text: string }> = ({
   onClick,
@@ -63,6 +125,7 @@ const CompactTipButton: React.FC<{ onClick: (e: React.MouseEvent) => void; icon:
 
 const Tip: React.FC<TipProps> = ({
   isLoggedIn,
+  username,
   onConfirm,
   onOpen,
   onMouseDown = () => {},
@@ -79,8 +142,8 @@ const Tip: React.FC<TipProps> = ({
     onConfirm({ text }, visibilitySettings);
   };
 
-  const onVisibiltyChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
-    const value = event.target.value;
+  const onVisibiltyChange = (event: React.ChangeEvent<{ value: unknown }>) => {
+    const value = event.target.value as string;
     if ((VISIBILITIES as Readonly<string[]>).includes(value)) {
       setCommentVisibilty({ type: value as VisibilityType });
     } else {
@@ -156,52 +219,24 @@ const Tip: React.FC<TipProps> = ({
           >
             * Type LaTeX formulas using $ signs, e.g. $(3\times 4)$
           </div>
-          <div
-            css={css`
-              ${presets.row}
-              margin-top: 10px;
-              justify-content: space-between;
-            `}
-          >
-            <div
-              css={css`
-                ${presets.row};
-                align-items: center;
-              `}
-            >
-              {isLoggedIn ? (
-                <select
-                  css={css`
-                    height: 28px;
-                  `}
-                  onChange={onVisibiltyChange}
-                  value={visibilitySettings.type !== 'group' ? visibilitySettings.type : visibilitySettings.id}
-                >
-                  <option value="public">Public</option>
-                  <option value="private">Private</option>
-                  <option value="anonymous">Anonymous</option>
-                  {groups.map(g => (
-                    <option key={g.id} value={g.id}>
-                      {g.name}
-                    </option>
-                  ))}
-                </select>
-              ) : (
-                <div
-                  css={css`
-                    font-size: 12px;
-                    color: #9f9f9f;
-                  `}
-                >
-                  Please log in to add private and group comments
-                </div>
-              )}
-            </div>
-            <div>
-              <Button type="submit" variant="contained" color="primary" size="small">
-                Submit
-              </Button>
-            </div>
+          <div css={{ marginTop: 10 }}>
+            {isLoggedIn ? (
+              <VisibilityControl {...{ groups, visibilitySettings, onVisibiltyChange, username }} />
+            ) : (
+              <div
+                css={css`
+                  font-size: 12px;
+                  color: #9f9f9f;
+                `}
+              >
+                Please log in to add private and list comments
+              </div>
+            )}
+          </div>
+          <div css={[presets.row, { width: '100%', justifyContent: 'flex-end', marginTop: 15 }]}>
+            <Button type="submit" variant="contained" color="primary" size="small">
+              Submit
+            </Button>
           </div>
         </form>
       )}
@@ -211,8 +246,10 @@ const Tip: React.FC<TipProps> = ({
 
 const mapStateToProps = (state: RootState) => {
   const paperGroupsIds = state.paper.groupIds;
+  console.log(state.user.userData);
   return {
     isLoggedIn: !isEmpty(state.user.userData),
+    username: state.user.userData && state.user.userData.username,
     groups: state.user.groups.filter(g => paperGroupsIds.includes(g.id)),
     visibilitySettings: state.paper.commentVisibilty,
   };

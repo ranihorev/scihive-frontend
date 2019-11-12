@@ -255,6 +255,11 @@ const PapersList: React.FC<PapersListProps> = ({
                   Relevance
                 </MenuItem>
               )}
+              {(isLibraryMode || groupId) && (
+                <MenuItem css={filterMenuItemCss} value="date_added">
+                Date added
+              </MenuItem>
+              )}
             </Select>
           </FormControl>
           {(isLibraryMode || groupId) && !isEmpty(groups) && (

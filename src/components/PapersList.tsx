@@ -92,17 +92,18 @@ const PapersList: React.FC<PapersListProps> = ({
   const [hasMorePapers, setHasMorePapers] = React.useState(true);
   const [isLoading, setIsLoading] = React.useState(false);
   const isLibraryMode = match.path === '/library';
-
   const { groupId, authorId } = match.params;
+  const isLibraryOrList = isLibraryMode || Boolean(groupId);
+
   let groupName = getGroupName(inviteGroup ? [...groups, inviteGroup] : groups, groupId);
 
   const getAgeQuery = (queryParams: QueryParams) => {
     const isDefaultAgeToAll = isLibraryMode || queryParams.q || !isEmpty(match.params);
-    return queryParams.age || (isLibraryMode || isDefaultAgeToAll ? 'all' : 'week');
+    return queryParams.age || (isDefaultAgeToAll ? 'all' : 'week');
   };
 
   const getSortQuery = (queryParams: QueryParams) => {
-    return queryParams.sort || (queryParams.q ? 'score' : 'tweets');
+    return queryParams.sort || (queryParams.q ? 'score' : isLibraryOrList ? 'date_added' : 'tweets');
   };
 
   const loadPapers = (page: number) => {
@@ -255,14 +256,14 @@ const PapersList: React.FC<PapersListProps> = ({
                   Relevance
                 </MenuItem>
               )}
-              {(isLibraryMode || groupId) && (
+              {isLibraryOrList && (
                 <MenuItem css={filterMenuItemCss} value="date_added">
-                Date added
-              </MenuItem>
+                  Date added
+                </MenuItem>
               )}
             </Select>
           </FormControl>
-          {(isLibraryMode || groupId) && !isEmpty(groups) && (
+          {isLibraryOrList && !isEmpty(groups) && (
             <FormControl css={formControlCss}>
               <Select
                 value={groupId || ALL_LISTS}
@@ -311,13 +312,7 @@ const PapersList: React.FC<PapersListProps> = ({
           }
         >
           {papers.map(p => (
-            <PapersListItem
-              key={p._id}
-              paper={p}
-              groups={groups}
-              showAbstract={!(isLibraryMode || groupId)}
-              showMetadata={true}
-            />
+            <PapersListItem key={p._id} paper={p} groups={groups} showAbstract={!isLibraryOrList} showMetadata={true} />
           ))}
         </InfiniteScroll>
       </Grid>

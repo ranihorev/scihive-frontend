@@ -37,6 +37,14 @@ interface CommentProps {
   jumpToHighlight: () => void;
 }
 
+const actionIconCss = css({ fontSize: 12 });
+
+const ActionIconButton: React.FC<{ onClick: (e: React.MouseEvent) => void; name: string }> = ({ onClick, name }) => (
+  <IconButton onClick={onClick}>
+    <i className={name} css={actionIconCss} />
+  </IconButton>
+);
+
 const SidebarHighlightItem = React.forwardRef<HTMLDivElement, CommentProps>(
   ({ isFocused, highlight, removeHighlight, updateHighlight, jumpToHighlight }, ref) => {
     const { image, text } = highlight.content;
@@ -78,43 +86,7 @@ const SidebarHighlightItem = React.forwardRef<HTMLDivElement, CommentProps>(
         .catch(err => console.log(err.response));
     };
 
-    const imageDom = image ? (
-      <CardMedia
-        css={css`
-          height: 0;
-          padding-top: 56.25%;
-          border-bottom: solid 1px #bdbdbd;
-        `}
-        image={image}
-        title="screenshot"
-      />
-    ) : (
-      ''
-    );
     const textMaxLen = 50;
-    const textDom = text && (
-      <blockquote
-        css={css`
-          font-size: 0.7rem;
-          padding: 6px 6px 4px 6px;
-          margin: 0;
-          font-style: italic;
-          quotes: '\\201C''\\201D';
-          &:before {
-            content: open-quote;
-            margin-right: -2px;
-          }
-          &:after {
-            content: close-quote;
-            margin-left: -2px;
-          }
-        `}
-      >
-        {' '}
-        {text.slice(0, textMaxLen)}
-        {text.length > textMaxLen ? '...' : ''}{' '}
-      </blockquote>
-    );
 
     return (
       <div
@@ -127,26 +99,58 @@ const SidebarHighlightItem = React.forwardRef<HTMLDivElement, CommentProps>(
         ref={ref}
       >
         <Card
-          style={isFocused ? { backgroundColor: '#dde7ff' } : {}}
-          css={css`
-            transition: 0.8s background-color;
-            margin: 5px 8px;
-          `}
+          style={{ backgroundColor: isFocused ? '#e0e9ff' : '#f9f9f9' }}
+          css={{
+            transition: '0.8s background-color',
+            margin: '5px 8px',
+            boxShadow: '0px 1px 3px 0px rgba(0,0,0,0.12)',
+          }}
         >
-          <div
-            onClick={updateJumpTo}
-            css={css`
-              cursor: pointer;
-            `}
-          >
-            {imageDom}
-            {textDom}
-          </div>
           <CardContent
             css={css`
-              padding: 10px !important;
+              padding: 10px 10px 3px !important;
             `}
           >
+            <div
+              onClick={updateJumpTo}
+              css={css`
+                cursor: pointer;
+              `}
+            >
+              {image && (
+                <CardMedia
+                  css={css`
+                    height: 0;
+                    padding-top: 56.25%;
+                    border-bottom: solid 1px #bdbdbd;
+                  `}
+                  image={image}
+                  title="screenshot"
+                />
+              )}
+              {text && !highlight.comment.text && (
+                <blockquote
+                  css={css`
+                    font-size: 0.85rem;
+                    margin: 0;
+                    font-style: italic;
+                    quotes: '\\201C''\\201D';
+                    &:before {
+                      content: open-quote;
+                      margin-right: -2px;
+                    }
+                    &:after {
+                      content: close-quote;
+                      margin-left: -2px;
+                    }
+                  `}
+                >
+                  {' '}
+                  {text.slice(0, textMaxLen)}
+                  {text.length > textMaxLen ? '...' : ''}{' '}
+                </blockquote>
+              )}
+            </div>
             {editMode ? (
               <form onSubmit={updateComment}>
                 <TextField
@@ -166,6 +170,11 @@ const SidebarHighlightItem = React.forwardRef<HTMLDivElement, CommentProps>(
                       setTimeout(() => inp.focus(), 100);
                     }
                   }}
+                  css={{
+                    '.MuiInputBase-multiline': {
+                      padding: '9px 6px 7px',
+                    },
+                  }}
                 />
                 <Button type="submit" variant="contained" color="primary" size="small">
                   Save
@@ -177,47 +186,42 @@ const SidebarHighlightItem = React.forwardRef<HTMLDivElement, CommentProps>(
                 onClick={updateJumpTo}
                 css={css`
                   cursor: pointer;
+                  font-size: 0.85rem;
                 `}
               >
                 <TextLinkifyLatex text={highlight.comment.text} />
               </Typography>
             )}
             <div
-              color="textSecondary"
               css={css`
                 margin-top: 5px;
-                font-size: 0.8rem;
+                font-size: 0.75rem;
               `}
             >
               <div>
-                {highlight.user || 'Anonymous'}, {get_age(highlight.createdAt)}
+                <b>{highlight.user || 'Anonymous'}</b>, <small>{get_age(highlight.createdAt)}</small>
               </div>
             </div>
             <Grid
               container
               alignItems="center"
               css={css`
-                margin-top: 5px;
+                margin-top: 2px;
                 text-align: center;
                 display: flex;
                 button {
                   font-size: 14px;
                 }
+                margin-left: -5px;
               `}
             >
               <div>
-                <IconButton onClick={() => setShowReply(!showReply)}>
-                  <i className="fas fa-reply" />
-                </IconButton>
+                <ActionIconButton onClick={() => setShowReply(!showReply)} name="fas fa-reply" />
               </div>
               {highlight.canEdit ? (
                 <div>
-                  <IconButton onClick={() => setEditMode(!editMode)}>
-                    <i className="fas fa-pencil-alt" />
-                  </IconButton>
-                  <IconButton onClick={() => removeHighlight(highlight.id)}>
-                    <i className="far fa-trash-alt" />
-                  </IconButton>
+                  <ActionIconButton onClick={() => setEditMode(!editMode)} name="fas fa-pencil-alt" />
+                  <ActionIconButton onClick={() => removeHighlight(highlight.id)} name="far fa-trash-alt" />
                 </div>
               ) : (
                 ''
@@ -230,7 +234,7 @@ const SidebarHighlightItem = React.forwardRef<HTMLDivElement, CommentProps>(
                   `}
                 >
                   <Tooltip title={capitalize(highlight.visibility.type)} placement="top">
-                    <i className={visibiltyToIcon[highlight.visibility.type]} />
+                    <i className={visibiltyToIcon[highlight.visibility.type]} css={actionIconCss} />
                   </Tooltip>
                 </div>
               )}

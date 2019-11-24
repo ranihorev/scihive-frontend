@@ -1,6 +1,6 @@
 /** @jsx jsx */
 import { css, jsx } from '@emotion/core';
-import { Button, FormControl, MenuItem, Select, TextField } from '@material-ui/core';
+import { Button, MenuItem, Select, TextField } from '@material-ui/core';
 import { isEmpty } from 'lodash';
 import React from 'react';
 import { connect } from 'react-redux';

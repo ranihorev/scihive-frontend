@@ -5,7 +5,7 @@ import { isEmpty } from 'lodash';
 import * as queryString from 'query-string';
 import React from 'react';
 import { connect } from 'react-redux';
-import { RouteComponentProps, withRouter, Redirect } from 'react-router';
+import { RouteComponentProps, withRouter } from 'react-router';
 import { actions } from '../actions/papersList';
 import { Group, PaperListItem, PaperListRouterParams, RootState } from '../models';
 import { fetchPapers, RequestParams } from '../thunks';

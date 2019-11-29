@@ -77,16 +77,14 @@ const MobileMenuRender: React.FC<MobileMenuProps> = ({
         onClose={handleMobileMenuClose}
       >
         {submenuChildrenWithClose}
-        {isLoggedIn && (
-          <React.Fragment>
-            <Link to="/library" css={simpleLink}>
-              <MenuItem onClick={handleMobileMenuClose}>My Library</MenuItem>
-            </Link>
-            <Link to="/lists" css={simpleLink}>
-              <MenuItem onClick={handleMobileMenuClose}>My Lists</MenuItem>
-            </Link>
-          </React.Fragment>
-        )}
+        {isLoggedIn && [
+          <Link to="/library" css={simpleLink} key="library">
+            <MenuItem onClick={handleMobileMenuClose}>My Library</MenuItem>
+          </Link>,
+          <Link to="/lists" css={simpleLink} key="lists">
+            <MenuItem onClick={handleMobileMenuClose}>My Lists</MenuItem>
+          </Link>,
+        ]}
         <Divider />
         <a
           href="https://chrome.google.com/webstore/detail/scihive/dijdhkcfdaocpepndegmbkgphbpomdai"
@@ -251,9 +249,6 @@ const mapDispatchToProps = (dispatch: Dispatch) => {
   };
 };
 
-const withRedux = connect(
-  mapStateToProps,
-  mapDispatchToProps,
-);
+const withRedux = connect(mapStateToProps, mapDispatchToProps);
 export const DesktopMenu = withRedux(DesktopMenuRender);
 export const MobileMenu = withRedux(MobileMenuRender);

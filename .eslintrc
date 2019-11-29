@@ -12,7 +12,7 @@
     "no-underscore-dangle": 0,
     "import/imports-first": ["error", "absolute-first"],
     "import/newline-after-import": "error",
-    "react/destructuring-assignment": "never",
+    "react/destructuring-assignment": 0,
     "jsx-a11y/click-events-have-key-events": 0,
     "jsx-a11y/interactive-supports-focus": 0,
     "camelcase": "off",

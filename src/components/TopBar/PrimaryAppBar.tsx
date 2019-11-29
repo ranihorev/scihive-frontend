@@ -1,11 +1,14 @@
-import React from 'react';
+/** @jsx jsx */
+import { jsx } from '@emotion/core';
 import AppBar from '@material-ui/core/AppBar/index';
+import { Theme, withStyles } from '@material-ui/core/styles/index';
 import Toolbar from '@material-ui/core/Toolbar/index';
-import { withStyles, Theme } from '@material-ui/core/styles/index';
-import { Link } from 'react-router-dom';
+import React from 'react';
 import Headroom from 'react-headroom';
+import { Link } from 'react-router-dom';
+import { DesktopMenu, MobileMenu } from './BaseRightMenu';
+import { ReactComponent as Logo } from './logoWithText.svg';
 import SearchBar from './SearchBar';
-import { MobileMenu, DesktopMenu } from './BaseRightMenu';
 
 const styles = (theme: Theme) => ({
   root: {
@@ -19,21 +22,11 @@ const styles = (theme: Theme) => ({
   grow: {
     flexGrow: 1,
   },
-  home: {
-    // textTransform: 'none',
-    textDecoration: 'none',
-    color: 'inherit',
-    margin: 'auto 0',
-  },
   title: {
     display: 'none',
     [theme.breakpoints.up('sm')]: {
       display: 'block',
     },
-  },
-  leftMenu: {
-    display: 'flex',
-    flexGrow: 1,
   },
   sectionDesktop: {
     display: 'none',
@@ -62,9 +55,9 @@ const PrimaryAppBar: React.FC<Props> = ({ classes, desktopItems, mobileRootItems
     <Headroom>
       <AppBar position="relative" style={{ backgroundColor: '#36a0f5', color: '#ffffff' }}>
         <Toolbar classes={{ gutters: classes.gutters }} variant="dense">
-          <div className={classes.leftMenu}>
-            <Link to="/" className={classes.home}>
-              SciHive
+          <div css={{ display: 'flex', flexGrow: 1, flexDirection: 'row', alignItems: 'center' }}>
+            <Link to="/" style={{ display: 'flex' }}>
+              <Logo height={26} />
             </Link>
             <SearchBar />
           </div>

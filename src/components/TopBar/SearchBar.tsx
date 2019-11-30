@@ -141,9 +141,7 @@ const SearchBar: React.FC<Props> = ({ classes }) => {
   return (
     <Autosuggest
       {...autosuggestProps}
-      renderInputComponent={inputProps => {
-        const { classes, inputRef = () => {}, ref, ...other } = inputProps;
-
+      renderInputComponent={({onChange, onBlur, color, ...inputProps}) => {
         return (
           <div className={classes.search}>
             <div className={classes.searchIcon}>
@@ -155,11 +153,9 @@ const SearchBar: React.FC<Props> = ({ classes }) => {
                 root: classes.inputRoot,
                 input: classes.inputInput,
               }}
-              inputRef={node => {
-                ref(node);
-                inputRef(node);
-              }}
-              {...other as any}
+              onChange={e => onChange(e, {newValue: e.target.value, method: 'type'})}
+              onBlur={onBlur}
+              {...inputProps}
             />
           </div>
         );
@@ -188,7 +184,6 @@ const SearchBar: React.FC<Props> = ({ classes }) => {
         }
       }}
       inputProps={{
-        classes,
         placeholder: 'Search',
         value,
         onChange: handleChange,

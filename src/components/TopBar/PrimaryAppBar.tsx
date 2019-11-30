@@ -4,10 +4,13 @@ import AppBar from '@material-ui/core/AppBar/index';
 import { Theme, withStyles } from '@material-ui/core/styles/index';
 import Toolbar from '@material-ui/core/Toolbar/index';
 import React from 'react';
+import { isMobile } from 'react-device-detect';
 import Headroom from 'react-headroom';
 import { Link } from 'react-router-dom';
+import { themePalette } from '../../utils/presets';
 import { DesktopMenu, MobileMenu } from './BaseRightMenu';
-import { ReactComponent as Logo } from './logoWithText.svg';
+import { ReactComponent as Logo } from './logoWhite.svg';
+import { ReactComponent as LogoWithText } from './logoWithText.svg';
 import SearchBar from './SearchBar';
 
 const styles = (theme: Theme) => ({
@@ -53,11 +56,14 @@ interface Props {
 const PrimaryAppBar: React.FC<Props> = ({ classes, desktopItems, mobileRootItems, mobileSubItems }) => {
   return (
     <Headroom>
-      <AppBar position="relative" style={{ backgroundColor: '#36a0f5', color: '#ffffff' }}>
+      <AppBar
+        position="relative"
+        style={{ backgroundColor: themePalette.primary.main, color: themePalette.primary.contrastText }}
+      >
         <Toolbar classes={{ gutters: classes.gutters }} variant="dense">
           <div css={{ display: 'flex', flexGrow: 1, flexDirection: 'row', alignItems: 'center' }}>
             <Link to="/" style={{ display: 'flex' }}>
-              <Logo height={26} />
+              {isMobile ? <Logo height={26} /> : <LogoWithText height={26} />}
             </Link>
             <SearchBar />
           </div>

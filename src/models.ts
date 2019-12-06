@@ -2,6 +2,8 @@ import { PDFDocumentProxy, TextContentItem } from 'pdfjs-dist';
 import { RouteComponentProps } from 'react-router';
 import { GroupColor } from './utils/presets';
 
+export type OptionalExceptFor<T, TRequired extends keyof T> = Partial<T> & Pick<T, TRequired>;
+
 export interface T_LTWH {
   left: number;
   top: number;
@@ -80,11 +82,11 @@ export interface T_Highlight extends T_NewHighlight {
 
 export type TempHighlight = OptionalExceptFor<T_NewHighlight, 'position'>;
 
+export type T_ExtendedHighlight = T_Highlight | TempHighlight;
+
 export const isValidHighlight = (highlight: T_Highlight | TempHighlight): highlight is T_Highlight => {
   return highlight.hasOwnProperty('id');
 };
-
-export type OptionalExceptFor<T, TRequired extends keyof T> = Partial<T> & Pick<T, TRequired>;
 
 export interface TipObject {
   highlight: T_Highlight;

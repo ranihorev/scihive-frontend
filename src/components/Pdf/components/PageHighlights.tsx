@@ -12,6 +12,7 @@ import {
   T_LTWH,
   T_Position,
   T_ScaledPosition,
+  T_ExtendedHighlight,
 } from '../../../models';
 import { presets } from '../../../utils';
 import { Popup } from '../../Popup';
@@ -135,7 +136,7 @@ const SingleHighlight: React.FC<SingleHighlight> = React.memo(
 );
 
 interface AllHighlights {
-  highlights: (T_Highlight | TempHighlight)[];
+  highlights: T_ExtendedHighlight[];
   screenshot: (boundingRect: T_LTWH) => string;
   onHighlightClick: (id: string) => void;
   scaledPositionToViewport: (position: T_ScaledPosition) => T_Position;

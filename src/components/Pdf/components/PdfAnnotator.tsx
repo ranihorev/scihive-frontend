@@ -17,6 +17,7 @@ import {
   JumpToData,
   RootState,
   TempHighlight,
+  T_ExtendedHighlight,
   T_Highlight,
   T_LTWH,
   T_NewHighlight,
@@ -285,7 +286,7 @@ const PdfAnnotator: React.FC<PdfAnnotatorProps> = ({
 
   const groupHighlightsByPage = () => {
     const allHighlight = tempHighlight ? [...highlights, tempHighlight] : highlights;
-    const highlightsByPage: { [page: number]: (T_Highlight | TempHighlight)[] } = {};
+    const highlightsByPage: { [page: number]: T_ExtendedHighlight[] } = {};
     for (const h of allHighlight) {
       const { pageNumber } = h.position;
       highlightsByPage[pageNumber] = highlightsByPage[pageNumber] || [];
@@ -382,18 +383,15 @@ const PdfAnnotator: React.FC<PdfAnnotatorProps> = ({
     linkService.current.setDocument(pdfDocument);
     linkService.current.setViewer(viewer.current);
 
-    if (containerNode.current) {
-      containerNode.current.addEventListener('pagesinit', onDocumentReady);
-      containerNode.current.addEventListener('textlayerrendered', onTextLayerRendered);
-    }
+    document.addEventListener('pagesinit', onDocumentReady);
+    document.addEventListener('textlayerrendered', onTextLayerRendered);
+
     document.addEventListener('selectionchange', onTextSelectionChange);
     document.addEventListener('keydown', handleKeyDown);
 
     return () => {
-      if (containerNode.current) {
-        containerNode.current.removeEventListener('pagesinit', onDocumentReady);
-        containerNode.current.removeEventListener('textlayerrendered', onTextLayerRendered);
-      }
+      document.removeEventListener('pagesinit', onDocumentReady);
+      document.removeEventListener('textlayerrendered', onTextLayerRendered);
       document.removeEventListener('selectionchange', onTextSelectionChange);
       document.removeEventListener('keydown', handleKeyDown);
     };
@@ -545,9 +543,6 @@ const mapDispatchToProps = (dispatch: Dispatch) => {
     },
   };
 };
-const withRedux = connect(
-  mapStateToProps,
-  mapDispatchToProps,
-);
+const withRedux = connect(mapStateToProps, mapDispatchToProps);
 
 export default withRedux(PdfAnnotator);

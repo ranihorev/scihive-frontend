@@ -246,7 +246,6 @@ const Tip: React.FC<TipProps> = ({
 
 const mapStateToProps = (state: RootState) => {
   const paperGroupsIds = state.paper.groupIds;
-  console.log(state.user.userData);
   return {
     isLoggedIn: !isEmpty(state.user.userData),
     username: state.user.userData && state.user.userData.username,

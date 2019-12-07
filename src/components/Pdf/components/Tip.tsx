@@ -1,6 +1,6 @@
 /** @jsx jsx */
 import { css, jsx } from '@emotion/core';
-import { Button, MenuItem, Select, TextField } from '@material-ui/core';
+import { Button, Select, TextField } from '@material-ui/core';
 import { isEmpty } from 'lodash';
 import React from 'react';
 import { connect } from 'react-redux';
@@ -254,9 +254,6 @@ const mapDispatchToProps = (dispatch: Dispatch) => {
     },
   };
 };
-const withRedux = connect(
-  mapStateToProps,
-  mapDispatchToProps,
-);
+const withRedux = connect(mapStateToProps, mapDispatchToProps);
 
 export default withRedux(Tip);

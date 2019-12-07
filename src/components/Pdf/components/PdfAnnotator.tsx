@@ -126,6 +126,7 @@ const PdfAnnotator: React.FC<PdfAnnotatorProps> = ({
   const pagesToRenderAcronyms = React.useRef<number[]>([]);
   const [firstPageRendered, setFirstPageRendered] = React.useState(false);
   const [acronymPositions, setAcronymPositions] = React.useState<AcronymPositions>({});
+  const canZoom = React.useRef(true);
 
   const viewer = React.useRef<PDFViewer>(null);
   const linkService = React.useRef<PDFLinkService>(null);
@@ -331,6 +332,11 @@ const PdfAnnotator: React.FC<PdfAnnotatorProps> = ({
   };
 
   const onTextLayerRendered = (event: any) => {
+    // TODO: clear previous timeout and remove timeout on unmount
+    setTimeout(() => {
+      // This hack helps us ensure the the user doesn't zoom in/out too fast
+      canZoom.current = true;
+    }, 200);
     pagesToRenderAcronyms.current.push(event.detail.pageNumber - 1);
     setRequestRender(true);
     setFirstPageRendered(true);
@@ -360,7 +366,10 @@ const PdfAnnotator: React.FC<PdfAnnotatorProps> = ({
   };
 
   const zoom = (sign: number) => {
-    viewer.current.currentScaleValue = parseFloat(viewer.current.currentScaleValue) + sign * 0.05;
+    if (canZoom.current) {
+      viewer.current.currentScaleValue = parseFloat(viewer.current.currentScaleValue) + sign * 0.05;
+    }
+    canZoom.current = false;
     // renderHighlights();
   };
 

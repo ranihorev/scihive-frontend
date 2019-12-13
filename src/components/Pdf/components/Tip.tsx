@@ -1,6 +1,6 @@
 /** @jsx jsx */
 import { css, jsx } from '@emotion/core';
-import { Button, MenuItem, Select, TextField } from '@material-ui/core';
+import { Button, Select, TextField } from '@material-ui/core';
 import { isEmpty } from 'lodash';
 import React from 'react';
 import { connect } from 'react-redux';
@@ -60,37 +60,30 @@ const VisibilityControl: React.FC<VisibilityControlProps> = ({
           }
           css={{ marginLeft: 5, minWidth: 120, '& .MuiSelect-select': { fontSize } }}
           onChange={onVisibiltyChange}
+          native={true}
         >
-          <MenuItem value="public" css={{ fontSize }}>
-            Public
-          </MenuItem>
-          <MenuItem value="private" css={{ fontSize }}>
-            Private
-          </MenuItem>
+          <option value="public">Public</option>
+          <option value="private">Private</option>
           {groups.map(g => (
-            <MenuItem key={g.id} value={g.id} css={{ fontSize }}>
+            <option key={g.id} value={g.id}>
               {g.name}
-            </MenuItem>
+            </option>
           ))}
         </Select>
       </div>
-      {['anonymous', 'public'].includes(visibilitySettings.type) && (
-        <div css={[presets.row, { alignItems: 'center', marginTop: 5 }]}>
-          <div css={{ minWidth: textMinWidth }}>Share as:</div>
-          <Select
-            value={visibilitySettings.type}
-            css={{ marginLeft: 5, minWidth: 120, '& .MuiSelect-select': { fontSize } }}
-            onChange={onVisibiltyChange}
-          >
-            <MenuItem value="public" css={{ fontSize }}>
-              {username}
-            </MenuItem>
-            <MenuItem value="anonymous" css={{ fontSize }}>
-              Anonymous
-            </MenuItem>
-          </Select>
-        </div>
-      )}
+
+      <div css={[presets.row, { alignItems: 'center', marginTop: 5 }]}>
+        <div css={{ minWidth: textMinWidth }}>Share as:</div>
+        <Select
+          value={visibilitySettings.type}
+          css={{ marginLeft: 5, minWidth: 120, '& .MuiSelect-select': { fontSize } }}
+          onChange={onVisibiltyChange}
+          native={true}
+        >
+          <option value="public">{username}</option>
+          {['anonymous', 'public'].includes(visibilitySettings.type) && <option value="anonymous">Anonymous</option>}
+        </Select>
+      </div>
     </div>
   );
 };
@@ -261,9 +254,6 @@ const mapDispatchToProps = (dispatch: Dispatch) => {
     },
   };
 };
-const withRedux = connect(
-  mapStateToProps,
-  mapDispatchToProps,
-);
+const withRedux = connect(mapStateToProps, mapDispatchToProps);
 
 export default withRedux(Tip);

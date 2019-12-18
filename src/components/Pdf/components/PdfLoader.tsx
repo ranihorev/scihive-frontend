@@ -36,19 +36,17 @@ class PdfLoader extends React.Component<Props, State> {
   componentDidMount() {
     const { url } = this.props;
     const doc = getDocument(url);
-    doc.promise.then((pdfDocument: PDFDocumentProxy) => {
-      this.props.setDocument(pdfDocument);
-      extractSections(pdfDocument, this.props.setSections);
-      this.setState({
-        pdfDocument,
-        status: STATUS.SUCCESS,
-      });
-    });
-    // .catch(() => {
-    //   this.setState({
-    //     status: STATUS.FAILED,
-    //   });
-    // });
+    doc.promise.then(
+      (pdfDocument: PDFDocumentProxy) => {
+        this.props.setDocument(pdfDocument);
+        extractSections(pdfDocument, this.props.setSections);
+        this.setState({
+          pdfDocument,
+          status: STATUS.SUCCESS,
+        });
+      },
+      reason => console.error(reason),
+    );
   }
 
   render() {
@@ -77,9 +75,6 @@ const mapDispatchToProps = (dispatch: Dispatch) => ({
   },
 });
 
-const withRedux = connect(
-  undefined,
-  mapDispatchToProps,
-);
+const withRedux = connect(undefined, mapDispatchToProps);
 
 export default withRedux(PdfLoader);

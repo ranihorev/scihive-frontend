@@ -221,3 +221,15 @@ export interface RootState {
     inviteGroup?: Group;
   };
 }
+
+interface Author {
+  name: string;
+}
+
+export interface FileMetadata {
+  md5: string;
+  title: string;
+  abstract: string;
+  authors: Author[];
+  date: Date | null;
+}

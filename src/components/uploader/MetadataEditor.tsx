@@ -1,38 +1,234 @@
 /** @jsx jsx */
 import { jsx } from '@emotion/core';
-import { TextField } from '@material-ui/core';
+import MomentUtils from '@date-io/moment';
+import { Button, IconButton, TextField, Typography } from '@material-ui/core';
+import CloseIcon from '@material-ui/icons/Close';
+import AddIcon from '@material-ui/icons/Add';
+import { KeyboardDatePicker, MuiPickersUtilsProvider } from '@material-ui/pickers';
+import produce from 'immer';
 import React from 'react';
-import { FileMetadata } from './models';
+import { FileMetadata } from '../../models';
+import { uploadPaperDetails } from '../../thunks';
+import { connect } from 'react-redux';
+import { presets } from '../../utils';
+import moment, { Moment } from 'moment';
+import { useHistory } from 'react-router';
 
-const initArgs: FileMetadata = {
-  id: 'dfsdfsdf',
-  title: 'This is a great title for paper',
-  abstract: 'This is a very very long summary of paper. This is a very very long summary of paper.',
-  authors: [{ first_name: 'John', last_name: 'Bla' }, { first_name: 'Jim', last_name: 'Jones' }],
-  date: new Date(),
+interface DispatchProps {
+  submitPaperDetails: (data: FileMetadata, onSuccess: (paperId: string) => void) => void;
+}
+
+interface AllProps extends DispatchProps {
+  onClose: () => void;
+  metadata: FileMetadata;
+}
+
+const removeTimezone = (date: Date | null) => {
+  if (date !== null) {
+    const m = moment(date);
+    return m.subtract(m.utcOffset(), 'minutes').toDate();
+  }
+  return null;
 };
-export const MetadataEditor: React.FC = () => {
-  const [metadata, setMetadata] = React.useState(initArgs);
-  const setMetaDataHelper = <T extends keyof FileMetadata>(key: T, value: FileMetadata[T]) => {
-    return setMetadata({ ...metadata, [key]: value });
+
+class UTCUtils extends MomentUtils {
+  format = (value: Moment, formatString: string) => {
+    return moment(value)
+      .utc()
+      .format(formatString);
   };
+}
+
+const MetadataEditorRender: React.FC<AllProps> = ({ submitPaperDetails, onClose, metadata: inputMetadata }) => {
+  const [metadata, setMetadata] = React.useState({
+    ...inputMetadata,
+    date: removeTimezone(inputMetadata.date),
+  });
+  const [isDatePickerOpen, setIsDatePickerOpen] = React.useState(false);
+  const isFirstLoad = React.useRef(false);
+  const history = useHistory();
+  const [secondCancel, setSecondCancel] = React.useState(false);
+
+  React.useEffect(() => {
+    setMetadata(inputMetadata);
+  }, [inputMetadata]);
+
+  React.useEffect(() => {
+    if (secondCancel) {
+      const timeoutId = setTimeout(() => {
+        setSecondCancel(false);
+      }, 5000);
+      return () => {
+        clearTimeout(timeoutId);
+      };
+    }
+    return;
+  }, [secondCancel]);
+
+  React.useEffect(() => {
+    isFirstLoad.current = false;
+  }, [metadata.authors]);
+
   return (
-    <div>
-      <TextField
-        required
-        id="title"
-        label="Title"
-        value={metadata.title}
-        margin="normal"
-        multiline
-        rowsMax="3"
-        css={{ width: '100%' }}
-        onChange={e => {
-          setMetaDataHelper('title', e.target.value);
-        }}
-      />
-      <div>Authors</div>
-      <TextField required id="title" label="Title" value="test" margin="normal" />
-    </div>
+    <form
+      onSubmit={e => {
+        e.preventDefault();
+        submitPaperDetails(metadata, (paperId: string) => {
+          history.push(`/paper/${paperId}`);
+        });
+      }}
+      css={{ display: 'flex', flexDirection: 'column', overflowY: 'hidden' }}
+    >
+      <div css={{ color: '#4a4a4a', display: 'flex', flexDirection: 'column', overflowY: 'auto' }}>
+        {/* Title */}
+        <div>
+          <Typography variant="h6">Title</Typography>
+          <TextField
+            required
+            value={metadata.title}
+            margin="dense"
+            multiline
+            fullWidth
+            rowsMax="3"
+            onChange={e => {
+              setMetadata({ ...metadata, title: e.target.value });
+            }}
+          />
+        </div>
+        {/* Date */}
+        <div css={{ marginTop: 24 }}>
+          <Typography variant="h6">Date published</Typography>
+          <MuiPickersUtilsProvider utils={UTCUtils}>
+            <KeyboardDatePicker
+              disableToolbar
+              disableFuture
+              required
+              variant="inline"
+              format="MM/DD/YYYY"
+              margin="dense"
+              open={isDatePickerOpen}
+              value={metadata.date}
+              onChange={(date, value) => {
+                setMetadata({ ...metadata, date: date !== null ? date.utc().toDate() : null });
+                setIsDatePickerOpen(false);
+              }}
+              KeyboardButtonProps={{
+                onClickCapture: () => {
+                  setIsDatePickerOpen(true);
+                },
+                'aria-label': 'change date',
+              }}
+              PopoverProps={{
+                onClose: () => setIsDatePickerOpen(false),
+              }}
+            />
+          </MuiPickersUtilsProvider>
+        </div>
+        {/* Authors */}
+        <div css={{ marginTop: 24 }}>
+          <div css={[presets.row, { alignItems: 'center' }]}>
+            <Typography variant="h6">Authors</Typography>
+            <IconButton
+              color="inherit"
+              size="small"
+              component="div"
+              css={{ height: 'fit-content', marginLeft: 4 }}
+              onClick={() => {
+                isFirstLoad.current = true;
+                setMetadata(
+                  produce(metadata, draft => {
+                    draft.authors.push({ name: '' });
+                    return draft;
+                  }),
+                );
+              }}
+            >
+              <AddIcon css={{ fontSize: 14 }} />
+            </IconButton>
+          </div>
+          {metadata.authors.map((author, index) => {
+            return (
+              <div key={index} css={{ display: 'flex', flexDirection: 'row', alignItems: 'center' }}>
+                <TextField
+                  required
+                  autoFocus={index === metadata.authors.length - 1 && isFirstLoad.current}
+                  id="title"
+                  value={author.name}
+                  css={{ width: 200 }}
+                  margin="dense"
+                  onChange={e => {
+                    setMetadata(
+                      produce(metadata, draft => {
+                        draft.authors[index].name = e.target.value;
+                      }),
+                    );
+                  }}
+                />
+                <IconButton
+                  color="inherit"
+                  size="small"
+                  component="div"
+                  onClick={() => {
+                    setMetadata(
+                      produce(metadata, draft => {
+                        draft.authors.splice(index, 1);
+                        return draft;
+                      }),
+                    );
+                  }}
+                >
+                  <CloseIcon css={{ fontSize: 14 }} />
+                </IconButton>
+              </div>
+            );
+          })}
+        </div>
+        {/* Abstract */}
+        <div css={{ marginTop: 24 }}>
+          <Typography variant="h6">Abstract</Typography>
+          <TextField
+            required
+            fullWidth
+            value={metadata.abstract}
+            margin="dense"
+            multiline
+            onChange={e => {
+              setMetadata({ ...metadata, abstract: e.target.value });
+            }}
+          />
+        </div>
+      </div>
+      <div css={{ marginTop: 24, display: 'flex', flexDirection: 'row', justifyContent: 'space-between' }}>
+        <Button
+          onClick={() => {
+            if (secondCancel) {
+              onClose();
+            } else {
+              setSecondCancel(true);
+            }
+          }}
+          variant="outlined"
+          color="secondary"
+          css={{ width: 120, paddingLeft: 5, paddingRight: 5 }}
+        >
+          {secondCancel ? 'Are you sure?' : 'Cancel'}
+        </Button>
+        <Button type="submit" variant="contained" color="primary" css={{ width: 120 }}>
+          Save
+        </Button>
+      </div>
+    </form>
   );
 };
+
+const mapDispatchToProps = (dispatch: RTDispatch): DispatchProps => {
+  return {
+    submitPaperDetails: (data, onSuccess) => {
+      dispatch(uploadPaperDetails(data, onSuccess));
+    },
+  };
+};
+
+const withRedux = connect(null, mapDispatchToProps);
+
+export const MetadataEditor = withRedux(MetadataEditorRender);

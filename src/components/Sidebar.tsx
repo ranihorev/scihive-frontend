@@ -32,6 +32,7 @@ const tabCss = css`
   min-width: 40px;
   min-height: 40px;
   padding: 6px 10px;
+  font-weight: 400;
 `;
 
 type Tab = 'Comments' | 'Sections';
@@ -123,9 +124,6 @@ const mapDispatchToProps = (dispatch: Dispatch) => ({
   setSelectedTab: (tab: Tab) => dispatch(actions.setSidebarTab(tab)),
 });
 
-const withRedux = connect(
-  mapStateToProps,
-  mapDispatchToProps,
-);
+const withRedux = connect(mapStateToProps, mapDispatchToProps);
 
 export const Sidebar = withRedux(SidebarRender);

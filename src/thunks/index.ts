@@ -1,10 +1,12 @@
 import axios from 'axios';
 import { Dispatch } from 'redux';
 import { actions } from '../actions';
+import { FileMetadata } from '../models';
 import { notifyOnNewGroup } from '../notifications/newGroup';
 import { getGroups, getIsLoggedIn } from '../selectors/user';
 import { eventsGenerator } from '../utils';
 import { GroupColor } from '../utils/presets';
+import { toast } from 'react-toastify';
 
 export const loadGroups = (groupId: string | undefined, onSuccess: () => void) => async (
   dispatch: RTDispatch,
@@ -159,4 +161,19 @@ export const fetchPapers = ({
       });
   };
   fetchHelper();
+};
+
+export const uploadPaperDetails = (details: FileMetadata, onSuccess: (paperId: string) => void) => async (
+  dispatch: Dispatch,
+  getState: GetState,
+) => {
+  try {
+    const response = await axios.patch('/new_paper/add', details);
+    onSuccess(response.data.paper_id);
+  } catch (e) {
+    console.error(e.response?.data?.message);
+    toast.error(`Failed to upload paper details. Please try again - ${e.message}`, {
+      autoClose: 3000,
+    });
+  }
 };

@@ -75,8 +75,11 @@ export const mqMax = (bp: keyof typeof breakpoints) => `@media (max-width: ${bre
 
 export const modalCss = css`
   position: absolute;
+  display: flex;
+  flex-direction: column;
   width: 350px;
-  max-width: 90%;
+  max-width: 90vw;
+  max-height: 80vh;
   background-color: white;
   box-shadow: 0px 3px 5px -1px rgba(0, 0, 0, 0.2), 0px 5px 8px 0px rgba(0, 0, 0, 0.14),
     0px 1px 14px 0px rgba(0, 0, 0, 0.12);

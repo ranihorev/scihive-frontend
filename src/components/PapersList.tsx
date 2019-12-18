@@ -13,6 +13,7 @@ import * as presets from '../utils/presets';
 import GroupShare from './GroupShare';
 import InfiniteScroll from './InfiniteScroll';
 import PapersListItem from './PapersListItem';
+import { FileUploader } from './uploader';
 
 const formControlCss = css({
   margin: '8px 8px 8px 0px',
@@ -316,6 +317,7 @@ const PapersList: React.FC<PapersListProps> = ({
           ))}
         </InfiniteScroll>
       </Grid>
+      <FileUploader />
     </div>
   );
 };
@@ -346,9 +348,6 @@ const mapDispatchToProps = (dispatch: RTDispatch): PapersListDispatchProps => ({
   },
 });
 
-const withRedux = connect(
-  mapStateToProps,
-  mapDispatchToProps,
-);
+const withRedux = connect(mapStateToProps, mapDispatchToProps);
 
 export default withRedux(withRouter(PapersList));

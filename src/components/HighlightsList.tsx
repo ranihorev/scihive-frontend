@@ -142,13 +142,11 @@ const HighlightsList: React.FC<CommentsListProps> = ({
           justifyContent: 'space-between',
           alignItems: 'center',
           position: 'absolute',
-          width: '100%',
-          left: 0,
-          padding: '0 3px',
-          bottom: 7,
-          '@media (max-width: 576px)': {
-            bottom: 5,
-          },
+          backgroundColor: 'rgba(255, 255, 255, 0.9)',
+          left: 5,
+          right: 5,
+          bottom: 0,
+          paddingBottom: 5,
         }}
       >
         <div css={{ display: 'flex', flexDirection: 'row', fontSize: 12, alignItems: 'center', color: COLORS.grey }}>

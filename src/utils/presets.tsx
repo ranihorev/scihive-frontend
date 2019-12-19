@@ -90,6 +90,10 @@ export const modalCss = css`
   transform: translate(-50%, -50%);
 `;
 
+export const COLORS = {
+  grey: 'rgba(0, 0, 0, 0.54)',
+};
+
 export const highlightBackgroundColor = {
   normal: 'rgba(255, 226, 143, 0.8)',
   active: '#ff4141',

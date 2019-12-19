@@ -1,24 +1,16 @@
 /** @jsx jsx */
 import { css, jsx } from '@emotion/core';
-import {
-  Button,
-  Card,
-  CardContent,
-  CardMedia,
-  Grid,
-  IconButton,
-  TextField,
-  Tooltip,
-  Typography,
-} from '@material-ui/core';
+import { Card, CardContent, CardMedia, Grid, IconButton, Tooltip, Typography } from '@material-ui/core';
 import axios from 'axios';
 import React from 'react';
 import useReactRouter from 'use-react-router';
-import { T_Highlight, VisibilityType } from '../models';
-import NewReply from './NewReply';
-import Replies from './Replies';
-import { TextLinkifyLatex } from './TextLinkifyLatex';
-import get_age from './timeUtils';
+import { T_Highlight, VisibilityType } from '../../models';
+import NewReply from '../NewReply';
+import Replies from '../Replies';
+import { TextLinkifyLatex } from '../TextLinkifyLatex';
+import get_age from '../timeUtils';
+import { EditComment } from './editComment';
+import { COLORS } from '../../utils/presets';
 
 const visibiltyToIcon: { [key in VisibilityType]: string } = {
   private: 'fas fa-user-shield',
@@ -37,7 +29,7 @@ interface CommentProps {
   jumpToHighlight: () => void;
 }
 
-const actionIconCss = css({ fontSize: 12 });
+const actionIconCss = css({ fontSize: 12, color: COLORS.grey });
 
 const ActionIconButton: React.FC<{ onClick: (e: React.MouseEvent) => void; name: string }> = ({ onClick, name }) => (
   <IconButton onClick={onClick}>
@@ -45,11 +37,11 @@ const ActionIconButton: React.FC<{ onClick: (e: React.MouseEvent) => void; name:
   </IconButton>
 );
 
-const SidebarHighlightItem = React.forwardRef<HTMLDivElement, CommentProps>(
+export const SidebarHighlightItem = React.forwardRef<HTMLDivElement, CommentProps>(
   ({ isFocused, highlight, removeHighlight, updateHighlight, jumpToHighlight }, ref) => {
     const { image, text } = highlight.content;
+    const [isHover, setIsHover] = React.useState(false);
     const [editMode, setEditMode] = React.useState(false);
-    const [commentText, setCommentText] = React.useState(highlight.comment.text);
     const [showReply, setShowReply] = React.useState(false);
     const {
       history,
@@ -61,11 +53,12 @@ const SidebarHighlightItem = React.forwardRef<HTMLDivElement, CommentProps>(
       history.push({ hash: `highlight-${highlight.id}` });
     };
 
-    const updateComment = (e: React.FormEvent) => {
+    const updateComment = (e: React.FormEvent, newText: string) => {
+      console.log(e);
       e.preventDefault();
       axios
         .patch(`/paper/${params.PaperId}/comment/${highlight.id}`, {
-          comment: commentText,
+          comment: newText,
         })
         .then(res => {
           updateHighlight(res.data.comment);
@@ -87,6 +80,7 @@ const SidebarHighlightItem = React.forwardRef<HTMLDivElement, CommentProps>(
     };
 
     const textMaxLen = 50;
+    const hasCommentText = Boolean(highlight.comment.text);
 
     return (
       <div
@@ -105,6 +99,8 @@ const SidebarHighlightItem = React.forwardRef<HTMLDivElement, CommentProps>(
             margin: '5px 8px',
             boxShadow: '0px 1px 3px 0px rgba(0,0,0,0.12)',
           }}
+          onMouseEnter={() => setIsHover(true)}
+          onMouseLeave={() => setIsHover(false)}
         >
           <CardContent
             css={css`
@@ -128,11 +124,12 @@ const SidebarHighlightItem = React.forwardRef<HTMLDivElement, CommentProps>(
                   title="screenshot"
                 />
               )}
-              {text && !highlight.comment.text && (
+              {text && !hasCommentText && (
                 <blockquote
                   css={css`
-                    font-size: 0.85rem;
+                    font-size: 0.7rem;
                     margin: 0;
+                    margin-bottom: 6px;
                     font-style: italic;
                     quotes: '\\201C''\\201D';
                     &:before {
@@ -152,93 +149,70 @@ const SidebarHighlightItem = React.forwardRef<HTMLDivElement, CommentProps>(
               )}
             </div>
             {editMode ? (
-              <form onSubmit={updateComment}>
-                <TextField
-                  name="comment"
-                  label="Your Comment"
-                  multiline
-                  margin="normal"
-                  variant="outlined"
-                  value={commentText}
-                  onKeyDown={e => {
-                    if (e.key === 'Escape') setEditMode(false);
-                  }}
-                  onChange={event => setCommentText(event.target.value)}
-                  style={{ width: '100%' }}
-                  inputRef={inp => {
-                    if (inp) {
-                      setTimeout(() => inp.focus(), 100);
-                    }
-                  }}
-                  css={{
-                    '.MuiInputBase-multiline': {
-                      padding: '9px 6px 7px',
-                    },
-                  }}
-                />
-                <Button type="submit" variant="contained" color="primary" size="small">
-                  Save
-                </Button>
-              </form>
+              <EditComment onCancel={() => setEditMode(false)} highlight={highlight} onUpdate={updateComment} />
             ) : (
               <Typography
                 component="div"
                 onClick={updateJumpTo}
                 css={css`
                   cursor: pointer;
-                  font-size: 0.85rem;
+                  font-size: 0.8rem;
                 `}
               >
                 <TextLinkifyLatex text={highlight.comment.text} />
               </Typography>
             )}
-            <div
-              css={css`
-                margin-top: 5px;
-                font-size: 0.75rem;
-              `}
-            >
-              <div>
-                <b>{highlight.user || 'Anonymous'}</b>, <small>{get_age(highlight.createdAt)}</small>
-              </div>
-            </div>
-            <Grid
-              container
-              alignItems="center"
-              css={css`
-                margin-top: 2px;
-                text-align: center;
-                display: flex;
-                button {
-                  font-size: 14px;
-                }
-                margin-left: -5px;
-              `}
-            >
-              <div>
-                <ActionIconButton onClick={() => setShowReply(!showReply)} name="fas fa-reply" />
-              </div>
-              {highlight.canEdit ? (
-                <div>
-                  <ActionIconButton onClick={() => setEditMode(!editMode)} name="fas fa-pencil-alt" />
-                  <ActionIconButton onClick={() => removeHighlight(highlight.id)} name="far fa-trash-alt" />
-                </div>
-              ) : (
-                ''
-              )}
-              {highlight.canEdit && (
+            {hasCommentText && (
+              <React.Fragment>
                 <div
                   css={css`
-                    margin-left: auto;
-                    font-size: 13px;
+                    margin-top: 5px;
+                    font-size: 0.75rem;
                   `}
                 >
-                  <Tooltip title={capitalize(highlight.visibility.type)} placement="top">
-                    <i className={visibiltyToIcon[highlight.visibility.type]} css={actionIconCss} />
-                  </Tooltip>
+                  <div>
+                    <b>{highlight.user || 'Anonymous'}</b>, <small>{get_age(highlight.createdAt)}</small>
+                  </div>
                 </div>
-              )}
-            </Grid>
+                <Grid
+                  container
+                  alignItems="center"
+                  css={css`
+                    margin-top: 2px;
+                    text-align: center;
+                    display: flex;
+                    button {
+                      font-size: 14px;
+                    }
+                    margin-left: -5px;
+                  `}
+                >
+                  <div>
+                    <ActionIconButton onClick={() => setShowReply(!showReply)} name="fas fa-reply" />
+                  </div>
+                  {highlight.canEdit && isHover ? (
+                    <div>
+                      <ActionIconButton onClick={() => setEditMode(!editMode)} name="fas fa-pencil-alt" />
+                      <ActionIconButton onClick={() => removeHighlight(highlight.id)} name="far fa-trash-alt" />
+                    </div>
+                  ) : (
+                    ''
+                  )}
+                  {highlight.canEdit && (
+                    <div
+                      css={css`
+                        margin-left: auto;
+                        font-size: 13px;
+                      `}
+                    >
+                      <Tooltip title={capitalize(highlight.visibility.type)} placement="top">
+                        <i className={visibiltyToIcon[highlight.visibility.type]} css={actionIconCss} />
+                      </Tooltip>
+                    </div>
+                  )}
+                </Grid>
+              </React.Fragment>
+            )}
             {highlight.replies && <Replies replies={highlight.replies} />}
             {showReply && <NewReply onSubmit={submitReply} />}
           </CardContent>
@@ -247,5 +221,3 @@ const SidebarHighlightItem = React.forwardRef<HTMLDivElement, CommentProps>(
     );
   },
 );
-
-export default SidebarHighlightItem;

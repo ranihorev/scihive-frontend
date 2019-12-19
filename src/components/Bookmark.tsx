@@ -14,7 +14,7 @@ import { AddToListIcon } from '../icons/addToList';
 import { Group, RootState } from '../models';
 import { addRemovePaperToGroup, bookmarkPaper, createNewGroup, editGroup } from '../thunks';
 import { presets } from '../utils';
-import { BASE_GROUP_COLOR, GROUP_COLORS, smallIconPadding } from '../utils/presets';
+import { BASE_GROUP_COLOR, GROUP_COLORS, smallIconPadding, COLORS } from '../utils/presets';
 import { ArrowTooltip } from './ArrowTooltip';
 import { EditGroup } from './GroupsList';
 import { PopoverMenu } from './PopoverMenu';
@@ -174,7 +174,7 @@ const Bookmark: React.FC<BookmarkProps & BookmarkStateProps & BookmarkDispatchPr
   paperId,
   setBookmark,
   updatePaperGroup,
-  color = 'rgba(0, 0, 0, 0.54)',
+  color = COLORS.grey,
   size = 18,
   type,
   createGroup,
@@ -335,9 +335,6 @@ const mapDispatchToProps = (dispatch: RTDispatch): BookmarkDispatchProps => {
   };
 };
 
-const withRedux = connect(
-  mapStateToProps,
-  mapDispatchToProps,
-);
+const withRedux = connect(mapStateToProps, mapDispatchToProps);
 
 export default withRedux(Bookmark);

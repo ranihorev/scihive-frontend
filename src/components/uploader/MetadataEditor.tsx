@@ -152,7 +152,6 @@ const MetadataEditorRender: React.FC<AllProps> = ({ submitPaperDetails, onClose,
                 <TextField
                   required
                   autoFocus={index === metadata.authors.length - 1 && isFirstLoad.current}
-                  id="title"
                   value={author.name}
                   css={{ width: 200 }}
                   margin="dense"

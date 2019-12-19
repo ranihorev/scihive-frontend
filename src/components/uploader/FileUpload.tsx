@@ -74,7 +74,7 @@ export const FileUpload: React.FC<{ setFileMeta: (meta: FileMetadata) => void }>
             padding: 40px 20px;
             border-width: 2px;
             border-radius: 2px;
-            border-color: #eeeeee;
+            border-color: ${isDragActive ? '#2196f3' : '#eeeeee'};
             border-style: dashed;
             background-color: #fafafa;
             color: #bdbdbd;

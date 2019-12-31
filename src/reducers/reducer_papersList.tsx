@@ -23,22 +23,22 @@ const toggleCategory = (state: PapersListState, currCategoryKey: string) => {
 
 export default function dataReducer(state = initialState, action: PapersListActions) {
   switch (action.type) {
-    case 'ADD_PAPERS':
+    case 'addPapers':
       const totalPapers = action.payload.total !== undefined ? action.payload.total : state.totalPapers;
       return { ...state, papers: [...state.papers, ...action.payload.papers], totalPapers };
-    case 'SET_TOTAL_PAPERS':
+    case 'setTotalPapers':
       return { ...state, totalPapers: action.payload };
-    case 'CLEAR_PAPERS':
+    case 'clearPapers':
       return { ...state, papers: [], totalPapers: 0 };
-    case 'SET_ALL_CATEGORIES':
+    case 'setAllCategories':
       return { ...state, allCategories: action.payload };
-    case 'TOGGLE_CATEGORY':
+    case 'toggleCategory':
       return toggleCategory(state, action.payload);
-    case 'TOGGLE_CATEGORY_MODAL':
+    case 'toggleCategoriesModal':
       return { ...state, isCategoriesModalOpen: !state.isCategoriesModalOpen };
-    case 'SET_SELECTED_CATEGORIES':
+    case 'setSelectedCategories':
       return { ...state, selectedCategories: action.payload };
-    case 'UPDATE_BOOKMARK':
+    case 'updateBookmark':
       return produce(state, draftState => {
         for (const paper of draftState.papers) {
           if (paper._id === action.payload.paperId) {
@@ -47,7 +47,7 @@ export default function dataReducer(state = initialState, action: PapersListActi
         }
         return draftState;
       });
-    case 'UPDATE_PAPER_GROUPS':
+    case 'updatePaperGroups':
       return produce(state, draftState => {
         for (const paper of draftState.papers) {
           if (paper._id === action.payload.paperId) {
@@ -60,7 +60,7 @@ export default function dataReducer(state = initialState, action: PapersListActi
         }
         return draftState;
       });
-    case 'SET_INVITE_GROUP':
+    case 'setSelectedGroup':
       return { ...state, inviteGroup: action.payload };
     default:
       return state;

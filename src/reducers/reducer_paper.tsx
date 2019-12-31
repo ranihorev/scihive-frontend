@@ -1,7 +1,7 @@
-import { isEmpty } from 'lodash';
-import { RootState, T_Highlight } from '../models';
-import { PaperActions } from '../actions/paper';
 import { produce } from 'immer';
+import { isEmpty } from 'lodash';
+import { PaperAction, PaperActionKeys, PaperActions } from '../actions/paper';
+import { RootState, T_Highlight } from '../models';
 
 type PaperState = RootState['paper'];
 
@@ -25,68 +25,62 @@ const updateHighlight = (state: PaperState, newHighlight: T_Highlight) => {
   };
 };
 
-const dataReducer = (state: PaperState = initialState, action: PaperActions) => {
-  switch (action.type) {
-    case 'CLEAR_PAPER':
-      return initialState;
-    case 'READING_PROGRESS':
-      return { ...state, readingProgress: action.payload };
-    case 'SET_BOOKMARK':
-      return { ...state, isBookmarked: action.payload };
-    case 'SET_CODE_META':
-      return { ...state, codeMeta: action.payload };
-    case 'SET_DOCUMENT':
-      return { ...state, document: action.payload };
-    case 'SET_SECTIONS':
-      return { ...state, sections: action.payload };
-    case 'SET_REFERNCES':
-      return { ...state, references: action.payload };
-    case 'SET_HIGHLIGHTS':
-      return { ...state, highlights: action.payload };
-    case 'ADD_HIGHLIGHT':
-      return { ...state, highlights: [action.payload, ...state.highlights] };
-    case 'UPDATE_HIGHLIGHT':
-      return updateHighlight(state, action.payload);
-    case 'REMOVE_HIGHLIGHT':
+const reducerHelper: {
+  [K in PaperActionKeys]: (state: PaperState, action: PaperAction<K>) => PaperState;
+} = {
+  clearPaper: () => initialState,
+  updateReadingProgress: (state, action) => ({ ...state, readingProgress: action.payload }),
+  setBookmark: (state, action) => ({ ...state, isBookmarked: action.payload }),
+  setCodeMeta: (state, action) => ({ ...state, codeMeta: action.payload }),
+  setDocument: (state, action) => ({ ...state, document: action.payload }),
+  setSections: (state, action) => ({ ...state, sections: action.payload }),
+  setReferences: (state, action) => ({ ...state, references: action.payload }),
+  setHighlights: (state, action) => ({ ...state, highlights: action.payload }),
+  addHighlight: (state, action) => ({ ...state, highlights: [action.payload, ...state.highlights] }),
+  updateHighlight: (state, action) => updateHighlight(state, action.payload),
+  removeHighlight: (state, action) => ({
+    ...state,
+    highlights: state.highlights.filter(h => h.id !== action.payload),
+  }),
+  toggleHighlightsVisiblity: (state, action) => {
+    if (isEmpty(state.hiddenHighlights)) {
       return {
         ...state,
-        highlights: state.highlights.filter(h => h.id !== action.payload),
+        highlights: [],
+        hiddenHighlights: state.highlights,
       };
-    case 'TOGGLE_HIGHLIGHTS':
-      if (isEmpty(state.hiddenHighlights)) {
-        return {
-          ...state,
-          highlights: [],
-          hiddenHighlights: state.highlights,
-        };
+    }
+    return {
+      ...state,
+      highlights: [...state.highlights, ...state.hiddenHighlights],
+      hiddenHighlights: [],
+    };
+  },
+  setAcronyms: (state, action) => ({ ...state, acronyms: action.payload }),
+  setSidebarTab: (state, action) => ({ ...state, sidebarTab: action.payload }),
+  jumpTo: (state, action) => ({ ...state, jumpData: action.payload }),
+  clearJumpTo: (state, action) => ({ ...state, jumpData: undefined }),
+  addRemoveGroupIds: (state, action) => {
+    // TODO: refactor this code and combine with the list view
+    const { groupIds, shouldAdd } = action.payload;
+    return produce(state, draftState => {
+      if (shouldAdd) {
+        draftState.groupIds = [...draftState.groupIds, ...groupIds];
+      } else {
+        draftState.groupIds = draftState.groupIds.filter(g => !groupIds.includes(g));
       }
-      return {
-        ...state,
-        highlights: [...state.highlights, ...state.hiddenHighlights],
-        hiddenHighlights: [],
-      };
-    case 'SET_ACRONYMS':
-      return { ...state, acronyms: action.payload };
-    case 'SET_SIDEBAR_TAB':
-      return { ...state, sidebarTab: action.payload };
-    case 'JUMP_TO':
-      return { ...state, jumpData: action.payload };
-    case 'ADD_REMOVE_PAPER_GROUPS':
-      // TODO: refactor this code and combine with the list view
-      const { groupIds, shouldAdd } = action.payload;
-      return produce(state, draftState => {
-        if (shouldAdd) {
-          draftState.groupIds = [...draftState.groupIds, ...groupIds];
-        } else {
-          draftState.groupIds = draftState.groupIds.filter(g => !groupIds.includes(g));
-        }
-        return draftState;
-      });
-    case 'SET_COMMENT_VISIBILITY_SETTINGS':
-      return { ...state, commentVisibilty: { ...action.payload } };
-    default:
-      return state;
+      return draftState;
+    });
+  },
+  setCommentVisibilitySettings: (state, action) => ({ ...state, commentVisibilty: { ...action.payload } }),
+};
+
+const dataReducer = (state: PaperState = initialState, action: PaperActions) => {
+  const reducer = reducerHelper[action.type];
+  if (reducer) {
+    return reducer(state, action as any);
   }
+  return state;
 };
 
 export default dataReducer;

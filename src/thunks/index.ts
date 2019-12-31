@@ -1,12 +1,13 @@
 import axios from 'axios';
+import { toast } from 'react-toastify';
 import { Dispatch } from 'redux';
 import { actions } from '../actions';
 import { FileMetadata } from '../models';
 import { notifyOnNewGroup } from '../notifications/newGroup';
 import { getGroups, getIsLoggedIn } from '../selectors/user';
+import { track } from '../Tracker';
 import { eventsGenerator } from '../utils';
 import { GroupColor } from '../utils/presets';
-import { toast } from 'react-toastify';
 
 export const loadGroups = (groupId: string | undefined, onSuccess: () => void) => async (
   dispatch: RTDispatch,
@@ -38,8 +39,9 @@ export const loadGroups = (groupId: string | undefined, onSuccess: () => void) =
 };
 
 export const joinGroup = (groupId: string, onSuccess: () => void) => (dispatch: Dispatch, getState: GetState) => {
+  track('joinGroup');
   return axios.post('/groups/all', { id: groupId }).then(res => {
-    dispatch(actions.setGroups(res.data));
+    dispatch(actions.updateGroups(res.data));
     onSuccess();
   });
 };
@@ -48,7 +50,7 @@ export const deleteGroup = (id: string) => (dispatch: Dispatch, getState: GetSta
   axios
     .delete(`/groups/group/${id}`)
     .then(res => {
-      dispatch(actions.setGroups(res.data));
+      dispatch(actions.updateGroups(res.data));
     })
     .catch(e => console.warn(e.message));
 };
@@ -58,10 +60,11 @@ export const createNewGroup = (payload: { name: string; finallyCb?: () => void; 
   getState: GetState,
 ) => {
   const { name, onSuccessCb, finallyCb } = payload;
+  track('newGroup');
   return axios
     .post('/groups/new', { name })
     .then(res => {
-      dispatch(actions.setGroups(res.data));
+      dispatch(actions.updateGroups(res.data));
       onSuccessCb && onSuccessCb();
     })
     .catch(e => console.warn(e.message))
@@ -74,10 +77,11 @@ export const editGroup = (id: string, payload: { name?: string; color?: GroupCol
   dispatch: Dispatch,
   getState: GetState,
 ) => {
+  track('editGroup');
   return axios
     .patch(`/groups/group/${id}`, payload)
     .then(res => {
-      dispatch(actions.setGroups(res.data));
+      dispatch(actions.updateGroups(res.data));
     })
     .catch(e => console.warn(e.message));
 };
@@ -168,6 +172,7 @@ export const uploadPaperDetails = (details: FileMetadata, onSuccess: (paperId: s
   getState: GetState,
 ) => {
   try {
+    track('uploadPaperMeta');
     const response = await axios.patch('/new_paper/add', details);
     onSuccess(response.data.paper_id);
   } catch (e) {

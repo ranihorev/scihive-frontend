@@ -3,24 +3,28 @@ import { Group, User } from '../models';
 export const actions = {
   toggleLoginModal: (message?: string) => {
     return {
-      type: 'TOGGLE_LOGIN_MODAL' as const,
+      type: 'toggleLoginModal' as const,
       payload: message,
     };
   },
   toggleGroupsModal: (state?: boolean) => {
     return {
-      type: 'TOGGLE_GROUPS_MODAL' as const,
+      type: 'toggleGroupsModal' as const,
       payload: state,
     };
   },
   setUser: (payload: User) => {
     return {
-      type: 'SET_USER' as const,
+      type: 'setUser' as const,
       payload,
     };
   },
   setGroups: (payload: Group[]) => ({
-    type: 'SET_GROUPS' as const,
+    type: 'setGroups' as const,
+    payload,
+  }),
+  updateGroups: (payload: Group[]) => ({
+    type: 'updateGroups' as const,
     payload,
   }),
 };

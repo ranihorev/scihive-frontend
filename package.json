@@ -10,6 +10,7 @@
     "@material-ui/pickers": "^3.2.8",
     "@material-ui/styles": "^4.7.1",
     "@sentry/browser": "^5.4.0",
+    "@types/mixpanel-browser": "^2.23.2",
     "autosuggest-highlight": "^3.1.1",
     "axios": "^0.18.0",
     "body-scroll-lock": "^2.6.1",
@@ -19,6 +20,7 @@
     "immer": "^4.0.1",
     "katex": "^0.10.2",
     "lodash": "^4.17.14",
+    "mixpanel-browser": "^2.32.0",
     "moment": "^2.24.0",
     "pdfjs-dist": "^2.2.228",
     "prop-types": "^15.7.2",
@@ -49,6 +51,7 @@
     "redux": "^4.0.1",
     "redux-devtools-extension": "^2.13.8",
     "redux-thunk": "^2.3.0",
+    "typesafe-actions": "^5.1.0",
     "typescript": "^3.7.2",
     "use-deep-compare-effect": "^1.2.0",
     "use-react-router": "^1.0.7"

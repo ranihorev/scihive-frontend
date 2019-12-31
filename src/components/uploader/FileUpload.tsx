@@ -1,11 +1,12 @@
 /** @jsx jsx */
 import { css, jsx } from '@emotion/core';
+import { LinearProgress, Typography } from '@material-ui/core';
 import Axios from 'axios';
 import { isEmpty } from 'lodash';
 import React from 'react';
 import { DropzoneOptions, useDropzone } from 'react-dropzone';
 import { FileMetadata } from '../../models';
-import { Typography, LinearProgress } from '@material-ui/core';
+import { track } from '../../Tracker';
 
 type UploadStatus = 'idle' | 'uploading' | 'processing';
 
@@ -22,6 +23,7 @@ export const FileUpload: React.FC<{ setFileMeta: (meta: FileMetadata) => void }>
       const formData = new FormData();
       formData.append('file', acceptedFiles[0]);
       setUploadStatus({ status: 'uploading', prct: 0 });
+      track('uploadPaper');
       Axios.post('/new_paper/add', formData, {
         headers: {
           'Content-Type': 'multipart/form-data',

@@ -11,13 +11,15 @@ const initialState: UserState = {
 
 export default function dataReducer(state: UserState = initialState, action: Action): UserState {
   switch (action.type) {
-    case 'TOGGLE_LOGIN_MODAL':
+    case 'toggleLoginModal':
       return { ...state, isLoginModalOpen: !state.isLoginModalOpen, loginModalMessage: action.payload };
-    case 'TOGGLE_GROUPS_MODAL':
+    case 'toggleGroupsModal':
       return { ...state, isGroupsModalOpen: action.payload !== undefined ? action.payload : !state.isGroupsModalOpen };
-    case 'SET_USER':
+    case 'setUser':
       return { ...state, userData: action.payload };
-    case 'SET_GROUPS':
+    case 'setGroups':
+      return { ...state, groups: action.payload };
+    case 'updateGroups':
       return { ...state, groups: action.payload };
     default:
       return state;

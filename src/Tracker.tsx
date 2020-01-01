@@ -62,6 +62,7 @@ const actionsHandler: {
   setUser: () => null,
   setGroups: () => null,
   toggleCategoriesModal: () => null,
+  updateReadingProgress: () => null,
   toggleLoginModal: () => null,
   toggleGroupsModal: () => null,
   setTotalPapers: () => null,

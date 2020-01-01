@@ -1,23 +1,21 @@
 /** @jsx jsx */
 import { jsx } from '@emotion/core';
 import { Divider, MenuItem } from '@material-ui/core';
-import { isEmpty } from 'lodash';
 import React, { useState } from 'react';
 import { connect } from 'react-redux';
 import useReactRouter from 'use-react-router';
 import { CodeMeta, RootState } from '../../models';
 import { simpleLink } from '../../utils/presets';
-import Bookmark from '../Bookmark';
 import { ButtonIcon } from '../ButtonIcon';
+import Bookmark from '../Groups/Bookmark';
 import { PopoverMenu } from '../PopoverMenu';
 
 interface PaperMenuDekstopProps {
-  isLoggedIn: boolean;
   codeMeta?: CodeMeta;
   selectedGroupIds: string[];
 }
 
-const PaperMenuDekstopRender: React.FC<PaperMenuDekstopProps> = ({ isLoggedIn, codeMeta, selectedGroupIds }) => {
+const PaperMenuDekstopRender: React.FC<PaperMenuDekstopProps> = ({ codeMeta, selectedGroupIds }) => {
   const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null);
   const isMenuOpen = Boolean(anchorEl);
   const {
@@ -73,19 +71,15 @@ const PaperMenuDekstopRender: React.FC<PaperMenuDekstopProps> = ({ isLoggedIn, c
 
 interface PaperMenuMobileProps {
   handleMobileMenuClick?: () => void;
-  isLoggedIn: boolean;
   codeMeta?: CodeMeta;
 }
 
-const PaperMenuMobileRender: React.FC<PaperMenuMobileProps> = ({
-  handleMobileMenuClick = () => {},
-  isLoggedIn,
-  codeMeta,
-}) => {
+const PaperMenuMobileRender: React.FC<PaperMenuMobileProps> = ({ handleMobileMenuClick = () => {}, codeMeta }) => {
   const {
-    match: { params },
+    match: {
+      params: { PaperId },
+    },
   } = useReactRouter();
-  const { PaperId } = params;
 
   return (
     <React.Fragment>
@@ -126,7 +120,6 @@ const PaperMenuMobileRender: React.FC<PaperMenuMobileProps> = ({
 
 const mapStateToProps = (state: RootState) => {
   return {
-    isLoggedIn: !isEmpty(state.user.userData),
     codeMeta: state.paper.codeMeta,
     selectedGroupIds: state.paper.groupIds,
   };

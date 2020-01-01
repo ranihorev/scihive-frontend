@@ -10,7 +10,7 @@ import TextTruncate from 'react-text-truncate';
 import { Group, PaperListItem } from '../models';
 import { Latex } from '../utils/latex';
 import * as presets from '../utils/presets';
-import Bookmark from './Bookmark';
+import Bookmark from './Groups/Bookmark';
 import CodeMetaRender from './CodeMeta';
 import TwitterMeta from './TwitterMeta';
 

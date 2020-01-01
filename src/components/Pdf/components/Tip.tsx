@@ -1,21 +1,20 @@
 /** @jsx jsx */
 import { css, jsx } from '@emotion/core';
 import { Button, Select, TextField } from '@material-ui/core';
-import { isEmpty } from 'lodash';
 import React from 'react';
 import { connect } from 'react-redux';
 import { Dispatch } from 'redux';
+import shallow from 'zustand/shallow';
 import { actions } from '../../../actions';
-import { Group, RootState, T_Highlight, VISIBILITIES, Visibility, VisibilityType } from '../../../models';
+import { RootState, T_Highlight, VISIBILITIES, Visibility, VisibilityType } from '../../../models';
+import { useUserStore } from '../../../stores/user';
 import { presets } from '../../../utils';
 
 interface TipProps {
   onConfirm: (comment: T_Highlight['comment'], visibility: Visibility) => void;
+  paperGroupIds: string[];
   onOpen: () => void;
-  isLoggedIn: boolean;
-  username?: string;
   onMouseDown?: (e: React.MouseEvent) => void;
-  groups: Group[];
   setCommentVisibilty: (settings: Visibility) => void;
   visibilitySettings: Visibility;
 }
@@ -34,16 +33,19 @@ export const CompactTip: React.FunctionComponent = ({ children }) => (
   </div>
 );
 
-interface VisibilityControlProps extends Pick<TipProps, 'visibilitySettings' | 'groups' | 'username'> {
+interface VisibilityControlProps extends Pick<TipProps, 'visibilitySettings' | 'paperGroupIds'> {
   onVisibiltyChange: (e: React.ChangeEvent<{ value: unknown }>) => void;
 }
 
 const VisibilityControl: React.FC<VisibilityControlProps> = ({
   visibilitySettings,
   onVisibiltyChange,
-  groups,
-  username,
+  paperGroupIds,
 }) => {
+  const { username, groups } = useUserStore(
+    state => ({ username: state.userData?.username, groups: state.groups.filter(g => paperGroupIds.includes(g.id)) }),
+    shallow,
+  );
   const fontSize = 13;
   const textMinWidth = 70;
   return (
@@ -117,15 +119,14 @@ const CompactTipButton: React.FC<{ onClick: (e: React.MouseEvent) => void; icon:
 );
 
 const Tip: React.FC<TipProps> = ({
-  isLoggedIn,
-  username,
   onConfirm,
   onOpen,
+  paperGroupIds,
   onMouseDown = () => {},
-  groups,
   setCommentVisibilty,
   visibilitySettings,
 }) => {
+  const isLoggedIn = useUserStore(state => Boolean(state.userData));
   const firstFocus = React.useRef(true);
   const [isCompact, setIsCompact] = React.useState(true);
   const [text, setText] = React.useState('');
@@ -214,7 +215,7 @@ const Tip: React.FC<TipProps> = ({
           </div>
           <div css={{ marginTop: 10 }}>
             {isLoggedIn ? (
-              <VisibilityControl {...{ groups, visibilitySettings, onVisibiltyChange, username }} />
+              <VisibilityControl {...{ visibilitySettings, onVisibiltyChange, paperGroupIds }} />
             ) : (
               <div
                 css={css`
@@ -238,11 +239,8 @@ const Tip: React.FC<TipProps> = ({
 };
 
 const mapStateToProps = (state: RootState) => {
-  const paperGroupsIds = state.paper.groupIds;
   return {
-    isLoggedIn: !isEmpty(state.user.userData),
-    username: state.user.userData && state.user.userData.username,
-    groups: state.user.groups.filter(g => paperGroupsIds.includes(g.id)),
+    paperGroupIds: state.paper.groupIds,
     visibilitySettings: state.paper.commentVisibilty,
   };
 };

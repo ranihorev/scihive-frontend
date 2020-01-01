@@ -3,13 +3,10 @@ import { css, jsx } from '@emotion/core';
 import { Badge, Button, Divider, IconButton, Menu, MenuItem } from '@material-ui/core';
 import MoreIcon from '@material-ui/icons/MoreVert';
 import axios from 'axios/index';
-import { isEmpty } from 'lodash';
 import React, { useState } from 'react';
-import { connect } from 'react-redux';
 import { Link } from 'react-router-dom';
-import { Dispatch } from 'redux';
-import { actions } from '../../actions';
-import { RootState } from '../../models';
+import shallow from 'zustand/shallow';
+import { useUserStore } from '../../stores/user';
 import { createListener, MyCustomEvent, removeListener } from '../../utils';
 import { simpleLink } from '../../utils/presets';
 import { PopoverMenu } from '../PopoverMenu';
@@ -27,16 +24,13 @@ const logout = () => {
 interface MobileMenuProps {
   rootChildren?: React.ReactElement;
   submenuChildren?: React.ReactElement;
-  isLoggedIn: boolean;
-  toggleLoginModal: () => void;
 }
 
-const MobileMenuRender: React.FC<MobileMenuProps> = ({
-  rootChildren,
-  submenuChildren,
-  isLoggedIn,
-  toggleLoginModal,
-}) => {
+export const MobileMenu: React.FC<MobileMenuProps> = ({ rootChildren, submenuChildren }) => {
+  const { isLoggedIn, toggleLoginModal } = useUserStore(
+    state => ({ isLoggedIn: Boolean(state.userData), toggleLoginModal: state.toggleLoginModal }),
+    shallow,
+  );
   const [mobileAnchorEl, setMobileAnchorEl] = useState<HTMLElement | null>(null);
 
   const handleMobileMenuOpen = (event: React.MouseEvent) => {
@@ -112,12 +106,11 @@ const MobileMenuRender: React.FC<MobileMenuProps> = ({
   );
 };
 
-interface DesktopMenuProps {
-  isLoggedIn: boolean;
-  toggleLoginModal: () => void;
-}
-
-const DesktopMenuRender: React.FC<DesktopMenuProps> = ({ children, isLoggedIn, toggleLoginModal }) => {
+export const DesktopMenu: React.FC = ({ children }) => {
+  const { isLoggedIn, toggleLoginModal } = useUserStore(
+    state => ({ isLoggedIn: Boolean(state.userData), toggleLoginModal: state.toggleLoginModal }),
+    shallow,
+  );
   const [anchorEl, setAnchorEl] = React.useState<HTMLElement | null>(null);
   const [showLibraryBadge, setShowLibraryBadge] = React.useState(false);
   const handleMenuOpen = (event: React.MouseEvent) => {
@@ -174,7 +167,7 @@ const DesktopMenuRender: React.FC<DesktopMenuProps> = ({ children, isLoggedIn, t
         ''
       )}
       {!isLoggedIn ? (
-        <Button onClick={toggleLoginModal} css={simpleLink}>
+        <Button onClick={() => toggleLoginModal()} css={simpleLink}>
           Login
         </Button>
       ) : null}
@@ -234,21 +227,3 @@ const DesktopMenuRender: React.FC<DesktopMenuProps> = ({ children, isLoggedIn, t
     </React.Fragment>
   );
 };
-
-const mapStateToProps = (state: RootState) => {
-  return {
-    isLoggedIn: !isEmpty(state.user.userData),
-  };
-};
-
-const mapDispatchToProps = (dispatch: Dispatch) => {
-  return {
-    toggleLoginModal: () => {
-      dispatch(actions.toggleLoginModal());
-    },
-  };
-};
-
-const withRedux = connect(mapStateToProps, mapDispatchToProps);
-export const DesktopMenu = withRedux(DesktopMenuRender);
-export const MobileMenu = withRedux(MobileMenuRender);

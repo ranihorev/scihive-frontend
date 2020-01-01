@@ -6,11 +6,13 @@ import * as queryString from 'query-string';
 import React from 'react';
 import { connect } from 'react-redux';
 import { RouteComponentProps, withRouter } from 'react-router';
+import shallow from 'zustand/shallow';
 import { actions } from '../actions/papersList';
 import { Group, PaperListItem, PaperListRouterParams, RootState } from '../models';
+import { useUserStore } from '../stores/user';
 import { fetchPapers, RequestParams } from '../thunks';
 import * as presets from '../utils/presets';
-import GroupShare from './GroupShare';
+import GroupShare from './Groups/GroupShare';
 import InfiniteScroll from './InfiniteScroll';
 import PapersListItem from './PapersListItem';
 import { FileUploader } from './uploader';
@@ -51,7 +53,6 @@ interface QueryParams {
 }
 
 interface PapersListDispatchProps {
-  toggleCategoryModal: () => void;
   setSelectedCategories: (categories: string[]) => void;
   fetchPapers: (...args: Parameters<typeof fetchPapers>) => void;
   clearPapers: () => void;
@@ -62,8 +63,6 @@ interface PapersListProps extends PapersListDispatchProps {
   history: RouteComponentProps['history'];
   papers: PaperListItem[];
   totalPapers: number;
-  groups: Group[];
-  inviteGroup?: Group;
 }
 
 const ALL_LISTS = 'All lists';
@@ -79,15 +78,16 @@ const PapersList: React.FC<PapersListProps> = ({
   match,
   location,
   history,
-  toggleCategoryModal,
   setSelectedCategories,
   fetchPapers,
   clearPapers,
   papers,
   totalPapers,
-  groups,
-  inviteGroup,
 }) => {
+  const { groups, inviteGroup } = useUserStore(
+    state => ({ groups: state.groups, inviteGroup: state.inviteGroup }),
+    shallow,
+  );
   const isFirstLoad = React.useRef(true);
   const [scrollId, setScrollId] = React.useState(Math.random());
   const [hasMorePapers, setHasMorePapers] = React.useState(true);
@@ -328,15 +328,10 @@ const mapStateToProps = (state: RootState) => {
     allCategories: state.papersList.allCategories,
     selectedCategories: state.papersList.selectedCategories,
     totalPapers: state.papersList.totalPapers,
-    groups: state.user.groups,
-    inviteGroup: state.papersList.inviteGroup,
   };
 };
 
 const mapDispatchToProps = (dispatch: RTDispatch): PapersListDispatchProps => ({
-  toggleCategoryModal: () => {
-    dispatch(actions.toggleCategoriesModal());
-  },
   setSelectedCategories: categories => {
     dispatch(actions.setSelectedCategories(categories));
   },

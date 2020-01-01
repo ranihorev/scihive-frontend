@@ -59,11 +59,7 @@ export const trackerMiddleware: Middleware = ({ getState }: MiddlewareAPI) => (n
 const actionsHandler: {
   [K in keyof typeof actions]?: (action: ReturnType<typeof actions[K]>, state: RootState) => object | null;
 } = {
-  setUser: () => null,
-  setGroups: () => null,
   toggleCategoriesModal: () => null,
-  toggleLoginModal: () => null,
-  toggleGroupsModal: () => null,
   setTotalPapers: () => null,
   addPapers: () => null,
   clearPapers: () => null,

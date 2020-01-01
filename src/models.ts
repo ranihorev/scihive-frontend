@@ -190,13 +190,6 @@ export interface PaperListRouterParams {
 }
 
 export interface RootState {
-  user: {
-    isLoginModalOpen: boolean;
-    isGroupsModalOpen: boolean;
-    userData?: User;
-    loginModalMessage?: string;
-    groups: Group[];
-  };
   paper: {
     readingProgress: number;
     isBookmarked: boolean;
@@ -218,7 +211,6 @@ export interface RootState {
     allCategories: Category[];
     selectedCategories: string[];
     isCategoriesModalOpen: boolean;
-    inviteGroup?: Group;
   };
 }
 

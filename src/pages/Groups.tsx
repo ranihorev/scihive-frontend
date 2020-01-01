@@ -2,7 +2,7 @@
 import { jsx, css } from '@emotion/core';
 import Grid from '@material-ui/core/Grid';
 import React from 'react';
-import GroupsList from '../components/GroupsList';
+import GroupsList from '../components/Groups/GroupsList';
 import PrimaryAppBar from '../components/TopBar/PrimaryAppBar';
 
 const Home = () => {

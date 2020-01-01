@@ -54,7 +54,8 @@
     "typesafe-actions": "^5.1.0",
     "typescript": "^3.7.2",
     "use-deep-compare-effect": "^1.2.0",
-    "use-react-router": "^1.0.7"
+    "use-react-router": "^1.0.7",
+    "zustand": "^2.2.1"
   },
   "scripts": {
     "start": "react-app-rewired start",

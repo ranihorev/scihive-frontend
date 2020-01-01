@@ -34,7 +34,7 @@ export const useTracker = (options = {}) => {
     } else {
       console.log(`Track: ${page}`);
     }
-    mixpanel.track(page);
+    mixpanel.track('pageView', { page });
   }, [trackPage, location.pathname, location.search]);
 
   return null;

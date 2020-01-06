@@ -48,9 +48,15 @@ const HighlightsList: React.FC<{ isVertical: boolean }> = ({ isVertical }) => {
   const [hideEmpty, setHideEmpty] = React.useState(false);
   const containerRef = React.useRef<HTMLDivElement>(null);
   const highlightsRef = React.useRef<{ [key: string]: React.RefObject<HTMLDivElement> }>({});
-  const { jumpData, highlights, clearJumpTo, isHighlightsHidden, toggleHighlightsVisiblity } = usePaperStore(
+  const {
+    sidebarJumpData,
+    highlights,
+    clearSidebarJumpTo,
+    isHighlightsHidden,
+    toggleHighlightsVisiblity,
+  } = usePaperStore(
     state => ({
-      ...pick(state, ['jumpData', 'highlights', 'clearJumpTo', 'toggleHighlightsVisiblity']),
+      ...pick(state, ['sidebarJumpData', 'highlights', 'clearSidebarJumpTo', 'toggleHighlightsVisiblity']),
       isHighlightsHidden: !isEmpty(state.hiddenHighlights),
     }),
     shallow,
@@ -58,19 +64,19 @@ const HighlightsList: React.FC<{ isVertical: boolean }> = ({ isVertical }) => {
 
   // Event listener to hash change
   React.useEffect(() => {
-    if (!jumpData || jumpData.type !== 'comment') return;
-    const highlight = highlights.find(h => h.id === jumpData.id);
+    if (!sidebarJumpData || sidebarJumpData.type !== 'comment') return;
+    const highlight = highlights.find(h => h.id === sidebarJumpData.id);
     if (highlight && containerRef.current) {
       const highlightRef = highlightsRef.current[highlight.id];
       if (!highlightRef || !highlightRef.current) return;
       containerRef.current.scrollTop = highlightRef.current.offsetTop - 10;
       setFocusedId(highlight.id);
-      clearJumpTo();
+      clearSidebarJumpTo();
       setTimeout(() => {
         setFocusedId(null);
       }, 1000);
     }
-  }, [jumpData, highlights, clearJumpTo]);
+  }, [sidebarJumpData, highlights, clearSidebarJumpTo]);
 
   highlights.forEach(h => {
     highlightsRef.current[h.id] = React.createRef<HTMLDivElement>();

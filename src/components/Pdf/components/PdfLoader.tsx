@@ -1,13 +1,24 @@
+/** @jsx jsx */
+import { jsx } from '@emotion/core';
 import { pick } from 'lodash';
 import pdfjs, { getDocument, PDFDocumentProxy } from 'pdfjs-dist';
 import React from 'react';
+import { isMobile } from 'react-device-detect';
 import shallow from 'zustand/shallow';
+import { PdfAnnotator } from '..';
 import { usePaperStore } from '../../../stores/paper';
 import { extractSections } from '../../PaperSections';
+import { ReferencesPopoverState } from '../../ReferencesProvider';
 
 (pdfjs as any).GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${
   (pdfjs as any).version
 }/pdf.worker.js`;
+
+interface PdfViewerProps {
+  url: string;
+  isVertical: boolean;
+  setReferencePopoverState?: (props: ReferencesPopoverState) => void;
+}
 
 enum STATUS {
   LOADING = 0,
@@ -15,23 +26,17 @@ enum STATUS {
   SUCCESS = 1,
 }
 
-interface Props {
-  url: string;
-  children: React.ReactElement;
-}
-
-const PdfLoader: React.FC<Props> = ({ url, children }) => {
+const PdfViewer: React.FC<PdfViewerProps> = ({ url, isVertical, setReferencePopoverState }) => {
   const [status, setStatus] = React.useState<STATUS>(STATUS.LOADING);
-  const { setDocument, setSections, document: pdfDocument } = usePaperStore(
-    state => pick(state, ['setDocument', 'setSections', 'document']),
-    shallow,
-  );
+  const [pdfDocument, setPdfDocument] = React.useState<PDFDocumentProxy>();
+  const setSections = usePaperStore(state => state.setSections, shallow);
+  const { references } = usePaperStore(state => pick(state, ['references']), shallow);
 
   React.useEffect(() => {
     const doc = getDocument(url);
     doc.promise.then(
       (newDoc: PDFDocumentProxy) => {
-        setDocument(newDoc);
+        setPdfDocument(newDoc);
         extractSections(newDoc, setSections);
         setStatus(STATUS.SUCCESS);
       },
@@ -39,10 +44,35 @@ const PdfLoader: React.FC<Props> = ({ url, children }) => {
     );
   }, []);
 
-  if (status === STATUS.SUCCESS && pdfDocument) {
-    return children;
-  }
-  return null;
+  return (
+    <React.Fragment>
+      {status === STATUS.SUCCESS && pdfDocument && (
+        <PdfAnnotator
+          pdfDocument={pdfDocument}
+          enableAreaSelection={event => event.altKey}
+          isVertical={isVertical}
+          onReferenceEnter={e => {
+            const target = e.target as HTMLElement;
+            if (!target) return;
+            const cite = decodeURIComponent((target.getAttribute('href') || '').replace('#cite.', ''));
+            if (references.hasOwnProperty(cite)) {
+              if (isMobile) {
+                target.onclick = event => {
+                  event.preventDefault();
+                };
+              }
+              if (!setReferencePopoverState) return;
+              if (e.type === 'click' && !isMobile) {
+                setReferencePopoverState({ citeId: '' });
+              } else {
+                setReferencePopoverState({ anchor: target, citeId: cite });
+              }
+            }
+          }}
+        />
+      )}
+    </React.Fragment>
+  );
 };
 
-export default PdfLoader;
+export default PdfViewer;

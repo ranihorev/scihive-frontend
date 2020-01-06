@@ -10,11 +10,12 @@ import useDeepCompareEffect from 'use-deep-compare-effect';
 import shallow from 'zustand/shallow';
 import { usePaperStore } from '../stores/paper';
 import { presets } from '../utils';
-import PdfViewer from './PdfViewer';
+import PdfLoader from './Pdf/components/PdfLoader';
 import { ReadingProgress } from './ReadingProgress';
 import Resizer from './Resizer';
 import { CollapseButton, Sidebar } from './Sidebar';
 import { APP_BAR_HEIGHT } from './TopBar/PrimaryAppBar';
+import ReferencesProvider from './ReferencesProvider';
 
 const FETCHING = '-1';
 const FAILED = '0';
@@ -97,7 +98,11 @@ const PdfCommenter: React.FC = () => {
   } else if (url === FAILED) {
     viewerRender = <div style={{ textAlign: 'center' }}>PDF file does not exist</div>;
   } else {
-    viewerRender = <PdfViewer isVertical={isVertical} url={url} />;
+    viewerRender = (
+      <ReferencesProvider>
+        <PdfLoader isVertical={isVertical} url={url} />
+      </ReferencesProvider>
+    );
   }
 
   const sidebarWidth = pageWidth * (1 - pdfSectionPrct.width);

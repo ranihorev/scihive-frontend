@@ -1,9 +1,18 @@
 import axios from 'axios';
 import produce from 'immer';
 import { isEmpty } from 'lodash';
-import { PDFDocumentProxy } from 'pdfjs-dist';
 import { GetState } from 'zustand';
-import { Acronyms, CodeMeta, JumpToData, References, Section, SidebarTab, T_Highlight, Visibility } from '../models';
+import {
+  Acronyms,
+  CodeMeta,
+  PaperJump,
+  References,
+  Section,
+  SidebarTab,
+  T_Highlight,
+  Visibility,
+  SidebarCommentJump,
+} from '../models';
 import {
   AddRemoveBookmark,
   addRemoveBookmarkHelper,
@@ -16,14 +25,14 @@ import {
 export interface PaperState {
   readingProgress: number;
   isBookmarked: boolean;
-  document?: PDFDocumentProxy;
   sections?: Section[];
   references: References;
   highlights: T_Highlight[];
   hiddenHighlights: T_Highlight[];
   acronyms: Acronyms;
   sidebarTab: SidebarTab;
-  jumpData?: JumpToData;
+  sidebarJumpData?: SidebarCommentJump;
+  paperJumpData?: PaperJump;
   codeMeta?: CodeMeta;
   groupIds: string[];
   commentVisibilty: Visibility;
@@ -179,12 +188,13 @@ const stateAndActions = (set: NamedSetState<PaperState>, get: GetState<PaperStat
       return res.data;
     },
 
-    jumpTo: (jumpData: JumpToData) => set({ jumpData }, 'jumpTo'),
-    clearJumpTo: () => set({ jumpData: undefined }, 'clearJumpTo'),
+    setSidebarJumpTo: (jumpData: SidebarCommentJump) => set({ sidebarJumpData: jumpData }, 'jumpToSidebar'),
+    setPaperJumpTo: (jumpData: PaperJump) => set({ paperJumpData: jumpData }, 'jumpToPaper'),
+    clearSidebarJumpTo: () => set({ sidebarJumpData: undefined }, 'clearSidebarJumpTo'),
+    clearPaperJumpTo: () => set({ paperJumpData: undefined }, 'clearPaperJumpTo'),
     setCommentVisibilitySettings: (visibility: Visibility) =>
       set({ commentVisibilty: visibility }, 'commentVisibility'),
     setSidebarTab: (tab: SidebarTab) => set({ sidebarTab: tab }, 'sidebarTab'),
-    setDocument: (document: PDFDocumentProxy) => set({ document }, 'setDocument'),
     setSections: (sections: Section[]) => set({ sections }, 'setSections'),
   };
 };

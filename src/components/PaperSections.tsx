@@ -204,7 +204,7 @@ export const extractSections = (document: PDFDocumentProxy, onSuccess: (sections
 export const PaperSections: React.FC = () => {
   const history = useHistory();
   const { sections, jumpToSection } = usePaperStore(
-    state => ({ sections: state.sections, jumpToSection: state.jumpTo }),
+    state => ({ sections: state.sections, jumpToSection: state.setPaperJumpTo }),
     shallow,
   );
   return (

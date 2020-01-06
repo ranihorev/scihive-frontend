@@ -47,7 +47,7 @@ export const SidebarHighlightItem = React.forwardRef<HTMLDivElement, CommentProp
   const { jumpToHighlight, updateHighlightText, replyToHighlight, removeHighlight } = usePaperStore(
     state => ({
       jumpToHighlight: () => {
-        state.jumpTo({ area: 'paper', type: 'highlight', id: highlight.id, location: highlight.position });
+        state.setPaperJumpTo({ area: 'paper', type: 'highlight', id: highlight.id, location: highlight.position });
         history.push({ hash: `highlight-${highlight.id}` });
       },
       ...pick(state, ['updateHighlightText', 'replyToHighlight', 'removeHighlight']),

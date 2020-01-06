@@ -6,13 +6,13 @@ import React from 'react';
 import { toast } from 'react-toastify';
 import {
   isValidHighlight,
-  JumpToData,
+  PaperJump,
   TempHighlight,
+  T_ExtendedHighlight,
   T_Highlight,
   T_LTWH,
   T_Position,
   T_ScaledPosition,
-  T_ExtendedHighlight,
 } from '../../../models';
 import { presets } from '../../../utils';
 import { Popup } from '../../Popup';
@@ -140,7 +140,7 @@ interface AllHighlights {
   screenshot: (boundingRect: T_LTWH) => string;
   onHighlightClick: (id: string) => void;
   scaledPositionToViewport: (position: T_ScaledPosition) => T_Position;
-  jumpData?: JumpToData;
+  jumpData?: PaperJump;
 }
 
 export const PageHighlights: React.FC<AllHighlights> = ({

@@ -136,7 +136,7 @@ export interface References {
 
 export type SidebarTab = 'Sections' | 'Comments';
 
-interface CommentJump {
+export interface SidebarCommentJump {
   id: string;
   type: 'comment';
   area: 'sidebar';
@@ -157,11 +157,7 @@ interface HighlightPaperJump extends BasePaperJump {
   location: T_ScaledPosition;
 }
 
-export type PaperIdParams = RouteComponentProps<{ PaperId: string }>['match'];
-
-type PaperJump = SectionPaperJump | HighlightPaperJump;
-
-export type JumpToData = PaperJump | CommentJump;
+export type PaperJump = SectionPaperJump | HighlightPaperJump;
 
 export interface TwitterLink {
   link: string;

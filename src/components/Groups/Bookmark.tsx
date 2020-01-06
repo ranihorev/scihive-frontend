@@ -8,35 +8,27 @@ import StarBorderIcon from '@material-ui/icons/StarBorder';
 import Color from 'color';
 import { isEmpty } from 'lodash';
 import React from 'react';
-import { connect } from 'react-redux';
 import shallow from 'zustand/shallow';
 import { AddToListIcon } from '../../icons/addToList';
-import { Group, RootState } from '../../models';
+import { Group } from '../../models';
 import { useUserStore } from '../../stores/user';
-import { addRemovePaperToGroup, bookmarkPaper } from '../../thunks';
+import { AddRemoveBookmark, AddRemovePaperToGroup } from '../../stores/utils';
 import { presets } from '../../utils';
 import { BASE_GROUP_COLOR, COLORS, GROUP_COLORS, smallIconPadding } from '../../utils/presets';
 import { ArrowTooltip } from '../ArrowTooltip';
-import { EditGroup } from './EditGroup';
 import { PopoverMenu } from '../PopoverMenu';
+import { EditGroup } from './EditGroup';
 
 interface BookmarkProps {
-  isBookmarked?: boolean;
+  isBookmarked: boolean;
+  setBookmark: (props: AddRemoveBookmark) => void;
+  updatePaperGroup: (props: AddRemovePaperToGroup) => void;
   color?: string | undefined;
   size?: number;
   paperId: string;
   position?: 'right' | 'center' | 'left';
   selectedGroupIds: string[];
   type: 'single' | 'list';
-}
-
-interface BookmarkStateProps {
-  isBookmarked: boolean;
-}
-
-interface BookmarkDispatchProps {
-  setBookmark: (...args: Parameters<typeof bookmarkPaper>) => void;
-  updatePaperGroup: (...args: Parameters<typeof addRemovePaperToGroup>) => void;
 }
 
 const NewGroup: React.FC = () => {
@@ -83,9 +75,8 @@ const NewGroup: React.FC = () => {
 interface GroupRenderProps {
   group: Group;
   selected: boolean;
-  type: BookmarkProps['type'];
   paperId: string;
-  updatePaperGroup: BookmarkDispatchProps['updatePaperGroup'];
+  updatePaperGroup: (props: AddRemovePaperToGroup) => void;
   onEdit: () => void;
 }
 
@@ -101,7 +92,7 @@ const baseGroupCss = css`
   padding: 7px;
 `;
 
-const GroupRender: React.FC<GroupRenderProps> = ({ group, selected, paperId, type, updatePaperGroup, onEdit }) => {
+const GroupRender: React.FC<GroupRenderProps> = ({ group, selected, paperId, updatePaperGroup, onEdit }) => {
   let backgroundHoverColor;
   const backgroundColor = GROUP_COLORS[group.color || BASE_GROUP_COLOR];
   try {
@@ -128,7 +119,7 @@ const GroupRender: React.FC<GroupRenderProps> = ({ group, selected, paperId, typ
             }
           `}
           onClick={() => {
-            updatePaperGroup({ type, paperId, groupId: group.id, shouldAdd: !selected });
+            updatePaperGroup({ paperId, groupId: group.id, shouldAdd: !selected });
           }}
         >
           <div
@@ -162,13 +153,12 @@ const GroupRender: React.FC<GroupRenderProps> = ({ group, selected, paperId, typ
   );
 };
 
-// isBookmarked and setBookmark are from the redux store
-const Bookmark: React.FC<BookmarkProps & BookmarkStateProps & BookmarkDispatchProps> = ({
+const Bookmark: React.FC<BookmarkProps> = ({
   isBookmarked,
-  selectedGroupIds,
-  paperId,
   setBookmark,
   updatePaperGroup,
+  selectedGroupIds,
+  paperId,
   color = COLORS.grey,
   size = 18,
   type,
@@ -177,6 +167,7 @@ const Bookmark: React.FC<BookmarkProps & BookmarkStateProps & BookmarkDispatchPr
     state => ({ groups: state.groups, toggleLoginModal: state.toggleLoginModal, isLoggedIn: Boolean(state.userData) }),
     shallow,
   );
+
   const [isOpen, setIsOpen] = React.useState(false);
   const [groupInEdit, setGroupInEdit] = React.useState<Group | undefined>(undefined);
   const anchorRef = React.useRef<HTMLDivElement>(null);
@@ -203,13 +194,13 @@ const Bookmark: React.FC<BookmarkProps & BookmarkStateProps & BookmarkDispatchPr
     return () => clearTimeoutHelper();
   }, []);
 
-  const setBookmarkWrapper = (...args: Parameters<typeof setBookmark>) => {
+  const setBookmarkWrapper = () => {
     setIsListsTooltipOpen(true);
 
     timeoutId.current = setTimeout(() => {
       setIsListsTooltipOpen(false);
     }, 5000);
-    setBookmark(...args);
+    setBookmark({ paperId, checked: !isBookmarked });
   };
 
   const Star = isBookmarked ? StarIcon : StarBorderIcon;
@@ -222,7 +213,7 @@ const Bookmark: React.FC<BookmarkProps & BookmarkStateProps & BookmarkDispatchPr
       `}
     >
       <div {...(!isBookmarked ? { 'data-rh': 'Add to my library' } : {})} data-rh-at="left">
-        <IconButton onClick={() => setBookmarkWrapper(type, paperId, !isBookmarked)} buttonRef={anchorRef} size="small">
+        <IconButton onClick={() => setBookmarkWrapper()} buttonRef={anchorRef} size="small">
           <Star style={{ width: size, height: size, color, padding: smallIconPadding }} />
         </IconButton>
       </div>
@@ -290,7 +281,7 @@ const Bookmark: React.FC<BookmarkProps & BookmarkStateProps & BookmarkDispatchPr
                 return (
                   <GroupRender
                     key={group.id}
-                    {...{ group, paperId, type, selected, updatePaperGroup }}
+                    {...{ group, paperId, selected, updatePaperGroup }}
                     onEdit={() => setGroupInEdit(group)}
                   />
                 );
@@ -304,23 +295,4 @@ const Bookmark: React.FC<BookmarkProps & BookmarkStateProps & BookmarkDispatchPr
   );
 };
 
-const mapStateToProps = (state: RootState, props: BookmarkProps) => {
-  return {
-    isBookmarked: props.isBookmarked !== undefined ? props.isBookmarked : state.paper.isBookmarked,
-  };
-};
-
-const mapDispatchToProps = (dispatch: RTDispatch): BookmarkDispatchProps => {
-  return {
-    setBookmark: (...args) => {
-      dispatch(bookmarkPaper(...args));
-    },
-    updatePaperGroup: payload => {
-      dispatch(addRemovePaperToGroup(payload));
-    },
-  };
-};
-
-const withRedux = connect(mapStateToProps, mapDispatchToProps);
-
-export default withRedux(Bookmark);
+export default Bookmark;

@@ -4,13 +4,12 @@ import IconButton from '@material-ui/core/IconButton';
 import Tab from '@material-ui/core/Tab';
 import Tabs from '@material-ui/core/Tabs';
 import React from 'react';
-import { connect } from 'react-redux';
-import { Dispatch } from 'redux';
-import { actions } from '../actions';
-import { RootState } from '../models';
 import { presets } from '../utils';
 import HighlightsList from './HighlightsList';
 import { PaperSections } from './PaperSections';
+import { usePaperStore } from '../stores/paper';
+import shallow from 'zustand/shallow';
+import { pick } from 'lodash';
 
 export const CollapseButton: React.FC<{ direction: 'left' | 'right'; onClick: () => void }> = ({
   direction,
@@ -37,8 +36,6 @@ const tabCss = css`
 
 type Tab = 'Comments' | 'Sections';
 interface Props {
-  selectedTab: Tab;
-  setSelectedTab: (tab: Tab) => void;
   height: number;
   width: number;
   isCollapsed: boolean;
@@ -46,18 +43,11 @@ interface Props {
   onCollapseClick: () => void;
 }
 
-const SidebarRender: React.FC<Props> = ({
-  selectedTab,
-  setSelectedTab,
-  height,
-  width,
-  isCollapsed,
-  isVertical,
-  onCollapseClick,
-}) => {
+export const Sidebar: React.FC<Props> = ({ height, width, isCollapsed, isVertical, onCollapseClick }) => {
+  const { sidebarTab, setSidebarTab } = usePaperStore(state => pick(state, ['sidebarTab', 'setSidebarTab']), shallow);
   if (isCollapsed) return null;
   let content = null;
-  switch (selectedTab) {
+  switch (sidebarTab) {
     case 'Comments':
       content = <HighlightsList isVertical={isVertical} />;
       break;
@@ -98,8 +88,8 @@ const SidebarRender: React.FC<Props> = ({
         <CollapseButton direction={isCollapsed ? 'right' : 'left'} onClick={onCollapseClick} />
 
         <Tabs
-          value={selectedTab}
-          onChange={(e, value) => setSelectedTab(value)}
+          value={sidebarTab}
+          onChange={(e, value) => setSidebarTab(value)}
           indicatorColor="primary"
           variant="scrollable"
           scrollButtons="off"
@@ -115,15 +105,3 @@ const SidebarRender: React.FC<Props> = ({
     </div>
   );
 };
-
-const mapStateToProps = (state: RootState) => ({
-  selectedTab: state.paper.sidebarTab,
-});
-
-const mapDispatchToProps = (dispatch: Dispatch) => ({
-  setSelectedTab: (tab: Tab) => dispatch(actions.setSidebarTab(tab)),
-});
-
-const withRedux = connect(mapStateToProps, mapDispatchToProps);
-
-export const Sidebar = withRedux(SidebarRender);

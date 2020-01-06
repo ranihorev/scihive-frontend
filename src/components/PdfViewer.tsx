@@ -1,14 +1,13 @@
 /** @jsx jsx */
 import { css, jsx } from '@emotion/core';
 import { Paper } from '@material-ui/core';
-import React, { Component } from 'react';
+import { pick } from 'lodash';
+import React from 'react';
 import { isMobile } from 'react-device-detect';
-import { connect } from 'react-redux';
-import { RouteComponentProps, withRouter } from 'react-router';
 import { Link } from 'react-router-dom';
-import { Dispatch } from 'redux';
-import { actions } from '../actions';
-import { Reference, References, RootState, Section, T_Highlight } from '../models';
+import shallow from 'zustand/shallow';
+import { Reference } from '../models';
+import { usePaperStore } from '../stores/paper';
 import { presets } from '../utils';
 import { popupCss } from '../utils/presets';
 import { PdfAnnotator, PdfLoader } from './Pdf';
@@ -54,128 +53,59 @@ const ReferencesPopupManager: React.FC<{
   return <PopupManager anchorEl={referencePopoverAnchor} clearAnchor={clearAnchor} popupContent={content} />;
 };
 
-interface PdfViewerProps extends RouteComponentProps {
+interface PdfViewerProps {
   url: string;
   isVertical: boolean;
-  beforeLoad: React.ReactElement;
-  sections?: Section[];
-  references: References;
-  highlights: T_Highlight[];
-  clearJumpTo: () => void;
-  updateHighlight: (highlight: T_Highlight) => void;
 }
 
-interface PdfViewerState {
-  referencePopoverAnchor?: HTMLElement;
-  referenceCite: string;
-  highlightPopoverAnchor?: HTMLElement;
-}
+const PdfViewer: React.FC<PdfViewerProps> = ({ url, isVertical }) => {
+  const { references } = usePaperStore(state => pick(state, ['references']), shallow);
+  const [referencePopoverState, setReferencePopoverState] = React.useState<{ anchor?: HTMLElement; citeId: string }>({
+    citeId: '',
+  });
+  const [highlightPopoverAnchor, setHighlightPopoverAnchor] = React.useState<HTMLElement | undefined>();
 
-class PdfViewer extends Component<PdfViewerProps, PdfViewerState> {
-  state: PdfViewerState = { referenceCite: '' };
-
-  componentDidMount() {
-    // const re = new RegExp('(?<type>(section|highlight))-(?<id>.*)');
-    // const whereTo = window.location.hash.match(re);
-    // if (whereTo && whereTo.groups) {
-    //   const { type, id } = whereTo.groups;
-    //   if (type === 'highlight') {
-    //     const highlight = this.props.highlights.find(h => h.id === id);
-    //     if (highlight) {
-    //       this.props.jumpTo(type, id, highlight.position);
-    //     }
-    //   } else if (type === 'section') {
-    //     if (this.props.sections[id]) {
-    //       this.props.jumpTo(type, id, getSectionPosition(this.props.sections[id]));
-    //     }
-    //   }
-    // }
-  }
-
-  render() {
-    const { url, isVertical, beforeLoad, references } = this.props;
-    const { referencePopoverAnchor, highlightPopoverAnchor, referenceCite } = this.state;
-    const errorStyle = {
-      position: 'absolute',
-      top: '50%',
-      left: '50%',
-      transform: 'translate(-50%, -50%)',
-    } as const;
-    return (
-      <React.Fragment>
-        <PdfLoader
-          key={url}
-          url={url}
-          beforeLoad={beforeLoad}
-          failed={<div style={errorStyle}>Failed to download paper</div>}
-        >
-          {pdfDocument => (
-            <PdfAnnotator
-              pdfDocument={pdfDocument}
-              enableAreaSelection={event => event.altKey}
-              isVertical={isVertical}
-              onReferenceEnter={e => {
-                const target = e.target as HTMLElement;
-                if (!target) return;
-                const cite = decodeURIComponent((target.getAttribute('href') || '').replace('#cite.', ''));
-                if (references.hasOwnProperty(cite)) {
-                  if (isMobile) {
-                    target.onclick = event => {
-                      event.preventDefault();
-                    };
-                  }
-                  if (e.type === 'click' && !isMobile) {
-                    this.setState({ referencePopoverAnchor: undefined, referenceCite: '' });
-                  } else {
-                    this.setState({
-                      referencePopoverAnchor: target,
-                      referenceCite: cite,
-                    });
-                  }
-                }
-              }}
-            />
-          )}
-        </PdfLoader>
-        {references && (
-          <ReferencesPopupManager
-            referencePopoverAnchor={referencePopoverAnchor}
-            clearAnchor={() => this.setState({ referencePopoverAnchor: undefined, referenceCite: '' })}
-            reference={references[referenceCite]}
-          />
-        )}
-        <PopupManager
-          anchorEl={highlightPopoverAnchor}
-          clearAnchor={() => {
-            this.setState({ highlightPopoverAnchor: undefined });
+  return (
+    <React.Fragment>
+      <PdfLoader key={url} url={url}>
+        <PdfAnnotator
+          enableAreaSelection={event => event.altKey}
+          isVertical={isVertical}
+          onReferenceEnter={e => {
+            const target = e.target as HTMLElement;
+            if (!target) return;
+            const cite = decodeURIComponent((target.getAttribute('href') || '').replace('#cite.', ''));
+            if (references.hasOwnProperty(cite)) {
+              if (isMobile) {
+                target.onclick = event => {
+                  event.preventDefault();
+                };
+              }
+              if (e.type === 'click' && !isMobile) {
+                setReferencePopoverState({ citeId: '' });
+              } else {
+                setReferencePopoverState({ anchor: target, citeId: cite });
+              }
+            }
           }}
-          popupContent={<div>Hello</div>}
         />
-      </React.Fragment>
-    );
-  }
-}
-
-const mapStateToProps = (state: RootState) => {
-  return {
-    sections: state.paper.sections,
-    references: state.paper.references,
-    highlights: state.paper.highlights,
-  };
+      </PdfLoader>
+      {references && (
+        <ReferencesPopupManager
+          referencePopoverAnchor={referencePopoverState.anchor}
+          clearAnchor={() => setReferencePopoverState({ citeId: '' })}
+          reference={references[referencePopoverState.citeId]}
+        />
+      )}
+      <PopupManager
+        anchorEl={highlightPopoverAnchor}
+        clearAnchor={() => {
+          setHighlightPopoverAnchor(undefined);
+        }}
+        popupContent={<div>Hello</div>}
+      />
+    </React.Fragment>
+  );
 };
 
-const mapDispatchToProps = (dispatch: Dispatch) => ({
-  clearJumpTo: () => {
-    dispatch(actions.clearJumpTo());
-  },
-  updateHighlight: (highlight: T_Highlight) => {
-    dispatch(actions.updateHighlight(highlight));
-  },
-});
-
-const withRedux = connect(
-  mapStateToProps,
-  mapDispatchToProps,
-);
-
-export default withRouter(withRedux(PdfViewer));
+export default PdfViewer;

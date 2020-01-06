@@ -1,11 +1,10 @@
 import axios from 'axios';
-import create, { GetState, PartialState, State } from 'zustand';
-import { devtools } from 'zustand/middleware';
+import { GetState } from 'zustand';
 import { Group, User } from '../models';
 import { notifyOnNewGroup } from '../notifications/newGroup';
 import { track } from '../Tracker';
 import { GroupColor } from '../utils/presets';
-import { NamedSetState } from './utils';
+import { createWithDevtools, NamedSetState } from './utils';
 
 interface UserState {
   isLoginModalOpen: boolean;
@@ -82,15 +81,8 @@ const stateAndActions = (set: NamedSetState<UserState>, get: GetState<UserState>
         .catch(e => console.warn(e.message));
     },
     toggleLoginModal: (message?: string) =>
-      set(
-        state => ({ ...state, isLoginModalOpen: !state.isLoginModalOpen, loginModalMessage: message }),
-        'toggleLoginModal',
-      ),
+      set(state => ({ isLoginModalOpen: !state.isLoginModalOpen, loginModalMessage: message }), 'toggleLoginModal'),
   };
 };
 
-type StateAndActions = ReturnType<typeof stateAndActions>;
-
-export const [useUserStore, userStoreApi] = create<StateAndActions>(
-  process.env.NODE_ENV === 'development' ? devtools(stateAndActions) : stateAndActions,
-);
+export const [useUserStore, userStoreApi] = createWithDevtools(stateAndActions, 'User');

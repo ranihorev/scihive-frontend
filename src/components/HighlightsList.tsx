@@ -1,19 +1,15 @@
 /** @jsx jsx */
 import { css, jsx } from '@emotion/core';
+import { Switch } from '@material-ui/core';
 import IconButton from '@material-ui/core/IconButton';
 import Tooltip from '@material-ui/core/Tooltip';
-import axios from 'axios';
-import { isEmpty } from 'lodash';
+import { isEmpty, pick } from 'lodash';
 import React from 'react';
 import { useCookies } from 'react-cookie';
-import { connect } from 'react-redux';
-import { Dispatch } from 'redux';
-import useReactRouter from 'use-react-router';
-import { actions } from '../actions';
-import { JumpToData, RootState, T_Highlight, T_ScaledPosition } from '../models';
-import { linkButton, themePalette, COLORS } from '../utils/presets';
+import shallow from 'zustand/shallow';
+import { usePaperStore } from '../stores/paper';
+import { COLORS, linkButton, themePalette } from '../utils/presets';
 import { SidebarHighlightItem } from './sidebarHighlightItem';
-import { Switch } from '@material-ui/core';
 
 const WELCOME_COOKIE = 'comments-welcome';
 
@@ -47,45 +43,18 @@ const WelcomeMessage: React.FC = () => {
   );
 };
 
-interface CommentsListProps {
-  highlights: T_Highlight[];
-  removeHighlight: (highlightId: string) => void;
-  updateHighlight: (highlight: T_Highlight) => void;
-  toggleHighlightsVisiblity: () => void;
-  isHighlightsHidden: boolean;
-  jumpToHighlight: (id: string, location: T_ScaledPosition) => void;
-  isVertical: boolean;
-  jumpData?: JumpToData;
-  clearJumpTo: () => void;
-}
-
-const HighlightsList: React.FC<CommentsListProps> = ({
-  highlights,
-  removeHighlight: removeHighlightAction,
-  updateHighlight,
-  toggleHighlightsVisiblity,
-  isHighlightsHidden,
-  jumpToHighlight,
-  isVertical,
-  jumpData,
-  clearJumpTo,
-}) => {
+const HighlightsList: React.FC<{ isVertical: boolean }> = ({ isVertical }) => {
   const [focusedId, setFocusedId] = React.useState();
   const [hideEmpty, setHideEmpty] = React.useState(false);
   const containerRef = React.useRef<HTMLDivElement>(null);
   const highlightsRef = React.useRef<{ [key: string]: React.RefObject<HTMLDivElement> }>({});
-  const {
-    match: { params },
-  } = useReactRouter();
-
-  const removeHighlight = (highlightId: string) => {
-    axios
-      .delete(`/paper/${params.PaperId}/comment/${highlightId}`)
-      .then(() => {
-        removeHighlightAction(highlightId);
-      })
-      .catch((err: any) => console.log(err.response));
-  };
+  const { jumpData, highlights, clearJumpTo, isHighlightsHidden, toggleHighlightsVisiblity } = usePaperStore(
+    state => ({
+      ...pick(state, ['jumpData', 'highlights', 'clearJumpTo', 'toggleHighlightsVisiblity']),
+      isHighlightsHidden: !isEmpty(state.hiddenHighlights),
+    }),
+    shallow,
+  );
 
   // Event listener to hash change
   React.useEffect(() => {
@@ -128,9 +97,6 @@ const HighlightsList: React.FC<CommentsListProps> = ({
               isFocused={highlight.id === focusedId}
               ref={highlightsRef.current[highlight.id]}
               highlight={highlight}
-              removeHighlight={removeHighlight}
-              updateHighlight={updateHighlight}
-              jumpToHighlight={() => jumpToHighlight(highlight.id, highlight.position)}
             />
           );
         })}
@@ -170,33 +136,4 @@ const HighlightsList: React.FC<CommentsListProps> = ({
   );
 };
 
-const mapStateToProps = (state: RootState) => {
-  return {
-    highlights: state.paper.highlights,
-    isHighlightsHidden: !isEmpty(state.paper.hiddenHighlights),
-    jumpData: state.paper.jumpData,
-  };
-};
-
-const mapDispatchToProps = (dispatch: Dispatch) => {
-  return {
-    removeHighlight: (highlightId: string) => {
-      dispatch(actions.removeHighlight(highlightId));
-    },
-    updateHighlight: (highlight: T_Highlight) => {
-      dispatch(actions.updateHighlight(highlight));
-    },
-    toggleHighlightsVisiblity: () => {
-      dispatch(actions.toggleHighlightsVisiblity());
-    },
-    jumpToHighlight: (id: string, location: T_ScaledPosition) => {
-      dispatch(actions.jumpTo({ area: 'paper', type: 'highlight', id, location }));
-    },
-    clearJumpTo: () => {
-      dispatch(actions.clearJumpTo());
-    },
-  };
-};
-const withRedux = connect(mapStateToProps, mapDispatchToProps);
-
-export default withRedux(HighlightsList);
+export default HighlightsList;

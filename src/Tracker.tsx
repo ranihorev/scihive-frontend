@@ -2,8 +2,6 @@ import React, { useEffect } from 'react';
 import ReactGA from 'react-ga';
 import useReactRouter from 'use-react-router';
 import * as mixpanel from 'mixpanel-browser';
-import { Middleware, MiddlewareAPI, Dispatch } from 'redux';
-import { actions, Action } from './actions';
 
 ReactGA.initialize('UA-88259675-7');
 if (process.env.REACT_APP_MIXPANEL_TOKEN) {
@@ -40,27 +38,22 @@ export const useTracker = (options = {}) => {
   return null;
 };
 
-export const trackerMiddleware: Middleware = ({ getState }: MiddlewareAPI) => (next: Dispatch) => (action: Action) => {
-  if (typeof action === 'object') {
-    const actionType = action.type as keyof typeof actionsHandler;
-    const handler = actionsHandler[actionType];
-    let data = undefined;
-    if (handler) {
-      data = handler(action as any, getState());
-    }
-    if (data !== null) {
-      track(action.type, data);
-    }
-  }
-  const returnValue = next(action);
-  return returnValue;
-};
+// export const trackerMiddleware: Middleware = ({ getState }: MiddlewareAPI) => (next: Dispatch) => (action: Action) => {
+//   if (typeof action === 'object') {
+//     const actionType = action.type as keyof typeof actionsHandler;
+//     const handler = actionsHandler[actionType];
+//     let data = undefined;
+//     if (handler) {
+//       data = handler(action as any, getState());
+//     }
+//     if (data !== null) {
+//       track(action.type, data);
+//     }
+//   }
+//   const returnValue = next(action);
+//   return returnValue;
+// };
 
-const actionsHandler: {
-  [K in keyof typeof actions]?: (action: ReturnType<typeof actions[K]>, state: RootState) => object | null;
-} = {
-  toggleCategoriesModal: () => null,
-  setTotalPapers: () => null,
-  addPapers: () => null,
-  clearPapers: () => null,
-};
+// const actionsHandler: {
+//   [K in keyof typeof actions]?: (action: ReturnType<typeof actions[K]>, state: RootState) => object | null;
+// } = {};

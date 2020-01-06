@@ -2,21 +2,16 @@
 import { css, jsx } from '@emotion/core';
 import { Button, Select, TextField } from '@material-ui/core';
 import React from 'react';
-import { connect } from 'react-redux';
-import { Dispatch } from 'redux';
 import shallow from 'zustand/shallow';
-import { actions } from '../../../actions';
-import { RootState, T_Highlight, VISIBILITIES, Visibility, VisibilityType } from '../../../models';
+import { T_Highlight, Visibility, VISIBILITIES, VisibilityType } from '../../../models';
+import { usePaperStore } from '../../../stores/paper';
 import { useUserStore } from '../../../stores/user';
 import { presets } from '../../../utils';
 
 interface TipProps {
   onConfirm: (comment: T_Highlight['comment'], visibility: Visibility) => void;
-  paperGroupIds: string[];
   onOpen: () => void;
   onMouseDown?: (e: React.MouseEvent) => void;
-  setCommentVisibilty: (settings: Visibility) => void;
-  visibilitySettings: Visibility;
 }
 
 export const CompactTip: React.FunctionComponent = ({ children }) => (
@@ -33,19 +28,28 @@ export const CompactTip: React.FunctionComponent = ({ children }) => (
   </div>
 );
 
-interface VisibilityControlProps extends Pick<TipProps, 'visibilitySettings' | 'paperGroupIds'> {
-  onVisibiltyChange: (e: React.ChangeEvent<{ value: unknown }>) => void;
-}
-
-const VisibilityControl: React.FC<VisibilityControlProps> = ({
-  visibilitySettings,
-  onVisibiltyChange,
-  paperGroupIds,
-}) => {
+const VisibilityControl: React.FC = () => {
+  const { visibilitySettings, paperGroupIds, setCommentVisibilty } = usePaperStore(
+    state => ({
+      visibilitySettings: state.commentVisibilty,
+      paperGroupIds: state.groupIds,
+      setCommentVisibilty: state.setCommentVisibilitySettings,
+    }),
+    shallow,
+  );
   const { username, groups } = useUserStore(
     state => ({ username: state.userData?.username, groups: state.groups.filter(g => paperGroupIds.includes(g.id)) }),
     shallow,
   );
+
+  const onVisibiltyChange = (event: React.ChangeEvent<{ value: unknown }>) => {
+    const value = event.target.value as string;
+    if ((VISIBILITIES as Readonly<string[]>).includes(value)) {
+      setCommentVisibilty({ type: value as VisibilityType });
+    } else {
+      setCommentVisibilty({ type: 'group', id: value });
+    }
+  };
   const fontSize = 13;
   const textMinWidth = 70;
   return (
@@ -118,31 +122,16 @@ const CompactTipButton: React.FC<{ onClick: (e: React.MouseEvent) => void; icon:
   </div>
 );
 
-const Tip: React.FC<TipProps> = ({
-  onConfirm,
-  onOpen,
-  paperGroupIds,
-  onMouseDown = () => {},
-  setCommentVisibilty,
-  visibilitySettings,
-}) => {
+const Tip: React.FC<TipProps> = ({ onConfirm, onOpen, onMouseDown = () => {} }) => {
   const isLoggedIn = useUserStore(state => Boolean(state.userData));
   const firstFocus = React.useRef(true);
   const [isCompact, setIsCompact] = React.useState(true);
   const [text, setText] = React.useState('');
+  const visibilitySettings = usePaperStore(state => state.commentVisibilty);
 
   const onSubmit = (event: React.MouseEvent | React.FormEvent) => {
     event.preventDefault();
     onConfirm({ text }, visibilitySettings);
-  };
-
-  const onVisibiltyChange = (event: React.ChangeEvent<{ value: unknown }>) => {
-    const value = event.target.value as string;
-    if ((VISIBILITIES as Readonly<string[]>).includes(value)) {
-      setCommentVisibilty({ type: value as VisibilityType });
-    } else {
-      setCommentVisibilty({ type: 'group', id: value });
-    }
   };
 
   return (
@@ -215,7 +204,7 @@ const Tip: React.FC<TipProps> = ({
           </div>
           <div css={{ marginTop: 10 }}>
             {isLoggedIn ? (
-              <VisibilityControl {...{ visibilitySettings, onVisibiltyChange, paperGroupIds }} />
+              <VisibilityControl />
             ) : (
               <div
                 css={css`
@@ -238,20 +227,4 @@ const Tip: React.FC<TipProps> = ({
   );
 };
 
-const mapStateToProps = (state: RootState) => {
-  return {
-    paperGroupIds: state.paper.groupIds,
-    visibilitySettings: state.paper.commentVisibilty,
-  };
-};
-
-const mapDispatchToProps = (dispatch: Dispatch) => {
-  return {
-    setCommentVisibilty: (visibility: Visibility) => {
-      dispatch(actions.setCommentVisibilitySettings(visibility));
-    },
-  };
-};
-const withRedux = connect(mapStateToProps, mapDispatchToProps);
-
-export default withRedux(Tip);
+export default Tip;

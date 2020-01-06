@@ -1,80 +1,48 @@
+import { pick } from 'lodash';
 import pdfjs, { getDocument, PDFDocumentProxy } from 'pdfjs-dist';
 import React from 'react';
-import { connect } from 'react-redux';
-import { Dispatch } from 'redux';
-import { actions } from '../../../actions';
-import { Section } from '../../../models';
+import shallow from 'zustand/shallow';
+import { usePaperStore } from '../../../stores/paper';
 import { extractSections } from '../../PaperSections';
 
 (pdfjs as any).GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${
   (pdfjs as any).version
 }/pdf.worker.js`;
 
-const STATUS = {
-  LOADING: 0,
-  FAILED: -1,
-  SUCCESS: 1,
-};
+enum STATUS {
+  LOADING = 0,
+  FAILED = -1,
+  SUCCESS = 1,
+}
 
 interface Props {
   url: string;
-  beforeLoad: React.ReactElement;
-  failed: React.ReactElement;
-  children: (pdfDocument: PDFDocumentProxy) => React.ReactElement;
-  setDocument: (pdfDocument: PDFDocumentProxy) => void;
-  setSections: (sections: Section[]) => void;
+  children: React.ReactElement;
 }
 
-type State = {
-  pdfDocument?: PDFDocumentProxy;
-  status: number;
-};
+const PdfLoader: React.FC<Props> = ({ url, children }) => {
+  const [status, setStatus] = React.useState<STATUS>(STATUS.LOADING);
+  const { setDocument, setSections, document: pdfDocument } = usePaperStore(
+    state => pick(state, ['setDocument', 'setSections', 'document']),
+    shallow,
+  );
 
-class PdfLoader extends React.Component<Props, State> {
-  state: State = { pdfDocument: undefined, status: STATUS.LOADING };
-
-  componentDidMount() {
-    const { url } = this.props;
+  React.useEffect(() => {
     const doc = getDocument(url);
     doc.promise.then(
-      (pdfDocument: PDFDocumentProxy) => {
-        this.props.setDocument(pdfDocument);
-        extractSections(pdfDocument, this.props.setSections);
-        this.setState({
-          pdfDocument,
-          status: STATUS.SUCCESS,
-        });
+      (newDoc: PDFDocumentProxy) => {
+        setDocument(newDoc);
+        extractSections(newDoc, setSections);
+        setStatus(STATUS.SUCCESS);
       },
       reason => console.error(reason),
     );
+  }, []);
+
+  if (status === STATUS.SUCCESS && pdfDocument) {
+    return children;
   }
+  return null;
+};
 
-  render() {
-    const { children, beforeLoad, failed } = this.props;
-    const { pdfDocument, status } = this.state;
-    switch (status) {
-      case STATUS.FAILED:
-        return failed;
-      case STATUS.SUCCESS:
-        if (!pdfDocument) throw Error('Document is missing');
-        return children(pdfDocument);
-      case STATUS.LOADING:
-        return beforeLoad;
-      default:
-        return failed;
-    }
-  }
-}
-
-const mapDispatchToProps = (dispatch: Dispatch) => ({
-  setDocument: (document: PDFDocumentProxy) => {
-    dispatch(actions.setDocument(document));
-  },
-  setSections: (sections: Section[]) => {
-    dispatch(actions.setSections(sections));
-  },
-});
-
-const withRedux = connect(undefined, mapDispatchToProps);
-
-export default withRedux(PdfLoader);
+export default PdfLoader;

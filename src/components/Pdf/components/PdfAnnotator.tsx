@@ -1,21 +1,15 @@
 /** @jsx jsx */
 import { css, jsx } from '@emotion/core';
 import Fab from '@material-ui/core/Fab';
-import { cloneDeep, debounce, isEmpty } from 'lodash';
-import { PDFDocumentProxy } from 'pdfjs-dist';
+import { cloneDeep, debounce, isEmpty, pick } from 'lodash';
 // @ts-ignore
 import { PDFFindController, PDFLinkService, PDFViewer } from 'pdfjs-dist/web/pdf_viewer';
 import 'pdfjs-dist/web/pdf_viewer.css';
 import React from 'react';
 import ReactDom from 'react-dom';
-import { connect } from 'react-redux';
-import { Dispatch } from 'redux';
-import { actions } from '../../../actions';
+import shallow from 'zustand/shallow';
 import {
   AcronymPositions,
-  Acronyms,
-  JumpToData,
-  RootState,
   TempHighlight,
   T_ExtendedHighlight,
   T_Highlight,
@@ -24,6 +18,7 @@ import {
   T_Position,
   T_ScaledPosition,
 } from '../../../models';
+import { usePaperStore } from '../../../stores/paper';
 import { APP_BAR_HEIGHT } from '../../TopBar/PrimaryAppBar';
 import { scaledToViewport, viewportToScaled } from '../lib/coordinates';
 import getAreaAsPng from '../lib/get-area-as-png';
@@ -87,34 +82,12 @@ const pdfViewerCss = css`
 `;
 
 interface PdfAnnotatorProps {
-  pdfDocument: PDFDocumentProxy;
   isVertical: boolean;
   enableAreaSelection: (event: MouseEvent) => boolean;
   onReferenceEnter: (event: React.MouseEvent) => void;
-  onReferenceLeave?: () => void;
-  highlights: T_Highlight[];
-  acronyms: Acronyms;
-  updateReadingProgress: (progress: number) => void;
-  clearJumpTo: () => void;
-  jumpData?: JumpToData;
-  addHighlight: (highlight: T_Highlight) => void;
-  jumpToComment: (id: string) => void;
 }
 
-const PdfAnnotator: React.FC<PdfAnnotatorProps> = ({
-  pdfDocument,
-  isVertical,
-  enableAreaSelection,
-  onReferenceEnter,
-  onReferenceLeave,
-  highlights,
-  acronyms,
-  updateReadingProgress,
-  clearJumpTo,
-  jumpData,
-  addHighlight,
-  jumpToComment,
-}) => {
+const PdfAnnotator: React.FC<PdfAnnotatorProps> = ({ isVertical, enableAreaSelection, onReferenceEnter }) => {
   // TODO: combine tempHighlight and tooltipData
   const [tempHighlight, setTempHighlight] = React.useState<TempHighlight>();
   const [tooltipData, setTooltipData] = React.useState<TooltipData | undefined>(undefined);
@@ -127,6 +100,25 @@ const PdfAnnotator: React.FC<PdfAnnotatorProps> = ({
   const [firstPageRendered, setFirstPageRendered] = React.useState(false);
   const [acronymPositions, setAcronymPositions] = React.useState<AcronymPositions>({});
   const canZoom = React.useRef(true);
+
+  const {
+    clearJumpTo,
+    jumpData,
+    highlights,
+    jumpToComment,
+    updateReadingProgress,
+    acronyms,
+    document: pdfDocument,
+  } = usePaperStore(
+    state => ({
+      ...pick(state, ['clearJumpTo', 'jumpData', 'highlights', 'updateReadingProgress', 'acronyms', 'document']),
+      jumpToComment: (id: string) => {
+        state.setSidebarTab('Comments');
+        state.jumpTo({ area: 'sidebar', type: 'comment', id });
+      },
+    }),
+    shallow,
+  );
 
   const viewer = React.useRef<PDFViewer>(null);
   const linkService = React.useRef<PDFLinkService>(null);
@@ -314,6 +306,7 @@ const PdfAnnotator: React.FC<PdfAnnotatorProps> = ({
 
   const renderHighlights = () => {
     const highlightsByPage = groupHighlightsByPage();
+    if (!pdfDocument) return;
     for (let pageNumber = 1; pageNumber <= pdfDocument.numPages; pageNumber++) {
       const highlightLayer = findOrCreateHighlightLayer(pageNumber);
       if (highlightLayer) {
@@ -408,7 +401,7 @@ const PdfAnnotator: React.FC<PdfAnnotatorProps> = ({
 
   React.useEffect(() => {
     // Find acronyms in the pdf
-    if (!isDocumentReady || isEmpty(acronyms)) return;
+    if (!pdfDocument || !isDocumentReady || isEmpty(acronyms)) return;
     const { findController } = viewer.current;
     // We are accessing private functions of findController. Not ideal...
     findController._firstPageCapability.promise.then(async () => {
@@ -434,7 +427,7 @@ const PdfAnnotator: React.FC<PdfAnnotatorProps> = ({
       }
       setAcronymPositions(tempAcronymsPos);
     });
-  }, [isDocumentReady, acronyms]);
+  }, [isDocumentReady, acronyms, pdfDocument]);
 
   React.useEffect(() => {
     if (!isDocumentReady || isEmpty(pagesToRenderAcronyms.current) || isEmpty(acronymPositions) || !requestRender)
@@ -490,8 +483,6 @@ const PdfAnnotator: React.FC<PdfAnnotatorProps> = ({
           const target = e.target as HTMLElement;
           if (target.tagName === 'A' && (target.getAttribute('href') || '').includes('#cite')) {
             onReferenceEnter(e);
-          } else if (onReferenceLeave) {
-            onReferenceLeave();
           }
         }}
         css={pdfViewerCss}
@@ -500,7 +491,6 @@ const PdfAnnotator: React.FC<PdfAnnotatorProps> = ({
         <TipContainer
           tooltipData={tooltipData}
           onSuccess={(newHighlight: T_Highlight) => {
-            addHighlight(newHighlight);
             hideTipAndSelection();
           }}
         />
@@ -527,31 +517,4 @@ const PdfAnnotator: React.FC<PdfAnnotatorProps> = ({
   );
 };
 
-const mapStateToProps = (state: RootState) => {
-  return {
-    highlights: state.paper.highlights,
-    acronyms: state.paper.acronyms,
-    jumpData: state.paper.jumpData,
-  };
-};
-
-const mapDispatchToProps = (dispatch: Dispatch) => {
-  return {
-    updateReadingProgress: (pos: number) => {
-      dispatch(actions.updateReadingProgress(pos));
-    },
-    clearJumpTo: () => {
-      dispatch(actions.clearJumpTo());
-    },
-    addHighlight: (highlight: T_Highlight) => {
-      dispatch(actions.addHighlight(highlight));
-    },
-    jumpToComment: (id: string) => {
-      dispatch(actions.setSidebarTab('Comments'));
-      dispatch(actions.jumpTo({ area: 'sidebar', type: 'comment', id }));
-    },
-  };
-};
-const withRedux = connect(mapStateToProps, mapDispatchToProps);
-
-export default withRedux(PdfAnnotator);
+export default PdfAnnotator;

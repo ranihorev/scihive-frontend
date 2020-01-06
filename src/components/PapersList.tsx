@@ -1,16 +1,14 @@
 /** @jsx jsx */
 import { css, jsx } from '@emotion/core';
 import { CircularProgress, FormControl, Grid, Input, MenuItem, Select, Typography } from '@material-ui/core';
-import { isEmpty } from 'lodash';
+import { isEmpty, pick } from 'lodash';
 import * as queryString from 'query-string';
 import React from 'react';
-import { connect } from 'react-redux';
-import { RouteComponentProps, withRouter } from 'react-router';
+import { useHistory, useRouteMatch, useLocation } from 'react-router';
 import shallow from 'zustand/shallow';
-import { actions } from '../actions/papersList';
-import { Group, PaperListItem, PaperListRouterParams, RootState } from '../models';
+import { Group, PaperListRouterParams } from '../models';
+import { RequestParams, usePapersListStore } from '../stores/papersList';
 import { useUserStore } from '../stores/user';
-import { fetchPapers, RequestParams } from '../thunks';
 import * as presets from '../utils/presets';
 import GroupShare from './Groups/GroupShare';
 import InfiniteScroll from './InfiniteScroll';
@@ -52,19 +50,6 @@ interface QueryParams {
   sort?: string;
 }
 
-interface PapersListDispatchProps {
-  setSelectedCategories: (categories: string[]) => void;
-  fetchPapers: (...args: Parameters<typeof fetchPapers>) => void;
-  clearPapers: () => void;
-}
-interface PapersListProps extends PapersListDispatchProps {
-  match: RouteComponentProps<PaperListRouterParams>['match'];
-  location: RouteComponentProps['location'];
-  history: RouteComponentProps['history'];
-  papers: PaperListItem[];
-  totalPapers: number;
-}
-
 const ALL_LISTS = 'All lists';
 
 const getGroupName = (groups: Group[], groupId: string | undefined) => {
@@ -74,20 +59,19 @@ const getGroupName = (groups: Group[], groupId: string | undefined) => {
   return undefined;
 };
 
-const PapersList: React.FC<PapersListProps> = ({
-  match,
-  location,
-  history,
-  setSelectedCategories,
-  fetchPapers,
-  clearPapers,
-  papers,
-  totalPapers,
-}) => {
+const PapersList: React.FC = () => {
   const { groups, inviteGroup } = useUserStore(
     state => ({ groups: state.groups, inviteGroup: state.inviteGroup }),
     shallow,
   );
+  const { fetchPapers, clearPapers, totalPapers, papers } = usePapersListStore(
+    state => pick(state, ['fetchPapers', 'clearPapers', 'totalPapers', 'papers']),
+    shallow,
+  );
+
+  const match = useRouteMatch<PaperListRouterParams>();
+  const location = useLocation();
+  const history = useHistory();
   const isFirstLoad = React.useRef(true);
   const [scrollId, setScrollId] = React.useState(Math.random());
   const [hasMorePapers, setHasMorePapers] = React.useState(true);
@@ -159,12 +143,6 @@ const PapersList: React.FC<PapersListProps> = ({
       setScrollId(Math.random());
     }
   }, [match.path, location.search, clearPapers, groupId, authorId]);
-
-  React.useLayoutEffect(() => {
-    const q = queryString.parse(location.search);
-    const categories = q.categories as string;
-    if (categories) setSelectedCategories(categories.split(';'));
-  }, [location.search, setSelectedCategories]);
 
   const q = queryString.parse(location.search);
   const age = getAgeQuery(q);
@@ -322,27 +300,4 @@ const PapersList: React.FC<PapersListProps> = ({
   );
 };
 
-const mapStateToProps = (state: RootState) => {
-  return {
-    papers: state.papersList.papers,
-    allCategories: state.papersList.allCategories,
-    selectedCategories: state.papersList.selectedCategories,
-    totalPapers: state.papersList.totalPapers,
-  };
-};
-
-const mapDispatchToProps = (dispatch: RTDispatch): PapersListDispatchProps => ({
-  setSelectedCategories: categories => {
-    dispatch(actions.setSelectedCategories(categories));
-  },
-  fetchPapers: payload => {
-    dispatch(fetchPapers(payload));
-  },
-  clearPapers: () => {
-    dispatch(actions.clearPapers());
-  },
-});
-
-const withRedux = connect(mapStateToProps, mapDispatchToProps);
-
-export default withRedux(withRouter(PapersList));
+export default PapersList;

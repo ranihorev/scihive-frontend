@@ -189,31 +189,6 @@ export interface PaperListRouterParams {
   groupId?: string;
 }
 
-export interface RootState {
-  paper: {
-    readingProgress: number;
-    isBookmarked: boolean;
-    document?: PDFDocumentProxy;
-    sections?: Section[];
-    references: References;
-    highlights: T_Highlight[];
-    hiddenHighlights: T_Highlight[];
-    acronyms: {};
-    sidebarTab: SidebarTab;
-    jumpData?: JumpToData;
-    codeMeta?: CodeMeta;
-    groupIds: string[];
-    commentVisibilty: Visibility;
-  };
-  papersList: {
-    papers: PaperListItem[];
-    totalPapers: number;
-    allCategories: Category[];
-    selectedCategories: string[];
-    isCategoriesModalOpen: boolean;
-  };
-}
-
 interface Author {
   name: string;
 }

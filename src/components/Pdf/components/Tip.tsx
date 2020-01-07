@@ -176,6 +176,7 @@ const Tip: React.FC<TipProps> = ({ onConfirm, onOpen, onMouseDown = () => {} }) 
               variant="outlined"
               value={text}
               fullWidth
+              required
               onChange={event => setText(event.target.value)}
               inputRef={inp => {
                 if (inp && firstFocus.current) {

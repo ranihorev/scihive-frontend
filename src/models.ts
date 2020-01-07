@@ -1,5 +1,4 @@
-import { PDFDocumentProxy, TextContentItem } from 'pdfjs-dist';
-import { RouteComponentProps } from 'react-router';
+import { TextContentItem } from 'pdfjs-dist';
 import { GroupColor } from './utils/presets';
 
 export type OptionalExceptFor<T, TRequired extends keyof T> = Partial<T> & Pick<T, TRequired>;

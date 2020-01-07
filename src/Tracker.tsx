@@ -32,28 +32,8 @@ export const useTracker = (options = {}) => {
     } else {
       console.log(`Track: ${page}`);
     }
-    mixpanel.track(page);
+    track('PageView', { page });
   }, [trackPage, location.pathname, location.search]);
 
   return null;
 };
-
-// export const trackerMiddleware: Middleware = ({ getState }: MiddlewareAPI) => (next: Dispatch) => (action: Action) => {
-//   if (typeof action === 'object') {
-//     const actionType = action.type as keyof typeof actionsHandler;
-//     const handler = actionsHandler[actionType];
-//     let data = undefined;
-//     if (handler) {
-//       data = handler(action as any, getState());
-//     }
-//     if (data !== null) {
-//       track(action.type, data);
-//     }
-//   }
-//   const returnValue = next(action);
-//   return returnValue;
-// };
-
-// const actionsHandler: {
-//   [K in keyof typeof actions]?: (action: ReturnType<typeof actions[K]>, state: RootState) => object | null;
-// } = {};

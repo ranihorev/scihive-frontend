@@ -51,11 +51,10 @@ const stateAndActions = (set: NamedSetState<PapersListState>, get: GetState<Pape
       return { papers: [...state.papers, ...papers], totalPapers };
     }, 'addPapers');
 
-  const clearPapersHelper = () => set(state => ({ papers: [], totalPapers: 0 }));
+  const clearPapersHelper = () => set(state => ({ papers: [], totalPapers: 0 }), 'clearPapers');
 
   return {
     ...initialState,
-    setTotalPapers: (total: number) => set(state => ({ totalPapers: total })),
     clearPapers: () => set(state => ({ papers: [], totalPapers: 0 }), 'clearPapers'),
     fetchPapers: async ({ url, requestParams, setHasMorePapers, finallyCb }: FetchPapers) => {
       const page = requestParams.page_num;

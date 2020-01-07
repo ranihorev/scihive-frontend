@@ -42,7 +42,7 @@ const PdfViewer: React.FC<PdfViewerProps> = ({ url, isVertical, setReferencePopo
       },
       reason => console.error(reason),
     );
-  }, []);
+  }, [url, setPdfDocument, setStatus, setSections]);
 
   return (
     <React.Fragment>

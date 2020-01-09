@@ -59,6 +59,7 @@ const App: React.FC = () => {
         <Switch>
           <Route path="/library" exact component={Home} />
           <Route path="/" exact component={Home} />
+          <Route path="/home" exact component={Home} />
           <Route path="/search/" exact component={Home} />
           <Route path="/author/:authorId" exact component={Home} />
           <Route path="/paper/:PaperId" exact component={Paper} />

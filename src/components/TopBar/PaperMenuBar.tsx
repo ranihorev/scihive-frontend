@@ -1,24 +1,22 @@
 /** @jsx jsx */
 import { jsx } from '@emotion/core';
 import { Divider, MenuItem } from '@material-ui/core';
-import { isEmpty } from 'lodash';
+import { pick } from 'lodash';
 import React, { useState } from 'react';
-import { connect } from 'react-redux';
 import useReactRouter from 'use-react-router';
-import { CodeMeta, RootState } from '../../models';
+import shallow from 'zustand/shallow';
+import { usePaperStore } from '../../stores/paper';
 import { simpleLink } from '../../utils/presets';
-import Bookmark from '../Bookmark';
 import { ButtonIcon } from '../ButtonIcon';
+import Bookmark from '../Groups/Bookmark';
 import { PopoverMenu } from '../PopoverMenu';
 
-interface PaperMenuDekstopProps {
-  isLoggedIn: boolean;
-  codeMeta?: CodeMeta;
-  selectedGroupIds: string[];
-}
-
-const PaperMenuDekstopRender: React.FC<PaperMenuDekstopProps> = ({ isLoggedIn, codeMeta, selectedGroupIds }) => {
+export const PaperDekstopMenu: React.FC = () => {
   const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null);
+  const { codeMeta, groupIds, updatePaperGroups, updateBookmark, isBookmarked } = usePaperStore(
+    state => pick(state, ['codeMeta', 'groupIds', 'updatePaperGroups', 'updateBookmark', 'isBookmarked']),
+    shallow,
+  );
   const isMenuOpen = Boolean(anchorEl);
   const {
     match: { params },
@@ -35,7 +33,16 @@ const PaperMenuDekstopRender: React.FC<PaperMenuDekstopProps> = ({ isLoggedIn, c
 
   return (
     <React.Fragment>
-      <Bookmark paperId={PaperId} color="white" selectedGroupIds={selectedGroupIds} size={23} type="single" />
+      <Bookmark
+        paperId={PaperId}
+        color="white"
+        isBookmarked={isBookmarked}
+        selectedGroupIds={groupIds}
+        updatePaperGroup={updatePaperGroups}
+        setBookmark={updateBookmark}
+        size={23}
+        type="single"
+      />
       <ButtonIcon icon="fas fa-link" size={22} iconSize={16} onClick={handleMenuOpen} />
       <PopoverMenu anchorEl={anchorEl} placement="bottom" open={isMenuOpen} onClose={handleMenuClose}>
         {codeMeta && codeMeta.github && (
@@ -73,19 +80,16 @@ const PaperMenuDekstopRender: React.FC<PaperMenuDekstopProps> = ({ isLoggedIn, c
 
 interface PaperMenuMobileProps {
   handleMobileMenuClick?: () => void;
-  isLoggedIn: boolean;
-  codeMeta?: CodeMeta;
 }
 
-const PaperMenuMobileRender: React.FC<PaperMenuMobileProps> = ({
-  handleMobileMenuClick = () => {},
-  isLoggedIn,
-  codeMeta,
-}) => {
+export const PaperMobileMenu: React.FC<PaperMenuMobileProps> = ({ handleMobileMenuClick = () => {} }) => {
   const {
-    match: { params },
+    match: {
+      params: { PaperId },
+    },
   } = useReactRouter();
-  const { PaperId } = params;
+
+  const codeMeta = usePaperStore(state => state.codeMeta);
 
   return (
     <React.Fragment>
@@ -123,17 +127,3 @@ const PaperMenuMobileRender: React.FC<PaperMenuMobileProps> = ({
     </React.Fragment>
   );
 };
-
-const mapStateToProps = (state: RootState) => {
-  return {
-    isLoggedIn: !isEmpty(state.user.userData),
-    codeMeta: state.paper.codeMeta,
-    selectedGroupIds: state.paper.groupIds,
-  };
-};
-
-const withRedux = connect(mapStateToProps);
-
-export const PaperDekstopMenu = withRedux(PaperMenuDekstopRender);
-
-export const PaperMobileMenu = withRedux(PaperMenuMobileRender);

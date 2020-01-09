@@ -1,24 +1,19 @@
 /** @jsx jsx */
-import { jsx } from '@emotion/core';
 import MomentUtils from '@date-io/moment';
+import { jsx } from '@emotion/core';
 import { Button, IconButton, TextField, Typography } from '@material-ui/core';
-import CloseIcon from '@material-ui/icons/Close';
 import AddIcon from '@material-ui/icons/Add';
+import CloseIcon from '@material-ui/icons/Close';
 import { KeyboardDatePicker, MuiPickersUtilsProvider } from '@material-ui/pickers';
 import produce from 'immer';
+import moment, { Moment } from 'moment';
 import React from 'react';
+import { useHistory } from 'react-router';
 import { FileMetadata } from '../../models';
 import { uploadPaperDetails } from '../../thunks';
-import { connect } from 'react-redux';
 import { presets } from '../../utils';
-import moment, { Moment } from 'moment';
-import { useHistory } from 'react-router';
 
-interface DispatchProps {
-  submitPaperDetails: (data: FileMetadata, onSuccess: (paperId: string) => void) => void;
-}
-
-interface AllProps extends DispatchProps {
+interface AllProps {
   onClose: () => void;
   metadata: FileMetadata;
 }
@@ -39,7 +34,7 @@ class UTCUtils extends MomentUtils {
   };
 }
 
-const MetadataEditorRender: React.FC<AllProps> = ({ submitPaperDetails, onClose, metadata: inputMetadata }) => {
+export const MetadataEditor: React.FC<AllProps> = ({ onClose, metadata: inputMetadata }) => {
   const [metadata, setMetadata] = React.useState({
     ...inputMetadata,
     date: removeTimezone(inputMetadata.date),
@@ -73,7 +68,7 @@ const MetadataEditorRender: React.FC<AllProps> = ({ submitPaperDetails, onClose,
     <form
       onSubmit={e => {
         e.preventDefault();
-        submitPaperDetails(metadata, (paperId: string) => {
+        uploadPaperDetails(metadata, (paperId: string) => {
           history.push(`/paper/${paperId}`);
         });
       }}
@@ -219,15 +214,3 @@ const MetadataEditorRender: React.FC<AllProps> = ({ submitPaperDetails, onClose,
     </form>
   );
 };
-
-const mapDispatchToProps = (dispatch: RTDispatch): DispatchProps => {
-  return {
-    submitPaperDetails: (data, onSuccess) => {
-      dispatch(uploadPaperDetails(data, onSuccess));
-    },
-  };
-};
-
-const withRedux = connect(null, mapDispatchToProps);
-
-export const MetadataEditor = withRedux(MetadataEditorRender);

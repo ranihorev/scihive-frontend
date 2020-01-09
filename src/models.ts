@@ -1,5 +1,4 @@
-import { PDFDocumentProxy, TextContentItem } from 'pdfjs-dist';
-import { RouteComponentProps } from 'react-router';
+import { TextContentItem } from 'pdfjs-dist';
 import { GroupColor } from './utils/presets';
 
 export type OptionalExceptFor<T, TRequired extends keyof T> = Partial<T> & Pick<T, TRequired>;
@@ -136,7 +135,7 @@ export interface References {
 
 export type SidebarTab = 'Sections' | 'Comments';
 
-interface CommentJump {
+export interface SidebarCommentJump {
   id: string;
   type: 'comment';
   area: 'sidebar';
@@ -157,11 +156,7 @@ interface HighlightPaperJump extends BasePaperJump {
   location: T_ScaledPosition;
 }
 
-export type PaperIdParams = RouteComponentProps<{ PaperId: string }>['match'];
-
-type PaperJump = SectionPaperJump | HighlightPaperJump;
-
-export type JumpToData = PaperJump | CommentJump;
+export type PaperJump = SectionPaperJump | HighlightPaperJump;
 
 export interface TwitterLink {
   link: string;
@@ -187,39 +182,6 @@ export interface PaperListItem {
 export interface PaperListRouterParams {
   authorId?: string;
   groupId?: string;
-}
-
-export interface RootState {
-  user: {
-    isLoginModalOpen: boolean;
-    isGroupsModalOpen: boolean;
-    userData?: User;
-    loginModalMessage?: string;
-    groups: Group[];
-  };
-  paper: {
-    readingProgress: number;
-    isBookmarked: boolean;
-    document?: PDFDocumentProxy;
-    sections?: Section[];
-    references: References;
-    highlights: T_Highlight[];
-    hiddenHighlights: T_Highlight[];
-    acronyms: {};
-    sidebarTab: SidebarTab;
-    jumpData?: JumpToData;
-    codeMeta?: CodeMeta;
-    groupIds: string[];
-    commentVisibilty: Visibility;
-  };
-  papersList: {
-    papers: PaperListItem[];
-    totalPapers: number;
-    allCategories: Category[];
-    selectedCategories: string[];
-    isCategoriesModalOpen: boolean;
-    inviteGroup?: Group;
-  };
 }
 
 interface Author {

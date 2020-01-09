@@ -2,7 +2,7 @@
 import { css, jsx } from '@emotion/core';
 import { Button, Card, CardActions, CardContent, Divider, Grid, IconButton, Typography } from '@material-ui/core';
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
-import { isEmpty } from 'lodash';
+import { isEmpty, pick } from 'lodash';
 import moment from 'moment';
 import React, { useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
@@ -10,9 +10,11 @@ import TextTruncate from 'react-text-truncate';
 import { Group, PaperListItem } from '../models';
 import { Latex } from '../utils/latex';
 import * as presets from '../utils/presets';
-import Bookmark from './Bookmark';
+import Bookmark from './Groups/Bookmark';
 import CodeMetaRender from './CodeMeta';
 import TwitterMeta from './TwitterMeta';
+import shallow from 'zustand/shallow';
+import { usePapersListStore } from '../stores/papersList';
 
 const MAIN_COLOR = presets.themePalette.primary.main;
 
@@ -162,6 +164,10 @@ const PapersListItem: React.FC<PapersListItemProps> = ({ paper, groups, showAbst
   const { saved_in_library: isBookmarked, github } = paper;
   const [expanded, setExpanded] = useState(false);
   const params = useParams<{ groupId?: string }>();
+  const { updatePaperGroups, updateBookmark } = usePapersListStore(
+    state => pick(state, ['updatePaperGroups', 'updateBookmark']),
+    shallow,
+  );
 
   const handleExpandClick = (e: React.MouseEvent) => {
     e.preventDefault();
@@ -283,6 +289,8 @@ const PapersListItem: React.FC<PapersListItemProps> = ({ paper, groups, showAbst
           size={20}
           isBookmarked={isBookmarked}
           selectedGroupIds={paper.groups}
+          updatePaperGroup={updatePaperGroups}
+          setBookmark={updateBookmark}
           type="list"
         />
       </div>

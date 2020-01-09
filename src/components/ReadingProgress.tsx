@@ -1,20 +1,8 @@
-import React from 'react';
 import LinearProgress from '@material-ui/core/LinearProgress';
-import { connect } from 'react-redux';
-import { RootState } from '../models';
+import React from 'react';
+import { usePaperStore } from '../stores/paper';
 
-interface ReadingProgressRenderProps {
-  progress: number;
-}
-
-const ReadingProgressRender: React.FC<ReadingProgressRenderProps> = ({ progress }) => {
+export const ReadingProgress: React.FC = () => {
+  const progress = usePaperStore(state => state.readingProgress);
   return <LinearProgress variant="determinate" value={progress} style={{ zIndex: 1 }} />;
 };
-
-const mapStateToProps = (state: RootState) => {
-  return {
-    progress: state.paper.readingProgress,
-  };
-};
-
-export const ReadingProgress = connect(mapStateToProps)(ReadingProgressRender);

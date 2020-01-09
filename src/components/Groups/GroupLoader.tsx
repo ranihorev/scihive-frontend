@@ -1,19 +1,14 @@
 /** @jsx jsx */
-import React from 'react';
-import { connect } from 'react-redux';
 import * as queryString from 'query-string';
+import React from 'react';
 import { matchPath, useHistory, useLocation } from 'react-router-dom';
-import { PaperListRouterParams } from '../models';
-import { loadGroups as loadGroupsThunk } from '../thunks';
-interface GroupJoinerDispatchProps {
-  loadGroups: (...args: Parameters<typeof loadGroupsThunk>) => void;
-}
+import { PaperListRouterParams } from '../../models';
+import { useUserStore } from '../../stores/user';
 
-interface GroupJoinerProps extends GroupJoinerDispatchProps {}
-
-const GroupLoader: React.FC<GroupJoinerProps> = ({ loadGroups }) => {
+const GroupLoader: React.FC = () => {
   const history = useHistory();
   const location = useLocation();
+  const loadGroups = useUserStore(state => state.loadGroups);
 
   React.useEffect(() => {
     const match = matchPath<PaperListRouterParams>(history.location.pathname, {
@@ -36,17 +31,4 @@ const GroupLoader: React.FC<GroupJoinerProps> = ({ loadGroups }) => {
   return null;
 };
 
-const mapDispatchToProps = (dispatch: RTDispatch): GroupJoinerDispatchProps => {
-  return {
-    loadGroups: (groupId, onSuccess) => {
-      dispatch(loadGroupsThunk(groupId, onSuccess));
-    },
-  };
-};
-
-const withRedux = connect(
-  null,
-  mapDispatchToProps,
-);
-
-export default withRedux(GroupLoader);
+export default GroupLoader;

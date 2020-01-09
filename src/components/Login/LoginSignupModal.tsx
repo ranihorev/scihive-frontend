@@ -3,24 +3,28 @@ import { css, jsx } from '@emotion/core';
 import { Button, FormControl, Input, InputLabel, Modal } from '@material-ui/core';
 import axios from 'axios';
 import React, { useState } from 'react';
-import { connect } from 'react-redux';
 import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-import { Dispatch } from 'redux';
-import { actions } from '../actions';
-import { RootState, User } from '../models';
-import * as presets from '../utils/presets';
+import shallow from 'zustand/shallow';
+import { User } from '../../models';
+import { useUserStore } from '../../stores/user';
+import * as presets from '../../utils/presets';
 
 const formControl = css`
   margin-top: 20px;
 `;
 
-interface LoginSignupFormProps {
-  onSubmitSuccess: (data: User) => void;
-  loginModalMessage?: string;
-}
-
-const LoginSignupForm: React.FC<LoginSignupFormProps> = ({ onSubmitSuccess, loginModalMessage = '' }) => {
+const LoginSignupForm: React.FC = () => {
+  const { onSubmitSuccess, loginModalMessage } = useUserStore(
+    state => ({
+      onSubmitSuccess: (user: User) => {
+        state.setUser(user);
+        state.toggleLoginModal();
+      },
+      loginModalMessage: state.loginModalMessage,
+    }),
+    shallow,
+  );
   const [isLogin, setIsLogin] = useState(true);
   const [userData, setUserData] = useState({
     email: '',
@@ -137,52 +141,23 @@ const LoginSignupForm: React.FC<LoginSignupFormProps> = ({ onSubmitSuccess, logi
   );
 };
 
-interface LoginSignupModalProps {
-  isLoginModalOpen: boolean;
-  toggleLoginModal: () => void;
-  onSubmitSuccess: (data: { username: string }) => void;
-  loginModalMessage?: string;
-}
-
-const LoginSignupModal: React.FC<LoginSignupModalProps> = ({
-  isLoginModalOpen,
-  toggleLoginModal,
-  onSubmitSuccess,
-  loginModalMessage,
-}) => {
+const LoginSignupModal: React.FC = () => {
+  const { isLoginModalOpen, toggleLoginModal } = useUserStore(
+    state => ({
+      isLoginModalOpen: state.isLoginModalOpen,
+      toggleLoginModal: () => state.toggleLoginModal(),
+    }),
+    shallow,
+  );
   return (
     <React.Fragment>
       <Modal open={isLoginModalOpen} onClose={toggleLoginModal}>
         <div css={presets.modalCss}>
-          <LoginSignupForm onSubmitSuccess={onSubmitSuccess} loginModalMessage={loginModalMessage} />
+          <LoginSignupForm />
         </div>
       </Modal>
     </React.Fragment>
   );
 };
 
-const mapStateToProps = (state: RootState) => {
-  const { user } = state;
-  return {
-    isLoginModalOpen: user.isLoginModalOpen,
-    userData: user.userData,
-    loginModalMessage: user.loginModalMessage,
-  };
-};
-
-const mapDispatchToProps = (dispatch: Dispatch) => {
-  return {
-    toggleLoginModal: () => {
-      dispatch(actions.toggleLoginModal());
-    },
-    onSubmitSuccess: (data: User) => {
-      dispatch(actions.setUser(data));
-      dispatch(actions.toggleLoginModal());
-    },
-  };
-};
-
-export default connect(
-  mapStateToProps,
-  mapDispatchToProps,
-)(LoginSignupModal);
+export default LoginSignupModal;

@@ -1,22 +1,21 @@
 /** @jsx jsx */
 import { css, jsx } from '@emotion/core';
 import { CircularProgress } from '@material-ui/core';
-import axios from 'axios';
+import { pick } from 'lodash';
 import * as queryString from 'query-string';
 import React, { useEffect, useState } from 'react';
 import { Helmet } from 'react-helmet';
-import { connect } from 'react-redux';
 import { useLocation, useParams } from 'react-router-dom';
-import { Dispatch } from 'redux';
 import useDeepCompareEffect from 'use-deep-compare-effect';
-import { actions } from '../actions';
-import { Acronyms, CodeMeta, References, RootState, T_Highlight, Visibility } from '../models';
+import shallow from 'zustand/shallow';
+import { usePaperStore } from '../stores/paper';
 import { presets } from '../utils';
-import PdfViewer from './PdfViewer';
+import PdfLoader from './Pdf/components/PdfLoader';
 import { ReadingProgress } from './ReadingProgress';
 import Resizer from './Resizer';
 import { CollapseButton, Sidebar } from './Sidebar';
 import { APP_BAR_HEIGHT } from './TopBar/PrimaryAppBar';
+import ReferencesProvider from './ReferencesProvider';
 
 const FETCHING = '-1';
 const FAILED = '0';
@@ -45,27 +44,19 @@ const useWindowDimensions = () => {
   return windowDimensions;
 };
 
-interface PdfCommenterDispatchProps {
-  setBookmark: (value: boolean) => void;
-  setCodeMeta: (meta: CodeMeta) => void;
-  setReferences: (references: References) => void;
-  setHighlights: (highlights: T_Highlight[]) => void;
-  setAcronyms: (acronyms: Acronyms) => void;
-  clearPaper: () => void;
-  setGroups: (groupIds: string[]) => void;
-  setNewCommentsVisibilitySettings: (visibility: Visibility) => void;
-}
+const Loader = () => (
+  <div
+    css={css`
+      position: absolute;
+      top: 50%;
+      left: 50%;
+    `}
+  >
+    <CircularProgress />
+  </div>
+);
 
-const PdfCommenter: React.FC<PdfCommenterDispatchProps> = ({
-  setBookmark,
-  setCodeMeta,
-  setReferences,
-  setHighlights,
-  setAcronyms,
-  clearPaper,
-  setGroups,
-  setNewCommentsVisibilitySettings,
-}) => {
+const PdfCommenter: React.FC = () => {
   const [url, setUrl] = useState(FETCHING);
   const [title, setTitle] = useState('SciHive');
   const { height: pageHeight, width: pageWidth } = useWindowDimensions();
@@ -78,88 +69,40 @@ const PdfCommenter: React.FC<PdfCommenterDispatchProps> = ({
 
   const params = useParams<{ PaperId: string }>();
   const location = useLocation();
+  const { clearPaper, fetchPaper } = usePaperStore(state => pick(state, ['clearPaper', 'fetchPaper']), shallow);
 
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
-
-  const fetch_paper_data = () => {
-    // Fetch refernces
-    axios
-      .get(`/paper/${params.PaperId}/references`)
-      .then(res => {
-        setReferences(res.data);
-      })
-      .catch(err => {
-        console.warn(err.response);
-      });
-
-    // Fetch acronyms
-    axios
-      .get(`/paper/${params.PaperId}/acronyms`)
-      .then(res => {
-        setAcronyms(res.data);
-      })
-      .catch(err => {
-        console.warn(err.response);
-      });
-  };
 
   useDeepCompareEffect(() => {
     // Fetch paper data
     setUrl(FETCHING);
     clearPaper();
-    axios
-      .get(`/paper/${params.PaperId}`)
-      .then(res => {
-        setUrl(res.data.url);
-        setBookmark(res.data.saved_in_library);
-        setCodeMeta(res.data.code);
-        setGroups(res.data.groups);
-        const selectedGroupId = queryString.parse(location.search).list;
-        if (selectedGroupId) {
-          setNewCommentsVisibilitySettings({ type: 'group', id: selectedGroupId as string });
-        }
-        if (res.data.title) setTitle(`SciHive - ${res.data.title}`);
-        fetch_paper_data();
+    const selectedGroupId = queryString.parse(location.search).list as string;
+    fetchPaper({ paperId: params.PaperId, selectedGroupId })
+      .then(data => {
+        setUrl(data.url);
+        if (data.title) setTitle(`SciHive - ${data.title}`);
       })
-      .catch(() => {
+      .catch(e => {
+        console.log(e.response);
         setUrl(FAILED);
       });
-
-    // Fetch comments
-    axios
-      .get(`/paper/${params.PaperId}/comments`, {
-        //params: { group: selectedGroupId },
-      })
-      .then(res => {
-        setHighlights(res.data.comments);
-      })
-      .catch(err => {
-        console.log(err.response);
-      });
   }, [params]);
-
-  const Loader = (
-    <div
-      css={css`
-        position: absolute;
-        top: 50%;
-        left: 50%;
-      `}
-    >
-      <CircularProgress />
-    </div>
-  );
 
   // Vertical is for mobile phones
   const isVertical = window.innerWidth < MOBILE_WIDTH;
 
   let viewerRender = null;
   if (url === FETCHING) {
-    viewerRender = Loader;
+    viewerRender = <Loader />;
   } else if (url === FAILED) {
     viewerRender = <div style={{ textAlign: 'center' }}>PDF file does not exist</div>;
   } else {
-    viewerRender = <PdfViewer beforeLoad={Loader} isVertical={isVertical} url={url} />;
+    viewerRender = (
+      <ReferencesProvider>
+        <PdfLoader isVertical={isVertical} url={url} />
+      </ReferencesProvider>
+    );
   }
 
   const sidebarWidth = pageWidth * (1 - pdfSectionPrct.width);
@@ -286,41 +229,4 @@ const PdfCommenter: React.FC<PdfCommenterDispatchProps> = ({
   );
 };
 
-const mapStateToProps = (state: RootState) => {
-  return {};
-};
-
-const mapDispatchToProps = (dispatch: Dispatch): PdfCommenterDispatchProps => {
-  return {
-    setBookmark: value => {
-      dispatch(actions.setBookmark(value));
-    },
-    clearPaper: () => {
-      dispatch(actions.clearPaper());
-    },
-    setReferences: references => {
-      dispatch(actions.setReferences(references));
-    },
-    setHighlights: highlights => {
-      dispatch(actions.setHighlights(highlights));
-    },
-    setAcronyms: acronyms => {
-      dispatch(actions.setAcronyms(acronyms));
-    },
-    setCodeMeta: meta => {
-      dispatch(actions.setCodeMeta(meta));
-    },
-    setGroups: groupIds => {
-      dispatch(actions.addRemoveGroupIds({ groupIds, shouldAdd: true }));
-    },
-    setNewCommentsVisibilitySettings: visibility => {
-      dispatch(actions.setCommentVisibilitySettings(visibility));
-    },
-  };
-};
-const withRedux = connect(
-  mapStateToProps,
-  mapDispatchToProps,
-);
-
-export default withRedux(PdfCommenter);
+export default PdfCommenter;

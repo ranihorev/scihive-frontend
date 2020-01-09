@@ -4,11 +4,10 @@ import { isEmpty, range } from 'lodash';
 import { PDFDocumentProxy, PDFPageProxy, PDFPromise, TextContent, TextContentItem } from 'pdfjs-dist';
 import React from 'react';
 import ContentLoader from 'react-content-loader';
-import { connect } from 'react-redux';
-import { RouteComponentProps, withRouter } from 'react-router';
-import { Dispatch } from 'redux';
-import { actions } from '../actions';
-import { RootState, Section, SimplePosition } from '../models';
+import { useHistory } from 'react-router';
+import shallow from 'zustand/shallow';
+import { Section } from '../models';
+import { usePaperStore } from '../stores/paper';
 import { getSectionPosition, presets } from '../utils';
 
 const asc = (arr: number[]) => arr.sort((a, b) => a - b);
@@ -202,12 +201,12 @@ export const extractSections = (document: PDFDocumentProxy, onSuccess: (sections
   });
 };
 
-interface PaperSectionsProps extends RouteComponentProps {
-  sections?: Section[];
-  jumpToSection: (index: number, location: { pageNumber: number; position: number }) => void;
-}
-
-const PaperSectionsRender: React.FC<PaperSectionsProps> = ({ sections, jumpToSection, history }) => {
+export const PaperSections: React.FC = () => {
+  const history = useHistory();
+  const { sections, jumpToSection } = usePaperStore(
+    state => ({ sections: state.sections, jumpToSection: state.setPaperJumpTo }),
+    shallow,
+  );
   return (
     <div
       css={css`
@@ -221,7 +220,12 @@ const PaperSectionsRender: React.FC<PaperSectionsProps> = ({ sections, jumpToSec
           return (
             <span
               onClick={() => {
-                jumpToSection(idx, getSectionPosition(section));
+                jumpToSection({
+                  area: 'paper',
+                  type: 'section',
+                  id: idx.toString(),
+                  location: getSectionPosition(section),
+                });
                 history.push({ hash: `section-${idx}` });
               }}
               key={idx}
@@ -247,24 +251,3 @@ const PaperSectionsRender: React.FC<PaperSectionsProps> = ({ sections, jumpToSec
     </div>
   );
 };
-
-const mapStateToProps = (state: RootState) => {
-  return {
-    sections: state.paper.sections,
-  };
-};
-
-const mapDispatchToProps = (dispatch: Dispatch) => {
-  return {
-    jumpToSection: (id: number, location: SimplePosition) => {
-      dispatch(actions.jumpTo({ area: 'paper', type: 'section', id: id.toString(), location }));
-    },
-  };
-};
-
-const withRedux = connect(
-  mapStateToProps,
-  mapDispatchToProps,
-);
-
-export const PaperSections = withRedux(withRouter(PaperSectionsRender));

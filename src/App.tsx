@@ -1,13 +1,12 @@
 import { createMuiTheme, MuiThemeProvider } from '@material-ui/core/styles';
 import axios from 'axios';
-import { isEmpty } from 'lodash';
 import React from 'react';
 import * as ReactHintFactory from 'react-hint';
-import { connect } from 'react-redux';
 import { Route, Switch } from 'react-router-dom';
 import { ToastContainer } from 'react-toastify';
-import GroupLoader from './components/GroupLoader';
-import LoginSignupModal from './components/LoginSignupModal';
+import shallow from 'zustand/shallow';
+import GroupLoader from './components/Groups/GroupLoader';
+import LoginSignupModal from './components/Login/LoginSignupModal';
 import About from './pages/About';
 import Admin from './pages/Admin';
 import Groups from './pages/Groups';
@@ -15,6 +14,7 @@ import Home from './pages/Home';
 import NotFound from './pages/NotFound';
 import Paper from './pages/Paper';
 import './react-hint.css';
+import { useUserStore } from './stores/user';
 import { useTracker } from './Tracker';
 import ChromeExtensionPopup from './utils/chromeExtension';
 import { themePalette } from './utils/presets';
@@ -28,9 +28,10 @@ const theme = createMuiTheme({
 
 const ReactHint = ReactHintFactory(React);
 
-const App: React.FC<{ isLoggedIn: boolean }> = ({ isLoggedIn }) => {
+const App: React.FC = () => {
+  const { user } = useUserStore(state => ({ user: Boolean(state.userData) }), shallow);
   React.useEffect(() => {
-    if (isLoggedIn) {
+    if (user) {
       axios
         .get('/user/validate')
         .then(() => {})
@@ -41,7 +42,6 @@ const App: React.FC<{ isLoggedIn: boolean }> = ({ isLoggedIn }) => {
           }
         });
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   useTracker();
@@ -79,19 +79,4 @@ const App: React.FC<{ isLoggedIn: boolean }> = ({ isLoggedIn }) => {
   );
 };
 
-const mapStateToProps = (state: RootState) => {
-  return {
-    isLoggedIn: !isEmpty(state.user.userData),
-  };
-};
-
-const mapDispatchToProps = (dispatch: RTDispatch) => {
-  return {};
-};
-
-const withRedux = connect(
-  mapStateToProps,
-  mapDispatchToProps,
-);
-
-export default withRedux(App);
+export default App;

@@ -1,80 +1,78 @@
+/** @jsx jsx */
+import { jsx } from '@emotion/core';
+import { pick } from 'lodash';
 import pdfjs, { getDocument, PDFDocumentProxy } from 'pdfjs-dist';
 import React from 'react';
-import { connect } from 'react-redux';
-import { Dispatch } from 'redux';
-import { actions } from '../../../actions';
-import { Section } from '../../../models';
+import { isMobile } from 'react-device-detect';
+import shallow from 'zustand/shallow';
+import { PdfAnnotator } from '..';
+import { usePaperStore } from '../../../stores/paper';
 import { extractSections } from '../../PaperSections';
+import { ReferencesPopoverState } from '../../ReferencesProvider';
 
 (pdfjs as any).GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${
   (pdfjs as any).version
 }/pdf.worker.js`;
 
-const STATUS = {
-  LOADING: 0,
-  FAILED: -1,
-  SUCCESS: 1,
-};
-
-interface Props {
+interface PdfViewerProps {
   url: string;
-  beforeLoad: React.ReactElement;
-  failed: React.ReactElement;
-  children: (pdfDocument: PDFDocumentProxy) => React.ReactElement;
-  setDocument: (pdfDocument: PDFDocumentProxy) => void;
-  setSections: (sections: Section[]) => void;
+  isVertical: boolean;
+  setReferencePopoverState?: (props: ReferencesPopoverState) => void;
 }
 
-type State = {
-  pdfDocument?: PDFDocumentProxy;
-  status: number;
-};
+enum STATUS {
+  LOADING = 0,
+  FAILED = -1,
+  SUCCESS = 1,
+}
 
-class PdfLoader extends React.Component<Props, State> {
-  state: State = { pdfDocument: undefined, status: STATUS.LOADING };
+const PdfViewer: React.FC<PdfViewerProps> = ({ url, isVertical, setReferencePopoverState }) => {
+  const [status, setStatus] = React.useState<STATUS>(STATUS.LOADING);
+  const [pdfDocument, setPdfDocument] = React.useState<PDFDocumentProxy>();
+  const setSections = usePaperStore(state => state.setSections, shallow);
+  const { references } = usePaperStore(state => pick(state, ['references']), shallow);
 
-  componentDidMount() {
-    const { url } = this.props;
+  React.useEffect(() => {
     const doc = getDocument(url);
     doc.promise.then(
-      (pdfDocument: PDFDocumentProxy) => {
-        this.props.setDocument(pdfDocument);
-        extractSections(pdfDocument, this.props.setSections);
-        this.setState({
-          pdfDocument,
-          status: STATUS.SUCCESS,
-        });
+      (newDoc: PDFDocumentProxy) => {
+        setPdfDocument(newDoc);
+        extractSections(newDoc, setSections);
+        setStatus(STATUS.SUCCESS);
       },
       reason => console.error(reason),
     );
-  }
+  }, [url, setPdfDocument, setStatus, setSections]);
 
-  render() {
-    const { children, beforeLoad, failed } = this.props;
-    const { pdfDocument, status } = this.state;
-    switch (status) {
-      case STATUS.FAILED:
-        return failed;
-      case STATUS.SUCCESS:
-        if (!pdfDocument) throw Error('Document is missing');
-        return children(pdfDocument);
-      case STATUS.LOADING:
-        return beforeLoad;
-      default:
-        return failed;
-    }
-  }
-}
+  return (
+    <React.Fragment>
+      {status === STATUS.SUCCESS && pdfDocument && (
+        <PdfAnnotator
+          pdfDocument={pdfDocument}
+          enableAreaSelection={event => event.altKey}
+          isVertical={isVertical}
+          onReferenceEnter={e => {
+            const target = e.target as HTMLElement;
+            if (!target) return;
+            const cite = decodeURIComponent((target.getAttribute('href') || '').replace('#cite.', ''));
+            if (references.hasOwnProperty(cite)) {
+              if (isMobile) {
+                target.onclick = event => {
+                  event.preventDefault();
+                };
+              }
+              if (!setReferencePopoverState) return;
+              if (e.type === 'click' && !isMobile) {
+                setReferencePopoverState({ citeId: '' });
+              } else {
+                setReferencePopoverState({ anchor: target, citeId: cite });
+              }
+            }
+          }}
+        />
+      )}
+    </React.Fragment>
+  );
+};
 
-const mapDispatchToProps = (dispatch: Dispatch) => ({
-  setDocument: (document: PDFDocumentProxy) => {
-    dispatch(actions.setDocument(document));
-  },
-  setSections: (sections: Section[]) => {
-    dispatch(actions.setSections(sections));
-  },
-});
-
-const withRedux = connect(undefined, mapDispatchToProps);
-
-export default withRedux(PdfLoader);
+export default PdfViewer;

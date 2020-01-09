@@ -8,19 +8,21 @@ import StarBorderIcon from '@material-ui/icons/StarBorder';
 import Color from 'color';
 import { isEmpty } from 'lodash';
 import React from 'react';
-import { connect } from 'react-redux';
-import { actions } from '../actions';
-import { AddToListIcon } from '../icons/addToList';
-import { Group, RootState } from '../models';
-import { addRemovePaperToGroup, bookmarkPaper, createNewGroup, editGroup } from '../thunks';
-import { presets } from '../utils';
-import { BASE_GROUP_COLOR, GROUP_COLORS, smallIconPadding, COLORS } from '../utils/presets';
-import { ArrowTooltip } from './ArrowTooltip';
-import { EditGroup } from './GroupsList';
-import { PopoverMenu } from './PopoverMenu';
+import shallow from 'zustand/shallow';
+import { AddToListIcon } from '../../icons/addToList';
+import { Group } from '../../models';
+import { useUserStore } from '../../stores/user';
+import { AddRemoveBookmark, AddRemovePaperToGroup } from '../../stores/utils';
+import { presets } from '../../utils';
+import { BASE_GROUP_COLOR, COLORS, GROUP_COLORS, smallIconPadding } from '../../utils/presets';
+import { ArrowTooltip } from '../ArrowTooltip';
+import { PopoverMenu } from '../PopoverMenu';
+import { EditGroup } from './EditGroup';
 
 interface BookmarkProps {
-  isBookmarked?: boolean;
+  isBookmarked: boolean;
+  setBookmark: (props: AddRemoveBookmark) => void;
+  updatePaperGroup: (props: AddRemovePaperToGroup) => void;
   color?: string | undefined;
   size?: number;
   paperId: string;
@@ -29,22 +31,10 @@ interface BookmarkProps {
   type: 'single' | 'list';
 }
 
-interface BookmarkStateProps {
-  isLoggedIn: boolean;
-  isBookmarked: boolean;
-  groups: Group[];
-}
-
-interface BookmarkDispatchProps {
-  toggleLoginModal: (msg?: string) => void;
-  setBookmark: (...args: Parameters<typeof bookmarkPaper>) => void;
-  updatePaperGroup: (...args: Parameters<typeof addRemovePaperToGroup>) => void;
-  createGroup: (...args: Parameters<typeof createNewGroup>) => void;
-  editGroup: (...args: Parameters<typeof editGroup>) => void;
-}
-
-const NewGroup: React.FC<{ createGroup: BookmarkDispatchProps['createGroup'] }> = ({ createGroup }) => {
+const NewGroup: React.FC = () => {
   const [value, setValue] = React.useState('');
+  const createGroup = useUserStore(state => state.newGroup);
+
   const submitGroup = () => {
     if (isEmpty(value)) return;
     createGroup({ name: value, onSuccessCb: () => setValue('') });
@@ -85,9 +75,8 @@ const NewGroup: React.FC<{ createGroup: BookmarkDispatchProps['createGroup'] }> 
 interface GroupRenderProps {
   group: Group;
   selected: boolean;
-  type: BookmarkProps['type'];
   paperId: string;
-  updatePaperGroup: BookmarkDispatchProps['updatePaperGroup'];
+  updatePaperGroup: (props: AddRemovePaperToGroup) => void;
   onEdit: () => void;
 }
 
@@ -103,7 +92,7 @@ const baseGroupCss = css`
   padding: 7px;
 `;
 
-const GroupRender: React.FC<GroupRenderProps> = ({ group, selected, paperId, type, updatePaperGroup, onEdit }) => {
+const GroupRender: React.FC<GroupRenderProps> = ({ group, selected, paperId, updatePaperGroup, onEdit }) => {
   let backgroundHoverColor;
   const backgroundColor = GROUP_COLORS[group.color || BASE_GROUP_COLOR];
   try {
@@ -130,7 +119,7 @@ const GroupRender: React.FC<GroupRenderProps> = ({ group, selected, paperId, typ
             }
           `}
           onClick={() => {
-            updatePaperGroup({ type, paperId, groupId: group.id, shouldAdd: !selected });
+            updatePaperGroup({ paperId, groupId: group.id, shouldAdd: !selected });
           }}
         >
           <div
@@ -164,22 +153,21 @@ const GroupRender: React.FC<GroupRenderProps> = ({ group, selected, paperId, typ
   );
 };
 
-// isBookmarked and setBookmark are from the redux store
-const Bookmark: React.FC<BookmarkProps & BookmarkStateProps & BookmarkDispatchProps> = ({
-  isLoggedIn,
-  toggleLoginModal,
+const Bookmark: React.FC<BookmarkProps> = ({
   isBookmarked,
-  selectedGroupIds,
-  groups,
-  paperId,
   setBookmark,
   updatePaperGroup,
+  selectedGroupIds,
+  paperId,
   color = COLORS.grey,
   size = 18,
   type,
-  createGroup,
-  editGroup,
 }) => {
+  const { groups, isLoggedIn, toggleLoginModal } = useUserStore(
+    state => ({ groups: state.groups, toggleLoginModal: state.toggleLoginModal, isLoggedIn: Boolean(state.userData) }),
+    shallow,
+  );
+
   const [isOpen, setIsOpen] = React.useState(false);
   const [groupInEdit, setGroupInEdit] = React.useState<Group | undefined>(undefined);
   const anchorRef = React.useRef<HTMLDivElement>(null);
@@ -206,13 +194,13 @@ const Bookmark: React.FC<BookmarkProps & BookmarkStateProps & BookmarkDispatchPr
     return () => clearTimeoutHelper();
   }, []);
 
-  const setBookmarkWrapper = (...args: Parameters<typeof setBookmark>) => {
+  const setBookmarkWrapper = () => {
     setIsListsTooltipOpen(true);
 
     timeoutId.current = setTimeout(() => {
       setIsListsTooltipOpen(false);
     }, 5000);
-    setBookmark(...args);
+    setBookmark({ paperId, checked: !isBookmarked });
   };
 
   const Star = isBookmarked ? StarIcon : StarBorderIcon;
@@ -225,7 +213,7 @@ const Bookmark: React.FC<BookmarkProps & BookmarkStateProps & BookmarkDispatchPr
       `}
     >
       <div {...(!isBookmarked ? { 'data-rh': 'Add to my library' } : {})} data-rh-at="left">
-        <IconButton onClick={() => setBookmarkWrapper(type, paperId, !isBookmarked)} buttonRef={anchorRef} size="small">
+        <IconButton onClick={() => setBookmarkWrapper()} buttonRef={anchorRef} size="small">
           <Star style={{ width: size, height: size, color, padding: smallIconPadding }} />
         </IconButton>
       </div>
@@ -263,7 +251,7 @@ const Bookmark: React.FC<BookmarkProps & BookmarkStateProps & BookmarkDispatchPr
         `}
       >
         {groupInEdit ? (
-          <EditGroup group={groupInEdit} editGroup={editGroup} onFinishEdit={() => setGroupInEdit(undefined)} />
+          <EditGroup group={groupInEdit} onFinishEdit={() => setGroupInEdit(undefined)} />
         ) : (
           <React.Fragment>
             <List
@@ -293,13 +281,13 @@ const Bookmark: React.FC<BookmarkProps & BookmarkStateProps & BookmarkDispatchPr
                 return (
                   <GroupRender
                     key={group.id}
-                    {...{ group, paperId, type, selected, updatePaperGroup }}
+                    {...{ group, paperId, selected, updatePaperGroup }}
                     onEdit={() => setGroupInEdit(group)}
                   />
                 );
               })}
             </List>
-            <NewGroup createGroup={createGroup} />
+            <NewGroup />
           </React.Fragment>
         )}
       </PopoverMenu>
@@ -307,34 +295,4 @@ const Bookmark: React.FC<BookmarkProps & BookmarkStateProps & BookmarkDispatchPr
   );
 };
 
-const mapStateToProps = (state: RootState, props: BookmarkProps) => {
-  return {
-    isLoggedIn: !isEmpty(state.user.userData),
-    isBookmarked: props.isBookmarked !== undefined ? props.isBookmarked : state.paper.isBookmarked,
-    groups: state.user.groups,
-  };
-};
-
-const mapDispatchToProps = (dispatch: RTDispatch): BookmarkDispatchProps => {
-  return {
-    toggleLoginModal: message => {
-      dispatch(actions.toggleLoginModal(message));
-    },
-    setBookmark: (...args) => {
-      dispatch(bookmarkPaper(...args));
-    },
-    updatePaperGroup: payload => {
-      dispatch(addRemovePaperToGroup(payload));
-    },
-    createGroup: payload => {
-      dispatch(createNewGroup(payload));
-    },
-    editGroup: (id, payload) => {
-      dispatch(editGroup(id, payload));
-    },
-  };
-};
-
-const withRedux = connect(mapStateToProps, mapDispatchToProps);
-
-export default withRedux(Bookmark);
+export default Bookmark;

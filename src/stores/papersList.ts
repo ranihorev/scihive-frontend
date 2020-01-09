@@ -82,15 +82,14 @@ const stateAndActions = (set: NamedSetState<PapersListState>, get: GetState<Pape
         return;
       }
       set(
-        state =>
-          produce(state, draftState => {
-            for (const paper of draftState.papers) {
-              if (paper._id === paperId) {
-                paper.saved_in_library = checked;
-              }
+        produce((draftState: PapersListState) => {
+          for (const paper of draftState.papers) {
+            if (paper._id === paperId) {
+              paper.saved_in_library = checked;
             }
-            return draftState;
-          }),
+          }
+          return draftState;
+        }),
         'updateBookmark',
       );
       document.dispatchEvent(eventsGenerator.updateLibrary({ checked }));
@@ -103,19 +102,18 @@ const stateAndActions = (set: NamedSetState<PapersListState>, get: GetState<Pape
         return;
       }
       set(
-        state =>
-          produce(state, draftState => {
-            for (const paper of draftState.papers) {
-              if (paper._id === payload.paperId) {
-                if (payload.shouldAdd) {
-                  paper.groups.push(payload.groupId);
-                } else {
-                  paper.groups = paper.groups.filter(g => g !== payload.groupId);
-                }
+        produce((draftState: PapersListState) => {
+          for (const paper of draftState.papers) {
+            if (paper._id === payload.paperId) {
+              if (payload.shouldAdd) {
+                paper.groups.push(payload.groupId);
+              } else {
+                paper.groups = paper.groups.filter(g => g !== payload.groupId);
               }
             }
-            return draftState;
-          }),
+          }
+          return draftState;
+        }),
         'updateGroups',
       );
     },

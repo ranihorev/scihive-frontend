@@ -88,9 +88,9 @@ export const MobileMenu: React.FC<MobileMenuProps> = ({ rootChildren, submenuChi
         >
           <MenuItem onClick={handleMobileMenuClose}>Chrome Extension</MenuItem>
         </a>
-        <Link to="/about" css={simpleLink}>
+        <a href="https://start.scihive.org" css={simpleLink}>
           <MenuItem color="inherit">About</MenuItem>
-        </Link>
+        </a>
         <Divider />
         {isLoggedIn ? (
           <MenuItem color="inherit" onClick={() => handleMobileMenuClick(logout)}>
@@ -211,9 +211,9 @@ export const DesktopMenu: React.FC = ({ children }) => {
           >
             <MenuItem onClick={() => handleMenuClose()}>Suggest a feature</MenuItem>
           </a>
-          <Link to="/about" css={simpleLink}>
+          <a href="https://start.scihive.org" css={simpleLink}>
             <MenuItem color="inherit">About</MenuItem>
-          </Link>
+          </a>
           {isLoggedIn ? (
             <div>
               <Divider />

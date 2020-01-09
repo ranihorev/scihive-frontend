@@ -7,7 +7,6 @@ import { ToastContainer } from 'react-toastify';
 import shallow from 'zustand/shallow';
 import GroupLoader from './components/Groups/GroupLoader';
 import LoginSignupModal from './components/Login/LoginSignupModal';
-import About from './pages/About';
 import Admin from './pages/Admin';
 import Groups from './pages/Groups';
 import Home from './pages/Home';
@@ -18,6 +17,7 @@ import { useUserStore } from './stores/user';
 import { useTracker } from './Tracker';
 import ChromeExtensionPopup from './utils/chromeExtension';
 import { themePalette } from './utils/presets';
+import { useCookies } from 'react-cookie';
 
 const theme = createMuiTheme({
   palette: themePalette,
@@ -29,7 +29,13 @@ const theme = createMuiTheme({
 const ReactHint = ReactHintFactory(React);
 
 const App: React.FC = () => {
+  const [, setCookie] = useCookies();
   const { user } = useUserStore(state => ({ user: Boolean(state.userData) }), shallow);
+
+  React.useEffect(() => {
+    setCookie('first_load', true, { domain: '.scihive.org', sameSite: true, path: '/' });
+  }, [setCookie]);
+
   React.useEffect(() => {
     if (user) {
       axios
@@ -57,7 +63,6 @@ const App: React.FC = () => {
           <Route path="/author/:authorId" exact component={Home} />
           <Route path="/paper/:PaperId" exact component={Paper} />
           <Route path="/list/:groupId" exact component={Home} />
-          <Route path="/about" exact component={About} />
           <Route path="/lists" exact component={Groups} />
           <Route path="/admin" exact component={Admin} />
           <Route component={NotFound} />

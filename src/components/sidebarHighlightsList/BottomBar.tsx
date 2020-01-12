@@ -46,7 +46,7 @@ export const BottomBar: React.FC<Props> = ({ hideQuoteHighlights, setHideQuoteHi
     >
       <div css={{ display: 'flex', flexDirection: 'row', fontSize: 12, alignItems: 'center', color: COLORS.grey }}>
         <Switch
-          checked={hideQuoteHighlights}
+          checked={!hideQuoteHighlights}
           onChange={() => setHideQuoteHighlights(!hideQuoteHighlights)}
           size="small"
           color="primary"

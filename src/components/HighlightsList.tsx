@@ -91,6 +91,7 @@ const HighlightsList: React.FC<{ isVertical: boolean }> = ({ isVertical }) => {
           overflow-y: auto;
           flex-grow: 1;
           padding: ${isVertical ? '4px 0' : '0 0 5px'};
+          padding-bottom: 45px;
         `}
         ref={containerRef}
       >
@@ -115,10 +116,11 @@ const HighlightsList: React.FC<{ isVertical: boolean }> = ({ isVertical }) => {
           alignItems: 'center',
           position: 'absolute',
           backgroundColor: 'rgba(255, 255, 255, 0.9)',
-          left: 5,
-          right: 5,
+          left: 0,
+          right: 0,
           bottom: 0,
-          paddingBottom: 5,
+          padding: 5,
+          paddingTop: 0,
         }}
       >
         <div css={{ display: 'flex', flexDirection: 'row', fontSize: 12, alignItems: 'center', color: COLORS.grey }}>

@@ -1,18 +1,19 @@
 /** @jsx jsx */
 import { css, jsx } from '@emotion/core';
-import { Card, CardContent, CardMedia, Grid, IconButton, Tooltip, Typography } from '@material-ui/core';
+import { Card, CardContent, CardMedia, Grid, Tooltip, Typography } from '@material-ui/core';
 import { pick } from 'lodash';
 import React from 'react';
 import { useHistory, useParams } from 'react-router';
 import shallow from 'zustand/shallow';
 import { T_Highlight, VisibilityType } from '../../models';
 import { usePaperStore } from '../../stores/paper';
-import { COLORS } from '../../utils/presets';
 import NewReply from '../NewReply';
 import Replies from '../Replies';
 import { TextLinkifyLatex } from '../TextLinkifyLatex';
 import get_age from '../timeUtils';
+import { ActionIconButton, actionIconCss } from './ActionButton';
 import { EditComment } from './editComment';
+import { Quote } from './Quote';
 
 const visibiltyToIcon: { [key in VisibilityType]: string } = {
   private: 'fas fa-user-shield',
@@ -27,14 +28,6 @@ interface CommentProps {
   isFocused: boolean;
   highlight: T_Highlight;
 }
-
-const actionIconCss = css({ fontSize: 12, color: COLORS.grey });
-
-const ActionIconButton: React.FC<{ onClick: (e: React.MouseEvent) => void; name: string }> = ({ onClick, name }) => (
-  <IconButton onClick={onClick}>
-    <i className={name} css={actionIconCss} />
-  </IconButton>
-);
 
 export const SidebarHighlightItem = React.forwardRef<HTMLDivElement, CommentProps>(({ isFocused, highlight }, ref) => {
   const { image, text } = highlight.content;
@@ -72,7 +65,6 @@ export const SidebarHighlightItem = React.forwardRef<HTMLDivElement, CommentProp
       .catch(err => console.log(err.response));
   };
 
-  const textMaxLen = 50;
   const hasCommentText = Boolean(highlight.comment.text);
 
   return (
@@ -117,29 +109,7 @@ export const SidebarHighlightItem = React.forwardRef<HTMLDivElement, CommentProp
                 title="screenshot"
               />
             )}
-            {text && !hasCommentText && (
-              <blockquote
-                css={css`
-                  font-size: 0.7rem;
-                  margin: 0;
-                  margin-bottom: 6px;
-                  font-style: italic;
-                  quotes: '\\201C''\\201D';
-                  &:before {
-                    content: open-quote;
-                    margin-right: -2px;
-                  }
-                  &:after {
-                    content: close-quote;
-                    margin-left: -2px;
-                  }
-                `}
-              >
-                {' '}
-                {text.slice(0, textMaxLen)}
-                {text.length > textMaxLen ? '...' : ''}{' '}
-              </blockquote>
-            )}
+            {text && !hasCommentText && <Quote highlight={highlight} text={text} />}
           </div>
           {editMode ? (
             <EditComment onCancel={() => setEditMode(false)} highlight={highlight} onUpdate={updateComment} />

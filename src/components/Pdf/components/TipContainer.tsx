@@ -2,42 +2,17 @@
 import { css, jsx } from '@emotion/core';
 import { Popper } from '@material-ui/core';
 import { PopperProps } from '@material-ui/core/Popper';
-import axios from 'axios';
-import { isEmpty } from 'lodash';
+import { isEmpty, pick } from 'lodash';
 import React from 'react';
-import useReactRouter from 'use-react-router';
-import { T_Highlight, T_NewHighlight, T_ScaledPosition, Visibility } from '../../../models';
+import shallow from 'zustand/shallow';
+import { usePaperStore } from '../../../stores/paper';
 import Tip from './Tip';
 
-export interface TooltipData {
-  position: T_ScaledPosition;
-  content: T_NewHighlight['content'];
-  size: { left: number; top: number; bottom: number };
-}
-
-interface TipContainerProps {
-  tooltipData: TooltipData | undefined;
-  onSuccess: (highlight: T_Highlight) => void;
-}
-
-export const TipContainer: React.FC<TipContainerProps> = ({ tooltipData, onSuccess }) => {
+export const TipContainer: React.FC = () => {
   // const [key, setKey] = React.useState(false); // used to reload the popper
   const tooltipNode = React.useRef<HTMLDivElement>(null);
   const popperRef: PopperProps['popperRef'] = React.useRef(null);
-  const {
-    match: { params },
-  } = useReactRouter();
-
-  const submitHighlight = (data: T_NewHighlight) => {
-    axios
-      .post(`/paper/${params.PaperId}/new_comment`, data)
-      .then(res => {
-        onSuccess(res.data.comment);
-      })
-      .catch(err => {
-        console.log(err.response);
-      });
-  };
+  const { tempTooltipData: tooltipData } = usePaperStore(state => pick(state, ['tempTooltipData']), shallow);
 
   return (
     <React.Fragment>
@@ -72,11 +47,6 @@ export const TipContainer: React.FC<TipContainerProps> = ({ tooltipData, onSucce
           onOpen={() => {
             if (popperRef.current) {
               popperRef.current.update();
-            }
-          }}
-          onConfirm={(comment: T_Highlight['comment'], visibility: Visibility) => {
-            if (tooltipData) {
-              submitHighlight({ comment, visibility, content: tooltipData.content, position: tooltipData.position });
             }
           }}
         />

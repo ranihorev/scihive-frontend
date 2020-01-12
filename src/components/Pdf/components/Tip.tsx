@@ -1,15 +1,16 @@
 /** @jsx jsx */
 import { css, jsx } from '@emotion/core';
 import { Button, Select, TextField } from '@material-ui/core';
+import { pick } from 'lodash';
 import React from 'react';
+import { useParams } from 'react-router';
 import shallow from 'zustand/shallow';
-import { T_Highlight, Visibility, VISIBILITIES, VisibilityType } from '../../../models';
+import { VISIBILITIES, VisibilityType, T_NewHighlight } from '../../../models';
 import { usePaperStore } from '../../../stores/paper';
 import { useUserStore } from '../../../stores/user';
 import { presets } from '../../../utils';
 
 interface TipProps {
-  onConfirm: (comment: T_Highlight['comment'], visibility: Visibility) => void;
   onOpen: () => void;
   onMouseDown?: (e: React.MouseEvent) => void;
 }
@@ -122,16 +123,29 @@ const CompactTipButton: React.FC<{ onClick: (e: React.MouseEvent) => void; icon:
   </div>
 );
 
-const Tip: React.FC<TipProps> = ({ onConfirm, onOpen, onMouseDown = () => {} }) => {
+const Tip: React.FC<TipProps> = ({ onOpen, onMouseDown = () => {} }) => {
   const isLoggedIn = useUserStore(state => Boolean(state.userData));
   const firstFocus = React.useRef(true);
   const [isCompact, setIsCompact] = React.useState(true);
   const [text, setText] = React.useState('');
-  const visibilitySettings = usePaperStore(state => state.commentVisibilty);
+  const params = useParams<{ PaperId: string }>();
+
+  const { tempTooltipData, commentVisibilty, addHighlight } = usePaperStore(
+    state => pick(state, ['tempTooltipData', 'commentVisibilty', 'addHighlight']),
+    shallow,
+  );
 
   const onSubmit = (event: React.MouseEvent | React.FormEvent) => {
     event.preventDefault();
-    onConfirm({ text }, visibilitySettings);
+    if (tempTooltipData) {
+      const data: T_NewHighlight = {
+        comment: { text },
+        visibility: commentVisibilty,
+        content: tempTooltipData.content,
+        position: tempTooltipData.position,
+      };
+      addHighlight(params.PaperId, data);
+    }
   };
 
   return (
@@ -217,7 +231,16 @@ const Tip: React.FC<TipProps> = ({ onConfirm, onOpen, onMouseDown = () => {} }) 
               </div>
             )}
           </div>
-          <div css={[presets.row, { width: '100%', justifyContent: 'flex-end', marginTop: 15 }]}>
+          <div
+            css={[
+              presets.row,
+              {
+                width: '100%',
+                justifyContent: 'flex-end',
+                marginTop: 15,
+              },
+            ]}
+          >
             <Button type="submit" variant="contained" color="primary" size="small">
               Submit
             </Button>

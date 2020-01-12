@@ -12,6 +12,9 @@ import {
   T_Highlight,
   Visibility,
   SidebarCommentJump,
+  T_NewHighlight,
+  TempHighlight,
+  TooltipData,
 } from '../models';
 import {
   AddRemoveBookmark,
@@ -36,6 +39,9 @@ export interface PaperState {
   codeMeta?: CodeMeta;
   groupIds: string[];
   commentVisibilty: Visibility;
+  // new highlight data
+  tempHighlight?: TempHighlight;
+  tempTooltipData?: TooltipData;
 }
 
 const initialState: PaperState = {
@@ -91,6 +97,7 @@ const stateAndActions = (set: NamedSetState<PaperState>, get: GetState<PaperStat
       'updateHighlight',
     );
   };
+  const clearTempHighlightDataHelper = () => set({ tempHighlight: undefined, tempTooltipData: undefined });
 
   return {
     ...initialState,
@@ -133,6 +140,15 @@ const stateAndActions = (set: NamedSetState<PaperState>, get: GetState<PaperStat
           state => ({ highlights: [...state.highlights, ...state.hiddenHighlights], hiddenHighlights: [] }),
           'showHighlights',
         );
+      }
+    },
+    addHighlight: async (paperId: string, highlight: T_NewHighlight) => {
+      try {
+        const res = await axios.post(`/paper/${paperId}/new_comment`, highlight);
+        set(state => ({ highlights: [...state.highlights, res.data.comment] }));
+        clearTempHighlightDataHelper();
+      } catch (e) {
+        console.log(e.response);
       }
     },
     removeHighlight: (paperId: string, highlightId: string) => {
@@ -196,6 +212,9 @@ const stateAndActions = (set: NamedSetState<PaperState>, get: GetState<PaperStat
       set({ commentVisibilty: visibility }, 'commentVisibility'),
     setSidebarTab: (tab: SidebarTab) => set({ sidebarTab: tab }, 'sidebarTab'),
     setSections: (sections: Section[]) => set({ sections }, 'setSections'),
+    setTooltipData: (data: TooltipData) => set({ tempTooltipData: data }, 'setTooltipData'),
+    setTempHighlight: (highlight: TempHighlight) => set({ tempHighlight: highlight }, 'setTempHighlight'),
+    clearTempHighlightAndTooltip: clearTempHighlightDataHelper,
   };
 };
 

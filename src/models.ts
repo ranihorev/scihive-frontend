@@ -79,6 +79,12 @@ export interface T_Highlight extends T_NewHighlight {
   visibility: Visibility;
 }
 
+export interface TooltipData {
+  position: T_ScaledPosition;
+  content: T_NewHighlight['content'];
+  size: { left: number; top: number; bottom: number };
+}
+
 export type TempHighlight = OptionalExceptFor<T_NewHighlight, 'position'>;
 
 export type T_ExtendedHighlight = T_Highlight | TempHighlight;

@@ -11,7 +11,6 @@ import ReactDom from 'react-dom';
 import shallow from 'zustand/shallow';
 import {
   AcronymPositions,
-  TempHighlight,
   T_ExtendedHighlight,
   T_Highlight,
   T_LTWH,
@@ -30,7 +29,7 @@ import { convertMatches, renderMatches } from '../lib/pdfSearchUtils';
 import '../style/PdfHighlighter.css';
 import MouseSelection from './MouseSelection';
 import { PageHighlights } from './PageHighlights';
-import { TipContainer, TooltipData } from './TipContainer';
+import { TipContainer } from './TipContainer';
 
 const zoomButtonCss = css`
   color: black;
@@ -95,10 +94,6 @@ const PdfAnnotator: React.FC<PdfAnnotatorProps> = ({
   onReferenceEnter,
   pdfDocument,
 }) => {
-  // TODO: combine tempHighlight and tooltipData
-  const [tempHighlight, setTempHighlight] = React.useState<TempHighlight>();
-  const [tooltipData, setTooltipData] = React.useState<TooltipData | undefined>(undefined);
-
   // const [scrolledToHighlightId, setScrolledToHighlightId] = React.useState(EMPTY_ID);
   const [isAreaSelectionInProgress, setIsAreaSelectionInProgress] = React.useState(false);
   const [isDocumentReady, setIsDocumentReady] = React.useState(false);
@@ -108,9 +103,32 @@ const PdfAnnotator: React.FC<PdfAnnotatorProps> = ({
   const [acronymPositions, setAcronymPositions] = React.useState<AcronymPositions>({});
   const canZoom = React.useRef(true);
 
-  const { clearPaperJumpTo, paperJumpData, highlights, jumpToComment, updateReadingProgress, acronyms } = usePaperStore(
+  const {
+    clearPaperJumpTo,
+    paperJumpData,
+    highlights,
+    jumpToComment,
+    updateReadingProgress,
+    acronyms,
+    clearTempHighlightAndTooltip,
+    tempHighlight,
+    setTooltipData,
+    setTempHighlight,
+    tempTooltipData,
+  } = usePaperStore(
     state => ({
-      ...pick(state, ['clearPaperJumpTo', 'paperJumpData', 'highlights', 'updateReadingProgress', 'acronyms']),
+      ...pick(state, [
+        'clearPaperJumpTo',
+        'paperJumpData',
+        'highlights',
+        'updateReadingProgress',
+        'setTooltipData',
+        'acronyms',
+        'setTempHighlight',
+        'tempHighlight',
+        'clearTempHighlightAndTooltip',
+        'tempTooltipData',
+      ]),
       jumpToComment: (id: string) => {
         state.setSidebarTab('Comments');
         state.setSidebarJumpTo({ area: 'sidebar', type: 'comment', id });
@@ -124,14 +142,9 @@ const PdfAnnotator: React.FC<PdfAnnotatorProps> = ({
   const containerNode = React.useRef<HTMLDivElement>(null);
   const highlightLayerNode = React.useRef<HTMLDivElement>(null);
 
-  const hideTipAndSelection = () => {
-    setTempHighlight(undefined);
-    setTooltipData(undefined);
-  };
-
   const handleKeyDown = (event: KeyboardEvent) => {
     if (event.code === 'Escape') {
-      hideTipAndSelection();
+      clearTempHighlightAndTooltip();
     }
   };
 
@@ -334,11 +347,11 @@ const PdfAnnotator: React.FC<PdfAnnotatorProps> = ({
     : { height: `calc(100vh - ${APP_BAR_HEIGHT}px)` };
 
   const onMouseDown = (event: React.MouseEvent) => {
-    hideTipAndSelection();
+    clearTempHighlightAndTooltip();
   };
 
   const onMouseUp = (e: React.MouseEvent) => {
-    if (tooltipData) setTempHighlight({ position: tooltipData.position, content: tooltipData.content });
+    if (tempTooltipData) setTempHighlight({ position: tempTooltipData.position, content: tempTooltipData.content });
   };
 
   const toggleTextSelection = (flag: boolean) => {
@@ -478,12 +491,7 @@ const PdfAnnotator: React.FC<PdfAnnotatorProps> = ({
         css={pdfViewerCss}
       >
         <div className="pdfViewer" />
-        <TipContainer
-          tooltipData={tooltipData}
-          onSuccess={(newHighlight: T_Highlight) => {
-            hideTipAndSelection();
-          }}
-        />
+        <TipContainer />
         <div ref={highlightLayerNode} />
         {typeof enableAreaSelection === 'function' ? (
           <MouseSelection

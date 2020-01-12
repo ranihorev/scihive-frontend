@@ -1,22 +1,15 @@
 /** @jsx jsx */
 import { css, jsx } from '@emotion/core';
-import { Switch } from '@material-ui/core';
-import IconButton from '@material-ui/core/IconButton';
-import Tooltip from '@material-ui/core/Tooltip';
-import { isEmpty, pick } from 'lodash';
+import { pick } from 'lodash';
 import React from 'react';
 import { useCookies } from 'react-cookie';
 import shallow from 'zustand/shallow';
-import { usePaperStore } from '../stores/paper';
-import { COLORS, linkButton, themePalette } from '../utils/presets';
-import { SidebarHighlightItem } from './sidebarHighlightItem';
+import { usePaperStore } from '../../stores/paper';
+import { linkButton } from '../../utils/presets';
+import { SidebarHighlightItem } from '../sidebarHighlightItem';
+import { BottomBar } from './BottomBar';
 
 const WELCOME_COOKIE = 'comments-welcome';
-
-const floatingIconCss = css`
-  color: ${themePalette.primary.main};
-  font-size: 14px;
-`;
 
 const WelcomeMessage: React.FC = () => {
   const [cookies, setCookie] = useCookies([WELCOME_COOKIE]);
@@ -45,19 +38,12 @@ const WelcomeMessage: React.FC = () => {
 
 const HighlightsList: React.FC<{ isVertical: boolean }> = ({ isVertical }) => {
   const [focusedId, setFocusedId] = React.useState();
-  const [hideEmpty, setHideEmpty] = React.useState(false);
+  const [hideQuoteHighlights, setHideQuoteHighlights] = React.useState(true);
   const containerRef = React.useRef<HTMLDivElement>(null);
   const highlightsRef = React.useRef<{ [key: string]: React.RefObject<HTMLDivElement> }>({});
-  const {
-    sidebarJumpData,
-    highlights,
-    clearSidebarJumpTo,
-    isHighlightsHidden,
-    toggleHighlightsVisiblity,
-  } = usePaperStore(
+  const { sidebarJumpData, highlights, clearSidebarJumpTo } = usePaperStore(
     state => ({
-      ...pick(state, ['sidebarJumpData', 'highlights', 'clearSidebarJumpTo', 'toggleHighlightsVisiblity']),
-      isHighlightsHidden: !isEmpty(state.hiddenHighlights),
+      ...pick(state, ['sidebarJumpData', 'highlights', 'clearSidebarJumpTo']),
     }),
     shallow,
   );
@@ -97,7 +83,7 @@ const HighlightsList: React.FC<{ isVertical: boolean }> = ({ isVertical }) => {
       >
         <WelcomeMessage />
         {highlights.map(highlight => {
-          if (hideEmpty && !highlight.comment.text) return null;
+          if (hideQuoteHighlights && !highlight.comment.text) return null;
           return (
             <SidebarHighlightItem
               key={highlight.id}
@@ -108,38 +94,7 @@ const HighlightsList: React.FC<{ isVertical: boolean }> = ({ isVertical }) => {
           );
         })}
       </div>
-      <div
-        css={{
-          display: 'flex',
-          flexDirection: 'row',
-          justifyContent: 'space-between',
-          alignItems: 'center',
-          position: 'absolute',
-          backgroundColor: 'rgba(255, 255, 255, 0.9)',
-          left: 0,
-          right: 0,
-          bottom: 0,
-          padding: 5,
-          paddingTop: 0,
-        }}
-      >
-        <div css={{ display: 'flex', flexDirection: 'row', fontSize: 12, alignItems: 'center', color: COLORS.grey }}>
-          <Switch checked={hideEmpty} onChange={() => setHideEmpty(!hideEmpty)} size="small" color="primary" />
-          Highlights
-        </div>
-        <div>
-          <Tooltip title={`${isHighlightsHidden ? 'Show' : 'Hide'} all comments`} placement="top">
-            <IconButton onClick={() => toggleHighlightsVisiblity()}>
-              <i className={`fas ${isHighlightsHidden ? 'fa-eye-slash' : 'fa-eye'}`} css={floatingIconCss} />
-            </IconButton>
-          </Tooltip>
-          <Tooltip title="To create area highlight hold Option/Alt key, then click and drag." placement="top">
-            <IconButton>
-              <i className="fas fa-info-circle" css={floatingIconCss} />
-            </IconButton>
-          </Tooltip>
-        </div>
-      </div>
+      <BottomBar {...{ hideQuoteHighlights, setHideQuoteHighlights }} />
     </React.Fragment>
   );
 };

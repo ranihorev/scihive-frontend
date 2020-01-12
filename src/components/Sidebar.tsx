@@ -5,7 +5,7 @@ import Tab from '@material-ui/core/Tab';
 import Tabs from '@material-ui/core/Tabs';
 import React from 'react';
 import { presets } from '../utils';
-import HighlightsList from './HighlightsList';
+import HighlightsList from './sidebarHighlightsList';
 import { PaperSections } from './PaperSections';
 import { usePaperStore } from '../stores/paper';
 import shallow from 'zustand/shallow';

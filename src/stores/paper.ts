@@ -212,7 +212,7 @@ const stateAndActions = (set: NamedSetState<PaperState>, get: GetState<PaperStat
       set({ commentVisibilty: visibility }, 'commentVisibility'),
     setSidebarTab: (tab: SidebarTab) => set({ sidebarTab: tab }, 'sidebarTab'),
     setSections: (sections: Section[]) => set({ sections }, 'setSections'),
-    setTooltipData: (data: TooltipData) => set({ tempTooltipData: data }, 'setTooltipData'),
+    setTooltipData: (data: TooltipData) => set({ tempTooltipData: data }),
     setTempHighlight: (highlight: TempHighlight) => set({ tempHighlight: highlight }, 'setTempHighlight'),
     clearTempHighlightAndTooltip: clearTempHighlightDataHelper,
   };

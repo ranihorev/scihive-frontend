@@ -30,6 +30,7 @@ import '../style/PdfHighlighter.css';
 import MouseSelection from './MouseSelection';
 import { PageHighlights } from './PageHighlights';
 import { TipContainer } from './TipContainer';
+import { useLatestCallback } from '../../../utils/useLatestCallback';
 
 const zoomButtonCss = css`
   color: black;
@@ -98,8 +99,7 @@ const PdfAnnotator: React.FC<PdfAnnotatorProps> = ({
   const [isAreaSelectionInProgress, setIsAreaSelectionInProgress] = React.useState(false);
   const [isDocumentReady, setIsDocumentReady] = React.useState(false);
   const [requestRender, setRequestRender] = React.useState(false);
-  const pagesToRenderAcronyms = React.useRef<number[]>([]);
-  const [firstPageRendered, setFirstPageRendered] = React.useState(false);
+  const pagesReadyToRender = React.useRef<number[]>([]);
   const [acronymPositions, setAcronymPositions] = React.useState<AcronymPositions>({});
   const canZoom = React.useRef(true);
 
@@ -284,17 +284,6 @@ const PdfAnnotator: React.FC<PdfAnnotatorProps> = ({
     renderTipAtPosition(viewportPosition, { image });
   };
 
-  const groupHighlightsByPage = () => {
-    const allHighlight = tempHighlight ? [...highlights, tempHighlight] : highlights;
-    const highlightsByPage: { [page: number]: T_ExtendedHighlight[] } = {};
-    for (const h of allHighlight) {
-      const { pageNumber } = h.position;
-      highlightsByPage[pageNumber] = highlightsByPage[pageNumber] || [];
-      highlightsByPage[pageNumber].push(h);
-    }
-    return highlightsByPage;
-  };
-
   const scaledPositionToViewport = ({ pageNumber, boundingRect, rects, usePdfCoordinates }: T_ScaledPosition) => {
     const { viewport } = viewer.current.getPageView(pageNumber - 1);
 
@@ -311,36 +300,48 @@ const PdfAnnotator: React.FC<PdfAnnotatorProps> = ({
     return findOrCreateContainerLayer(annotationLayer.pageDiv, 'page-highlights');
   };
 
-  const renderHighlights = () => {
-    const highlightsByPage = groupHighlightsByPage();
+  const renderHighlights = (pageNumber: number) => {
+    const allHighlight = tempHighlight ? [...highlights, tempHighlight] : highlights;
+    const pageHighlights = allHighlight.filter(h => h.position.pageNumber === pageNumber);
     if (!pdfDocument) return;
-    for (let pageNumber = 1; pageNumber <= pdfDocument.numPages; pageNumber++) {
-      const highlightLayer = findOrCreateHighlightLayer(pageNumber);
-      if (highlightLayer) {
-        ReactDom.render(
-          <PageHighlights
-            onHighlightClick={jumpToComment}
-            highlights={highlightsByPage[pageNumber] || []}
-            screenshot={(boundingRect: T_LTWH) => screenshot(boundingRect, pageNumber)}
-            scaledPositionToViewport={scaledPositionToViewport}
-            jumpData={paperJumpData}
-          />,
-          highlightLayer,
-        );
-      }
+    const highlightLayer = findOrCreateHighlightLayer(pageNumber);
+    if (highlightLayer) {
+      ReactDom.render(
+        <PageHighlights
+          onHighlightClick={jumpToComment}
+          highlights={pageHighlights}
+          screenshot={(boundingRect: T_LTWH) => screenshot(boundingRect, pageNumber)}
+          scaledPositionToViewport={scaledPositionToViewport}
+          jumpData={paperJumpData}
+        />,
+        highlightLayer,
+      );
     }
   };
 
-  const onTextLayerRendered = (event: any) => {
-    // TODO: clear previous timeout and remove timeout on unmount
-    setTimeout(() => {
-      // This hack helps us ensure the the user doesn't zoom in/out too fast
-      canZoom.current = true;
-    }, 200);
-    pagesToRenderAcronyms.current.push(event.detail.pageNumber - 1);
-    setRequestRender(true);
-    setFirstPageRendered(true);
+  const renderAcronyms = (pageNumber: number) => {
+    const { textLayer } = viewer.current.getPageView(pageNumber - 1);
+    for (const acronym of Object.keys(acronymPositions)) {
+      const m = convertMatches(acronym.length, acronymPositions[acronym][pageNumber - 1], textLayer);
+      renderMatches(m, 0, textLayer, acronyms[acronym]);
+    }
   };
+
+  const onTextLayerRendered = useLatestCallback(
+    (event: CustomEvent<{ pageNumber: number }>) => {
+      // TODO: clear previous timeout and remove timeout on unmount
+      setTimeout(() => {
+        // This hack helps us ensure the the user doesn't zoom in/out too fast
+        canZoom.current = true;
+      }, 200);
+      const { pageNumber } = event.detail;
+      renderHighlights(pageNumber);
+      renderAcronyms(pageNumber);
+      pagesReadyToRender.current.push(pageNumber);
+      setRequestRender(true);
+    },
+    [acronymPositions, highlights, tempHighlight],
+  );
 
   const containerStyle = isVertical
     ? { height: '100%', width: '100vw' }
@@ -370,7 +371,6 @@ const PdfAnnotator: React.FC<PdfAnnotatorProps> = ({
       viewer.current.currentScaleValue = parseFloat(viewer.current.currentScaleValue) + sign * 0.05;
     }
     canZoom.current = false;
-    // renderHighlights();
   };
 
   React.useEffect(() => {
@@ -391,20 +391,35 @@ const PdfAnnotator: React.FC<PdfAnnotatorProps> = ({
     viewer.current.setDocument(pdfDocument);
     linkService.current.setDocument(pdfDocument);
     linkService.current.setViewer(viewer.current);
+  }, [pdfDocument]);
 
+  React.useEffect(() => {
     document.addEventListener('pagesinit', onDocumentReady);
-    document.addEventListener('textlayerrendered', onTextLayerRendered);
-
+    document.addEventListener('textlayerrendered', onTextLayerRendered as EventListener);
     document.addEventListener('selectionchange', onTextSelectionChange);
     document.addEventListener('keydown', handleKeyDown);
 
     return () => {
       document.removeEventListener('pagesinit', onDocumentReady);
-      document.removeEventListener('textlayerrendered', onTextLayerRendered);
+      document.removeEventListener('textlayerrendered', onTextLayerRendered as EventListener);
       document.removeEventListener('selectionchange', onTextSelectionChange);
       document.removeEventListener('keydown', handleKeyDown);
     };
   }, []);
+
+  React.useEffect(() => {
+    if (!isDocumentReady) return;
+    for (const pageNumber of pagesReadyToRender.current) {
+      renderHighlights(pageNumber);
+    }
+  }, [isDocumentReady, tempHighlight, highlights]);
+
+  React.useEffect(() => {
+    if (!isDocumentReady) return;
+    for (const pageNumber of pagesReadyToRender.current) {
+      renderAcronyms(pageNumber);
+    }
+  }, [isDocumentReady, tempHighlight, acronymPositions]);
 
   React.useEffect(() => {
     // Find acronyms in the pdf
@@ -435,25 +450,6 @@ const PdfAnnotator: React.FC<PdfAnnotatorProps> = ({
       setAcronymPositions(tempAcronymsPos);
     });
   }, [isDocumentReady, acronyms, pdfDocument]);
-
-  React.useEffect(() => {
-    if (!isDocumentReady || isEmpty(pagesToRenderAcronyms.current) || isEmpty(acronymPositions) || !requestRender)
-      return;
-    for (const pageIdx of pagesToRenderAcronyms.current) {
-      const { textLayer } = viewer.current.getPageView(pageIdx);
-      for (const acronym of Object.keys(acronymPositions)) {
-        const m = convertMatches(acronym.length, acronymPositions[acronym][pageIdx], textLayer);
-        renderMatches(m, 0, textLayer, acronyms[acronym]);
-      }
-    }
-    setRequestRender(false);
-    pagesToRenderAcronyms.current = [];
-  }, [isDocumentReady, requestRender, acronymPositions]);
-
-  React.useEffect(() => {
-    if (!isDocumentReady || !firstPageRendered) return;
-    renderHighlights();
-  }, [isDocumentReady, firstPageRendered, tempHighlight, paperJumpData, highlights]);
 
   return (
     <React.Fragment>

@@ -419,7 +419,7 @@ const PdfAnnotator: React.FC<PdfAnnotatorProps> = ({
     for (const pageNumber of pagesReadyToRender.current) {
       renderAcronyms(pageNumber);
     }
-  }, [isDocumentReady, tempHighlight, acronymPositions]);
+  }, [isDocumentReady, acronymPositions]);
 
   React.useEffect(() => {
     // Find acronyms in the pdf

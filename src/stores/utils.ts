@@ -5,7 +5,7 @@ import { track } from '../Tracker';
 
 export type NamedSetState<T extends State> = (partial: PartialState<T>, name?: any) => void;
 
-export const log = <T extends State>(fn: StateCreator<T>): StateCreator<T> => (set, get, api) => {
+export const withTrack = <T extends State>(fn: StateCreator<T>): StateCreator<T> => (set, get, api) => {
   return fn(
     (state, name?: string) => {
       if (name) {
@@ -19,10 +19,9 @@ export const log = <T extends State>(fn: StateCreator<T>): StateCreator<T> => (s
 };
 
 export const createWithDevtools = <T extends StateCreator<any>>(stateAndActions: T, storeName?: string) => {
-  const stateAndActionsWithLog = log(stateAndActions);
-  return create<ReturnType<T>>(
-    process.env.NODE_ENV === 'development' ? devtools(stateAndActionsWithLog, storeName) : stateAndActionsWithLog,
-  );
+  const withDevTools = process.env.NODE_ENV === 'development' ? devtools(stateAndActions, storeName) : stateAndActions;
+  const stateAndActionsWithLog = withTrack(withDevTools);
+  return create<ReturnType<T>>(stateAndActionsWithLog);
 };
 
 export interface AddRemovePaperToGroup {

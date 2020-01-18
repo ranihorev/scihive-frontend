@@ -5,7 +5,7 @@ import * as mixpanel from 'mixpanel-browser';
 
 ReactGA.initialize('UA-88259675-7');
 if (process.env.REACT_APP_MIXPANEL_TOKEN) {
-  mixpanel.init(process.env.REACT_APP_MIXPANEL_TOKEN, { debug: process.env.NODE_ENV === 'development' });
+  mixpanel.init(process.env.REACT_APP_MIXPANEL_TOKEN);
 }
 
 export const track: typeof mixpanel.track = (event, properties) => {

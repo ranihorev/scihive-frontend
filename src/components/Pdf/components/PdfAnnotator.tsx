@@ -9,16 +9,9 @@ import 'pdfjs-dist/web/pdf_viewer.css';
 import React from 'react';
 import ReactDom from 'react-dom';
 import shallow from 'zustand/shallow';
-import {
-  AcronymPositions,
-  T_ExtendedHighlight,
-  T_Highlight,
-  T_LTWH,
-  T_NewHighlight,
-  T_Position,
-  T_ScaledPosition,
-} from '../../../models';
+import { AcronymPositions, T_LTWH, T_NewHighlight, T_Position, T_ScaledPosition } from '../../../models';
 import { usePaperStore } from '../../../stores/paper';
+import { useLatestCallback } from '../../../utils/useLatestCallback';
 import { APP_BAR_HEIGHT } from '../../TopBar/PrimaryAppBar';
 import { scaledToViewport, viewportToScaled } from '../lib/coordinates';
 import getAreaAsPng from '../lib/get-area-as-png';
@@ -30,7 +23,7 @@ import '../style/PdfHighlighter.css';
 import MouseSelection from './MouseSelection';
 import { PageHighlights } from './PageHighlights';
 import { TipContainer } from './TipContainer';
-import { useLatestCallback } from '../../../utils/useLatestCallback';
+import { useJumpToHandler } from './useJumpToHandler';
 
 const zoomButtonCss = css`
   color: black;
@@ -98,13 +91,11 @@ const PdfAnnotator: React.FC<PdfAnnotatorProps> = ({
   // const [scrolledToHighlightId, setScrolledToHighlightId] = React.useState(EMPTY_ID);
   const [isAreaSelectionInProgress, setIsAreaSelectionInProgress] = React.useState(false);
   const [isDocumentReady, setIsDocumentReady] = React.useState(false);
-  const [requestRender, setRequestRender] = React.useState(false);
   const pagesReadyToRender = React.useRef<number[]>([]);
   const [acronymPositions, setAcronymPositions] = React.useState<AcronymPositions>({});
   const canZoom = React.useRef(true);
 
   const {
-    clearPaperJumpTo,
     paperJumpData,
     highlights,
     jumpToComment,
@@ -141,63 +132,11 @@ const PdfAnnotator: React.FC<PdfAnnotatorProps> = ({
   const linkService = React.useRef<PDFLinkService>(null);
   const containerNode = React.useRef<HTMLDivElement>(null);
   const highlightLayerNode = React.useRef<HTMLDivElement>(null);
-
   const handleKeyDown = (event: KeyboardEvent) => {
     if (event.code === 'Escape') {
       clearTempHighlightAndTooltip();
     }
   };
-
-  const scrollToHighLight = () => {
-    if (!paperJumpData) return;
-    if (paperJumpData.type !== 'highlight') {
-      throw Error('Wrong jump type');
-    }
-    const { pageNumber, boundingRect } = paperJumpData.location;
-    const pageViewport = viewer.current.getPageView(pageNumber - 1).viewport;
-
-    const scrollMargin = 10;
-
-    viewer.current.scrollPageIntoView({
-      pageNumber,
-      destArray: [
-        null,
-        { name: 'XYZ' },
-        ...pageViewport.convertToPdfPoint(0, scaledToViewport(boundingRect, pageViewport, false).top - scrollMargin),
-        0,
-      ],
-    });
-  };
-
-  React.useEffect(() => {
-    if (!paperJumpData) return;
-
-    const onScroll = () => {
-      // TODO: clean hash
-      // window.location.hash = '';
-      viewer.current.container.removeEventListener('scroll', onScroll);
-      clearPaperJumpTo();
-    };
-
-    if (paperJumpData.type === 'highlight') {
-      scrollToHighLight();
-    } else {
-      const { pageNumber, position } = paperJumpData.location;
-      viewer.current.scrollPageIntoView({
-        pageNumber,
-        destArray: [null, { name: 'XYZ' }, 0, position],
-      });
-    }
-    // wait for scrolling to finish
-    const timeoutId = setTimeout(() => {
-      viewer.current.container.addEventListener('scroll', onScroll);
-    }, 200);
-
-    return () => {
-      viewer.current.container.removeEventListener('scroll', onScroll);
-      clearTimeout(timeoutId);
-    };
-  }, [paperJumpData]);
 
   const onDocumentReady = () => {
     if (!containerNode.current) {
@@ -318,6 +257,7 @@ const PdfAnnotator: React.FC<PdfAnnotatorProps> = ({
       );
     }
   };
+  useJumpToHandler({ viewer, renderHighlights });
 
   const renderAcronyms = (pageNumber: number) => {
     const { textLayer } = viewer.current.getPageView(pageNumber - 1);
@@ -338,7 +278,6 @@ const PdfAnnotator: React.FC<PdfAnnotatorProps> = ({
       renderHighlights(pageNumber);
       renderAcronyms(pageNumber);
       pagesReadyToRender.current.push(pageNumber);
-      setRequestRender(true);
     },
     [acronymPositions, highlights, tempHighlight],
   );

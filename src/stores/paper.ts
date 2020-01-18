@@ -1,6 +1,6 @@
 import axios from 'axios';
 import produce from 'immer';
-import { isEmpty } from 'lodash';
+import { isEmpty, sortBy } from 'lodash';
 import { GetState } from 'zustand';
 import {
   Acronyms,
@@ -64,11 +64,15 @@ interface FetchPaperResponse {
   groups: string[];
 }
 
+const sortHighlights = (highlights: T_Highlight[]) => {
+  return sortBy(highlights, ['position.pageNumber', 'position.boundingRect.y1']);
+};
+
 const stateAndActions = (set: NamedSetState<PaperState>, get: GetState<PaperState>) => {
   const fetchComments = async (paperId: string) => {
     try {
       const res = await axios.get(`/paper/${paperId}/comments`);
-      set({ highlights: res.data.comments });
+      set({ highlights: sortHighlights(res.data.comments) });
     } catch (err) {
       console.warn(err.response);
     }
@@ -145,7 +149,7 @@ const stateAndActions = (set: NamedSetState<PaperState>, get: GetState<PaperStat
     addHighlight: async (paperId: string, highlight: T_NewHighlight) => {
       try {
         const res = await axios.post(`/paper/${paperId}/new_comment`, highlight);
-        set(state => ({ highlights: [...state.highlights, res.data.comment] }));
+        set(state => ({ highlights: sortHighlights([...state.highlights, res.data.comment]) }), 'addHighlight');
         clearTempHighlightDataHelper();
       } catch (e) {
         console.log(e.response);
@@ -213,7 +217,7 @@ const stateAndActions = (set: NamedSetState<PaperState>, get: GetState<PaperStat
     setSidebarTab: (tab: SidebarTab) => set({ sidebarTab: tab }, 'sidebarTab'),
     setSections: (sections: Section[]) => set({ sections }, 'setSections'),
     setTooltipData: (data: TooltipData) => set({ tempTooltipData: data }),
-    setTempHighlight: (highlight: TempHighlight) => set({ tempHighlight: highlight }, 'setTempHighlight'),
+    setTempHighlight: (highlight: TempHighlight) => set({ tempHighlight: highlight }),
     clearTempHighlightAndTooltip: clearTempHighlightDataHelper,
   };
 };

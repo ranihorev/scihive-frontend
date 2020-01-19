@@ -8,6 +8,7 @@ import 'react-toastify/dist/ReactToastify.css';
 import shallow from 'zustand/shallow';
 import { User } from '../../models';
 import { useUserStore } from '../../stores/user';
+import { track } from '../../Tracker';
 import * as presets from '../../utils/presets';
 
 const formControl = css`
@@ -46,6 +47,7 @@ const LoginSignupForm: React.FC = () => {
       .post(endpoint, userData)
       .then(res => {
         localStorage.setItem('username', res.data.username);
+        track(isLogin ? 'Login' : 'Register');
         // Redundant: keep it here in case we won't reload the page one day
         onSubmitSuccess(res.data);
         const onRefresh = (refreshEvent: React.MouseEvent) => {

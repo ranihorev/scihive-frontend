@@ -1,17 +1,18 @@
 import axios from 'axios';
-import create, { PartialState, State, StateCreator } from 'zustand';
+import create, { PartialState, State, StateCreator, StoreApi, GetState } from 'zustand';
 import { devtools } from 'zustand/middleware';
 import { track } from '../Tracker';
 
 export type NamedSetState<T extends State> = (partial: PartialState<T>, name?: any) => void;
+type NamedStateCreator<T extends State> = (set: NamedSetState<T>, get: GetState<T>, api: StoreApi<T>) => T;
 
-export const withTrack = <T extends State>(fn: StateCreator<T>): StateCreator<T> => (set, get, api) => {
+export const withTrack = <T extends State>(fn: StateCreator<T>): NamedStateCreator<T> => (set, get, api) => {
   return fn(
     (state, name?: string) => {
       if (name) {
         track(name, typeof state === 'object' ? state : {});
       }
-      set(state);
+      set(state, name);
     },
     get,
     api,
@@ -19,9 +20,10 @@ export const withTrack = <T extends State>(fn: StateCreator<T>): StateCreator<T>
 };
 
 export const createWithDevtools = <T extends StateCreator<any>>(stateAndActions: T, storeName?: string) => {
-  const withDevTools = process.env.NODE_ENV === 'development' ? devtools(stateAndActions, storeName) : stateAndActions;
-  const stateAndActionsWithLog = withTrack(withDevTools);
-  return create<ReturnType<T>>(stateAndActionsWithLog);
+  const actionsWithTrack = withTrack(stateAndActions);
+  const withDevTools =
+    process.env.NODE_ENV === 'development' ? devtools(actionsWithTrack, storeName) : actionsWithTrack;
+  return create<ReturnType<T>>(withDevTools);
 };
 
 export interface AddRemovePaperToGroup {

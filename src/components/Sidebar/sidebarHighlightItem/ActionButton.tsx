@@ -2,7 +2,7 @@
 import { css, jsx } from '@emotion/core';
 import { IconButton } from '@material-ui/core';
 import React from 'react';
-import { COLORS } from '../../utils/presets';
+import { COLORS } from '../../../utils/presets';
 
 export const actionIconCss = css({ fontSize: 12, color: COLORS.grey });
 

@@ -2,7 +2,7 @@
 import { jsx } from '@emotion/core';
 import { Button, TextField } from '@material-ui/core';
 import React from 'react';
-import { T_Highlight } from '../../models';
+import { T_Highlight } from '../../../models';
 
 interface Props {
   onUpdate: (e: React.FormEvent, newText: string) => void;

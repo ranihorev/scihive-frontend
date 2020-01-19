@@ -4,8 +4,8 @@ import { pick } from 'lodash';
 import React from 'react';
 import { useCookies } from 'react-cookie';
 import shallow from 'zustand/shallow';
-import { usePaperStore } from '../../stores/paper';
-import { linkButton } from '../../utils/presets';
+import { usePaperStore } from '../../../stores/paper';
+import { linkButton } from '../../../utils/presets';
 import { SidebarHighlightItem } from '../sidebarHighlightItem';
 import { BottomBar } from './BottomBar';
 
@@ -36,7 +36,7 @@ const WelcomeMessage: React.FC = () => {
   );
 };
 
-const HighlightsList: React.FC<{ isVertical: boolean }> = ({ isVertical }) => {
+const HighlightsList: React.FC = () => {
   const [focusedId, setFocusedId] = React.useState();
   const [hideQuoteHighlights, setHideQuoteHighlights] = React.useState(true);
   const containerRef = React.useRef<HTMLDivElement>(null);
@@ -76,7 +76,7 @@ const HighlightsList: React.FC<{ isVertical: boolean }> = ({ isVertical }) => {
           color: rgb(119, 119, 119);
           overflow-y: auto;
           flex-grow: 1;
-          padding: ${isVertical ? '4px 0' : '0 0 5px'};
+          padding: 0 0 5px;
           padding-bottom: 45px;
         `}
         ref={containerRef}

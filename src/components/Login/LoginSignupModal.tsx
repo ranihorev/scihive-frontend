@@ -42,7 +42,7 @@ const LoginSignupForm: React.FC = () => {
   const submitForm = (e: React.FormEvent) => {
     e.preventDefault();
     setErrMsg('');
-    const endpoint = `/user${isLogin ? '/login' : '/register'}`;
+    const endpoint = `/user/${isLogin ? 'login' : 'register'}`;
     axios
       .post(endpoint, userData)
       .then(res => {

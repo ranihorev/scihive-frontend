@@ -16,7 +16,6 @@ import { ReferencesPopoverState } from '../../ReferencesProvider';
 
 interface PdfViewerProps {
   url: string;
-  isVertical: boolean;
   setReferencePopoverState?: (props: ReferencesPopoverState) => void;
 }
 
@@ -26,7 +25,7 @@ enum STATUS {
   SUCCESS = 1,
 }
 
-const PdfViewer: React.FC<PdfViewerProps> = ({ url, isVertical, setReferencePopoverState }) => {
+const PdfViewer: React.FC<PdfViewerProps> = ({ url, setReferencePopoverState }) => {
   const [status, setStatus] = React.useState<STATUS>(STATUS.LOADING);
   const [pdfDocument, setPdfDocument] = React.useState<PDFDocumentProxy>();
   const setSections = usePaperStore(state => state.setSections, shallow);
@@ -50,7 +49,6 @@ const PdfViewer: React.FC<PdfViewerProps> = ({ url, isVertical, setReferencePopo
         <PdfAnnotator
           pdfDocument={pdfDocument}
           enableAreaSelection={event => event.altKey}
-          isVertical={isVertical}
           onReferenceEnter={e => {
             const target = e.target as HTMLElement;
             if (!target) return;

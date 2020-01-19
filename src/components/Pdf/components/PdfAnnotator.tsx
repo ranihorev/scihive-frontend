@@ -76,18 +76,12 @@ const pdfViewerCss = css`
 `;
 
 interface PdfAnnotatorProps {
-  isVertical: boolean;
   enableAreaSelection: (event: MouseEvent) => boolean;
   onReferenceEnter: (event: React.MouseEvent) => void;
   pdfDocument: PDFDocumentProxy;
 }
 
-const PdfAnnotator: React.FC<PdfAnnotatorProps> = ({
-  isVertical,
-  enableAreaSelection,
-  onReferenceEnter,
-  pdfDocument,
-}) => {
+const PdfAnnotator: React.FC<PdfAnnotatorProps> = ({ enableAreaSelection, onReferenceEnter, pdfDocument }) => {
   // const [scrolledToHighlightId, setScrolledToHighlightId] = React.useState(EMPTY_ID);
   const [isAreaSelectionInProgress, setIsAreaSelectionInProgress] = React.useState(false);
   const [isDocumentReady, setIsDocumentReady] = React.useState(false);
@@ -282,10 +276,6 @@ const PdfAnnotator: React.FC<PdfAnnotatorProps> = ({
     [acronymPositions, highlights, tempHighlight],
   );
 
-  const containerStyle = isVertical
-    ? { height: '100%', width: '100vw' }
-    : { height: `calc(100vh - ${APP_BAR_HEIGHT}px)` };
-
   const onMouseDown = (event: React.MouseEvent) => {
     clearTempHighlightAndTooltip();
   };
@@ -410,7 +400,7 @@ const PdfAnnotator: React.FC<PdfAnnotatorProps> = ({
         className="PdfHighlighter"
         onScroll={onViewerScroll}
         onContextMenu={e => e.preventDefault()}
-        style={containerStyle}
+        style={{ height: `calc(100vh - ${APP_BAR_HEIGHT}px)` }}
         onClick={e => {
           const target = e.target as HTMLElement;
           if (target.tagName === 'A' && (target.getAttribute('href') || '').includes('#cite')) {

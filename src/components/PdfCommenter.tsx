@@ -4,6 +4,7 @@ import { CircularProgress } from '@material-ui/core';
 import { pick } from 'lodash';
 import * as queryString from 'query-string';
 import React, { useEffect, useState } from 'react';
+import { isMobile } from 'react-device-detect';
 import { Helmet } from 'react-helmet';
 import { useLocation, useParams } from 'react-router-dom';
 import useDeepCompareEffect from 'use-deep-compare-effect';
@@ -12,10 +13,10 @@ import { usePaperStore } from '../stores/paper';
 import { presets } from '../utils';
 import PdfLoader from './Pdf/components/PdfLoader';
 import { ReadingProgress } from './ReadingProgress';
-import Resizer from './Resizer';
-import { CollapseButton, Sidebar } from './Sidebar';
-import { APP_BAR_HEIGHT } from './TopBar/PrimaryAppBar';
 import ReferencesProvider from './ReferencesProvider';
+import Resizer from './Resizer';
+import { Sidebar } from './Sidebar';
+import { APP_BAR_HEIGHT } from './TopBar/PrimaryAppBar';
 
 const FETCHING = '-1';
 const FAILED = '0';
@@ -61,17 +62,12 @@ const PdfCommenter: React.FC = () => {
   const [title, setTitle] = useState('SciHive');
   const { height: pageHeight, width: pageWidth } = useWindowDimensions();
   const contentHeight = pageHeight - APP_BAR_HEIGHT;
-  const defaultPdfPrct = 0.75;
-  const [pdfSectionPrct, setPdfSectionPrct] = useState({
-    width: defaultPdfPrct,
-    height: defaultPdfPrct,
-  });
+  const [pdfWidthPrct, setPdfWidthPrct] = useState(isMobile ? 0.25 : 0.75);
+  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(isMobile ? true : false);
 
   const params = useParams<{ PaperId: string }>();
   const location = useLocation();
   const { clearPaper, fetchPaper } = usePaperStore(state => pick(state, ['clearPaper', 'fetchPaper']), shallow);
-
-  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
 
   useDeepCompareEffect(() => {
     // Fetch paper data
@@ -89,9 +85,6 @@ const PdfCommenter: React.FC = () => {
       });
   }, [params]);
 
-  // Vertical is for mobile phones
-  const isVertical = window.innerWidth < MOBILE_WIDTH;
-
   let viewerRender = null;
   if (url === FETCHING) {
     viewerRender = <Loader />;
@@ -100,30 +93,17 @@ const PdfCommenter: React.FC = () => {
   } else {
     viewerRender = (
       <ReferencesProvider>
-        <PdfLoader isVertical={isVertical} url={url} />
+        <PdfLoader url={url} />
       </ReferencesProvider>
     );
   }
-
-  const sidebarWidth = pageWidth * (1 - pdfSectionPrct.width);
-  const sidebarHeight = contentHeight * (1 - pdfSectionPrct.height);
-
-  const onCollapseClick = () => {
-    const newState = !isSidebarCollapsed;
-    setIsSidebarCollapsed(newState);
-    setPdfSectionPrct({
-      ...pdfSectionPrct,
-      width: newState ? 1 : defaultPdfPrct,
-    });
-  };
+  const sidebarWidth = pageWidth * (1 - pdfWidthPrct);
 
   const SidebarElement = (
     <Sidebar
-      height={sidebarHeight}
       width={sidebarWidth}
       isCollapsed={isSidebarCollapsed}
-      isVertical={isVertical}
-      onCollapseClick={onCollapseClick}
+      onCollapseClick={() => setIsSidebarCollapsed(state => !state)}
     />
   );
 
@@ -140,90 +120,36 @@ const PdfCommenter: React.FC = () => {
         }}
       >
         <ReadingProgress />
-        {isVertical ? (
-          <React.Fragment>
+
+        <React.Fragment>
+          {!isSidebarCollapsed && (
             <Resizer
               key={`${pageWidth}-${pageHeight}`}
-              initPos={contentHeight * pdfSectionPrct.height}
-              onDrag={({ y }) => {
-                setPdfSectionPrct({
-                  ...pdfSectionPrct,
-                  height: y / contentHeight,
-                });
-              }}
-              bounds={{
-                left: 0,
-                right: 0,
-                top: 50,
-                bottom: contentHeight - 50,
-              }}
-              step={10}
-              isVerticalLine={false}
+              initPos={sidebarWidth}
+              onDrag={({ x }) => setPdfWidthPrct((pageWidth - x) / pageWidth)}
+              bounds={{ left: 200, right: 600, top: 0, bottom: 0 }}
+              isVerticalLine={true}
             />
+          )}
+          <div
+            css={css`
+              ${presets.row};
+              height: 100%;
+            `}
+          >
+            {SidebarElement}
             <div
+              style={{
+                width: isSidebarCollapsed ? '100%' : pdfWidthPrct * pageWidth,
+              }}
               css={css`
-                ${presets.col};
-                width: 100%;
+                position: relative;
               `}
             >
-              <div
-                style={{ height: contentHeight * pdfSectionPrct.height }}
-                css={css`
-                  position: relative;
-                  overflow: hidden;
-                  display: flex;
-                `}
-              >
-                {viewerRender}
-              </div>
-              {SidebarElement}
+              {viewerRender}
             </div>
-          </React.Fragment>
-        ) : (
-          <React.Fragment>
-            {!isSidebarCollapsed ? (
-              <Resizer
-                key={`${pageWidth}-${pageHeight}`}
-                initPos={sidebarWidth}
-                onDrag={({ x }) =>
-                  setPdfSectionPrct({
-                    ...pdfSectionPrct,
-                    width: (pageWidth - x) / pageWidth,
-                  })
-                }
-                bounds={{ left: 200, right: 600, top: 0, bottom: 0 }}
-                isVerticalLine={true}
-              />
-            ) : (
-              <div
-                css={css`
-                  position: absolute;
-                  top: 4px;
-                  left: 0;
-                  z-index: 10;
-                `}
-              >
-                <CollapseButton direction={isSidebarCollapsed ? 'right' : 'left'} onClick={onCollapseClick} />
-              </div>
-            )}
-            <div
-              css={css`
-                ${presets.row};
-                height: 100%;
-              `}
-            >
-              {SidebarElement}
-              <div
-                style={{ width: pdfSectionPrct.width * pageWidth }}
-                css={css`
-                  position: relative;
-                `}
-              >
-                {viewerRender}
-              </div>
-            </div>
-          </React.Fragment>
-        )}
+          </div>
+        </React.Fragment>
       </div>
     </React.Fragment>
   );

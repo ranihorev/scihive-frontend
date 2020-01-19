@@ -6,8 +6,8 @@ import Tooltip from '@material-ui/core/Tooltip';
 import { isEmpty, pick } from 'lodash';
 import React from 'react';
 import shallow from 'zustand/shallow';
-import { usePaperStore } from '../../stores/paper';
-import { COLORS, themePalette } from '../../utils/presets';
+import { usePaperStore } from '../../../stores/paper';
+import { COLORS, themePalette } from '../../../utils/presets';
 
 interface Props {
   hideQuoteHighlights: boolean;

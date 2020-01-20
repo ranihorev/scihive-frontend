@@ -41,15 +41,6 @@ export const MobileMenu: React.FC<MobileMenuProps> = ({ rootChildren, submenuChi
     setMobileAnchorEl(null);
   };
 
-  const handleMobileMenuClick = (cb: () => void = () => {}) => {
-    handleMobileMenuClose();
-    cb();
-  };
-
-  const submenuChildrenWithClose = submenuChildren
-    ? React.Children.map(submenuChildren, child => React.cloneElement(child, { handleMobileMenuClick }))
-    : null;
-
   return (
     <React.Fragment>
       {rootChildren}
@@ -69,14 +60,15 @@ export const MobileMenu: React.FC<MobileMenuProps> = ({ rootChildren, submenuChi
         }}
         open={Boolean(mobileAnchorEl)}
         onClose={handleMobileMenuClose}
+        onClick={() => handleMobileMenuClose()}
       >
-        {submenuChildrenWithClose}
+        {submenuChildren}
         {isLoggedIn && [
           <Link to="/library" css={simpleLink} key="library">
-            <MenuItem onClick={handleMobileMenuClose}>My Library</MenuItem>
+            <MenuItem>My Library</MenuItem>
           </Link>,
           <Link to="/lists" css={simpleLink} key="lists">
-            <MenuItem onClick={handleMobileMenuClose}>My Lists</MenuItem>
+            <MenuItem>My Lists</MenuItem>
           </Link>,
         ]}
         <Divider />
@@ -86,18 +78,18 @@ export const MobileMenu: React.FC<MobileMenuProps> = ({ rootChildren, submenuChi
           rel="noopener noreferrer"
           css={simpleLink}
         >
-          <MenuItem onClick={handleMobileMenuClose}>Chrome Extension</MenuItem>
+          <MenuItem>Chrome Extension</MenuItem>
         </a>
         <a href="https://start.scihive.org" css={simpleLink}>
           <MenuItem color="inherit">About</MenuItem>
         </a>
         <Divider />
         {isLoggedIn ? (
-          <MenuItem color="inherit" onClick={() => handleMobileMenuClick(logout)}>
+          <MenuItem color="inherit" onClick={() => logout()}>
             Logout
           </MenuItem>
         ) : (
-          <MenuItem color="inherit" onClick={() => handleMobileMenuClick(toggleLoginModal)}>
+          <MenuItem color="inherit" onClick={() => toggleLoginModal()}>
             Login
           </MenuItem>
         )}

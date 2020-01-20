@@ -259,7 +259,7 @@ const PapersListItem: React.FC<PapersListItemProps> = ({ paper, groups, showAbst
                 font-size: 11px;
               `}
             >
-              {moment(paper.time_published).format('MMM DD, YYYY')}
+              {moment.utc(paper.time_published).format('MMM DD, YYYY')}
             </Typography>
           </Grid>
         </Grid>

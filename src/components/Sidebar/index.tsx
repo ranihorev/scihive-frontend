@@ -61,6 +61,7 @@ export const Sidebar: React.FC<Props> = ({ width, isCollapsed, onCollapseClick }
       break;
     case 'Info':
       content = <Info />;
+      break;
     default:
       console.warn('Section not found');
   }

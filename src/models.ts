@@ -200,5 +200,5 @@ export interface FileMetadata {
   title: string;
   abstract: string;
   authors: Author[];
-  date: Date | null;
+  date: string;
 }

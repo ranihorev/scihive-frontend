@@ -49,7 +49,7 @@ export const Info: React.FC = () => {
           </div>
           <div css={sectionCss}>
             <div css={{ fontWeight: 500 }}>Published</div>
-            {moment(date).format('MMM DD, YYYY')}
+            {moment.utc(date).format('MMM DD, YYYY')}
           </div>
           <div css={sectionCss}>
             <div css={{ fontWeight: 500 }}>Summary</div>
@@ -59,12 +59,12 @@ export const Info: React.FC = () => {
       </div>
       {isEditable && (
         <>
-          {/* <div>
+          <div>
             <Button variant="contained" color="primary" size="small" onClick={() => setIsEditOpen(true)}>
               Edit
             </Button>
           </div>
-          <EditModal isOpen={isEditOpen} closeModal={() => setIsEditOpen(false)} /> */}
+          <EditModal isOpen={isEditOpen} closeModal={() => setIsEditOpen(false)} />
         </>
       )}
     </div>

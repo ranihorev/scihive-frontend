@@ -15,6 +15,7 @@ import {
   T_NewHighlight,
   TempHighlight,
   TooltipData,
+  FileMetadata,
 } from '../models';
 import {
   AddRemoveBookmark,
@@ -26,9 +27,10 @@ import {
 } from './utils';
 
 export interface PaperState {
+  paperId?: string;
   title?: string;
   authors: { name: string }[];
-  date?: Date;
+  date?: string;
   summary?: string;
   isBookmarked: boolean;
   sections?: Section[];
@@ -65,7 +67,7 @@ const initialState: PaperState = {
 
 interface FetchPaperResponse {
   authors: { name: string }[];
-  time_published?: Date;
+  time_published?: string;
   summary?: string;
   url: string;
   saved_in_library: boolean;
@@ -80,6 +82,16 @@ const sortHighlights = (highlights: T_Highlight[]) => {
 };
 
 const stateAndActions = (set: NamedSetState<PaperState>, get: GetState<PaperState>) => {
+  const refactorPaperResponse = (data: FetchPaperResponse): Partial<PaperState> => {
+    return {
+      isBookmarked: data.saved_in_library,
+      codeMeta: data.code,
+      groupIds: data.groups,
+      date: data.time_published,
+      isEditable: data.is_editable,
+      ...pick(data, ['title', 'summary', 'authors']),
+    };
+  };
   const fetchComments = async (paperId: string) => {
     try {
       const res = await axios.get(`/paper/${paperId}/comments`);
@@ -201,15 +213,10 @@ const stateAndActions = (set: NamedSetState<PaperState>, get: GetState<PaperStat
       });
     },
     fetchPaper: async ({ paperId, selectedGroupId }: { paperId: string; selectedGroupId?: string }) => {
-      const res = await axios.get<FetchPaperResponse>(`/paper/${paperId}`);
-      const { data } = res;
+      const { data } = await axios.get<FetchPaperResponse>(`/paper/${paperId}`);
       const newState: Partial<PaperState> = {
-        isBookmarked: data.saved_in_library,
-        codeMeta: data.code,
-        groupIds: data.groups,
-        date: data.time_published,
-        isEditable: data.is_editable,
-        ...pick(data, ['title', 'summary', 'authors']),
+        paperId,
+        ...refactorPaperResponse(data),
       };
 
       if (selectedGroupId) {
@@ -219,9 +226,18 @@ const stateAndActions = (set: NamedSetState<PaperState>, get: GetState<PaperStat
       fetchComments(paperId);
       fetchReferences(paperId);
       fetchAcronyms(paperId);
-      return res.data;
+      return data;
     },
-
+    editPaper: async (data: FileMetadata) => {
+      const paperId = get().paperId;
+      if (!paperId) {
+        console.warn('paper id is missing');
+        return;
+      }
+      const { data: respData } = await axios.post<FetchPaperResponse>(`/paper/${paperId}/edit`, data);
+      const newData = pick(refactorPaperResponse(respData), ['title', 'authors', 'date', 'summary']);
+      set(newData, 'editPaper');
+    },
     setSidebarJumpTo: (jumpData: SidebarCommentJump) => set({ sidebarJumpData: jumpData }, 'jumpToSidebar'),
     setPaperJumpTo: (jumpData: PaperJump) => set({ paperJumpData: jumpData }, 'jumpToPaper'),
     clearSidebarJumpTo: () => set({ sidebarJumpData: undefined }, 'clearSidebarJumpTo'),

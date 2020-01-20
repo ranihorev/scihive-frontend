@@ -11,25 +11,19 @@ import React from 'react';
 import { FileMetadata } from '../../models';
 import { presets } from '../../utils';
 
+interface FileMetadataInternal extends Omit<FileMetadata, 'date'> {
+  date: Moment;
+}
+
 interface AllProps {
   onClose: () => void;
   onSubmit: (data: FileMetadata) => void;
   metadata: FileMetadata;
 }
 
-const removeTimezone = (date: Date | null) => {
-  if (date !== null) {
-    const m = moment(date);
-    return m.subtract(m.utcOffset(), 'minutes').toDate();
-  }
-  return null;
-};
-
 class UTCUtils extends MomentUtils {
   format = (value: Moment, formatString: string) => {
-    return moment(value)
-      .utc()
-      .format(formatString);
+    return moment.utc(value).format(formatString);
   };
 }
 
@@ -42,16 +36,22 @@ const Header: React.FC = ({ children }) => {
 };
 
 export const MetadataEditor: React.FC<AllProps> = ({ onSubmit, onClose, metadata: inputMetadata }) => {
-  const [metadata, setMetadata] = React.useState({
+  const [metadata, setMetadata] = React.useState<FileMetadataInternal>({
     ...inputMetadata,
-    date: removeTimezone(inputMetadata.date),
+    title: inputMetadata.title || '',
+    date: moment.utc(inputMetadata.date),
   });
   const [isDatePickerOpen, setIsDatePickerOpen] = React.useState(false);
-  const isFirstLoad = React.useRef(false);
+  const newAuthorAdded = React.useRef(false);
+  const isFirstLoad = React.useRef(true);
   const [secondCancel, setSecondCancel] = React.useState(false);
 
   React.useEffect(() => {
-    setMetadata(inputMetadata);
+    if (isFirstLoad.current) {
+      isFirstLoad.current = false;
+      return;
+    }
+    setMetadata({ ...inputMetadata, date: moment.utc(inputMetadata.date) });
   }, [inputMetadata]);
 
   React.useEffect(() => {
@@ -67,14 +67,14 @@ export const MetadataEditor: React.FC<AllProps> = ({ onSubmit, onClose, metadata
   }, [secondCancel]);
 
   React.useEffect(() => {
-    isFirstLoad.current = false;
+    newAuthorAdded.current = false;
   }, [metadata.authors]);
 
   return (
     <form
       onSubmit={e => {
         e.preventDefault();
-        onSubmit(metadata);
+        onSubmit({ ...metadata, date: metadata.date.toISOString() });
       }}
       css={{ display: 'flex', flexDirection: 'column', overflowY: 'hidden' }}
     >
@@ -102,13 +102,15 @@ export const MetadataEditor: React.FC<AllProps> = ({ onSubmit, onClose, metadata
               disableToolbar
               disableFuture
               required
+              rifmFormatter={inp => inp}
               variant="inline"
               format="MM/DD/YYYY"
               margin="dense"
               open={isDatePickerOpen}
-              value={metadata.date}
+              value={moment.utc(metadata.date)}
               onChange={(date, value) => {
-                setMetadata({ ...metadata, date: date !== null ? date.utc().toDate() : null });
+                if (date === null) return;
+                setMetadata({ ...metadata, date });
                 setIsDatePickerOpen(false);
               }}
               KeyboardButtonProps={{
@@ -133,7 +135,7 @@ export const MetadataEditor: React.FC<AllProps> = ({ onSubmit, onClose, metadata
               component="div"
               css={{ height: 'fit-content', marginLeft: 4 }}
               onClick={() => {
-                isFirstLoad.current = true;
+                newAuthorAdded.current = true;
                 setMetadata(
                   produce(metadata, draft => {
                     draft.authors.push({ name: '' });
@@ -150,7 +152,7 @@ export const MetadataEditor: React.FC<AllProps> = ({ onSubmit, onClose, metadata
               <div key={index} css={{ display: 'flex', flexDirection: 'row', alignItems: 'center' }}>
                 <TextField
                   required
-                  autoFocus={index === metadata.authors.length - 1 && isFirstLoad.current}
+                  autoFocus={index === metadata.authors.length - 1 && newAuthorAdded.current}
                   value={author.name}
                   css={{ width: 200 }}
                   margin="dense"

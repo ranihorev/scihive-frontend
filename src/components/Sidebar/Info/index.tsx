@@ -53,7 +53,7 @@ export const Info: React.FC = () => {
           </div>
           <div css={sectionCss}>
             <div css={{ fontWeight: 500 }}>Summary</div>
-            {summary}
+            <Latex>{summary || ''}</Latex>
           </div>
         </div>
       </div>

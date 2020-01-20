@@ -139,7 +139,8 @@ export interface References {
   [citeId: string]: Reference;
 }
 
-export type SidebarTab = 'Sections' | 'Comments';
+export const SIDEBAR_TABS = ['Sections', 'Comments', 'Info'] as const;
+export type SidebarTab = typeof SIDEBAR_TABS[number];
 
 export interface SidebarCommentJump {
   id: string;

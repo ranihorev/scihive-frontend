@@ -6,9 +6,9 @@ import React from 'react';
 import ContentLoader from 'react-content-loader';
 import { useHistory } from 'react-router';
 import shallow from 'zustand/shallow';
-import { Section } from '../models';
-import { usePaperStore } from '../stores/paper';
-import { getSectionPosition, presets } from '../utils';
+import { Section } from '../../models';
+import { usePaperStore } from '../../stores/paper';
+import { getSectionPosition, presets } from '../../utils';
 
 const asc = (arr: number[]) => arr.sort((a, b) => a - b);
 

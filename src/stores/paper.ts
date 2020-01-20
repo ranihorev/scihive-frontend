@@ -1,6 +1,6 @@
 import axios from 'axios';
 import produce from 'immer';
-import { isEmpty, sortBy } from 'lodash';
+import { isEmpty, sortBy, pick } from 'lodash';
 import { GetState } from 'zustand';
 import {
   Acronyms,
@@ -26,18 +26,23 @@ import {
 } from './utils';
 
 export interface PaperState {
-  readingProgress: number;
+  title?: string;
+  authors: { name: string }[];
+  date?: Date;
+  summary?: string;
   isBookmarked: boolean;
   sections?: Section[];
   references: References;
-  highlights: T_Highlight[];
-  hiddenHighlights: T_Highlight[];
   acronyms: Acronyms;
+  highlights: T_Highlight[];
+  isEditable: boolean;
+  groupIds: string[];
+  hiddenHighlights: T_Highlight[];
+  readingProgress: number;
   sidebarTab: SidebarTab;
   sidebarJumpData?: SidebarCommentJump;
   paperJumpData?: PaperJump;
   codeMeta?: CodeMeta;
-  groupIds: string[];
   commentVisibilty: Visibility;
   // new highlight data
   tempHighlight?: TempHighlight;
@@ -45,6 +50,7 @@ export interface PaperState {
 }
 
 const initialState: PaperState = {
+  authors: [],
   readingProgress: 0,
   isBookmarked: false,
   references: {},
@@ -54,14 +60,19 @@ const initialState: PaperState = {
   sidebarTab: 'Sections',
   groupIds: [],
   commentVisibilty: { type: 'public' },
+  isEditable: false,
 };
 
 interface FetchPaperResponse {
+  authors: { name: string }[];
+  time_published?: Date;
+  summary?: string;
   url: string;
   saved_in_library: boolean;
   title: string;
   code?: CodeMeta;
   groups: string[];
+  is_editable: boolean;
 }
 
 const sortHighlights = (highlights: T_Highlight[]) => {
@@ -135,7 +146,7 @@ const stateAndActions = (set: NamedSetState<PaperState>, get: GetState<PaperStat
     },
     clearPaper: () => set(initialState, 'clearPaper'),
     updateReadingProgress: (progress: number) => set({ readingProgress: progress }),
-    setPaper: (newPaper: Partial<PaperState>) => set(newPaper, 'setPaper'),
+    setPaperData: (data: Partial<PaperState>) => set(data, 'setPaperData'),
     toggleHighlightsVisiblity: () => {
       if (isEmpty(get().hiddenHighlights)) {
         set(state => ({ highlights: [], hiddenHighlights: state.highlights }), 'hideHighlights');
@@ -196,6 +207,9 @@ const stateAndActions = (set: NamedSetState<PaperState>, get: GetState<PaperStat
         isBookmarked: data.saved_in_library,
         codeMeta: data.code,
         groupIds: data.groups,
+        date: data.time_published,
+        isEditable: data.is_editable,
+        ...pick(data, ['title', 'summary', 'authors']),
       };
 
       if (selectedGroupId) {

@@ -8,13 +8,12 @@ import { KeyboardDatePicker, MuiPickersUtilsProvider } from '@material-ui/picker
 import produce from 'immer';
 import moment, { Moment } from 'moment';
 import React from 'react';
-import { useHistory } from 'react-router';
 import { FileMetadata } from '../../models';
-import { uploadPaperDetails } from '../../thunks';
 import { presets } from '../../utils';
 
 interface AllProps {
   onClose: () => void;
+  onSubmit: (data: FileMetadata) => void;
   metadata: FileMetadata;
 }
 
@@ -34,14 +33,21 @@ class UTCUtils extends MomentUtils {
   };
 }
 
-export const MetadataEditor: React.FC<AllProps> = ({ onClose, metadata: inputMetadata }) => {
+const Header: React.FC = ({ children }) => {
+  return (
+    <Typography variant="h6" css={{ fontSize: 18 }}>
+      {children}
+    </Typography>
+  );
+};
+
+export const MetadataEditor: React.FC<AllProps> = ({ onSubmit, onClose, metadata: inputMetadata }) => {
   const [metadata, setMetadata] = React.useState({
     ...inputMetadata,
     date: removeTimezone(inputMetadata.date),
   });
   const [isDatePickerOpen, setIsDatePickerOpen] = React.useState(false);
   const isFirstLoad = React.useRef(false);
-  const history = useHistory();
   const [secondCancel, setSecondCancel] = React.useState(false);
 
   React.useEffect(() => {
@@ -68,16 +74,14 @@ export const MetadataEditor: React.FC<AllProps> = ({ onClose, metadata: inputMet
     <form
       onSubmit={e => {
         e.preventDefault();
-        uploadPaperDetails(metadata, (paperId: string) => {
-          history.push(`/paper/${paperId}`);
-        });
+        onSubmit(metadata);
       }}
       css={{ display: 'flex', flexDirection: 'column', overflowY: 'hidden' }}
     >
       <div css={{ color: '#4a4a4a', display: 'flex', flexDirection: 'column', overflowY: 'auto' }}>
         {/* Title */}
         <div>
-          <Typography variant="h6">Title</Typography>
+          <Header>Title</Header>
           <TextField
             required
             value={metadata.title}
@@ -92,7 +96,7 @@ export const MetadataEditor: React.FC<AllProps> = ({ onClose, metadata: inputMet
         </div>
         {/* Date */}
         <div css={{ marginTop: 24 }}>
-          <Typography variant="h6">Date published</Typography>
+          <Header>Date published</Header>
           <MuiPickersUtilsProvider utils={UTCUtils}>
             <KeyboardDatePicker
               disableToolbar
@@ -122,7 +126,7 @@ export const MetadataEditor: React.FC<AllProps> = ({ onClose, metadata: inputMet
         {/* Authors */}
         <div css={{ marginTop: 24 }}>
           <div css={[presets.row, { alignItems: 'center' }]}>
-            <Typography variant="h6">Authors</Typography>
+            <Header>Authors</Header>
             <IconButton
               color="inherit"
               size="small"

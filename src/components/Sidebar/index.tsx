@@ -5,11 +5,13 @@ import Tabs from '@material-ui/core/Tabs';
 import { pick } from 'lodash';
 import React from 'react';
 import shallow from 'zustand/shallow';
+import { SIDEBAR_TABS } from '../../models';
 import { usePaperStore } from '../../stores/paper';
 import { presets } from '../../utils';
-import { PaperSections } from '../PaperSections';
-import HighlightsList from './sidebarHighlightsList';
 import { CollapseButton } from './CollapseButton';
+import { Info } from './Info';
+import { PaperSections } from './PaperSections';
+import HighlightsList from './sidebarHighlightsList';
 
 const HEADER_HEIGHT = 36;
 
@@ -57,6 +59,8 @@ export const Sidebar: React.FC<Props> = ({ width, isCollapsed, onCollapseClick }
     case 'Sections':
       content = <PaperSections />;
       break;
+    case 'Info':
+      content = <Info />;
     default:
       console.warn('Section not found');
   }
@@ -88,8 +92,9 @@ export const Sidebar: React.FC<Props> = ({ width, isCollapsed, onCollapseClick }
             minHeight: HEADER_HEIGHT,
           }}
         >
-          <Tab label="Comments" value="Comments" css={tabCss} />
-          <Tab label="Sections" value="Sections" css={tabCss} />
+          {SIDEBAR_TABS.map(tab => (
+            <Tab key={tab} label={tab} value={tab} css={tabCss} />
+          ))}
         </Tabs>
       </div>
       {content}

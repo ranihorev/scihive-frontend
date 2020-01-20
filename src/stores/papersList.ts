@@ -48,7 +48,6 @@ const stateAndActions = (set: NamedSetState<PapersListState>, get: GetState<Pape
   const addPapersHelper = ({ papers, total }: { papers: PaperListItem[]; total?: number }) =>
     set(state => {
       const totalPapers = total !== undefined ? total : state.totalPapers;
-      debugger;
       return { papers: [...state.papers, ...papers], totalPapers };
     }, 'addPapers');
 

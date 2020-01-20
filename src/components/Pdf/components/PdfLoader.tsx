@@ -7,7 +7,7 @@ import { isMobile } from 'react-device-detect';
 import shallow from 'zustand/shallow';
 import { PdfAnnotator } from '..';
 import { usePaperStore } from '../../../stores/paper';
-import { extractSections } from '../../PaperSections';
+import { extractSections } from '../../Sidebar/PaperSections';
 import { ReferencesPopoverState } from '../../ReferencesProvider';
 
 (pdfjs as any).GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${

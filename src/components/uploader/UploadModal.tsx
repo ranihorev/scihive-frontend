@@ -7,6 +7,8 @@ import { presets } from '../../utils';
 import { FileUpload } from './FileUpload';
 import { MetadataEditor } from './MetadataEditor';
 import { Warning } from './Warning';
+import { uploadPaperDetails } from '../../thunks';
+import { useHistory } from 'react-router';
 
 export const UploadModal: React.FC<{ isOpen: boolean; closeModal: () => void }> = React.memo(
   ({ isOpen, closeModal }) => {
@@ -16,6 +18,13 @@ export const UploadModal: React.FC<{ isOpen: boolean; closeModal: () => void }> 
         setFileMeta(undefined);
       }
     }, [isOpen]);
+    const history = useHistory();
+    const onSubmit = React.useCallback(
+      (metadata: FileMetadata) => {
+        uploadPaperDetails(metadata, history);
+      },
+      [history],
+    );
     return (
       <Modal
         open={isOpen}
@@ -30,7 +39,7 @@ export const UploadModal: React.FC<{ isOpen: boolean; closeModal: () => void }> 
             {!fileMeta ? (
               <FileUpload setFileMeta={setFileMeta} />
             ) : (
-              <MetadataEditor metadata={fileMeta} onClose={closeModal} />
+              <MetadataEditor metadata={fileMeta} onClose={closeModal} onSubmit={onSubmit} />
             )}
           </div>
         </Fade>

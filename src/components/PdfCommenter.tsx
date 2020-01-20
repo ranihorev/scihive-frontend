@@ -59,7 +59,6 @@ const Loader = () => (
 
 const PdfCommenter: React.FC = () => {
   const [url, setUrl] = useState(FETCHING);
-  const [title, setTitle] = useState('SciHive');
   const { height: pageHeight, width: pageWidth } = useWindowDimensions();
   const contentHeight = pageHeight - APP_BAR_HEIGHT;
   const [pdfWidthPrct, setPdfWidthPrct] = useState(isMobile ? 0.25 : 0.75);
@@ -67,7 +66,10 @@ const PdfCommenter: React.FC = () => {
 
   const params = useParams<{ PaperId: string }>();
   const location = useLocation();
-  const { clearPaper, fetchPaper } = usePaperStore(state => pick(state, ['clearPaper', 'fetchPaper']), shallow);
+  const { title, clearPaper, fetchPaper } = usePaperStore(
+    state => pick(state, ['title', 'clearPaper', 'fetchPaper']),
+    shallow,
+  );
 
   useDeepCompareEffect(() => {
     // Fetch paper data
@@ -77,7 +79,6 @@ const PdfCommenter: React.FC = () => {
     fetchPaper({ paperId: params.PaperId, selectedGroupId })
       .then(data => {
         setUrl(data.url);
-        if (data.title) setTitle(`SciHive - ${data.title}`);
       })
       .catch(e => {
         console.log(e.response);
@@ -110,7 +111,7 @@ const PdfCommenter: React.FC = () => {
   return (
     <React.Fragment>
       <Helmet>
-        <title>{title}</title>
+        <title>{'SciHive' + (title ? ` - ${title}` : '')}</title>
       </Helmet>
       <div
         style={{

@@ -29,6 +29,7 @@ import {
 export interface PaperState {
   paperId?: string;
   title?: string;
+  url?: string;
   authors: { name: string }[];
   date?: string;
   summary?: string;
@@ -84,11 +85,7 @@ const sortHighlights = (highlights: T_Highlight[]) => {
 const stateAndActions = (set: NamedSetState<PaperState>, get: GetState<PaperState>) => {
   const refactorPaperResponse = (data: FetchPaperResponse): Partial<PaperState> => {
     return {
-      isBookmarked: data.saved_in_library,
-      codeMeta: data.code,
-      groupIds: data.groups,
       date: data.time_published,
-      isEditable: data.is_editable,
       ...pick(data, ['title', 'summary', 'authors']),
     };
   };
@@ -215,6 +212,11 @@ const stateAndActions = (set: NamedSetState<PaperState>, get: GetState<PaperStat
     fetchPaper: async ({ paperId, selectedGroupId }: { paperId: string; selectedGroupId?: string }) => {
       const { data } = await axios.get<FetchPaperResponse>(`/paper/${paperId}`);
       const newState: Partial<PaperState> = {
+        url: data.url,
+        isBookmarked: data.saved_in_library,
+        codeMeta: data.code,
+        groupIds: data.groups,
+        isEditable: data.is_editable,
         paperId,
         ...refactorPaperResponse(data),
       };

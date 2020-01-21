@@ -20,7 +20,7 @@ export default function Paper() {
   return (
     <React.Fragment>
       <div ref={wrapperRef}>
-        <PrimaryAppBar desktopItems={<PaperDekstopMenu />} mobileSubItems={<PaperMobileMenu />} />
+        <PrimaryAppBar desktopItems={<PaperDekstopMenu />} mobileSubItems={PaperMobileMenu()} />
         <PdfCommenter />
       </div>
     </React.Fragment>

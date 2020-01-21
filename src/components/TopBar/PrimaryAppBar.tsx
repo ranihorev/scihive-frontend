@@ -50,7 +50,7 @@ interface Props {
   classes: { [key: string]: string };
   desktopItems?: React.ReactElement;
   mobileRootItems?: React.ReactElement;
-  mobileSubItems?: React.ReactElement;
+  mobileSubItems?: React.ReactNode;
 }
 
 const PrimaryAppBar: React.FC<Props> = ({ classes, desktopItems, mobileRootItems, mobileSubItems }) => {

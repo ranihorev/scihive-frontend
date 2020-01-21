@@ -23,7 +23,7 @@ const logout = () => {
 
 interface MobileMenuProps {
   rootChildren?: React.ReactElement;
-  submenuChildren?: React.ReactElement;
+  submenuChildren?: React.ReactNode;
 }
 
 export const MobileMenu: React.FC<MobileMenuProps> = ({ rootChildren, submenuChildren }) => {
@@ -191,17 +191,6 @@ export const DesktopMenu: React.FC = ({ children }) => {
             css={simpleLink}
           >
             <MenuItem onClick={() => handleMenuClose()}>Chrome Extension</MenuItem>
-          </a>
-          <a href="https://goo.gl/forms/fiEWkXfk4hLW6i1P2" target="_blank" rel="noopener noreferrer" css={simpleLink}>
-            <MenuItem onClick={() => handleMenuClose()}>Our poll</MenuItem>
-          </a>
-          <a
-            href="http://www.tricider.com/brainstorming/2urLxQ6t9XR"
-            target="_blank"
-            rel="noopener noreferrer"
-            css={simpleLink}
-          >
-            <MenuItem onClick={() => handleMenuClose()}>Suggest a feature</MenuItem>
           </a>
           <a href="https://start.scihive.org" css={simpleLink}>
             <MenuItem color="inherit">About</MenuItem>

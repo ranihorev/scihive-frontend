@@ -13,15 +13,30 @@ import { PopoverMenu } from '../PopoverMenu';
 
 export const PaperDekstopMenu: React.FC = () => {
   const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null);
-  const { codeMeta, groupIds, updatePaperGroups, updateBookmark, isBookmarked } = usePaperStore(
-    state => pick(state, ['codeMeta', 'groupIds', 'updatePaperGroups', 'updateBookmark', 'isBookmarked']),
+  const {
+    paperId,
+    url,
+    isEditable,
+    codeMeta,
+    groupIds,
+    updatePaperGroups,
+    updateBookmark,
+    isBookmarked,
+  } = usePaperStore(
+    state =>
+      pick(state, [
+        'url',
+        'paperId',
+        'isEditable',
+        'codeMeta',
+        'groupIds',
+        'updatePaperGroups',
+        'updateBookmark',
+        'isBookmarked',
+      ]),
     shallow,
   );
   const isMenuOpen = Boolean(anchorEl);
-  const {
-    match: { params },
-  } = useReactRouter();
-  const { PaperId } = params;
 
   const handleMenuOpen = (event: React.MouseEvent) => {
     setAnchorEl(event.currentTarget as HTMLElement);
@@ -30,11 +45,12 @@ export const PaperDekstopMenu: React.FC = () => {
   const handleMenuClose = () => {
     setAnchorEl(null);
   };
-
+  // TODO: replace isEditable with proper metadata from the backend
+  if (!paperId) return null;
   return (
     <React.Fragment>
       <Bookmark
-        paperId={PaperId}
+        paperId={paperId}
         color="white"
         isBookmarked={isBookmarked}
         selectedGroupIds={groupIds}
@@ -56,74 +72,77 @@ export const PaperDekstopMenu: React.FC = () => {
           </a>
         )}
         <a
-          href={`https://arxiv.org/pdf/${PaperId}.pdf?download=1`} // download=1 ensures that the extension will ignore the link
+          href={isEditable ? url : `https://arxiv.org/pdf/${paperId}.pdf?download=1`} // download=1 ensures that the extension will ignore the link
           css={simpleLink}
           target="_blank"
           rel="noopener noreferrer"
-          download={`${PaperId}.pdf`}
+          download={`${paperId}.pdf`}
         >
           <MenuItem onClick={handleMenuClose}>PDF</MenuItem>
         </a>
-        <a
-          href={`https://arxiv.org/abs/${PaperId}`}
-          css={simpleLink}
-          target="_blank"
-          rel="noopener noreferrer"
-          download
-        >
-          <MenuItem onClick={handleMenuClose}>Abstract</MenuItem>
-        </a>
+        {!isEditable && (
+          <a
+            href={`https://arxiv.org/abs/${paperId}`}
+            css={simpleLink}
+            target="_blank"
+            rel="noopener noreferrer"
+            download
+          >
+            <MenuItem onClick={handleMenuClose}>Abstract</MenuItem>
+          </a>
+        )}
       </PopoverMenu>
     </React.Fragment>
   );
 };
 
-interface PaperMenuMobileProps {
-  handleMobileMenuClick?: () => void;
-}
+export const PaperMobileMenu = () => {
+  const { paperId, codeMeta, isEditable, url } = usePaperStore(
+    state => pick(state, ['paperId', 'codeMeta', 'isEditable', 'url']),
+    shallow,
+  );
 
-export const PaperMobileMenu: React.FC<PaperMenuMobileProps> = ({ handleMobileMenuClick = () => {} }) => {
-  const {
-    match: {
-      params: { PaperId },
-    },
-  } = useReactRouter();
-
-  const codeMeta = usePaperStore(state => state.codeMeta);
-
-  return (
-    <React.Fragment>
-      {codeMeta && codeMeta.github && (
-        <a href={codeMeta.github} css={simpleLink} target="_blank" rel="noopener noreferrer">
-          <MenuItem onClick={() => handleMobileMenuClick()}>Github</MenuItem>
-        </a>
-      )}
-      {codeMeta && codeMeta.paperswithcode && (
-        <a href={codeMeta.paperswithcode} css={simpleLink} target="_blank" rel="noopener noreferrer">
-          <MenuItem onClick={() => handleMobileMenuClick()}>PapersWithCode</MenuItem>
-        </a>
-      )}
+  const res = [
+    <a
+      key="pdf"
+      href={isEditable ? url : `https://arxiv.org/pdf/${paperId}.pdf?download=1`}
+      css={simpleLink}
+      target="_blank"
+      rel="noopener noreferrer"
+      download={`${paperId}.pdf`}
+    >
+      <MenuItem>Download PDF</MenuItem>
+    </a>,
+    ,
+  ];
+  if (!isEditable) {
+    res.push(
       <a
-        href={`https://arxiv.org/pdf/${PaperId}.pdf?download=1`}
+        key="latex"
+        href={`https://arxiv.org/e-print/${paperId}`}
         css={simpleLink}
         target="_blank"
         rel="noopener noreferrer"
-        download={`${PaperId}.pdf`}
-        onClick={() => handleMobileMenuClick()}
-      >
-        <MenuItem>Download PDF</MenuItem>
-      </a>
-      <a
-        href={`https://arxiv.org/e-print/${PaperId}`}
-        css={simpleLink}
-        target="_blank"
-        rel="noopener noreferrer"
-        onClick={() => handleMobileMenuClick()}
         download
       >
         <MenuItem>Download LaTeX</MenuItem>
-      </a>
-      <Divider />
-    </React.Fragment>
-  );
+      </a>,
+    );
+  }
+  res.push(<Divider key="divider" />);
+  if (codeMeta?.paperswithcode) {
+    res.unshift(
+      <a href={codeMeta.paperswithcode} css={simpleLink} target="_blank" rel="noopener noreferrer" key="code">
+        <MenuItem>PapersWithCode</MenuItem>
+      </a>,
+    );
+  }
+  if (codeMeta?.github) {
+    res.unshift(
+      <a href={codeMeta.github} css={simpleLink} target="_blank" rel="noopener noreferrer" key="github">
+        <MenuItem>Github</MenuItem>
+      </a>,
+    );
+  }
+  return res;
 };

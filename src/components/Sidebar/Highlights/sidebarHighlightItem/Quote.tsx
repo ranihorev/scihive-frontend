@@ -1,11 +1,11 @@
 /** @jsx jsx */
 import { css, jsx } from '@emotion/core';
 import React from 'react';
-import { presets } from '../../../utils';
+import { presets } from '../../../../utils';
 import { ActionIconButton } from './ActionButton';
 import { useParams } from 'react-router';
-import { T_Highlight } from '../../../models';
-import { usePaperStore } from '../../../stores/paper';
+import { T_Highlight } from '../../../../models';
+import { usePaperStore } from '../../../../stores/paper';
 
 interface Props {
   text: string;

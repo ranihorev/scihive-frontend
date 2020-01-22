@@ -4,8 +4,8 @@ import { pick } from 'lodash';
 import React from 'react';
 import { useCookies } from 'react-cookie';
 import shallow from 'zustand/shallow';
-import { usePaperStore } from '../../../stores/paper';
-import { linkButton } from '../../../utils/presets';
+import { usePaperStore } from '../../../../stores/paper';
+import { linkButton } from '../../../../utils/presets';
 import { SidebarHighlightItem } from '../sidebarHighlightItem';
 import { BottomBar } from './BottomBar';
 

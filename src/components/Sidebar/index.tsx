@@ -11,7 +11,7 @@ import { presets } from '../../utils';
 import { CollapseButton } from './CollapseButton';
 import { Info } from './Info';
 import { PaperSections } from './PaperSections';
-import HighlightsList from './sidebarHighlightsList';
+import HighlightsList from './Highlights/sidebarHighlightsList';
 
 const HEADER_HEIGHT = 36;
 

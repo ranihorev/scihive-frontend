@@ -16,7 +16,7 @@ interface Props {
 
 const floatingIconCss = css({
   color: themePalette.primary.main,
-  fontSize2: 14,
+  fontSize: 14,
 });
 
 export const BottomBar: React.FC<Props> = ({ hideQuoteHighlights, setHideQuoteHighlights }) => {

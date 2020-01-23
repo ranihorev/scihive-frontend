@@ -1,21 +1,25 @@
 import axios from 'axios';
 import produce from 'immer';
-import { isEmpty, sortBy, pick } from 'lodash';
+import { isEmpty, pick, sortBy } from 'lodash';
 import { GetState } from 'zustand';
 import {
   Acronyms,
+  AllHighlight,
+  AllNewHighlight,
   CodeMeta,
+  EditHighlightData,
+  FileMetadata,
+  GeneralHighlight,
+  isGeneralHighlight,
   PaperJump,
   References,
   Section,
-  SidebarTab,
-  T_Highlight,
-  Visibility,
   SidebarCommentJump,
-  T_NewHighlight,
+  SidebarTab,
   TempHighlight,
   TooltipData,
-  FileMetadata,
+  T_Highlight,
+  Visibility,
 } from '../models';
 import {
   AddRemoveBookmark,
@@ -37,10 +41,10 @@ export interface PaperState {
   sections?: Section[];
   references: References;
   acronyms: Acronyms;
-  highlights: T_Highlight[];
+  highlights: AllHighlight[];
   isEditable: boolean;
   groupIds: string[];
-  hiddenHighlights: T_Highlight[];
+  hiddenHighlights: AllHighlight[];
   readingProgress: number;
   sidebarTab: SidebarTab;
   sidebarJumpData?: SidebarCommentJump;
@@ -78,8 +82,18 @@ interface FetchPaperResponse {
   is_editable: boolean;
 }
 
-const sortHighlights = (highlights: T_Highlight[]) => {
-  return sortBy(highlights, ['position.pageNumber', 'position.boundingRect.y1']);
+const sortHighlights = (highlights: AllHighlight[]): AllHighlight[] => {
+  const general: GeneralHighlight[] = [];
+  let rest: T_Highlight[] = [];
+  for (const highlight of highlights) {
+    if (isGeneralHighlight(highlight)) {
+      general.push(highlight);
+    } else {
+      rest.push(highlight);
+    }
+  }
+  rest = sortBy(rest, ['position.pageNumber', 'position.boundingRect.y1']);
+  return [...general, ...rest];
 };
 
 const stateAndActions = (set: NamedSetState<PaperState>, get: GetState<PaperState>) => {
@@ -129,7 +143,7 @@ const stateAndActions = (set: NamedSetState<PaperState>, get: GetState<PaperStat
       try {
         addRemovePaperToGroupHelper(payload);
       } catch (e) {
-        console.log(e);
+        console.warn(e);
         return;
       }
       set(
@@ -166,28 +180,42 @@ const stateAndActions = (set: NamedSetState<PaperState>, get: GetState<PaperStat
         );
       }
     },
-    addHighlight: async (paperId: string, highlight: T_NewHighlight) => {
-      try {
-        const res = await axios.post(`/paper/${paperId}/new_comment`, highlight);
-        set(state => ({ highlights: sortHighlights([...state.highlights, res.data.comment]) }), 'addHighlight');
-        clearTempHighlightDataHelper();
-      } catch (e) {
-        console.log(e.response);
-      }
+    addHighlight: async (paperId: string, highlight: AllNewHighlight) => {
+      return new Promise(async (resolve, reject) => {
+        try {
+          const res = await axios.post(`/paper/${paperId}/new_comment`, highlight);
+          set(
+            state => ({ highlights: sortHighlights([...state.highlights, res.data.comment]), sidebarTab: 'Comments' }),
+            'addHighlight',
+          );
+          resolve();
+          clearTempHighlightDataHelper();
+        } catch (e) {
+          reject(e);
+        }
+      });
     },
-    removeHighlight: (paperId: string, highlightId: string) => {
+    removeHighlight: (highlightId: string) => {
+      const paperId = get().paperId;
+      if (!paperId) {
+        console.warn('Paper id is missing');
+        return;
+      }
       axios
         .delete(`/paper/${paperId}/comment/${highlightId}`)
         .then(() => {
           set(state => ({ highlights: state.highlights.filter(h => h.id !== highlightId) }), 'removeHighlight');
         })
-        .catch((err: any) => console.log(err.response));
+        .catch((err: any) => console.warn(err.response));
     },
-    updateHighlightText: (paperId: string, highlightId: string, newText: string) => {
+    updateHighlight: (highlightId: string, data: EditHighlightData) => {
       return new Promise(async (resolve, reject) => {
         try {
+          const paperId = get().paperId;
+          if (!paperId) reject('Paper id is missing');
           const res = await axios.patch<{ comment: T_Highlight }>(`/paper/${paperId}/comment/${highlightId}`, {
-            comment: newText,
+            comment: data.text,
+            visibility: data.visibility,
           });
           updateHighlightHelper(res.data.comment);
           resolve(res.data.comment);
@@ -196,9 +224,11 @@ const stateAndActions = (set: NamedSetState<PaperState>, get: GetState<PaperStat
         }
       });
     },
-    replyToHighlight: (paperId: string, highlightId: string, replyText: string) => {
+    replyToHighlight: (highlightId: string, replyText: string) => {
       return new Promise(async (resolve, reject) => {
         try {
+          const paperId = get().paperId;
+          if (!paperId) reject('Paper id is missing');
           const res = await axios.post(`/paper/${paperId}/comment/${highlightId}/reply`, {
             text: replyText,
           });

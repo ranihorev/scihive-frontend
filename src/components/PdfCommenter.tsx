@@ -20,7 +20,6 @@ import { APP_BAR_HEIGHT } from './TopBar/PrimaryAppBar';
 
 const FETCHING = '-1';
 const FAILED = '0';
-const MOBILE_WIDTH = 800;
 
 const useWindowDimensions = () => {
   const [windowDimensions, setWindowDimensions] = useState({

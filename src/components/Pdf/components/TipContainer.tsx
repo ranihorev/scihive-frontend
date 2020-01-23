@@ -8,12 +8,12 @@ import shallow from 'zustand/shallow';
 import { usePaperStore } from '../../../stores/paper';
 import Tip from './Tip';
 
-export const TipContainer: React.FC = () => {
+export const TipContainer: React.FC = React.memo(() => {
   // const [key, setKey] = React.useState(false); // used to reload the popper
   const tooltipNode = React.useRef<HTMLDivElement>(null);
   const popperRef: PopperProps['popperRef'] = React.useRef(null);
   const { tempTooltipData: tooltipData } = usePaperStore(state => pick(state, ['tempTooltipData']), shallow);
-
+  const tooltipSize = tooltipData?.size;
   return (
     <React.Fragment>
       <div
@@ -22,14 +22,14 @@ export const TipContainer: React.FC = () => {
         css={css`
           position: absolute;
         `}
-        style={tooltipData ? tooltipData.size : undefined}
+        style={{ ...tooltipSize, height: tooltipSize ? tooltipSize.bottom - tooltipSize.top : undefined }}
       />
       <Popper
         open={!isEmpty(tooltipData)}
         anchorEl={tooltipNode.current}
         placement="top"
         className="tooltip-popper"
-        disablePortal={true}
+        disablePortal={false}
         popperRef={popperRef}
         css={css`
           z-index: 100;
@@ -37,6 +37,10 @@ export const TipContainer: React.FC = () => {
         modifiers={{
           flip: {
             enabled: true,
+          },
+          preventOverflow: {
+            enabled: true,
+            boundariesElement: 'scrollParent',
           },
         }}
       >
@@ -53,4 +57,4 @@ export const TipContainer: React.FC = () => {
       </Popper>
     </React.Fragment>
   );
-};
+});

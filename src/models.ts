@@ -59,6 +59,14 @@ export interface T_NewHighlight<P extends T_ScaledPosition | T_Position = T_Scal
   visibility: Visibility;
 }
 
+export interface NewGeneralHighlight {
+  comment: {
+    text: string;
+  };
+  visibility: Visibility;
+  isGeneral: true;
+}
+
 export interface Reply {
   id: string;
   user: string;
@@ -70,19 +78,31 @@ export interface User {
   username: string;
 }
 
-export interface T_Highlight extends T_NewHighlight {
+interface ServerHighlightData {
   id: string;
   createdAt: string;
   replies: Reply[];
   user: User;
   canEdit: boolean;
-  visibility: Visibility;
 }
+
+export interface T_Highlight extends T_NewHighlight, ServerHighlightData {}
+export interface GeneralHighlight extends NewGeneralHighlight, ServerHighlightData {}
+export type AllHighlight = T_Highlight | GeneralHighlight;
+export type AllNewHighlight = T_NewHighlight | NewGeneralHighlight;
+
+export const isGeneralHighlight = (h: AllHighlight): h is GeneralHighlight => h.hasOwnProperty('isGeneral');
+export const isDirectHighlight = (h: AllHighlight): h is T_Highlight => h.hasOwnProperty('position');
 
 export interface TooltipData {
   position: T_ScaledPosition;
   content: T_NewHighlight['content'];
   size: { left: number; top: number; bottom: number };
+}
+
+export interface EditHighlightData {
+  text: string;
+  visibility: Visibility;
 }
 
 export type TempHighlight = OptionalExceptFor<T_NewHighlight, 'position'>;

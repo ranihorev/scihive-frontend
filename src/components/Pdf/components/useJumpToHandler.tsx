@@ -60,7 +60,7 @@ export const useJumpToHandler = ({ viewer, renderHighlights }: Props) => {
       viewer.current.container.removeEventListener('scroll', onScroll);
       clearTimeout(timeoutId);
     };
-  }, [paperJumpData]);
+  }, [paperJumpData, clearPaperJumpTo, viewer]);
 
   React.useEffect(() => {
     let renderedPageNumber: number | undefined = undefined;

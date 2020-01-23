@@ -8,6 +8,7 @@ import { usePaperStore } from '../../../../stores/paper';
 import { linkButton } from '../../../../utils/presets';
 import { SidebarHighlightItem } from '../sidebarHighlightItem';
 import { BottomBar } from './BottomBar';
+import { GeneralNote } from './GeneralNote';
 
 const WELCOME_COOKIE = 'comments-welcome';
 
@@ -82,6 +83,11 @@ const HighlightsList: React.FC = () => {
         ref={containerRef}
       >
         <WelcomeMessage />
+        <div
+          css={{ width: '100%', display: 'flex', flexDirection: 'row', justifyContent: 'center', margin: `8px 0 12px` }}
+        >
+          <GeneralNote />
+        </div>
         {highlights.map(highlight => {
           if (hideQuoteHighlights && !highlight.comment.text) return null;
           return (

@@ -3,7 +3,6 @@ import { jsx } from '@emotion/core';
 import { Divider, MenuItem } from '@material-ui/core';
 import { pick } from 'lodash';
 import React, { useState } from 'react';
-import useReactRouter from 'use-react-router';
 import shallow from 'zustand/shallow';
 import { usePaperStore } from '../../stores/paper';
 import { simpleLink } from '../../utils/presets';
@@ -113,7 +112,6 @@ export const PaperMobileMenu = () => {
     >
       <MenuItem>Download PDF</MenuItem>
     </a>,
-    ,
   ];
   if (!isEditable) {
     res.push(

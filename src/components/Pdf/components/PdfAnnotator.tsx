@@ -9,7 +9,15 @@ import 'pdfjs-dist/web/pdf_viewer.css';
 import React from 'react';
 import ReactDom from 'react-dom';
 import shallow from 'zustand/shallow';
-import { AcronymPositions, T_LTWH, T_NewHighlight, T_Position, T_ScaledPosition } from '../../../models';
+import {
+  AcronymPositions,
+  T_LTWH,
+  T_NewHighlight,
+  T_Position,
+  T_ScaledPosition,
+  isDirectHighlight,
+  T_Highlight,
+} from '../../../models';
 import { usePaperStore } from '../../../stores/paper';
 import { useLatestCallback } from '../../../utils/useLatestCallback';
 import { APP_BAR_HEIGHT } from '../../TopBar/PrimaryAppBar';
@@ -234,8 +242,15 @@ const PdfAnnotator: React.FC<PdfAnnotatorProps> = ({ enableAreaSelection, onRefe
   };
 
   const renderHighlights = (pageNumber: number) => {
-    const allHighlight = tempHighlight ? [...highlights, tempHighlight] : highlights;
-    const pageHighlights = allHighlight.filter(h => h.position.pageNumber === pageNumber);
+    const existingPageHighlights: T_Highlight[] = [];
+    for (const h of highlights) {
+      if (isDirectHighlight(h) && h.position.pageNumber === pageNumber) existingPageHighlights.push(h);
+    }
+    const pageHighlights =
+      tempHighlight && tempHighlight.position.pageNumber === pageNumber
+        ? [...existingPageHighlights, tempHighlight]
+        : existingPageHighlights;
+
     if (!pdfDocument) return;
     const highlightLayer = findOrCreateHighlightLayer(pageNumber);
     if (highlightLayer) {

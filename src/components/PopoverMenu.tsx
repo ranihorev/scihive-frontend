@@ -11,6 +11,7 @@ interface PopoverMenuProps {
   placement: PopperProps['placement'];
   onClose: () => void;
   contentCss?: SerializedStyles;
+  zIndex?: number;
 }
 
 export const PopoverMenu: React.FC<PopoverMenuProps> = ({
@@ -20,9 +21,10 @@ export const PopoverMenu: React.FC<PopoverMenuProps> = ({
   placement,
   onClose,
   contentCss,
+  zIndex = 1,
 }) => {
   return (
-    <Popper anchorEl={anchorEl} placement={placement} open={open} style={{ zIndex: 1 }}>
+    <Popper anchorEl={anchorEl} placement={placement} open={open} style={{ zIndex }}>
       <ClickAwayListener onClickAway={onClose}>
         <Paper css={contentCss}>{children}</Paper>
       </ClickAwayListener>

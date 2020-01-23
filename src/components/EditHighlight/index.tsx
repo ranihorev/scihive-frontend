@@ -67,7 +67,7 @@ export const EditHighlight: React.FC<Props> = ({ onSubmit, text = '', visibility
               setTimeout(() => inp.focus(), 100);
             }
           }}
-          css={{ textarea: { minHeight: 70, padding: '4px 10px' }, '.MuiInputBase-marginDense': { paddingTop: 6 } }}
+          css={{ textarea: { minHeight: 70 }, '.MuiInputBase-marginDense': { padding: '10px 10px' } }}
         />
       </div>
       <div

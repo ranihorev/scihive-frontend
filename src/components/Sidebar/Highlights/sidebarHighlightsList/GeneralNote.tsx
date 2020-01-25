@@ -1,10 +1,12 @@
-import React from 'react';
-import { usePaperStore } from '../../../../stores/paper';
+/** @jsx jsx */
+import { jsx } from '@emotion/core';
 import { Button } from '@material-ui/core';
-import { PopoverMenu } from '../../../PopoverMenu';
 import { pick } from 'lodash';
-import { EditHighlight } from '../../../EditHighlight';
+import React from 'react';
 import shallow from 'zustand/shallow';
+import { usePaperStore } from '../../../../stores/paper';
+import { EditHighlight } from '../../../EditHighlight';
+import { PopoverMenu } from '../../../PopoverMenu';
 
 export const GeneralNote: React.FC = () => {
   const ref = React.useRef<HTMLButtonElement>(null);
@@ -24,8 +26,9 @@ export const GeneralNote: React.FC = () => {
         variant="contained"
         size="small"
         color="primary"
+        css={{ textTransform: 'none' }}
       >
-        Add Note
+        Add General Note
       </Button>
       <PopoverMenu
         anchorEl={ref.current}

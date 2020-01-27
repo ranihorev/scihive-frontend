@@ -4,8 +4,9 @@ import { CircularProgress, FormControl, Grid, Input, MenuItem, Select, Typograph
 import { isEmpty, pick } from 'lodash';
 import * as queryString from 'query-string';
 import React from 'react';
-import { useHistory, useRouteMatch, useLocation } from 'react-router';
+import { useHistory, useLocation, useRouteMatch } from 'react-router';
 import shallow from 'zustand/shallow';
+import { LocationContext } from '../LocationContext';
 import { Group, PaperListRouterParams } from '../models';
 import { RequestParams, usePapersListStore } from '../stores/papersList';
 import { useUserStore } from '../stores/user';
@@ -64,11 +65,11 @@ const PapersList: React.FC = () => {
     state => ({ groups: state.groups, inviteGroup: state.inviteGroup }),
     shallow,
   );
-  const { fetchPapers, clearPapers, totalPapers, papers } = usePapersListStore(
+  const { clearPapers, fetchPapers, totalPapers, papers } = usePapersListStore(
     state => pick(state, ['fetchPapers', 'clearPapers', 'totalPapers', 'papers']),
     shallow,
   );
-
+  const previousLocation = React.useContext(LocationContext);
   const match = useRouteMatch<PaperListRouterParams>();
   const location = useLocation();
   const history = useHistory();
@@ -134,6 +135,7 @@ const PapersList: React.FC = () => {
   };
 
   React.useEffect(() => {
+    if (previousLocation.location === location.key) return;
     clearPapers();
     if (isFirstLoad.current) {
       isFirstLoad.current = false;
@@ -142,7 +144,8 @@ const PapersList: React.FC = () => {
       setIsLoading(false);
       setScrollId(Math.random());
     }
-  }, [match.path, location.search, clearPapers, groupId, authorId]);
+    previousLocation.location = location.key;
+  }, [clearPapers, location]);
 
   const q = queryString.parse(location.search);
   const age = getAgeQuery(q);
@@ -286,7 +289,7 @@ const PapersList: React.FC = () => {
           isLoading={isLoading}
           loader={
             <div key={0} css={papers.length === 0 ? spinnerEmptyStateCss : spinnerCss}>
-              <CircularProgress />
+              <CircularProgress disableShrink={true} />
             </div>
           }
         >

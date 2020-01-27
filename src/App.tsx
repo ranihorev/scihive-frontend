@@ -1,12 +1,14 @@
 import { createMuiTheme, MuiThemeProvider } from '@material-ui/core/styles';
 import axios from 'axios';
 import React from 'react';
+import { useCookies } from 'react-cookie';
 import * as ReactHintFactory from 'react-hint';
 import { Route, Switch } from 'react-router-dom';
 import { ToastContainer } from 'react-toastify';
 import shallow from 'zustand/shallow';
 import GroupLoader from './components/Groups/GroupLoader';
 import LoginSignupModal from './components/Login/LoginSignupModal';
+import { LocationProvider } from './LocationContext';
 import Admin from './pages/Admin';
 import Groups from './pages/Groups';
 import Home from './pages/Home';
@@ -17,7 +19,6 @@ import { useUserStore } from './stores/user';
 import { useTracker } from './Tracker';
 import ChromeExtensionPopup from './utils/chromeExtension';
 import { themePalette } from './utils/presets';
-import { useCookies } from 'react-cookie';
 
 const theme = createMuiTheme({
   palette: themePalette,
@@ -56,18 +57,20 @@ const App: React.FC = () => {
     <React.Fragment>
       <MuiThemeProvider theme={theme}>
         <LoginSignupModal />
-        <Switch>
-          <Route path="/library" exact component={Home} />
-          <Route path="/" exact component={Home} />
-          <Route path="/home" exact component={Home} />
-          <Route path="/search/" exact component={Home} />
-          <Route path="/author/:authorId" exact component={Home} />
-          <Route path="/paper/:PaperId" exact component={Paper} />
-          <Route path="/list/:groupId" exact component={Home} />
-          <Route path="/lists" exact component={Groups} />
-          <Route path="/admin" exact component={Admin} />
-          <Route component={NotFound} />
-        </Switch>
+        <LocationProvider>
+          <Switch>
+            <Route path="/library" exact component={Home} />
+            <Route path="/" exact component={Home} />
+            <Route path="/home" exact component={Home} />
+            <Route path="/search/" exact component={Home} />
+            <Route path="/author/:authorId" exact component={Home} />
+            <Route path="/paper/:PaperId" exact component={Paper} />
+            <Route path="/list/:groupId" exact component={Home} />
+            <Route path="/lists" exact component={Groups} />
+            <Route path="/admin" exact component={Admin} />
+            <Route component={NotFound} />
+          </Switch>
+        </LocationProvider>
         <GroupLoader />
         <ToastContainer
           position="bottom-center"

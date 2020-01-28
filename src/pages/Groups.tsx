@@ -4,10 +4,14 @@ import Grid from '@material-ui/core/Grid';
 import React from 'react';
 import GroupsList from '../components/Groups/GroupsList';
 import PrimaryAppBar from '../components/TopBar/PrimaryAppBar';
+import Helmet from 'react-helmet';
 
 const Home = () => {
   return (
     <React.Fragment>
+      <Helmet>
+        <title>My Lists</title>
+      </Helmet>
       <PrimaryAppBar />
       <Grid
         container

@@ -110,7 +110,7 @@ const PdfCommenter: React.FC = () => {
   return (
     <React.Fragment>
       <Helmet>
-        <title>{'SciHive' + (title ? ` - ${title}` : '')}</title>
+        <title>{title || 'SciHive'}</title>
       </Helmet>
       <div
         style={{

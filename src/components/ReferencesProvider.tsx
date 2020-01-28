@@ -31,6 +31,7 @@ const ReferencesPopupManager: React.FC<{
             css={css`
               color: ${presets.themePalette.primary.main};
             `}
+            target="_blank"
           >
             <i className="fas fa-external-link-alt" />
           </Link>

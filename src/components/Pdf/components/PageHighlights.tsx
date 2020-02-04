@@ -19,71 +19,69 @@ import { Popup } from '../../Popup';
 import { TextLinkifyLatex } from '../../TextLinkifyLatex';
 import AreaHighlight from './AreaHighlight';
 import Highlight from './Highlight';
+import { usePaperStore } from '../../../stores/paper';
 
-const HighlightPopup: React.FC<T_Highlight> = ({ content, comment }) => {
-  let copyButton;
-  const hasContent = content && content.text;
-  if (hasContent) {
-    copyButton = (
-      <span
-        css={css`
-          cursor: pointer;
-          padding: 3px;
-          margin: 0px 5px;
-          &:hover {
-            color: ${presets.themePalette.primary.main};
-          }
-        `}
-        role="button"
-        onClick={async () => {
-          await copy(content.text || '');
-          toast.success('Highlight has been copied to clipboard', { autoClose: 2000 });
-        }}
-      >
-        <i className="far fa-copy" />
-      </span>
-    );
-  }
-  if (comment && comment.text) {
-    return (
-      <div>
-        <Paper css={presets.popupCss}>
-          <div
-            css={css`
-              ${presets.row};
-              align-items: center;
-            `}
-          >
-            <div
-              css={
-                hasContent
-                  ? css`
-                      border-right: 1px solid #dadada;
-                      padding-right: 8px;
-                    `
-                  : undefined
-              }
-            >
+const ActionButton: React.FC<{ onClick: () => void; icon: string }> = ({ onClick, icon }) => (
+  <span
+    css={css`
+      cursor: pointer;
+      padding: 3px;
+      &:not(:first-of-type) {
+        margin-left: 5px;
+      }
+      &:hover {
+        color: ${presets.themePalette.primary.main};
+      }
+    `}
+    role="button"
+    onClick={onClick}
+  >
+    <i className={icon} />
+  </span>
+);
+
+const HighlightPopup: React.FC<T_Highlight> = ({ content, comment, canEdit, id }) => {
+  const contentText = (content && content.text) || '';
+  const hasContent = Boolean(contentText);
+  const removeHighlight = usePaperStore(state => {
+    return canEdit ? state.removeHighlight : undefined;
+  });
+  const hasComment = Boolean(comment && comment.text);
+  if (![hasComment, hasContent, removeHighlight].some(Boolean)) return null;
+  return (
+    <div>
+      <Paper css={[presets.popupCss, { minWidth: hasComment ? 120 : undefined }]}>
+        <div css={presets.col}>
+          {hasComment && (
+            <div>
               <TextLinkifyLatex text={comment.text} />
             </div>
-            {copyButton}
+          )}
+          <div
+            css={{
+              display: 'flex',
+              flexDirection: 'row',
+              alignItems: 'center',
+              justifyContent: 'flex-end',
+              marginTop: hasComment ? 6 : 0,
+            }}
+          >
+            {hasContent && (
+              <ActionButton
+                onClick={async () => {
+                  await copy(contentText);
+                  toast.success('Highlight has been copied to clipboard', { autoClose: 2000 });
+                }}
+                icon="far fa-copy"
+              />
+            )}
+            {removeHighlight && <ActionButton icon="far fa-trash-alt" onClick={() => removeHighlight(id)} />}
           </div>
-        </Paper>
-      </div>
-    );
-  }
-  if (hasContent) {
-    return (
-      <Paper
-        css={css`
-          ${presets.popupCss};
-          padding: 6px;
-        `}
-      >
-        {copyButton}
+        </div>
       </Paper>
-    );
-  }
+    </div>
+  );
+
   return null;
 };
 

@@ -195,6 +195,10 @@ const Bookmark: React.FC<BookmarkProps> = ({
   }, []);
 
   const setBookmarkWrapper = () => {
+    if (!isLoggedIn) {
+      toggleLoginModal('Please log in to save manage lists and bookmarks');
+      return;
+    }
     setIsListsTooltipOpen(true);
 
     timeoutId.current = setTimeout(() => {

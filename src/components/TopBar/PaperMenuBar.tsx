@@ -1,17 +1,24 @@
 /** @jsx jsx */
 import { jsx } from '@emotion/core';
-import { Divider, MenuItem } from '@material-ui/core';
+import { Divider, IconButton, MenuItem } from '@material-ui/core';
+import ShareIcon from '@material-ui/icons/Share';
+import copy from 'clipboard-copy';
 import { pick } from 'lodash';
-import React, { useState } from 'react';
+import React from 'react';
 import shallow from 'zustand/shallow';
 import { usePaperStore } from '../../stores/paper';
 import { simpleLink } from '../../utils/presets';
+import { ArrowTooltip } from '../ArrowTooltip';
 import { ButtonIcon } from '../ButtonIcon';
 import Bookmark from '../Groups/Bookmark';
 import { PopoverMenu } from '../PopoverMenu';
 
+const DEFAULT_SHARE_TEXT = 'Share paper';
+
 export const PaperDekstopMenu: React.FC = () => {
-  const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null);
+  const [anchorEl, setAnchorEl] = React.useState<HTMLElement | null>(null);
+  const [shareText, setShareText] = React.useState(DEFAULT_SHARE_TEXT);
+  const timeoutId = React.useRef<NodeJS.Timeout | null>(null);
   const {
     paperId,
     url,
@@ -37,6 +44,12 @@ export const PaperDekstopMenu: React.FC = () => {
   );
   const isMenuOpen = Boolean(anchorEl);
 
+  React.useEffect(() => {
+    return () => {
+      if (timeoutId.current) clearTimeout(timeoutId.current);
+    };
+  }, []);
+
   const handleMenuOpen = (event: React.MouseEvent) => {
     setAnchorEl(event.currentTarget as HTMLElement);
   };
@@ -48,6 +61,20 @@ export const PaperDekstopMenu: React.FC = () => {
   if (!paperId) return null;
   return (
     <React.Fragment>
+      <ArrowTooltip title={shareText}>
+        <IconButton
+          onClick={() => {
+            copy(`${window.location.origin}/paper/${paperId}/`);
+            if (timeoutId.current) clearTimeout(timeoutId.current);
+            setShareText('Link was copied to clipboard');
+            setTimeout(() => {
+              setShareText(DEFAULT_SHARE_TEXT);
+            }, 2500);
+          }}
+        >
+          <ShareIcon style={{ color: 'white' }} fontSize="small" />
+        </IconButton>
+      </ArrowTooltip>
       <Bookmark
         paperId={paperId}
         color="white"

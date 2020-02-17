@@ -44,8 +44,8 @@ export const MobileMenu: React.FC<MobileMenuProps> = ({ rootChildren, submenuChi
   return (
     <React.Fragment>
       {rootChildren}
-      <IconButton aria-haspopup="true" onClick={handleMobileMenuOpen} color="inherit">
-        <MoreIcon />
+      <IconButton aria-haspopup="true" onClick={handleMobileMenuOpen} color="inherit" size="small">
+        <MoreIcon style={{ padding: 5 }} />
       </IconButton>
       <Menu
         id="menu-appbar"
@@ -57,6 +57,11 @@ export const MobileMenu: React.FC<MobileMenuProps> = ({ rootChildren, submenuChi
         transformOrigin={{
           vertical: 'top',
           horizontal: 'right',
+        }}
+        css={{
+          li: {
+            minHeight: 40,
+          },
         }}
         open={Boolean(mobileAnchorEl)}
         onClose={handleMobileMenuClose}
@@ -163,8 +168,8 @@ export const DesktopMenu: React.FC = ({ children }) => {
           Login
         </Button>
       ) : null}
-      <IconButton aria-haspopup="true" onClick={handleMenuOpen} color="inherit">
-        <MoreIcon />
+      <IconButton aria-haspopup="true" onClick={handleMenuOpen} color="inherit" size="small">
+        <MoreIcon fontSize="small" css={{ padding: 5 }} />
       </IconButton>
       <PopoverMenu
         anchorEl={anchorEl}

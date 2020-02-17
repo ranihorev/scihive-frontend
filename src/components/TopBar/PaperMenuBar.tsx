@@ -63,6 +63,7 @@ export const PaperDekstopMenu: React.FC = () => {
     <React.Fragment>
       <ArrowTooltip title={shareText}>
         <IconButton
+          size="small"
           onClick={() => {
             copy(`${window.location.origin}/paper/${paperId}/`);
             if (timeoutId.current) clearTimeout(timeoutId.current);
@@ -72,7 +73,7 @@ export const PaperDekstopMenu: React.FC = () => {
             }, 2500);
           }}
         >
-          <ShareIcon style={{ color: 'white' }} fontSize="small" />
+          <ShareIcon style={{ color: 'white', padding: 5 }} fontSize="small" />
         </IconButton>
       </ArrowTooltip>
       <Bookmark

@@ -222,14 +222,14 @@ const Bookmark: React.FC<BookmarkProps> = ({
         </IconButton>
       </div>
       {isBookmarked && (
-        <div {...(timeoutId.current === undefined ? { 'data-rh': 'Add to lists' } : {})} data-rh-at="left">
+        <div {...(timeoutId.current === undefined ? { 'data-rh': 'Add to collection' } : {})} data-rh-at="left">
           <ArrowTooltip
             open={isListsTooltipOpen}
             disableFocusListener
             disableHoverListener
             disableTouchListener
-            placement="left"
-            title="Add to lists"
+            placement={type === 'list' ? 'left' : 'bottom'}
+            title="Add to collection"
           >
             <IconButton onClick={onListsClick} buttonRef={anchorRef} size="small">
               <AddToListIcon

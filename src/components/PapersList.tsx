@@ -51,7 +51,7 @@ interface QueryParams {
   sort?: string;
 }
 
-const ALL_LISTS = 'All lists';
+const ALL_COLLECTIONS = 'All collections';
 
 const getGroupName = (groups: Group[], groupId: string | undefined) => {
   if (!groupId) return undefined;
@@ -176,7 +176,7 @@ const PapersList: React.FC = () => {
           >
             {isLibraryMode ? 'My Library' : authorId ? authorId : groupName}
           </Typography>
-          {groupId && groupName && <GroupShare size={12} groupId={groupId} />}
+          {groupId && groupName && <GroupShare iconSize={12} buttonSize="small" groupId={groupId} />}
         </div>
       )}
       <div
@@ -248,17 +248,17 @@ const PapersList: React.FC = () => {
           {isLibraryOrList && !isEmpty(groups) && (
             <FormControl css={formControlCss}>
               <Select
-                value={groupId || ALL_LISTS}
+                value={groupId || ALL_COLLECTIONS}
                 onChange={e => {
                   history.push({
-                    pathname: e.target.value === ALL_LISTS ? '/library' : `/list/${e.target.value}`,
+                    pathname: e.target.value === ALL_COLLECTIONS ? '/library' : `/collection/${e.target.value}`,
                     search: location.search,
                   });
                 }}
                 input={<Input name="group" id="group-helper" />}
                 css={filterValueCss}
               >
-                <MenuItem css={filterMenuItemCss} value={ALL_LISTS}>
+                <MenuItem css={filterMenuItemCss} value={ALL_COLLECTIONS}>
                   All lists
                 </MenuItem>
                 {groups.map(group => (

@@ -67,8 +67,8 @@ export const MobileMenu: React.FC<MobileMenuProps> = ({ rootChildren, submenuChi
           <Link to="/library" css={simpleLink} key="library">
             <MenuItem>My Library</MenuItem>
           </Link>,
-          <Link to="/lists" css={simpleLink} key="lists">
-            <MenuItem>My Lists</MenuItem>
+          <Link to="/collections" css={simpleLink} key="collections">
+            <MenuItem>My Collections</MenuItem>
           </Link>,
         ]}
         <Divider />
@@ -180,8 +180,8 @@ export const DesktopMenu: React.FC = ({ children }) => {
             }
           `}
         >
-          <Link to="/lists" css={simpleLink}>
-            <MenuItem color="inherit">My Lists</MenuItem>
+          <Link to="/collections" css={simpleLink}>
+            <MenuItem color="inherit">My Collections</MenuItem>
           </Link>
           <Divider />
           <a

@@ -10,7 +10,7 @@ const Home = () => {
   return (
     <React.Fragment>
       <Helmet>
-        <title>My Lists</title>
+        <title>My Collections</title>
       </Helmet>
       <PrimaryAppBar />
       <Grid

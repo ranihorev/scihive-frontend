@@ -30,7 +30,7 @@ export const notifyOnNewGroup = (group: Group, joinGroup: () => void) => {
           variant="outlined"
           css={buttonCss}
         >
-          Yes, join list
+          Yes, add to my collections
         </Button>
         <Button color="secondary" variant="outlined" css={buttonCss} onClick={() => toast.dismiss(toastId)}>
           No, thanks

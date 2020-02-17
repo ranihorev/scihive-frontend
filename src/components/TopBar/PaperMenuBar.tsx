@@ -85,38 +85,42 @@ export const PaperDekstopMenu: React.FC = () => {
         size={23}
         type="single"
       />
-      <ButtonIcon icon="fas fa-link" size={22} iconSize={16} onClick={handleMenuOpen} />
+      <IconButton size="small" onClick={handleMenuOpen} color="inherit">
+        <i className="fas fa-link" css={{ fontSize: 16, padding: 7 }} />
+      </IconButton>
       <PopoverMenu anchorEl={anchorEl} placement="bottom" open={isMenuOpen} onClose={handleMenuClose}>
-        {codeMeta && codeMeta.github && (
-          <a href={codeMeta.github} css={simpleLink} target="_blank" rel="noopener noreferrer">
-            <MenuItem onClick={handleMenuClose}>Github</MenuItem>
-          </a>
-        )}
-        {codeMeta && codeMeta.paperswithcode && (
-          <a href={codeMeta.paperswithcode} css={simpleLink} target="_blank" rel="noopener noreferrer">
-            <MenuItem onClick={handleMenuClose}>PapersWithCode</MenuItem>
-          </a>
-        )}
-        <a
-          href={isEditable ? url : `https://arxiv.org/pdf/${paperId}.pdf?download=1`} // download=1 ensures that the extension will ignore the link
-          css={simpleLink}
-          target="_blank"
-          rel="noopener noreferrer"
-          download={`${paperId}.pdf`}
-        >
-          <MenuItem onClick={handleMenuClose}>PDF</MenuItem>
-        </a>
-        {!isEditable && (
+        <div css={{ li: { fontSize: 14, minHeight: 40 } }}>
+          {codeMeta && codeMeta.github && (
+            <a href={codeMeta.github} css={simpleLink} target="_blank" rel="noopener noreferrer">
+              <MenuItem onClick={handleMenuClose}>Github</MenuItem>
+            </a>
+          )}
+          {codeMeta && codeMeta.paperswithcode && (
+            <a href={codeMeta.paperswithcode} css={simpleLink} target="_blank" rel="noopener noreferrer">
+              <MenuItem onClick={handleMenuClose}>PapersWithCode</MenuItem>
+            </a>
+          )}
           <a
-            href={`https://arxiv.org/abs/${paperId}`}
+            href={isEditable ? url : `https://arxiv.org/pdf/${paperId}.pdf?download=1`} // download=1 ensures that the extension will ignore the link
             css={simpleLink}
             target="_blank"
             rel="noopener noreferrer"
-            download
+            download={`${paperId}.pdf`}
           >
-            <MenuItem onClick={handleMenuClose}>Abstract</MenuItem>
+            <MenuItem onClick={handleMenuClose}>PDF</MenuItem>
           </a>
-        )}
+          {!isEditable && (
+            <a
+              href={`https://arxiv.org/abs/${paperId}`}
+              css={simpleLink}
+              target="_blank"
+              rel="noopener noreferrer"
+              download
+            >
+              <MenuItem onClick={handleMenuClose}>Abstract</MenuItem>
+            </a>
+          )}
+        </div>
       </PopoverMenu>
     </React.Fragment>
   );

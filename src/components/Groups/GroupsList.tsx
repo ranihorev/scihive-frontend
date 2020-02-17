@@ -60,12 +60,12 @@ const GroupRender: React.FC<GroupProps> = ({ group }) => {
               <i className="fas fa-pencil-alt" css={iconCss} />
             </IconButton>
           </div>
-          <Link to={`/list/${group.id}/`}>
+          <Link to={`/collection/${group.id}/`}>
             <IconButton aria-label="Open">
               <i className="fas fa-external-link-square-alt" css={iconCss} />
             </IconButton>
           </Link>
-          <GroupShare size={ICON_SIZE} groupId={group.id} />
+          <GroupShare iconSize={ICON_SIZE} groupId={group.id} />
           <IconButton aria-label="Delete" onClick={() => deleteGroup(group.id)}>
             <i className="far fa-trash-alt" css={iconCss} />
           </IconButton>
@@ -117,10 +117,10 @@ const Groups: React.FC = () => {
           margin-bottom: 15px;
         `}
       >
-        My Lists
+        My Collections
       </Typography>
 
-      <Typography>Lists allow you to organize papers and share comments with groups of peers</Typography>
+      <Typography>Collections allow you to organize papers and share comments with groups of peers</Typography>
       <div
         css={css`
           width: 100%;

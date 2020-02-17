@@ -13,7 +13,7 @@ const GroupLoader: React.FC = () => {
   React.useEffect(() => {
     const match = matchPath<PaperListRouterParams>(history.location.pathname, {
       // You can share this string as a constant if you want
-      path: '/list/:groupId',
+      path: '/collection/:groupId',
     });
     const groupId = match ? match.params.groupId : undefined;
     const onSuccess = () => {

@@ -12,7 +12,7 @@ interface Props {
 }
 
 export const ButtonIcon: React.FC<Props> = ({ onClick, icon, size, iconSize }) => (
-  <IconButton color="inherit" onClick={onClick}>
+  <IconButton color="inherit" onClick={onClick} size="small">
     <div
       css={css`
         ${presets.centered};

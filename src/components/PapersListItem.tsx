@@ -53,7 +53,7 @@ const SingleGroupMarker: React.FC<{ group?: Group; index: number }> = ({ group, 
   if (group) {
     return (
       <Link
-        to={`/list/${group.id}/`}
+        to={`/collection/${group.id}/`}
         css={css`
           ${presets.simpleLink};
           border-radius: 0 0 3px 3px;

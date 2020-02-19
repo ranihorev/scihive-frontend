@@ -1,4 +1,5 @@
 import React from 'react';
+import ResizeObserver from 'resize-observer-polyfill';
 
 export const useOnClickOutside = <T extends HTMLElement>(
   ref: React.RefObject<T>,
@@ -28,4 +29,27 @@ export const useOnClickOutside = <T extends HTMLElement>(
       document.removeEventListener('touchstart', listener);
     };
   }, [ref, handler, isActive]);
+};
+
+export const useResizeObserver = (
+  domRef: React.RefObject<HTMLElement>,
+  onResize: (rect: ResizeObserverEntry['contentRect']) => void,
+) => {
+  React.useEffect(() => {
+    const resizeObserver = new ResizeObserver(entries => {
+      window.requestAnimationFrame(() => {
+        if (!Array.isArray(entries) || !entries.length) {
+          return;
+        }
+        const entry = entries[0];
+        onResize(entry.contentRect);
+      });
+    });
+
+    if (domRef.current) resizeObserver.observe(domRef.current);
+    const element = domRef.current;
+    return () => {
+      if (element) resizeObserver.unobserve(element);
+    };
+  }, [domRef, onResize]);
 };

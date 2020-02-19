@@ -11,12 +11,12 @@ import ReactDom from 'react-dom';
 import shallow from 'zustand/shallow';
 import {
   AcronymPositions,
+  isDirectHighlight,
+  T_Highlight,
   T_LTWH,
   T_NewHighlight,
   T_Position,
   T_ScaledPosition,
-  isDirectHighlight,
-  T_Highlight,
 } from '../../../models';
 import { usePaperStore } from '../../../stores/paper';
 import { useLatestCallback } from '../../../utils/useLatestCallback';
@@ -25,13 +25,20 @@ import { scaledToViewport, viewportToScaled } from '../lib/coordinates';
 import getAreaAsPng from '../lib/get-area-as-png';
 import getBoundingRect from '../lib/get-bounding-rect';
 import getClientRects from '../lib/get-client-rects';
-import { findOrCreateContainerLayer, getPageFromElement, getPageFromRange } from '../lib/pdfjs-dom';
+import {
+  findOrCreateContainerLayer,
+  getPageFromElement,
+  getPageFromRange,
+  getElementFromRange,
+} from '../lib/pdfjs-dom';
 import { convertMatches, renderMatches } from '../lib/pdfSearchUtils';
 import '../style/PdfHighlighter.css';
 import MouseSelection from './MouseSelection';
 import { PageHighlights } from './PageHighlights';
 import { TipContainer } from './TipContainer';
 import { useJumpToHandler } from './useJumpToHandler';
+import { ReferencesPopoverState } from '../../ReferencesProvider';
+import { isMobile } from 'react-device-detect';
 
 const zoomButtonCss = css`
   color: black;
@@ -39,7 +46,7 @@ const zoomButtonCss = css`
   margin-bottom: 8px;
 `;
 
-const ZoomButtom = ({ direction, onClick }: any) => (
+const ZoomButton = ({ direction, onClick }: any) => (
   <div>
     <Fab
       color="default"
@@ -85,42 +92,42 @@ const pdfViewerCss = css`
 
 interface PdfAnnotatorProps {
   enableAreaSelection: (event: MouseEvent) => boolean;
-  onReferenceEnter: (event: React.MouseEvent) => void;
+  setReferencePopoverState?: (props: ReferencesPopoverState) => void;
   pdfDocument: PDFDocumentProxy;
 }
 
-const PdfAnnotator: React.FC<PdfAnnotatorProps> = ({ enableAreaSelection, onReferenceEnter, pdfDocument }) => {
+const PdfAnnotator: React.FC<PdfAnnotatorProps> = ({ enableAreaSelection, setReferencePopoverState, pdfDocument }) => {
   // const [scrolledToHighlightId, setScrolledToHighlightId] = React.useState(EMPTY_ID);
-  const [isAreaSelectionInProgress, setIsAreaSelectionInProgress] = React.useState(false);
+  const [isSelecting, setIsSelecting] = React.useState(false);
+  const lastTempHighlightPage = React.useRef<number | undefined>();
+  const selectionTextLayerRef = React.useRef<HTMLElement | null>(null);
   const [isDocumentReady, setIsDocumentReady] = React.useState(false);
   const pagesReadyToRender = React.useRef<number[]>([]);
   const [acronymPositions, setAcronymPositions] = React.useState<AcronymPositions>({});
   const canZoom = React.useRef(true);
 
   const {
+    references,
     paperJumpData,
     highlights,
     jumpToComment,
     updateReadingProgress,
     acronyms,
-    clearTempHighlightAndTooltip,
+    clearTempHighlight,
     tempHighlight,
-    setTooltipData,
     setTempHighlight,
-    tempTooltipData,
   } = usePaperStore(
     state => ({
       ...pick(state, [
+        'references',
         'clearPaperJumpTo',
         'paperJumpData',
         'highlights',
         'updateReadingProgress',
-        'setTooltipData',
         'acronyms',
         'setTempHighlight',
         'tempHighlight',
-        'clearTempHighlightAndTooltip',
-        'tempTooltipData',
+        'clearTempHighlight',
       ]),
       jumpToComment: (id: string) => {
         state.setSidebarTab('Comments');
@@ -136,7 +143,7 @@ const PdfAnnotator: React.FC<PdfAnnotatorProps> = ({ enableAreaSelection, onRefe
   const highlightLayerNode = React.useRef<HTMLDivElement>(null);
   const handleKeyDown = (event: KeyboardEvent) => {
     if (event.code === 'Escape') {
-      clearTempHighlightAndTooltip();
+      clearTempHighlight();
     }
   };
 
@@ -178,6 +185,13 @@ const PdfAnnotator: React.FC<PdfAnnotatorProps> = ({ enableAreaSelection, onRefe
     }
     const curRange = selection.getRangeAt(0);
     if (!curRange) return;
+    setIsSelecting(true);
+    const textLayer = getElementFromRange(curRange, 'textLayer');
+    if (textLayer) {
+      // We temporarily move the text layer above everything else. This won't work for cross-page highlight
+      selectionTextLayerRef.current = textLayer;
+      textLayer.style.zIndex = '5';
+    }
     debouncedOnTextSelection(curRange);
   };
 
@@ -201,7 +215,7 @@ const PdfAnnotator: React.FC<PdfAnnotatorProps> = ({ enableAreaSelection, onRefe
       top: boundingRect.top + page.node.offsetTop,
       bottom: boundingRect.top + page.node.offsetTop + boundingRect.height,
     };
-    setTooltipData({ position: scaledPosition, content, size });
+    setTempHighlight({ position: scaledPosition, content, size });
   };
 
   const onAreaSelection = (startTarget: HTMLElement, boundingRect: T_LTWH) => {
@@ -247,7 +261,7 @@ const PdfAnnotator: React.FC<PdfAnnotatorProps> = ({ enableAreaSelection, onRefe
       if (isDirectHighlight(h) && h.position.pageNumber === pageNumber) existingPageHighlights.push(h);
     }
     const pageHighlights =
-      tempHighlight && tempHighlight.position.pageNumber === pageNumber
+      !isSelecting && tempHighlight && tempHighlight.position.pageNumber === pageNumber
         ? [...existingPageHighlights, tempHighlight]
         : existingPageHighlights;
 
@@ -288,15 +302,20 @@ const PdfAnnotator: React.FC<PdfAnnotatorProps> = ({ enableAreaSelection, onRefe
       renderAcronyms(pageNumber);
       pagesReadyToRender.current.push(pageNumber);
     },
-    [acronymPositions, highlights, tempHighlight],
+    [acronymPositions, highlights, tempHighlight, isSelecting],
   );
 
   const onMouseDown = (event: React.MouseEvent) => {
-    clearTempHighlightAndTooltip();
+    clearTempHighlight();
   };
 
-  const onMouseUp = (e: React.MouseEvent) => {
-    if (tempTooltipData) setTempHighlight({ position: tempTooltipData.position, content: tempTooltipData.content });
+  const onMouseUp = (event: React.MouseEvent) => {
+    setIsSelecting(false);
+    if (selectionTextLayerRef.current) {
+      // Remove the zIndex value
+      selectionTextLayerRef.current.style.zIndex = '';
+      selectionTextLayerRef.current = null;
+    }
   };
 
   const toggleTextSelection = (flag: boolean) => {
@@ -316,6 +335,31 @@ const PdfAnnotator: React.FC<PdfAnnotatorProps> = ({ enableAreaSelection, onRefe
     }
     canZoom.current = false;
   };
+
+  const onReferenceEnter = React.useCallback(
+    (e: React.MouseEvent) => {
+      if (isSelecting) return; // Don't open popup when selecting text
+      const target = e.target as HTMLElement;
+      if (!target) return;
+      const href = target.getAttribute('href') || '';
+      if (!(target.tagName === 'A' && href.includes('#cite'))) return;
+      const cite = decodeURIComponent(href.replace('#cite.', ''));
+      if (references.hasOwnProperty(cite)) {
+        if (isMobile) {
+          target.onclick = event => {
+            event.preventDefault();
+          };
+        }
+        if (!setReferencePopoverState) return;
+        if (e.type === 'click' && !isMobile) {
+          setReferencePopoverState({ citeId: '' });
+        } else {
+          setReferencePopoverState({ anchor: target, citeId: cite });
+        }
+      }
+    },
+    [setReferencePopoverState, references, isSelecting],
+  );
 
   React.useEffect(() => {
     linkService.current = new PDFLinkService();
@@ -356,7 +400,18 @@ const PdfAnnotator: React.FC<PdfAnnotatorProps> = ({ enableAreaSelection, onRefe
     for (const pageNumber of pagesReadyToRender.current) {
       renderHighlights(pageNumber);
     }
-  }, [isDocumentReady, tempHighlight, highlights]);
+  }, [isDocumentReady, highlights]);
+
+  React.useEffect(() => {
+    if (tempHighlight && !isSelecting) {
+      // Render when selection is done
+      lastTempHighlightPage.current = tempHighlight.position.pageNumber;
+      renderHighlights(tempHighlight.position.pageNumber);
+    } else if (!tempHighlight && lastTempHighlightPage.current !== undefined) {
+      // Render when temp highlight is cleared
+      renderHighlights(lastTempHighlightPage.current);
+    }
+  }, [tempHighlight, isSelecting]);
 
   React.useEffect(() => {
     if (!isDocumentReady) return;
@@ -405,8 +460,8 @@ const PdfAnnotator: React.FC<PdfAnnotatorProps> = ({ enableAreaSelection, onRefe
           z-index: 1000;
         `}
       >
-        <ZoomButtom direction="in" onClick={() => zoom(1)} />
-        <ZoomButtom direction="out" onClick={() => zoom(-1)} />
+        <ZoomButton direction="in" onClick={() => zoom(1)} />
+        <ZoomButton direction="out" onClick={() => zoom(-1)} />
       </div>
       <div
         ref={containerNode}
@@ -416,18 +471,8 @@ const PdfAnnotator: React.FC<PdfAnnotatorProps> = ({ enableAreaSelection, onRefe
         onScroll={onViewerScroll}
         onContextMenu={e => e.preventDefault()}
         style={{ height: `calc(100vh - ${APP_BAR_HEIGHT}px)` }}
-        onClick={e => {
-          const target = e.target as HTMLElement;
-          if (target.tagName === 'A' && (target.getAttribute('href') || '').includes('#cite')) {
-            onReferenceEnter(e);
-          }
-        }}
-        onMouseOver={e => {
-          const target = e.target as HTMLElement;
-          if (target.tagName === 'A' && (target.getAttribute('href') || '').includes('#cite')) {
-            onReferenceEnter(e);
-          }
-        }}
+        onClick={onReferenceEnter}
+        onMouseOver={onReferenceEnter}
         css={pdfViewerCss}
       >
         <div className="pdfViewer" />
@@ -437,11 +482,7 @@ const PdfAnnotator: React.FC<PdfAnnotatorProps> = ({ enableAreaSelection, onRefe
           <MouseSelection
             onDragStart={() => toggleTextSelection(true)}
             onDragEnd={() => toggleTextSelection(false)}
-            onChange={isVisible => {
-              if (isVisible !== isAreaSelectionInProgress) {
-                setIsAreaSelectionInProgress(isVisible);
-              }
-            }}
+            onChange={() => {}}
             shouldStart={event =>
               enableAreaSelection(event) &&
               event.target instanceof HTMLElement &&

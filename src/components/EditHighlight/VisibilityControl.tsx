@@ -9,27 +9,29 @@ import { useUserStore } from '../../stores/user';
 import { presets } from '../../utils';
 
 interface Props {
-  setCommentVisibilty: (visibility: Visibility) => void;
+  setCommentVisibility: (visibility: Visibility) => void;
   visibilitySettings: Visibility;
+  selectStyle?: React.CSSProperties;
 }
 
-export const VisibilityControl: React.FC<Props> = ({ visibilitySettings, setCommentVisibilty }) => {
+export const VisibilityControl: React.FC<Props> = ({ visibilitySettings, setCommentVisibility, selectStyle }) => {
   const paperGroupIds = usePaperStore(state => state.groupIds);
   const { username, groups } = useUserStore(
     state => ({ username: state.userData?.username, groups: state.groups.filter(g => paperGroupIds.includes(g.id)) }),
     shallow,
   );
 
-  const onVisibiltyChange = (event: React.ChangeEvent<{ value: unknown }>) => {
+  const onVisibilityChange = (event: React.ChangeEvent<{ value: unknown }>) => {
     const value = event.target.value as string;
     if ((VISIBILITIES as Readonly<string[]>).includes(value)) {
-      setCommentVisibilty({ type: value as VisibilityType });
+      setCommentVisibility({ type: value as VisibilityType });
     } else {
-      setCommentVisibilty({ type: 'group', id: value });
+      setCommentVisibility({ type: 'group', id: value });
     }
   };
   const fontSize = 13;
   const textMinWidth = 70;
+  const selectWidth = 120;
   return (
     <div css={[presets.col, { fontSize }]}>
       <div css={[presets.row, { alignItems: 'center' }]}>
@@ -42,8 +44,9 @@ export const VisibilityControl: React.FC<Props> = ({ visibilitySettings, setComm
               ? 'public'
               : visibilitySettings.type
           }
-          css={{ marginLeft: 5, minWidth: 120, '& .MuiSelect-select': { fontSize } }}
-          onChange={onVisibiltyChange}
+          css={{ marginLeft: 5, width: selectWidth, '& .MuiSelect-select': { fontSize } }}
+          style={selectStyle}
+          onChange={onVisibilityChange}
           native={true}
         >
           <option value="public">Public</option>
@@ -60,8 +63,9 @@ export const VisibilityControl: React.FC<Props> = ({ visibilitySettings, setComm
         <div css={{ minWidth: textMinWidth }}>Share as:</div>
         <Select
           value={visibilitySettings.type}
-          css={{ marginLeft: 5, minWidth: 120, '& .MuiSelect-select': { fontSize } }}
-          onChange={onVisibiltyChange}
+          css={{ marginLeft: 5, width: selectWidth, '& .MuiSelect-select': { fontSize } }}
+          onChange={onVisibilityChange}
+          style={selectStyle}
           native={true}
         >
           <option value="public">{username}</option>

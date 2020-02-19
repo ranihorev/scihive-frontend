@@ -29,7 +29,6 @@ const PdfViewer: React.FC<PdfViewerProps> = ({ url, setReferencePopoverState }) 
   const [status, setStatus] = React.useState<STATUS>(STATUS.LOADING);
   const [pdfDocument, setPdfDocument] = React.useState<PDFDocumentProxy>();
   const setSections = usePaperStore(state => state.setSections, shallow);
-  const { references } = usePaperStore(state => pick(state, ['references']), shallow);
 
   React.useEffect(() => {
     const doc = getDocument(url);
@@ -49,24 +48,7 @@ const PdfViewer: React.FC<PdfViewerProps> = ({ url, setReferencePopoverState }) 
         <PdfAnnotator
           pdfDocument={pdfDocument}
           enableAreaSelection={event => event.altKey}
-          onReferenceEnter={e => {
-            const target = e.target as HTMLElement;
-            if (!target) return;
-            const cite = decodeURIComponent((target.getAttribute('href') || '').replace('#cite.', ''));
-            if (references.hasOwnProperty(cite)) {
-              if (isMobile) {
-                target.onclick = event => {
-                  event.preventDefault();
-                };
-              }
-              if (!setReferencePopoverState) return;
-              if (e.type === 'click' && !isMobile) {
-                setReferencePopoverState({ citeId: '' });
-              } else {
-                setReferencePopoverState({ anchor: target, citeId: cite });
-              }
-            }
-          }}
+          setReferencePopoverState={setReferencePopoverState}
         />
       )}
     </React.Fragment>

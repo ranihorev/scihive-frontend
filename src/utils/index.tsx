@@ -31,4 +31,20 @@ export const removeListener = <T extends EventTypes>(
   document.removeEventListener(type, cb as EventListener);
 };
 
+interface EventExtender<T> {
+  addKey: (event: MouseEvent, data: T) => void;
+  getKey: (event: MouseEvent) => T | undefined;
+}
+
+export const createEventExtender = <T extends any>(name: string): EventExtender<T> => {
+  const key = Symbol(name);
+
+  return {
+    addKey: (event, data) => {
+      (event as any)[key] = data;
+    },
+    getKey: event => (event as any)[key],
+  };
+};
+
 export { presets };

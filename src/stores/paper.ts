@@ -17,7 +17,6 @@ import {
   SidebarCommentJump,
   SidebarTab,
   TempHighlight,
-  TooltipData,
   T_Highlight,
   Visibility,
 } from '../models';
@@ -50,10 +49,9 @@ export interface PaperState {
   sidebarJumpData?: SidebarCommentJump;
   paperJumpData?: PaperJump;
   codeMeta?: CodeMeta;
-  commentVisibilty: Visibility;
+  commentVisibility: Visibility;
   // new highlight data
   tempHighlight?: TempHighlight;
-  tempTooltipData?: TooltipData;
 }
 
 const initialState: PaperState = {
@@ -66,7 +64,7 @@ const initialState: PaperState = {
   acronyms: {},
   sidebarTab: 'Sections',
   groupIds: [],
-  commentVisibilty: { type: 'public' },
+  commentVisibility: { type: 'public' },
   isEditable: false,
 };
 
@@ -131,11 +129,12 @@ const stateAndActions = (set: NamedSetState<PaperState>, get: GetState<PaperStat
 
   const updateHighlightHelper = (newHighlight: T_Highlight) => {
     set(
-      state => ({ highlights: state.highlights.map(h => (h.id === newHighlight.id ? newHighlight : h)) }),
+      state => ({
+        highlights: state.highlights.map(h => (h.id === newHighlight.id ? newHighlight : h)),
+      }),
       'updateHighlight',
     );
   };
-  const clearTempHighlightDataHelper = () => set({ tempHighlight: undefined, tempTooltipData: undefined });
 
   return {
     ...initialState,
@@ -165,12 +164,12 @@ const stateAndActions = (set: NamedSetState<PaperState>, get: GetState<PaperStat
         console.log(err);
         return;
       }
-      set(state => ({ isBookmarked: checked }), 'updateBookmark');
+      set({ isBookmarked: checked }, 'updateBookmark');
     },
     clearPaper: () => set(initialState, 'clearPaper'),
     updateReadingProgress: (progress: number) => set({ readingProgress: progress }),
     setPaperData: (data: Partial<PaperState>) => set(data, 'setPaperData'),
-    toggleHighlightsVisiblity: () => {
+    toggleHighlightsVisibility: () => {
       if (isEmpty(get().hiddenHighlights)) {
         set(state => ({ highlights: [], hiddenHighlights: state.highlights }), 'hideHighlights');
       } else {
@@ -180,16 +179,20 @@ const stateAndActions = (set: NamedSetState<PaperState>, get: GetState<PaperStat
         );
       }
     },
-    addHighlight: async (paperId: string, highlight: AllNewHighlight) => {
-      return new Promise(async (resolve, reject) => {
+    addHighlight: async (paperId: string, highlight: AllNewHighlight, clearTempHighlight: boolean = true) => {
+      return new Promise<T_Highlight>(async (resolve, reject) => {
         try {
-          const res = await axios.post(`/paper/${paperId}/new_comment`, highlight);
+          const response = await axios.post<{ comment: T_Highlight }>(`/paper/${paperId}/new_comment`, highlight);
+          const newHighlight = response.data.comment;
           set(
-            state => ({ highlights: sortHighlights([...state.highlights, res.data.comment]), sidebarTab: 'Comments' }),
+            state => ({
+              highlights: sortHighlights([...state.highlights, newHighlight]),
+              sidebarTab: 'Comments',
+              ...(clearTempHighlight ? { tempHighlight: undefined } : {}),
+            }),
             'addHighlight',
           );
-          resolve();
-          clearTempHighlightDataHelper();
+          resolve(newHighlight);
         } catch (e) {
           reject(e);
         }
@@ -252,7 +255,7 @@ const stateAndActions = (set: NamedSetState<PaperState>, get: GetState<PaperStat
       };
 
       if (selectedGroupId) {
-        newState.commentVisibilty = { type: 'group', id: selectedGroupId as string };
+        newState.commentVisibility = { type: 'group', id: selectedGroupId as string };
       }
       set(newState, 'setPaper');
       fetchComments(paperId);
@@ -275,12 +278,11 @@ const stateAndActions = (set: NamedSetState<PaperState>, get: GetState<PaperStat
     clearSidebarJumpTo: () => set({ sidebarJumpData: undefined }, 'clearSidebarJumpTo'),
     clearPaperJumpTo: () => set({ paperJumpData: undefined }, 'clearPaperJumpTo'),
     setCommentVisibilitySettings: (visibility: Visibility) =>
-      set({ commentVisibilty: visibility }, 'commentVisibility'),
+      set({ commentVisibility: visibility }, 'commentVisibility'),
     setSidebarTab: (tab: SidebarTab) => set({ sidebarTab: tab }, 'sidebarTab'),
     setSections: (sections: Section[]) => set({ sections }, 'setSections'),
-    setTooltipData: (data: TooltipData) => set({ tempTooltipData: data }),
     setTempHighlight: (highlight: TempHighlight) => set({ tempHighlight: highlight }),
-    clearTempHighlightAndTooltip: clearTempHighlightDataHelper,
+    clearTempHighlight: () => set({ tempHighlight: undefined }),
   };
 };
 

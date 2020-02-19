@@ -47,6 +47,7 @@
     "react-text-truncate": "^0.14.1",
     "react-toastify": "^5.0.0-rc.6",
     "react-tweet-embed": "^1.2.2",
+    "resize-observer-polyfill": "^1.5.1",
     "typesafe-actions": "^5.1.0",
     "typescript": "^3.7.2",
     "use-deep-compare-effect": "^1.2.0",

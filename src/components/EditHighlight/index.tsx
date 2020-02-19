@@ -18,10 +18,10 @@ export const EditHighlight: React.FC<Props> = ({ onSubmit, text = '', visibility
   const isLoggedIn = useUserStore(state => Boolean(state.userData));
   const firstFocus = React.useRef(true);
   const [internalText, setInternalText] = React.useState(text);
-  const [internalVisibility, setInternalVisibilty] = React.useState(visibilitySettings);
+  const [internalVisibility, setInternalVisibility] = React.useState(visibilitySettings);
 
   React.useEffect(() => {
-    setInternalVisibilty(visibilitySettings);
+    setInternalVisibility(visibilitySettings);
   }, [visibilitySettings]);
 
   React.useEffect(() => {
@@ -82,7 +82,7 @@ export const EditHighlight: React.FC<Props> = ({ onSubmit, text = '', visibility
       </div>
       <div css={{ marginTop: 10 }}>
         {isLoggedIn ? (
-          <VisibilityControl visibilitySettings={internalVisibility} setCommentVisibilty={setInternalVisibilty} />
+          <VisibilityControl visibilitySettings={internalVisibility} setCommentVisibility={setInternalVisibility} />
         ) : (
           <div
             css={css`

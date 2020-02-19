@@ -10,8 +10,8 @@ import { PopoverMenu } from '../../../PopoverMenu';
 
 export const GeneralNote: React.FC = () => {
   const ref = React.useRef<HTMLButtonElement>(null);
-  const { commentVisibilty, addHighlight, paperId } = usePaperStore(
-    state => pick(state, ['commentVisibilty', 'addHighlight', 'paperId']),
+  const { commentVisibility, addHighlight, paperId } = usePaperStore(
+    state => pick(state, ['commentVisibility', 'addHighlight', 'paperId']),
     shallow,
   );
   const [isOpen, setIsOpen] = React.useState(false);
@@ -45,7 +45,7 @@ export const GeneralNote: React.FC = () => {
               })
               .catch(err => console.log(err.response));
           }}
-          visibilitySettings={commentVisibilty}
+          visibilitySettings={commentVisibility}
           isTextRequired={true}
         />
       </PopoverMenu>

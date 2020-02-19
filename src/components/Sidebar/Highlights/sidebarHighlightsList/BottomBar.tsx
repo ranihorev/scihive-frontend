@@ -20,9 +20,9 @@ const floatingIconCss = css({
 });
 
 export const BottomBar: React.FC<Props> = ({ hideQuoteHighlights, setHideQuoteHighlights }) => {
-  const { isHighlightsHidden, toggleHighlightsVisiblity } = usePaperStore(
+  const { isHighlightsHidden, toggleHighlightsVisibility } = usePaperStore(
     state => ({
-      ...pick(state, ['toggleHighlightsVisiblity']),
+      ...pick(state, ['toggleHighlightsVisibility']),
       isHighlightsHidden: !isEmpty(state.hiddenHighlights),
     }),
     shallow,
@@ -55,7 +55,7 @@ export const BottomBar: React.FC<Props> = ({ hideQuoteHighlights, setHideQuoteHi
       </div>
       <div>
         <Tooltip title={`${isHighlightsHidden ? 'Show' : 'Hide'} all comments`} placement="top">
-          <IconButton onClick={() => toggleHighlightsVisiblity()}>
+          <IconButton onClick={() => toggleHighlightsVisibility()}>
             <i className={`fas ${isHighlightsHidden ? 'fa-eye-slash' : 'fa-eye'}`} css={floatingIconCss} />
           </IconButton>
         </Tooltip>

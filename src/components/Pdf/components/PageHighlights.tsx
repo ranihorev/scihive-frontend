@@ -2,8 +2,10 @@
 import { css, jsx } from '@emotion/core';
 import { Paper } from '@material-ui/core';
 import copy from 'clipboard-copy';
+import { pick } from 'lodash';
 import React from 'react';
 import { toast } from 'react-toastify';
+import shallow from 'zustand/shallow';
 import {
   isValidHighlight,
   PaperJump,
@@ -14,12 +16,13 @@ import {
   T_Position,
   T_ScaledPosition,
 } from '../../../models';
+import { usePaperStore } from '../../../stores/paper';
 import { presets } from '../../../utils';
 import { Popup } from '../../Popup';
 import { TextLinkifyLatex } from '../../TextLinkifyLatex';
 import AreaHighlight from './AreaHighlight';
 import Highlight from './Highlight';
-import { usePaperStore } from '../../../stores/paper';
+import { EditHighlight } from '../../EditHighlight';
 
 const ActionButton: React.FC<{ onClick: () => void; icon: string }> = ({ onClick, icon }) => (
   <span
@@ -40,46 +43,73 @@ const ActionButton: React.FC<{ onClick: () => void; icon: string }> = ({ onClick
   </span>
 );
 
-const HighlightPopup: React.FC<T_Highlight> = ({ content, comment, canEdit, id }) => {
+interface PopupContentProps extends T_Highlight {
+  onResize?: () => void;
+  onHide?: () => void;
+}
+
+const PopupContent: React.FC<PopupContentProps> = ({ content, visibility, comment, canEdit, id, onResize, onHide }) => {
   const contentText = (content && content.text) || '';
   const hasContent = Boolean(contentText);
-  const removeHighlight = usePaperStore(state => {
-    return canEdit ? state.removeHighlight : undefined;
-  });
+  const [isEditOpen, setIsEditOpen] = React.useState(false);
+  const { removeHighlight, updateHighlight } = usePaperStore(state => {
+    return {
+      removeHighlight: canEdit ? state.removeHighlight : undefined,
+      updateHighlight: state.updateHighlight,
+    };
+  }, shallow);
+  React.useEffect(() => {
+    onResize && onResize();
+  }, [onResize, isEditOpen]);
   const hasComment = Boolean(comment && comment.text);
   if (![hasComment, hasContent, removeHighlight].some(Boolean)) return null;
+  if (isEditOpen) {
+    return (
+      <EditHighlight
+        text={comment.text}
+        onSubmit={data => {
+          updateHighlight(id, data)
+            .then(() => {
+              onHide && onHide();
+            })
+            .catch(err => console.error(err.response));
+        }}
+        visibilitySettings={visibility}
+        isTextRequired={false}
+      />
+    );
+  }
   return (
-    <div>
-      <Paper css={[presets.popupCss, { minWidth: hasComment ? 120 : undefined }]}>
-        <div css={presets.col}>
-          {hasComment && (
-            <div>
-              <TextLinkifyLatex text={comment.text} />
-            </div>
-          )}
-          <div
-            css={{
-              display: 'flex',
-              flexDirection: 'row',
-              alignItems: 'center',
-              justifyContent: 'flex-end',
-              marginTop: hasComment ? 6 : 0,
-            }}
-          >
-            {hasContent && (
-              <ActionButton
-                onClick={async () => {
-                  await copy(contentText);
-                  toast.success('Highlight has been copied to clipboard', { autoClose: 2000 });
-                }}
-                icon="far fa-copy"
-              />
-            )}
-            {removeHighlight && <ActionButton icon="far fa-trash-alt" onClick={() => removeHighlight(id)} />}
+    <Paper css={[presets.popupCss, { minWidth: hasComment ? 120 : undefined }]}>
+      <div css={presets.col}>
+        {hasComment && (
+          <div>
+            <TextLinkifyLatex text={comment.text} />
           </div>
+        )}
+        <div
+          css={{
+            display: 'flex',
+            flexDirection: 'row',
+            alignItems: 'center',
+            justifyContent: 'flex-end',
+            marginTop: hasComment ? 6 : 0,
+          }}
+        >
+          {hasContent && (
+            <ActionButton
+              onClick={async () => {
+                await copy(contentText);
+                toast.success('Highlight has been copied to clipboard', { autoClose: 2000 });
+              }}
+              icon="far fa-copy"
+            />
+          )}
+          {canEdit && <ActionButton icon="fas fa-pencil-alt" onClick={() => setIsEditOpen(true)} />}
+          {removeHighlight && <ActionButton icon="far fa-trash-alt" onClick={() => removeHighlight(id)} />}
         </div>
-      </Paper>
-    </div>
+      </div>
+    </Paper>
   );
 
   return null;
@@ -110,15 +140,7 @@ const SingleHighlight: React.FC<SingleHighlight> = React.memo(
       <AreaHighlight
         isScrolledTo={isScrolledTo}
         position={viewportPosition}
-        onChange={(boundingRect: T_LTWH) => {
-          // const { width, height } = highlight.position.boundingRect;
-          // if (!isValidHighlight(highlight)) return;
-          // this.props.updateHighlight({
-          //   ...highlight,
-          //   position: { ...highlight.position, boundingRect: viewportToScaled(boundingRect, { width, height }) },
-          //   content: { ...highlight.content, image: screenshot(boundingRect) },
-          // });
-        }}
+        onChange={(boundingRect: T_LTWH) => {}}
         onClick={(event: React.MouseEvent) => {
           event.stopPropagation();
           if (!isValidHighlight(highlight)) return;
@@ -127,7 +149,7 @@ const SingleHighlight: React.FC<SingleHighlight> = React.memo(
       />
     );
     if (isValidHighlight(highlight)) {
-      return <Popup popupContent={<HighlightPopup {...highlight} />} bodyElement={component} />;
+      return <Popup popupContent={<PopupContent {...highlight} />} bodyElement={component} />;
     }
     return component;
   },

@@ -12,8 +12,8 @@ export const TipContainer: React.FC = React.memo(() => {
   // const [key, setKey] = React.useState(false); // used to reload the popper
   const tooltipNode = React.useRef<HTMLDivElement>(null);
   const popperRef: PopperProps['popperRef'] = React.useRef(null);
-  const { tempTooltipData: tooltipData } = usePaperStore(state => pick(state, ['tempTooltipData']), shallow);
-  const tooltipSize = tooltipData?.size;
+  const { tempHighlight } = usePaperStore(state => pick(state, ['tempHighlight']), shallow);
+  const tooltipSize = tempHighlight?.size;
   return (
     <React.Fragment>
       <div
@@ -25,7 +25,7 @@ export const TipContainer: React.FC = React.memo(() => {
         style={{ ...tooltipSize, height: tooltipSize ? tooltipSize.bottom - tooltipSize.top : undefined }}
       />
       <Popper
-        open={!isEmpty(tooltipData)}
+        open={!isEmpty(tempHighlight)}
         anchorEl={tooltipNode.current}
         placement="top"
         className="tooltip-popper"
@@ -48,7 +48,7 @@ export const TipContainer: React.FC = React.memo(() => {
           onMouseDown={e => {
             e.stopPropagation();
           }}
-          onOpen={() => {
+          updateTipPosition={() => {
             if (popperRef.current) {
               popperRef.current.update();
             }

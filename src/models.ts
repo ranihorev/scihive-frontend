@@ -47,8 +47,8 @@ export interface Visibility {
   id?: string;
 }
 
-export interface T_NewHighlight<P extends T_ScaledPosition | T_Position = T_ScaledPosition> {
-  position: P;
+export interface T_NewHighlight {
+  position: T_ScaledPosition;
   content: {
     text?: string;
     image?: string;
@@ -94,9 +94,7 @@ export type AllNewHighlight = T_NewHighlight | NewGeneralHighlight;
 export const isGeneralHighlight = (h: AllHighlight): h is GeneralHighlight => h.hasOwnProperty('isGeneral');
 export const isDirectHighlight = (h: AllHighlight): h is T_Highlight => h.hasOwnProperty('position');
 
-export interface TooltipData {
-  position: T_ScaledPosition;
-  content: T_NewHighlight['content'];
+export interface TempHighlight extends Pick<T_NewHighlight, 'position' | 'content'> {
   size: { left: number; top: number; bottom: number };
 }
 
@@ -104,8 +102,6 @@ export interface EditHighlightData {
   text: string;
   visibility: Visibility;
 }
-
-export type TempHighlight = OptionalExceptFor<T_NewHighlight, 'position'>;
 
 export type T_ExtendedHighlight = T_Highlight | TempHighlight;
 

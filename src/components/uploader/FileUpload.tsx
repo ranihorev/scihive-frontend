@@ -1,6 +1,6 @@
 /** @jsx jsx */
 import { css, jsx } from '@emotion/core';
-import { LinearProgress, Typography } from '@material-ui/core';
+import { LinearProgress, TextField, Typography, Button } from '@material-ui/core';
 import Axios from 'axios';
 import { isEmpty } from 'lodash';
 import React from 'react';
@@ -15,6 +15,7 @@ export const FileUpload: React.FC<{ setFileMeta: (meta: FileMetadata) => void }>
     status: 'idle',
     prct: 0,
   });
+  const [link, setLink] = React.useState('');
   const onDrop = React.useCallback<Required<DropzoneOptions>['onDrop']>(
     acceptedFiles => {
       if (isEmpty(acceptedFiles)) {
@@ -52,6 +53,18 @@ export const FileUpload: React.FC<{ setFileMeta: (meta: FileMetadata) => void }>
     onDropRejected: (res, e) => console.log(e),
   });
 
+  const onSubmitLink = () => {
+    setUploadStatus({ status: 'processing', prct: 0 });
+    Axios.post('/new_paper/add', { link })
+      .then(res => {
+        setFileMeta(res.data);
+      })
+      .catch(err => {
+        console.error(err.message);
+        setUploadStatus({ status: 'idle', prct: 0 });
+      });
+  };
+
   return (
     <div>
       {uploadStatus.status !== 'idle' ? (
@@ -66,30 +79,56 @@ export const FileUpload: React.FC<{ setFileMeta: (meta: FileMetadata) => void }>
           />
         </React.Fragment>
       ) : (
-        <div
-          {...getRootProps()}
-          css={css`
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            padding: 40px 20px;
-            border-width: 2px;
-            border-radius: 2px;
-            border-color: ${isDragActive ? '#2196f3' : '#eeeeee'};
-            border-style: dashed;
-            background-color: #fafafa;
-            color: #bdbdbd;
-            outline: none;
-            transition: border 0.24s ease-in-out;
-            &:focus {
-              border-color: #2196f3;
-            }
-          `}
-        >
-          <input {...getInputProps()} />
-          <p>{isDragActive ? 'Drop file here...' : "Drag 'n' drop file here, or click to select"}</p>
-        </div>
+        <>
+          <form
+            onSubmit={e => {
+              e.preventDefault();
+              onSubmitLink();
+            }}
+          >
+            <div css={{ display: 'flex', flexDirection: 'row', alignItems: 'center', marginTop: 8 }}>
+              <TextField
+                value={link}
+                onChange={e => setLink(e.target.value)}
+                type="url"
+                placeholder="Paste link here"
+                fullWidth
+                style={{ marginRight: 10 }}
+                required
+              />
+              <Button type="submit" size="small" color="primary">
+                Upload
+              </Button>
+            </div>
+          </form>
+          <div css={{ padding: 15, display: 'flex', flexDirection: 'row', justifyContent: 'center', color: '#b5b5b5' }}>
+            <i>- or -</i>
+          </div>
+          <div
+            {...getRootProps()}
+            css={css`
+              flex: 1;
+              display: flex;
+              flex-direction: column;
+              align-items: center;
+              padding: 40px 20px;
+              border-width: 2px;
+              border-radius: 2px;
+              border-color: ${isDragActive ? '#2196f3' : '#eeeeee'};
+              border-style: dashed;
+              background-color: #fafafa;
+              color: #bdbdbd;
+              outline: none;
+              transition: border 0.24s ease-in-out;
+              &:focus {
+                border-color: #2196f3;
+              }
+            `}
+          >
+            <input {...getInputProps()} />
+            <p>{isDragActive ? 'Drop file here...' : "Drag 'n' drop file here, or click to select"}</p>
+          </div>
+        </>
       )}
     </div>
   );

@@ -1,14 +1,24 @@
 /** @jsx jsx */
 import { css, jsx } from '@emotion/core';
-import { LinearProgress, TextField, Typography, Button } from '@material-ui/core';
+import { Button, LinearProgress, TextField, Typography } from '@material-ui/core';
 import Axios from 'axios';
 import { isEmpty } from 'lodash';
 import React from 'react';
 import { DropzoneOptions, useDropzone } from 'react-dropzone';
+import { toast } from 'react-toastify';
 import { FileMetadata } from '../../models';
 import { track } from '../../Tracker';
 
 type UploadStatus = 'idle' | 'uploading' | 'processing';
+
+const handleArxivLinks = (link: string) => {
+  let fixedLink = link;
+  const url = new URL(link);
+  if (url.host === 'arxiv.org') {
+    fixedLink = link.replace('/abs/', '/pdf/') + '.pdf';
+  }
+  return fixedLink;
+};
 
 export const FileUpload: React.FC<{ setFileMeta: (meta: FileMetadata) => void }> = ({ setFileMeta }) => {
   const [uploadStatus, setUploadStatus] = React.useState<{ status: UploadStatus; prct: number }>({
@@ -54,13 +64,19 @@ export const FileUpload: React.FC<{ setFileMeta: (meta: FileMetadata) => void }>
   });
 
   const onSubmitLink = () => {
+    const fixedLink = handleArxivLinks(link);
+    if (!fixedLink.endsWith('.pdf')) {
+      toast.error('Only PDF links are supported, please try a different link');
+      return;
+    }
     setUploadStatus({ status: 'processing', prct: 0 });
-    Axios.post('/new_paper/add', { link })
+    Axios.post('/new_paper/add', { link: fixedLink })
       .then(res => {
         setFileMeta(res.data);
       })
       .catch(err => {
         console.error(err.message);
+        toast.error(`Failed to upload file - ${err.message}`);
         setUploadStatus({ status: 'idle', prct: 0 });
       });
   };

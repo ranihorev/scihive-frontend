@@ -1,13 +1,14 @@
 /** @jsx jsx */
 import { jsx } from '@emotion/core';
 import React from 'react';
+import { useUserStore } from '../../stores/user';
 import { track } from '../../Tracker';
 import { UploadButton } from './UploadFloatingButton';
 import { UploadModal } from './UploadModal';
-import { useUserStore } from '../../stores/user';
+import { useGetUploadLink } from './utils';
 
 export const FileUploader: React.FC = React.memo(() => {
-  const [isOpen, setIsOpen] = React.useState(false);
+  const [isOpen, setIsOpen] = React.useState(Boolean(useGetUploadLink()));
   const closeModal = React.useCallback(() => setIsOpen(false), [setIsOpen]);
   const { isLoggedIn, toggleLoginModal } = useUserStore(state => ({
     isLoggedIn: Boolean(state.userData),

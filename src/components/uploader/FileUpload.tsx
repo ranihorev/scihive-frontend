@@ -8,13 +8,14 @@ import { DropzoneOptions, useDropzone } from 'react-dropzone';
 import { toast } from 'react-toastify';
 import { FileMetadata } from '../../models';
 import { track } from '../../Tracker';
+import { useGetUploadLink } from './utils';
 
 type UploadStatus = 'idle' | 'uploading' | 'processing';
 
 const handleArxivLinks = (link: string) => {
   let fixedLink = link;
   const url = new URL(link);
-  if (url.host === 'arxiv.org') {
+  if (url.host === 'arxiv.org' && !link.endsWith('.pdf')) {
     fixedLink = link.replace('/abs/', '/pdf/') + '.pdf';
   }
   return fixedLink;
@@ -25,7 +26,8 @@ export const FileUpload: React.FC<{ setFileMeta: (meta: FileMetadata) => void }>
     status: 'idle',
     prct: 0,
   });
-  const [link, setLink] = React.useState('');
+
+  const [link, setLink] = React.useState(useGetUploadLink() || '');
   const onDrop = React.useCallback<Required<DropzoneOptions>['onDrop']>(
     acceptedFiles => {
       if (isEmpty(acceptedFiles)) {

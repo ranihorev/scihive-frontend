@@ -202,11 +202,6 @@ export interface PaperListItem {
   groups: string[];
 }
 
-export interface PaperListRouterParams {
-  authorId?: string;
-  groupId?: string;
-}
-
 interface Author {
   name: string;
 }

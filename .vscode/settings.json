@@ -5,5 +5,9 @@
     "titleBar.inactiveBackground": "#73037e",
     "titleBar.activeForeground": "#FCFCFF",
     "titleBar.inactiveForeground": "#FCFCFF"
-  }
+  },
+  "cSpell.words": [
+    "uploader",
+    "zustand"
+  ]
 }

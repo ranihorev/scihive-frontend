@@ -3,12 +3,11 @@ import { css, jsx } from '@emotion/core';
 import { Paper } from '@material-ui/core';
 import { pick } from 'lodash';
 import React from 'react';
-import { useParams } from 'react-router';
 import shallow from 'zustand/shallow';
-import { EditHighlightData, isGeneralHighlight, T_NewHighlight } from '../../../models';
+import { EditHighlightData, T_NewHighlight } from '../../../models';
 import { usePaperStore } from '../../../stores/paper';
-import { useUserStore } from '../../../stores/user';
 import { presets } from '../../../utils';
+import { usePaperId } from '../../../utils/hooks';
 import { EditHighlight } from '../../EditHighlight';
 import { VisibilityControl } from '../../EditHighlight/VisibilityControl';
 
@@ -61,7 +60,7 @@ const CompactTipButton: React.FC<{ onClick: (e: React.MouseEvent) => void; icon:
 
 const Tip: React.FC<TipProps> = ({ updateTipPosition, onMouseDown = () => {} }) => {
   const [type, setType] = React.useState<'compact' | 'highlight' | 'comment'>('compact');
-  const params = useParams<{ PaperId: string }>();
+  const paperId = usePaperId();
   const newHighlightId = React.useRef<string | undefined>();
   // const isLoggedIn = useUserStore(state => Boolean(state.userData));
   const {
@@ -87,7 +86,7 @@ const Tip: React.FC<TipProps> = ({ updateTipPosition, onMouseDown = () => {} }) 
   const onSubmit = ({ text, visibility }: EditHighlightData) => {
     setCommentVisibilitySettings(visibility);
     if (tempHighlight) {
-      addHighlight(params.PaperId, {
+      addHighlight(paperId, {
         comment: { text },
         visibility,
         content: tempHighlight.content,
@@ -120,7 +119,7 @@ const Tip: React.FC<TipProps> = ({ updateTipPosition, onMouseDown = () => {} }) 
                 content: tempHighlight.content,
                 position: tempHighlight.position,
               };
-              const highlight = await addHighlight(params.PaperId, data, false);
+              const highlight = await addHighlight(paperId, data, false);
               newHighlightId.current = highlight.id;
               setType('highlight');
             }}

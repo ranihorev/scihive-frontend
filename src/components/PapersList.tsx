@@ -4,10 +4,10 @@ import { CircularProgress, FormControl, Grid, Input, MenuItem, Select, Typograph
 import { isEmpty, pick } from 'lodash';
 import * as queryString from 'query-string';
 import React from 'react';
-import { useHistory, useLocation, useRouteMatch } from 'react-router';
+import { useHistory, useLocation, useRouteMatch, useParams } from 'react-router';
 import shallow from 'zustand/shallow';
 import { LocationContext } from '../LocationContext';
-import { Group, PaperListRouterParams } from '../models';
+import { Group } from '../models';
 import { RequestParams, usePapersListStore } from '../stores/papersList';
 import { useUserStore } from '../stores/user';
 import * as presets from '../utils/presets';
@@ -51,6 +51,11 @@ interface QueryParams {
   sort?: string;
 }
 
+export interface PaperListRouterParams {
+  authorId?: string;
+  groupId?: string;
+}
+
 const ALL_COLLECTIONS = 'All collections';
 
 const getGroupName = (groups: Group[], groupId: string | undefined) => {
@@ -70,7 +75,8 @@ const PapersList: React.FC = () => {
     shallow,
   );
   const previousLocation = React.useContext(LocationContext);
-  const match = useRouteMatch<PaperListRouterParams>();
+  const match = useRouteMatch();
+  const { groupId, authorId } = useParams<PaperListRouterParams>();
   const location = useLocation();
   const history = useHistory();
   const isFirstLoad = React.useRef(true);
@@ -78,7 +84,6 @@ const PapersList: React.FC = () => {
   const [hasMorePapers, setHasMorePapers] = React.useState(true);
   const [isLoading, setIsLoading] = React.useState(false);
   const isLibraryMode = match.path === '/library';
-  const { groupId, authorId } = match.params;
   const isLibraryOrList = isLibraryMode || Boolean(groupId);
 
   let groupName = getGroupName(inviteGroup ? [...groups, inviteGroup] : groups, groupId);

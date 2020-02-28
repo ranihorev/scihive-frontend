@@ -9,7 +9,6 @@ import shallow from 'zustand/shallow';
 import { usePaperStore } from '../../stores/paper';
 import { simpleLink } from '../../utils/presets';
 import { ArrowTooltip } from '../ArrowTooltip';
-import { ButtonIcon } from '../ButtonIcon';
 import Bookmark from '../Groups/Bookmark';
 import { PopoverMenu } from '../PopoverMenu';
 

@@ -64,7 +64,8 @@ const App: React.FC = () => {
             <Route path="/home" exact component={Home} />
             <Route path="/search/" exact component={Home} />
             <Route path="/author/:authorId" exact component={Home} />
-            <Route path="/paper/:PaperId" exact component={Paper} />
+            <Route path="/paper/:paperId" exact component={Paper} />
+            <Route path="/paper/:field/:paperId" exact component={Paper} />
             <Route path="/list/:groupId" exact component={Home} />
             <Route path="/lists" exact component={Groups} />
             <Route path="/collection/:groupId" exact component={Home} />

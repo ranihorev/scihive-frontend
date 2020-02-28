@@ -5,6 +5,7 @@ import Axios from 'axios';
 import { isEmpty } from 'lodash';
 import React from 'react';
 import { DropzoneOptions, useDropzone } from 'react-dropzone';
+import { useHistory } from 'react-router';
 import { toast } from 'react-toastify';
 import { FileMetadata } from '../../models';
 import { track } from '../../Tracker';
@@ -12,16 +13,13 @@ import { useGetUploadLink } from './utils';
 
 type UploadStatus = 'idle' | 'uploading' | 'processing';
 
-const handleArxivLinks = (link: string) => {
-  let fixedLink = link;
+const isArxivLink = (link: string) => {
   const url = new URL(link);
-  if (url.host === 'arxiv.org' && !link.endsWith('.pdf')) {
-    fixedLink = link.replace('/abs/', '/pdf/') + '.pdf';
-  }
-  return fixedLink;
+  return url.host === 'arxiv.org';
 };
 
 export const FileUpload: React.FC<{ setFileMeta: (meta: FileMetadata) => void }> = ({ setFileMeta }) => {
+  const history = useHistory();
   const [uploadStatus, setUploadStatus] = React.useState<{ status: UploadStatus; prct: number }>({
     status: 'idle',
     prct: 0,
@@ -66,13 +64,19 @@ export const FileUpload: React.FC<{ setFileMeta: (meta: FileMetadata) => void }>
   });
 
   const onSubmitLink = () => {
-    const fixedLink = handleArxivLinks(link);
-    if (!fixedLink.endsWith('.pdf')) {
+    if (isArxivLink(link)) {
+      const regResult = /(?<paperId>(\d{4}\.\d{4,5})|([a-zA-Z\-.]+\/\d{6,10}))(v(?<version>\d+))?(\.pdf)?$/.exec(link);
+      if (regResult?.groups) {
+        history.push(`/paper/${regResult.groups.paperId}`);
+        return;
+      }
+    }
+    if (!link.endsWith('.pdf')) {
       toast.error('Only PDF links are supported, please try a different link');
       return;
     }
     setUploadStatus({ status: 'processing', prct: 0 });
-    Axios.post('/new_paper/add', { link: fixedLink })
+    Axios.post('/new_paper/add', { link })
       .then(res => {
         setFileMeta(res.data);
       })

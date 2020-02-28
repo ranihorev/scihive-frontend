@@ -6,11 +6,11 @@ import * as queryString from 'query-string';
 import React, { useEffect, useState } from 'react';
 import { isMobile } from 'react-device-detect';
 import { Helmet } from 'react-helmet';
-import { useLocation, useParams } from 'react-router-dom';
-import useDeepCompareEffect from 'use-deep-compare-effect';
+import { useLocation } from 'react-router-dom';
 import shallow from 'zustand/shallow';
 import { usePaperStore } from '../stores/paper';
 import { presets } from '../utils';
+import { usePaperId } from '../utils/hooks';
 import PdfLoader from './Pdf/components/PdfLoader';
 import { ReadingProgress } from './ReadingProgress';
 import ReferencesProvider from './ReferencesProvider';
@@ -63,19 +63,19 @@ const PdfCommenter: React.FC = () => {
   const [pdfWidthPrct, setPdfWidthPrct] = useState(isMobile ? 0.25 : 0.75);
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(isMobile ? true : false);
 
-  const params = useParams<{ PaperId: string }>();
+  const paperId = usePaperId();
   const location = useLocation();
   const { title, clearPaper, fetchPaper } = usePaperStore(
     state => pick(state, ['title', 'clearPaper', 'fetchPaper']),
     shallow,
   );
 
-  useDeepCompareEffect(() => {
+  useEffect(() => {
     // Fetch paper data
     setUrl(FETCHING);
     clearPaper();
     const selectedGroupId = queryString.parse(location.search).list as string;
-    fetchPaper({ paperId: params.PaperId, selectedGroupId })
+    fetchPaper({ paperId, selectedGroupId })
       .then(data => {
         setUrl(data.url);
       })
@@ -83,7 +83,7 @@ const PdfCommenter: React.FC = () => {
         console.log(e.response);
         setUrl(FAILED);
       });
-  }, [params]);
+  }, [paperId]);
 
   let viewerRender = null;
   if (url === FETCHING) {

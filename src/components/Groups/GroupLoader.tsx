@@ -2,7 +2,6 @@
 import * as queryString from 'query-string';
 import React from 'react';
 import { matchPath, useHistory, useLocation } from 'react-router-dom';
-import { PaperListRouterParams } from '../../models';
 import { useUserStore } from '../../stores/user';
 
 const GroupLoader: React.FC = () => {
@@ -11,8 +10,7 @@ const GroupLoader: React.FC = () => {
   const loadGroups = useUserStore(state => state.loadGroups);
 
   React.useEffect(() => {
-    const match = matchPath<PaperListRouterParams>(history.location.pathname, {
-      // You can share this string as a constant if you want
+    const match = matchPath<{ groupId?: string }>(history.location.pathname, {
       path: '/collection/:groupId',
     });
     const groupId = match ? match.params.groupId : undefined;

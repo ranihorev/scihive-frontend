@@ -17,7 +17,8 @@
     "esModuleInterop": true,
     "forceConsistentCasingInFileNames": true,
     "isolatedModules": true,
-    "noEmit": true
+    "noEmit": true,
+    "types": ["@emotion/core", "chrome"]
   },
   "exclude": ["dist", "node_modules"],
   "include": ["src"]

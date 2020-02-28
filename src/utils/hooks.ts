@@ -1,5 +1,6 @@
 import React from 'react';
 import ResizeObserver from 'resize-observer-polyfill';
+import { useParams } from 'react-router';
 
 export const useOnClickOutside = <T extends HTMLElement>(
   ref: React.RefObject<T>,
@@ -52,4 +53,10 @@ export const useResizeObserver = (
       if (element) resizeObserver.unobserve(element);
     };
   }, [domRef, onResize]);
+};
+
+export const usePaperId = () => {
+  const { field, paperId } = useParams<{ field?: string; paperId: string }>();
+  if (field) return `${field}_${paperId}`;
+  return paperId;
 };

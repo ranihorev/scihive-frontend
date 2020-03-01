@@ -20,6 +20,7 @@ import {
   T_Highlight,
   Visibility,
 } from '../models';
+import { track } from '../Tracker';
 import {
   AddRemoveBookmark,
   addRemoveBookmarkHelper,
@@ -184,6 +185,7 @@ const stateAndActions = (set: NamedSetState<PaperState>, get: GetState<PaperStat
         try {
           const response = await axios.post<{ comment: T_Highlight }>(`/paper/${paperId}/new_comment`, highlight);
           const newHighlight = response.data.comment;
+          track(highlight.comment.text ? 'newComment' : 'newHighlight');
           set(
             state => ({
               highlights: sortHighlights([...state.highlights, newHighlight]),
@@ -220,6 +222,7 @@ const stateAndActions = (set: NamedSetState<PaperState>, get: GetState<PaperStat
             comment: data.text,
             visibility: data.visibility,
           });
+          track('editHighlight');
           updateHighlightHelper(res.data.comment);
           resolve(res.data.comment);
         } catch (e) {
@@ -235,6 +238,7 @@ const stateAndActions = (set: NamedSetState<PaperState>, get: GetState<PaperStat
           const res = await axios.post(`/paper/${paperId}/comment/${highlightId}/reply`, {
             text: replyText,
           });
+          track('newReply');
           updateHighlightHelper(res.data.comment);
           resolve(res.data.comment);
         } catch (e) {

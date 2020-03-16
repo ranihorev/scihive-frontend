@@ -1,14 +1,12 @@
 /** @jsx jsx */
 import { jsx } from '@emotion/core';
-import { pick } from 'lodash';
 import pdfjs, { getDocument, PDFDocumentProxy } from 'pdfjs-dist';
 import React from 'react';
-import { isMobile } from 'react-device-detect';
 import shallow from 'zustand/shallow';
 import { PdfAnnotator } from '..';
 import { usePaperStore } from '../../../stores/paper';
-import { extractSections } from '../../Sidebar/PaperSections';
 import { ReferencesPopoverState } from '../../ReferencesProvider';
+import { extractSections } from '../../Sidebar/PaperSections';
 
 (pdfjs as any).GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${
   (pdfjs as any).version

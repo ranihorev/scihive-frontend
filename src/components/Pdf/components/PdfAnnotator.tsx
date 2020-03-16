@@ -7,6 +7,7 @@ import { PDFDocumentProxy } from 'pdfjs-dist';
 import { PDFFindController, PDFLinkService, PDFViewer } from 'pdfjs-dist/web/pdf_viewer';
 import 'pdfjs-dist/web/pdf_viewer.css';
 import React from 'react';
+import { isMobile } from 'react-device-detect';
 import ReactDom from 'react-dom';
 import shallow from 'zustand/shallow';
 import {
@@ -19,7 +20,9 @@ import {
   T_ScaledPosition,
 } from '../../../models';
 import { usePaperStore } from '../../../stores/paper';
+import { activateOnboarding } from '../../../utils/hooks';
 import { useLatestCallback } from '../../../utils/useLatestCallback';
+import { ReferencesPopoverState } from '../../ReferencesProvider';
 import { APP_BAR_HEIGHT } from '../../TopBar/PrimaryAppBar';
 import { scaledToViewport, viewportToScaled } from '../lib/coordinates';
 import getAreaAsPng from '../lib/get-area-as-png';
@@ -27,9 +30,9 @@ import getBoundingRect from '../lib/get-bounding-rect';
 import getClientRects from '../lib/get-client-rects';
 import {
   findOrCreateContainerLayer,
+  getElementFromRange,
   getPageFromElement,
   getPageFromRange,
-  getElementFromRange,
 } from '../lib/pdfjs-dom';
 import { convertMatches, renderMatches } from '../lib/pdfSearchUtils';
 import '../style/PdfHighlighter.css';
@@ -37,8 +40,7 @@ import MouseSelection from './MouseSelection';
 import { PageHighlights } from './PageHighlights';
 import { TipContainer } from './TipContainer';
 import { useJumpToHandler } from './useJumpToHandler';
-import { ReferencesPopoverState } from '../../ReferencesProvider';
-import { isMobile } from 'react-device-detect';
+import { useCookies } from 'react-cookie';
 
 const zoomButtonCss = css`
   color: black;
@@ -96,6 +98,8 @@ interface PdfAnnotatorProps {
   pdfDocument: PDFDocumentProxy;
 }
 
+const ONBOARDING_COOKIE = 'onboarding_cookie';
+
 const PdfAnnotator: React.FC<PdfAnnotatorProps> = ({ enableAreaSelection, setReferencePopoverState, pdfDocument }) => {
   // const [scrolledToHighlightId, setScrolledToHighlightId] = React.useState(EMPTY_ID);
   const [isSelecting, setIsSelecting] = React.useState(false);
@@ -105,6 +109,9 @@ const PdfAnnotator: React.FC<PdfAnnotatorProps> = ({ enableAreaSelection, setRef
   const pagesReadyToRender = React.useRef<number[]>([]);
   const [acronymPositions, setAcronymPositions] = React.useState<AcronymPositions>({});
   const canZoom = React.useRef(true);
+  const [cookies, setCookie] = useCookies([]);
+  const isOnboarding = React.useRef(false);
+  const onboardingTeardown = React.useRef<() => void>();
 
   const {
     references,
@@ -301,11 +308,22 @@ const PdfAnnotator: React.FC<PdfAnnotatorProps> = ({ enableAreaSelection, setRef
       renderHighlights(pageNumber);
       renderAcronyms(pageNumber);
       pagesReadyToRender.current.push(pageNumber);
+      const { textLayer } = viewer.current.getPageView(pageNumber - 1);
+      if (pageNumber - 1 === 0 && !cookies[ONBOARDING_COOKIE]) {
+        onboardingTeardown.current = activateOnboarding(textLayer);
+        isOnboarding.current = true;
+        setCookie(ONBOARDING_COOKIE, { domain: '.scihive.org', sameSite: true, path: '/' });
+      }
     },
     [acronymPositions, highlights, tempHighlight, isSelecting],
   );
 
+  React.useEffect(() => {
+    return onboardingTeardown.current?.();
+  }, []);
+
   const onMouseDown = (event: React.MouseEvent) => {
+    isOnboarding.current = false;
     clearTempHighlight();
   };
 
@@ -396,6 +414,7 @@ const PdfAnnotator: React.FC<PdfAnnotatorProps> = ({ enableAreaSelection, setRef
   }, []);
 
   React.useEffect(() => {
+    // Render all of the pages that are ready on every change of highlights
     if (!isDocumentReady) return;
     for (const pageNumber of pagesReadyToRender.current) {
       renderHighlights(pageNumber);
@@ -476,7 +495,7 @@ const PdfAnnotator: React.FC<PdfAnnotatorProps> = ({ enableAreaSelection, setRef
         css={pdfViewerCss}
       >
         <div className="pdfViewer" />
-        <TipContainer />
+        <TipContainer isOnboarding={isOnboarding.current} />
         <div ref={highlightLayerNode} />
         {typeof enableAreaSelection === 'function' ? (
           <MouseSelection

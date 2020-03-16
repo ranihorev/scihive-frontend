@@ -14,16 +14,18 @@ import { VisibilityControl } from '../../EditHighlight/VisibilityControl';
 interface TipProps {
   updateTipPosition: () => void;
   onMouseDown?: (e: React.MouseEvent) => void;
+  isOnboarding?: boolean;
 }
 
 export const CompactTip: React.FunctionComponent = ({ children }) => (
   <div
     css={css`
       ${presets.col};
+      justify-content: center;
       color: white;
-      padding: 7px 7px;
-      background-color: #bbb;
-      border-radius: 10px;
+      padding: 10px;
+      background-color: #213344;
+      border-radius: 8px;
     `}
   >
     {children}
@@ -36,20 +38,18 @@ const CompactTipButton: React.FC<{ onClick: (e: React.MouseEvent) => void; icon:
   text,
 }) => (
   <div
-    css={[
-      presets.row,
-      {
-        alignItems: 'center',
-        fontSize: 14,
-        cursor: 'pointer',
-        marginBottom: 5,
-        padding: 3,
-        '&:hover': { color: presets.themePalette.primary.main },
-        '&:last-child': {
-          marginBottom: 0,
-        },
+    css={{
+      display: 'flex',
+      flexDirection: 'row',
+      alignItems: 'center',
+      fontSize: 14,
+      cursor: 'pointer',
+      padding: 3,
+      '&:hover': { color: presets.themePalette.primary.main },
+      '&:not(:last-child)': {
+        marginRight: 8,
       },
-    ]}
+    }}
     role="button"
     onClick={onClick}
   >
@@ -58,7 +58,7 @@ const CompactTipButton: React.FC<{ onClick: (e: React.MouseEvent) => void; icon:
   </div>
 );
 
-const Tip: React.FC<TipProps> = ({ updateTipPosition, onMouseDown = () => {} }) => {
+const Tip: React.FC<TipProps> = ({ updateTipPosition, onMouseDown = () => {}, isOnboarding = false }) => {
   const [type, setType] = React.useState<'compact' | 'highlight' | 'comment'>('compact');
   const paperId = usePaperId();
   const newHighlightId = React.useRef<string | undefined>();
@@ -103,29 +103,38 @@ const Tip: React.FC<TipProps> = ({ updateTipPosition, onMouseDown = () => {} }) 
     <div className="Tip" onMouseDown={onMouseDown}>
       {type === 'compact' ? (
         <CompactTip>
-          <CompactTipButton
-            onClick={() => {
-              setType('comment');
-            }}
-            icon="fas fa-comment-medical"
-            text="Comment"
-          />
-          <CompactTipButton
-            onClick={async () => {
-              if (!tempHighlight) return;
-              const data: T_NewHighlight = {
-                comment: { text: '' },
-                visibility: commentVisibility,
-                content: tempHighlight.content,
-                position: tempHighlight.position,
-              };
-              const highlight = await addHighlight(paperId, data, false);
-              newHighlightId.current = highlight.id;
-              setType('highlight');
-            }}
-            icon="fas fa-highlighter"
-            text="Highlight"
-          />
+          {isOnboarding ? (
+            <div style={{ fontSize: 12, lineHeight: 1.5, maxWidth: 200, marginBottom: 12, textAlign: 'center' }}>
+              Join the conversation - comment and highlight privately or with your peers
+            </div>
+          ) : (
+            undefined
+          )}
+          <div css={{ display: 'flex', flexDirection: 'row', justifyContent: 'center' }}>
+            <CompactTipButton
+              onClick={() => {
+                setType('comment');
+              }}
+              icon="fas fa-comment-medical"
+              text="Comment"
+            />
+            <CompactTipButton
+              onClick={async () => {
+                if (!tempHighlight) return;
+                const data: T_NewHighlight = {
+                  comment: { text: '' },
+                  visibility: commentVisibility,
+                  content: tempHighlight.content,
+                  position: tempHighlight.position,
+                };
+                const highlight = await addHighlight(paperId, data, false);
+                newHighlightId.current = highlight.id;
+                setType('highlight');
+              }}
+              icon="fas fa-highlighter"
+              text="Highlight"
+            />
+          </div>
         </CompactTip>
       ) : type === 'comment' ? (
         <EditHighlight onSubmit={onSubmit} visibilitySettings={commentVisibility} />

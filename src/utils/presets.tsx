@@ -49,7 +49,8 @@ export const popupCss = css`
   overflow-y: auto;
   font-size: 0.8rem;
   line-height: 1.4;
-  color: #3e3e3e;
+  border-radius: 8px;
+  color: #303030;
   p:first-of-type {
     margin-top: 0;
   }

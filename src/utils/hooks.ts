@@ -1,6 +1,7 @@
 import React from 'react';
 import ResizeObserver from 'resize-observer-polyfill';
 import { useParams } from 'react-router';
+import { PDFRenderTextLayer } from 'pdfjs-dist';
 
 export const useOnClickOutside = <T extends HTMLElement>(
   ref: React.RefObject<T>,
@@ -59,4 +60,54 @@ export const usePaperId = () => {
   const { field, paperId } = useParams<{ field?: string; paperId: string }>();
   if (field) return `${field}_${paperId}`;
   return paperId;
+};
+
+const isTextNode = (element: ChildNode | null): element is Text => {
+  return element?.nodeName === '#text';
+};
+
+const findOnboardingNode = (elements: HTMLDivElement[], thresholdPx: number = 100, length: number = 30) => {
+  for (const elem of elements) {
+    if (Math.abs(elem.offsetTop - window.innerHeight / 2) < thresholdPx) {
+      if (isTextNode(elem.firstChild) && elem.firstChild.length > length) {
+        return elem.firstChild as Text;
+      }
+    }
+  }
+  return;
+};
+
+export const activateOnboarding = (textLayer: any) => {
+  const maxSelected = 80;
+  const period = 70;
+
+  let timeoutId: NodeJS.Timeout;
+  const range = document.createRange();
+  const sel = window.getSelection();
+  if (sel) {
+    sel.removeAllRanges();
+    sel.addRange(range);
+  }
+
+  const elements = textLayer.textLayerDiv.children;
+  const node = findOnboardingNode(elements, 100, 30) || findOnboardingNode(elements, 200, 30);
+  if (!node) return;
+  const selectChars = (endPosition: number) => {
+    if (endPosition > maxSelected) return;
+    try {
+      if (endPosition >= node.length) return;
+      range.setStart(node, 0);
+      range.setEnd(node, endPosition);
+      timeoutId = setTimeout(() => selectChars(endPosition + 2), period);
+    } catch (e) {
+      console.warn('Failed to select range');
+    }
+  };
+  timeoutId = setTimeout(() => {
+    selectChars(1);
+  }, period);
+
+  return () => {
+    clearTimeout(timeoutId);
+  };
 };

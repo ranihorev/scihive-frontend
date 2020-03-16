@@ -30,7 +30,7 @@ const theme = createMuiTheme({
 const ReactHint = ReactHintFactory(React);
 
 const App: React.FC = () => {
-  const [, setCookie] = useCookies();
+  const [, setCookie] = useCookies([]);
   const { user } = useUserStore(state => ({ user: Boolean(state.userData) }), shallow);
 
   React.useEffect(() => {

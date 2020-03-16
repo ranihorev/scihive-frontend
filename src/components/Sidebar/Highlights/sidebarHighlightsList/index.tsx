@@ -13,7 +13,7 @@ import { GeneralNote } from './GeneralNote';
 const WELCOME_COOKIE = 'comments-welcome';
 
 const WelcomeMessage: React.FC = () => {
-  const [cookies, setCookie] = useCookies([WELCOME_COOKIE]);
+  const [cookies, setCookie] = useCookies([]);
   if (cookies[WELCOME_COOKIE]) return null;
   return (
     <div style={{ padding: '0.2rem 0.7rem' }}>

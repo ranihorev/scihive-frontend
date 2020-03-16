@@ -8,7 +8,7 @@ import shallow from 'zustand/shallow';
 import { usePaperStore } from '../../../stores/paper';
 import Tip from './Tip';
 
-export const TipContainer: React.FC = React.memo(() => {
+export const TipContainer: React.FC<{ isOnboarding?: boolean }> = React.memo(({ isOnboarding = false }) => {
   // const [key, setKey] = React.useState(false); // used to reload the popper
   const tooltipNode = React.useRef<HTMLDivElement>(null);
   const popperRef: PopperProps['popperRef'] = React.useRef(null);
@@ -42,6 +42,9 @@ export const TipContainer: React.FC = React.memo(() => {
             enabled: true,
             boundariesElement: 'scrollParent',
           },
+          offset: {
+            offset: `0,2`,
+          },
         }}
       >
         <Tip
@@ -53,6 +56,7 @@ export const TipContainer: React.FC = React.memo(() => {
               popperRef.current.update();
             }
           }}
+          isOnboarding={isOnboarding}
         />
       </Popper>
     </React.Fragment>

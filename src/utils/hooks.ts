@@ -1,7 +1,6 @@
 import React from 'react';
 import ResizeObserver from 'resize-observer-polyfill';
 import { useParams } from 'react-router';
-import { PDFRenderTextLayer } from 'pdfjs-dist';
 
 export const useOnClickOutside = <T extends HTMLElement>(
   ref: React.RefObject<T>,

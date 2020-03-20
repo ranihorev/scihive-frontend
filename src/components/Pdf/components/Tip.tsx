@@ -144,8 +144,8 @@ const Tip: React.FC<TipProps> = ({ updateTipPosition, onMouseDown = () => {}, is
             visibilitySettings={commentVisibility}
             setCommentVisibility={visibility => {
               if (newHighlightId.current !== undefined) {
+                setCommentVisibilitySettings(visibility);
                 updateHighlight(newHighlightId.current, { text: '', visibility });
-                clearTempHighlight();
               }
             }}
           />

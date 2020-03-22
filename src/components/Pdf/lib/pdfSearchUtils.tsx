@@ -1,6 +1,7 @@
 /** @jsx jsx */
 import { css, jsx } from '@emotion/core';
 import { Paper } from '@material-ui/core';
+import React from 'react';
 import ReactDom from 'react-dom';
 import { popupCss } from '../../../utils/presets';
 import { Popup } from '../../Popup';
@@ -69,6 +70,19 @@ export const convertMatches = (queryLen: number, matches: number[], textLayer: a
   return result;
 };
 
+const TooltipContent: React.FC<{ onResize?: () => void; onHide?: () => void; text: string }> = ({ text }) => {
+  return (
+    <Paper
+      css={css`
+        ${popupCss};
+        text-transform: capitalize;
+      `}
+    >
+      {text}
+    </Paper>
+  );
+};
+
 export const renderMatches = (matches: Match[], pageIdx: number, textLayer: any, tooltipText: string) => {
   const { textContentItemsStr, textDivs } = textLayer;
 
@@ -90,16 +104,7 @@ export const renderMatches = (matches: Match[], pageIdx: number, textLayer: any,
       div.appendChild(span);
       ReactDom.render(
         <Popup
-          popupContent={
-            <Paper
-              css={css`
-                ${popupCss};
-                text-transform: capitalize;
-              `}
-            >
-              {tooltipText}
-            </Paper>
-          }
+          popupContent={<TooltipContent text={tooltipText} />}
           bodyElement={
             <span
               css={css`

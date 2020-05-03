@@ -2,12 +2,25 @@
   "editor.tabSize": 2,
   "workbench.colorCustomizations": {
     "titleBar.activeBackground": "#b408c4",
-    "titleBar.inactiveBackground": "#73037e",
-    "titleBar.activeForeground": "#FCFCFF",
-    "titleBar.inactiveForeground": "#FCFCFF"
+    "titleBar.inactiveBackground": "#b408c499",
+    "titleBar.activeForeground": "#e7e7e7",
+    "titleBar.inactiveForeground": "#e7e7e799",
+    "activityBar.activeBackground": "#e10af5",
+    "activityBar.activeBorder": "#5c5404",
+    "activityBar.background": "#e10af5",
+    "activityBar.foreground": "#e7e7e7",
+    "activityBar.inactiveForeground": "#e7e7e799",
+    "activityBarBadge.background": "#5c5404",
+    "activityBarBadge.foreground": "#e7e7e7",
+    "statusBar.background": "#b408c4",
+    "statusBar.border": "#b408c4",
+    "statusBar.foreground": "#e7e7e7",
+    "statusBarItem.hoverBackground": "#e10af5",
+    "titleBar.border": "#b408c4"
   },
   "cSpell.words": [
     "uploader",
     "zustand"
-  ]
+  ],
+  "peacock.color": "#b408c4"
 }

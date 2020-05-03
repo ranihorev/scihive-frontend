@@ -19,7 +19,6 @@ const WelcomeMessage: React.FC = () => {
     <div style={{ padding: '0.2rem 0.7rem' }}>
       <small>
         <p style={{ marginTop: 0 }}>Leave questions and comments for the community by highlighting the text.</p>
-        <p>Want to comment on a figure? Hold ⌥ on Mac or Alt on Windows and drag over it.</p>
         <div
           css={css`
             width: 100%;
@@ -38,8 +37,8 @@ const WelcomeMessage: React.FC = () => {
 };
 
 const HighlightsList: React.FC = () => {
-  const [focusedId, setFocusedId] = React.useState();
-  const [hideQuoteHighlights, setHideQuoteHighlights] = React.useState(true);
+  const [focusedId, setFocusedId] = React.useState<string | null>();
+  const [hideQuoteHighlights, setHideQuoteHighlights] = React.useState<boolean>(true);
   const containerRef = React.useRef<HTMLDivElement>(null);
   const highlightsRef = React.useRef<{ [key: string]: React.RefObject<HTMLDivElement> }>({});
   const { sidebarJumpData, highlights, clearSidebarJumpTo } = usePaperStore(
@@ -89,7 +88,7 @@ const HighlightsList: React.FC = () => {
           <GeneralNote />
         </div>
         {highlights.map(highlight => {
-          if (hideQuoteHighlights && !highlight.comment.text) return null;
+          if (hideQuoteHighlights && !highlight.comment) return null;
           return (
             <SidebarHighlightItem
               key={highlight.id}

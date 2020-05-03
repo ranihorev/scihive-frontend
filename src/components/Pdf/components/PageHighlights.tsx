@@ -2,7 +2,6 @@
 import { css, jsx } from '@emotion/core';
 import { Paper } from '@material-ui/core';
 import copy from 'clipboard-copy';
-import { pick } from 'lodash';
 import React from 'react';
 import { toast } from 'react-toastify';
 import shallow from 'zustand/shallow';
@@ -18,11 +17,11 @@ import {
 } from '../../../models';
 import { usePaperStore } from '../../../stores/paper';
 import { presets } from '../../../utils';
+import { EditHighlight } from '../../EditHighlight';
 import { Popup } from '../../Popup';
 import { TextLinkifyLatex } from '../../TextLinkifyLatex';
 import AreaHighlight from './AreaHighlight';
 import Highlight from './Highlight';
-import { EditHighlight } from '../../EditHighlight';
 
 const ActionButton: React.FC<{ onClick: () => void; icon: string }> = ({ onClick, icon }) => (
   <span
@@ -49,7 +48,7 @@ interface PopupContentProps extends T_Highlight {
 }
 
 const PopupContent: React.FC<PopupContentProps> = ({ content, visibility, comment, canEdit, id, onResize, onHide }) => {
-  const contentText = (content && content.text) || '';
+  const contentText = content || '';
   const hasContent = Boolean(contentText);
   const [isEditOpen, setIsEditOpen] = React.useState(false);
   const { removeHighlight, updateHighlight } = usePaperStore(state => {
@@ -61,12 +60,12 @@ const PopupContent: React.FC<PopupContentProps> = ({ content, visibility, commen
   React.useEffect(() => {
     onResize && onResize();
   }, [onResize, isEditOpen]);
-  const hasComment = Boolean(comment && comment.text);
+  const hasComment = Boolean(comment);
   if (![hasComment, hasContent, removeHighlight].some(Boolean)) return null;
   if (isEditOpen) {
     return (
       <EditHighlight
-        text={comment.text}
+        text={comment}
         onSubmit={data => {
           updateHighlight(id, data)
             .then(() => {
@@ -84,7 +83,7 @@ const PopupContent: React.FC<PopupContentProps> = ({ content, visibility, commen
       <div css={presets.col}>
         {hasComment && (
           <div>
-            <TextLinkifyLatex text={comment.text} />
+            <TextLinkifyLatex text={comment} />
           </div>
         )}
         <div
@@ -125,24 +124,11 @@ interface SingleHighlight {
 
 const SingleHighlight: React.FC<SingleHighlight> = React.memo(
   ({ highlight, isScrolledTo, screenshot, viewportPosition, onHighlightClick }) => {
-    const isTextHighlight = !(highlight.content && highlight.content.image);
-
-    const component = isTextHighlight ? (
+    const component = (
       <Highlight
         isScrolledTo={isScrolledTo}
         position={viewportPosition}
         onClick={() => {
-          if (!isValidHighlight(highlight)) return;
-          onHighlightClick(highlight.id);
-        }}
-      />
-    ) : (
-      <AreaHighlight
-        isScrolledTo={isScrolledTo}
-        position={viewportPosition}
-        onChange={(boundingRect: T_LTWH) => {}}
-        onClick={(event: React.MouseEvent) => {
-          event.stopPropagation();
           if (!isValidHighlight(highlight)) return;
           onHighlightClick(highlight.id);
         }}

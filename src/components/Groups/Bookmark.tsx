@@ -9,19 +9,15 @@ import Color from 'color';
 import { isEmpty } from 'lodash';
 import React from 'react';
 import shallow from 'zustand/shallow';
-import { AddToListIcon } from '../../icons/addToList';
 import { Group } from '../../models';
 import { useUserStore } from '../../stores/user';
 import { AddRemoveBookmark, AddRemovePaperToGroup } from '../../stores/utils';
 import { presets } from '../../utils';
-import { BASE_GROUP_COLOR, COLORS, GROUP_COLORS, smallIconPadding } from '../../utils/presets';
-import { ArrowTooltip } from '../ArrowTooltip';
+import { BASE_GROUP_COLOR, COLORS, GROUP_COLORS, pickRandomColor, smallIconPadding } from '../../utils/presets';
 import { PopoverMenu } from '../PopoverMenu';
 import { EditGroup } from './EditGroup';
 
 interface BookmarkProps {
-  isBookmarked: boolean;
-  setBookmark: (props: AddRemoveBookmark) => void;
   updatePaperGroup: (props: AddRemovePaperToGroup) => void;
   color?: string | undefined;
   size?: number;
@@ -31,23 +27,19 @@ interface BookmarkProps {
   type: 'single' | 'list';
 }
 
-const NewGroup: React.FC = () => {
-  const [value, setValue] = React.useState('');
+const NewGroup: React.FC<{ value: string; setValue: React.Dispatch<string> }> = ({ value, setValue }) => {
   const createGroup = useUserStore(state => state.newGroup);
 
   const submitGroup = () => {
     if (isEmpty(value)) return;
-    createGroup({ name: value, onSuccessCb: () => setValue('') });
+    createGroup({ name: value, color: pickRandomColor(), onSuccessCb: () => setValue('') });
   };
   return (
-    <ListItem
-      css={css`
-        border-top: 1px solid #cecece;
-      `}
-    >
+    <ListItem css={{ paddingTop: 12 }}>
       <Input
         value={value}
         placeholder="New list"
+        autoFocus
         onChange={e => {
           setValue(e.target.value);
         }}
@@ -60,10 +52,11 @@ const NewGroup: React.FC = () => {
       <i
         className="fas fa-plus"
         css={css`
-          font-size: 17px;
+          font-size: 14px;
           cursor: pointer;
           margin-left: 5px;
           margin-right: 2px;
+          padding: 4px 0;
           color: #a5a5a5;
         `}
         onClick={() => submitGroup()}
@@ -89,7 +82,7 @@ const baseGroupCss = css`
   border-radius: 4px;
   font-size: 13px;
   min-height: 20px;
-  padding: 7px;
+  padding: 5px 7px;
 `;
 
 const GroupRender: React.FC<GroupRenderProps> = ({ group, selected, paperId, updatePaperGroup, onEdit }) => {
@@ -153,9 +146,45 @@ const GroupRender: React.FC<GroupRenderProps> = ({ group, selected, paperId, upd
   );
 };
 
+interface GroupListProps extends Pick<BookmarkProps, 'selectedGroupIds' | 'updatePaperGroup' | 'paperId'> {
+  setGroupInEdit: React.Dispatch<Group | undefined>;
+}
+
+const GroupsList: React.FC<GroupListProps> = ({ selectedGroupIds, updatePaperGroup, setGroupInEdit, paperId }) => {
+  const [newGroupValue, setNewGroupValue] = React.useState('');
+  const groups = useUserStore(state => state.groups);
+  return (
+    <React.Fragment>
+      <NewGroup value={newGroupValue} setValue={setNewGroupValue} />
+      <List
+        dense
+        css={css`
+          max-height: 250px;
+          overflow-y: auto;
+          width: 100%;
+          padding-top: 4px;
+        `}
+      >
+        {groups
+          .filter(group => new RegExp(`^${newGroupValue}`, 'i').test(group.name))
+          .map(group => {
+            const selected = selectedGroupIds.some(id => id === group.id);
+            return (
+              <GroupRender
+                key={group.id}
+                {...{ group, paperId, selected, updatePaperGroup }}
+                onEdit={() => setGroupInEdit(group)}
+              />
+            );
+          })}
+      </List>
+    </React.Fragment>
+  );
+};
+
+const hint = 'Organize your papers in collections and share them with collaborators';
+
 const Bookmark: React.FC<BookmarkProps> = ({
-  isBookmarked,
-  setBookmark,
   updatePaperGroup,
   selectedGroupIds,
   paperId,
@@ -163,17 +192,14 @@ const Bookmark: React.FC<BookmarkProps> = ({
   size = 18,
   type,
 }) => {
-  const { groups, isLoggedIn, toggleLoginModal } = useUserStore(
-    state => ({ groups: state.groups, toggleLoginModal: state.toggleLoginModal, isLoggedIn: Boolean(state.userData) }),
+  const { isLoggedIn, toggleLoginModal } = useUserStore(
+    state => ({ toggleLoginModal: state.toggleLoginModal, isLoggedIn: Boolean(state.userData) }),
     shallow,
   );
 
   const [isOpen, setIsOpen] = React.useState(false);
   const [groupInEdit, setGroupInEdit] = React.useState<Group | undefined>(undefined);
   const anchorRef = React.useRef<HTMLDivElement>(null);
-
-  const timeoutId = React.useRef<NodeJS.Timeout>();
-  const [isListsTooltipOpen, setIsListsTooltipOpen] = React.useState(false);
 
   const onListsClick = (event: React.MouseEvent) => {
     if (!isLoggedIn) {
@@ -183,31 +209,7 @@ const Bookmark: React.FC<BookmarkProps> = ({
     setIsOpen(true);
   };
 
-  const clearTimeoutHelper = () => {
-    if (timeoutId.current !== undefined) {
-      clearTimeout(timeoutId.current);
-      timeoutId.current = undefined;
-    }
-  };
-
-  React.useEffect(() => {
-    return () => clearTimeoutHelper();
-  }, []);
-
-  const setBookmarkWrapper = () => {
-    if (!isLoggedIn) {
-      toggleLoginModal('Please log in to save manage lists and bookmarks');
-      return;
-    }
-    setIsListsTooltipOpen(true);
-
-    timeoutId.current = setTimeout(() => {
-      setIsListsTooltipOpen(false);
-    }, 5000);
-    setBookmark({ paperId, checked: !isBookmarked });
-  };
-
-  const Star = isBookmarked ? StarIcon : StarBorderIcon;
+  const Star = isEmpty(selectedGroupIds) ? StarBorderIcon : StarIcon;
 
   return (
     <div
@@ -216,34 +218,11 @@ const Bookmark: React.FC<BookmarkProps> = ({
         flex-direction: ${type === 'single' ? 'row-reverse' : 'column'};
       `}
     >
-      <div {...(!isBookmarked ? { 'data-rh': 'Add to my library' } : {})} data-rh-at="left">
-        <IconButton onClick={() => setBookmarkWrapper()} buttonRef={anchorRef} size="small">
+      <div data-rh={hint} data-rh-at="left">
+        <IconButton onClick={onListsClick} buttonRef={anchorRef} size="small">
           <Star style={{ width: size, height: size, color, padding: smallIconPadding }} />
         </IconButton>
       </div>
-      {isBookmarked && (
-        <div {...(timeoutId.current === undefined ? { 'data-rh': 'Add to collection' } : {})} data-rh-at="left">
-          <ArrowTooltip
-            open={isListsTooltipOpen}
-            disableFocusListener
-            disableHoverListener
-            disableTouchListener
-            placement={type === 'list' ? 'left' : 'bottom'}
-            title="Add to collection"
-          >
-            <IconButton onClick={onListsClick} buttonRef={anchorRef} size="small">
-              <AddToListIcon
-                style={css`
-                  width: ${size}px;
-                  height: ${size}px;
-                  padding: ${smallIconPadding}px;
-                `}
-                fill={color}
-              />
-            </IconButton>
-          </ArrowTooltip>
-        </div>
-      )}
       <div />
       <PopoverMenu
         open={isOpen}
@@ -257,42 +236,7 @@ const Bookmark: React.FC<BookmarkProps> = ({
         {groupInEdit ? (
           <EditGroup group={groupInEdit} onFinishEdit={() => setGroupInEdit(undefined)} />
         ) : (
-          <React.Fragment>
-            <List
-              dense
-              css={css`
-                max-height: 250px;
-                overflow-y: auto;
-                width: 100%;
-              `}
-            >
-              {isEmpty(groups) && (
-                <ListItem>
-                  <div
-                    css={css`
-                      font-size: 14px;
-                      color: #333;
-                      line-height: 1.5;
-                    `}
-                  >
-                    Add lists to organize your papers according to topics or collaborators you wish to share the list
-                    with
-                  </div>
-                </ListItem>
-              )}
-              {groups.map(group => {
-                const selected = selectedGroupIds.some(id => id === group.id);
-                return (
-                  <GroupRender
-                    key={group.id}
-                    {...{ group, paperId, selected, updatePaperGroup }}
-                    onEdit={() => setGroupInEdit(group)}
-                  />
-                );
-              })}
-            </List>
-            <NewGroup />
-          </React.Fragment>
+          <GroupsList {...{ updatePaperGroup, selectedGroupIds, setGroupInEdit, paperId }} />
         )}
       </PopoverMenu>
     </div>

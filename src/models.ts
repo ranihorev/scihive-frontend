@@ -49,20 +49,13 @@ export interface Visibility {
 
 export interface T_NewHighlight {
   position: T_ScaledPosition;
-  content: {
-    text?: string;
-    image?: string;
-  };
-  comment: {
-    text: string;
-  };
+  content: string;
+  comment: string;
   visibility: Visibility;
 }
 
 export interface NewGeneralHighlight {
-  comment: {
-    text: string;
-  };
+  comment: string;
   visibility: Visibility;
   isGeneral: true;
 }
@@ -187,18 +180,20 @@ export interface TwitterLink {
   score: number;
 }
 
-export interface PaperListItem {
-  _id: string;
-  saved_in_library: boolean;
-  comments_count: number;
-  twtr_score: number;
-  twtr_links: TwitterLink[];
-  bookmarks_count: number;
-  github: CodeMeta;
+export interface BasePaperData {
+  id: string;
   title: string;
+  abstract: string;
   authors: { name: string }[];
   time_published: string;
-  summary: string;
+}
+
+export interface PaperListItem extends BasePaperData {
+  comments_count: number;
+  twitter_score: number;
+  twitter_links?: TwitterLink[];
+  num_stars: number;
+  github: CodeMeta;
   groups: string[];
 }
 

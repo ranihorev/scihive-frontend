@@ -87,7 +87,7 @@ const Tip: React.FC<TipProps> = ({ updateTipPosition, onMouseDown = () => {}, is
     setCommentVisibilitySettings(visibility);
     if (tempHighlight) {
       addHighlight(paperId, {
-        comment: { text },
+        comment: text,
         visibility,
         content: tempHighlight.content,
         position: tempHighlight.position,
@@ -122,7 +122,7 @@ const Tip: React.FC<TipProps> = ({ updateTipPosition, onMouseDown = () => {}, is
               onClick={async () => {
                 if (!tempHighlight) return;
                 const data: T_NewHighlight = {
-                  comment: { text: '' },
+                  comment: '',
                   visibility: commentVisibility,
                   content: tempHighlight.content,
                   position: tempHighlight.position,

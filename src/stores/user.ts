@@ -58,11 +58,11 @@ const stateAndActions = (set: NamedSetState<UserState>, get: GetState<UserState>
         })
         .catch(e => console.warn(e.message));
     },
-    newGroup: (payload: { name: string; finallyCb?: () => void; onSuccessCb?: () => void }) => {
-      const { name, onSuccessCb, finallyCb } = payload;
+    newGroup: (payload: { name: string; color?: GroupColor; finallyCb?: () => void; onSuccessCb?: () => void }) => {
+      const { name, color, onSuccessCb, finallyCb } = payload;
       track('newGroup');
       return axios
-        .post('/groups/new', { name })
+        .post('/groups/new', { name, color })
         .then(res => {
           updateGroups(res.data, 'newGroup');
           onSuccessCb && onSuccessCb();

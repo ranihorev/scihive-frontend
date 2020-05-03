@@ -7,7 +7,7 @@ import { sortBy } from 'lodash';
 
 interface Props {
   twtr_score: number;
-  twtr_links: TwitterLink[];
+  twtr_links?: TwitterLink[];
   iconCss: SerializedStyles;
 }
 

@@ -43,11 +43,7 @@ const PdfViewer: React.FC<PdfViewerProps> = ({ url, setReferencePopoverState }) 
   return (
     <React.Fragment>
       {status === STATUS.SUCCESS && pdfDocument && (
-        <PdfAnnotator
-          pdfDocument={pdfDocument}
-          enableAreaSelection={event => event.altKey}
-          setReferencePopoverState={setReferencePopoverState}
-        />
+        <PdfAnnotator pdfDocument={pdfDocument} setReferencePopoverState={setReferencePopoverState} />
       )}
     </React.Fragment>
   );

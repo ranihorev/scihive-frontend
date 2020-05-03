@@ -1,5 +1,6 @@
 /** @jsx jsx */
 import { css } from '@emotion/core';
+import { random } from 'lodash';
 
 export const row = css`
   display: flex;
@@ -110,16 +111,29 @@ export const GROUP_COLORS = {
   YELLOW: '#F7D500',
   ORANGE: '#FF851B',
   RED: '#FF4136',
-  MAROON: '#a4195e',
-  FUCHSIA: '#F012BE',
-  PURPLE: '#B10DC9',
+  MAROON: '#dd5b9c',
+  FUCHSIA: '#FF4DD7',
+  PURPLE: '#B233C5',
   GRAY: '#717171',
   SILVER: '#C8C8C8',
 };
 
 export const BASE_GROUP_COLOR: GroupColor = 'SILVER';
 
-export const getGroupColor = (color: GroupColor | undefined) => GROUP_COLORS[color || BASE_GROUP_COLOR];
+export const pickRandomColor = (): GroupColor => {
+  const keys = Object.keys(GROUP_COLORS) as GroupColor[];
+  const idx = random(0, keys.length - 1);
+  return keys[idx];
+};
+
+export const getGroupColor = (color: GroupColor | undefined) => {
+  const hexColor = GROUP_COLORS[color || BASE_GROUP_COLOR];
+  if (hexColor) {
+    return hexColor;
+  } else {
+    return GROUP_COLORS[BASE_GROUP_COLOR];
+  }
+};
 
 export type GroupColor = keyof typeof GROUP_COLORS;
 

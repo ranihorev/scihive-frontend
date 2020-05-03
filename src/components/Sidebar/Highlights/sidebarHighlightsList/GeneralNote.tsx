@@ -10,12 +10,12 @@ import { PopoverMenu } from '../../../PopoverMenu';
 
 export const GeneralNote: React.FC = () => {
   const ref = React.useRef<HTMLButtonElement>(null);
-  const { commentVisibility, addHighlight, paperId } = usePaperStore(
-    state => pick(state, ['commentVisibility', 'addHighlight', 'paperId']),
+  const { commentVisibility, addHighlight, id } = usePaperStore(
+    state => pick(state, ['commentVisibility', 'addHighlight', 'id']),
     shallow,
   );
   const [isOpen, setIsOpen] = React.useState(false);
-  if (!paperId) return null;
+  if (!id) return null;
   return (
     <>
       <Button
@@ -39,7 +39,7 @@ export const GeneralNote: React.FC = () => {
       >
         <EditHighlight
           onSubmit={data => {
-            addHighlight(paperId, { visibility: data.visibility, comment: { text: data.text }, isGeneral: true })
+            addHighlight(id, { visibility: data.visibility, comment: data.text, isGeneral: true })
               .then(() => {
                 setIsOpen(false);
               })

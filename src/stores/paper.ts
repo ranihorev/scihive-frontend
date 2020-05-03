@@ -19,25 +19,13 @@ import {
   TempHighlight,
   T_Highlight,
   Visibility,
+  BasePaperData,
 } from '../models';
 import { track } from '../Tracker';
-import {
-  AddRemoveBookmark,
-  addRemoveBookmarkHelper,
-  AddRemovePaperToGroup,
-  addRemovePaperToGroupHelper,
-  createWithDevtools,
-  NamedSetState,
-} from './utils';
+import { AddRemovePaperToGroup, addRemovePaperToGroupHelper, createWithDevtools, NamedSetState } from './utils';
 
-export interface PaperState {
-  paperId?: string;
-  title?: string;
+export interface PaperState extends BasePaperData {
   url?: string;
-  authors: { name: string }[];
-  date?: string;
-  summary?: string;
-  isBookmarked: boolean;
   sections?: Section[];
   references: References;
   acronyms: Acronyms;
@@ -56,9 +44,13 @@ export interface PaperState {
 }
 
 const initialState: PaperState = {
+  id: '',
+  url: '',
+  title: '',
+  abstract: '',
+  time_published: '',
   authors: [],
   readingProgress: 0,
-  isBookmarked: false,
   references: {},
   highlights: [],
   hiddenHighlights: [],
@@ -72,9 +64,8 @@ const initialState: PaperState = {
 interface FetchPaperResponse {
   authors: { name: string }[];
   time_published?: string;
-  summary?: string;
+  abstract?: string;
   url: string;
-  saved_in_library: boolean;
   title: string;
   code?: CodeMeta;
   groups: string[];
@@ -96,15 +87,10 @@ const sortHighlights = (highlights: AllHighlight[]): AllHighlight[] => {
 };
 
 const stateAndActions = (set: NamedSetState<PaperState>, get: GetState<PaperState>) => {
-  const refactorPaperResponse = (data: FetchPaperResponse): Partial<PaperState> => {
-    return {
-      date: data.time_published,
-      ...pick(data, ['title', 'summary', 'authors']),
-    };
-  };
   const fetchComments = async (paperId: string) => {
     try {
       const res = await axios.get(`/paper/${paperId}/comments`);
+      console.log(res.data);
       set({ highlights: sortHighlights(res.data.comments) });
     } catch (err) {
       console.warn(err.response);
@@ -158,15 +144,6 @@ const stateAndActions = (set: NamedSetState<PaperState>, get: GetState<PaperStat
         'updateGroups',
       );
     },
-    updateBookmark: async ({ paperId, checked }: AddRemoveBookmark) => {
-      try {
-        addRemoveBookmarkHelper({ paperId, checked });
-      } catch (err) {
-        console.log(err);
-        return;
-      }
-      set({ isBookmarked: checked }, 'updateBookmark');
-    },
     clearPaper: () => set(initialState, 'clearPaper'),
     updateReadingProgress: (progress: number) => set({ readingProgress: progress }),
     setPaperData: (data: Partial<PaperState>) => set(data, 'setPaperData'),
@@ -185,7 +162,7 @@ const stateAndActions = (set: NamedSetState<PaperState>, get: GetState<PaperStat
         try {
           const response = await axios.post<{ comment: T_Highlight }>(`/paper/${paperId}/new_comment`, highlight);
           const newHighlight = response.data.comment;
-          track(highlight.comment.text ? 'newComment' : 'newHighlight');
+          track(highlight.comment ? 'newComment' : 'newHighlight');
           set(
             state => ({
               highlights: sortHighlights([...state.highlights, newHighlight]),
@@ -201,7 +178,7 @@ const stateAndActions = (set: NamedSetState<PaperState>, get: GetState<PaperStat
       });
     },
     removeHighlight: (highlightId: string) => {
-      const paperId = get().paperId;
+      const paperId = get().id;
       if (!paperId) {
         console.warn('Paper id is missing');
         return;
@@ -216,7 +193,7 @@ const stateAndActions = (set: NamedSetState<PaperState>, get: GetState<PaperStat
     updateHighlight: (highlightId: string, data: EditHighlightData) => {
       return new Promise(async (resolve, reject) => {
         try {
-          const paperId = get().paperId;
+          const paperId = get().id;
           if (!paperId) reject('Paper id is missing');
           const res = await axios.patch<{ comment: T_Highlight }>(`/paper/${paperId}/comment/${highlightId}`, {
             comment: data.text,
@@ -233,7 +210,7 @@ const stateAndActions = (set: NamedSetState<PaperState>, get: GetState<PaperStat
     replyToHighlight: (highlightId: string, replyText: string) => {
       return new Promise(async (resolve, reject) => {
         try {
-          const paperId = get().paperId;
+          const paperId = get().id;
           if (!paperId) reject('Paper id is missing');
           const res = await axios.post(`/paper/${paperId}/comment/${highlightId}/reply`, {
             text: replyText,
@@ -250,12 +227,11 @@ const stateAndActions = (set: NamedSetState<PaperState>, get: GetState<PaperStat
       const { data } = await axios.get<FetchPaperResponse>(`/paper/${paperId}`);
       const newState: Partial<PaperState> = {
         url: data.url,
-        isBookmarked: data.saved_in_library,
         codeMeta: data.code,
         groupIds: data.groups,
         isEditable: data.is_editable,
-        paperId,
-        ...refactorPaperResponse(data),
+        id: paperId,
+        ...pick(data, ['id', 'time_published', 'title', 'abstract', 'authors']),
       };
 
       if (selectedGroupId) {
@@ -268,13 +244,13 @@ const stateAndActions = (set: NamedSetState<PaperState>, get: GetState<PaperStat
       return data;
     },
     editPaper: async (data: FileMetadata) => {
-      const paperId = get().paperId;
+      const paperId = get().id;
       if (!paperId) {
         console.warn('paper id is missing');
         return;
       }
       const { data: respData } = await axios.post<FetchPaperResponse>(`/paper/${paperId}/edit`, data);
-      const newData = pick(refactorPaperResponse(respData), ['title', 'authors', 'date', 'summary']);
+      const newData = pick(respData, ['time_published', 'title', 'abstract', 'authors']);
       set(newData, 'editPaper');
     },
     setSidebarJumpTo: (jumpData: SidebarCommentJump) => set({ sidebarJumpData: jumpData }, 'jumpToSidebar'),

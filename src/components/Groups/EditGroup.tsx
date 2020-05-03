@@ -1,8 +1,9 @@
 /** @jsx jsx */
 import { css, jsx } from '@emotion/core';
-import { Button, TextField } from '@material-ui/core';
+import { Button, TextField, IconButton } from '@material-ui/core';
 import DoneIcon from '@material-ui/icons/Done';
 import Color from 'color';
+import { pick } from 'lodash';
 import React from 'react';
 import { Group } from '../../models';
 import { useUserStore } from '../../stores/user';
@@ -17,7 +18,7 @@ export const EditGroup: React.FC<EditGroupProps> = ({ group, onFinishEdit }) => 
   const colorMargin = 10;
   const [name, setName] = React.useState(group.name);
   const [selectedColor, setSelectedColor] = React.useState<presets.GroupColor | undefined>(group.color);
-  const editGroup = useUserStore(state => state.editGroup);
+  const { editGroup, deleteGroup } = useUserStore(state => pick(state, ['editGroup', 'deleteGroup']));
 
   return (
     <div
@@ -109,6 +110,16 @@ export const EditGroup: React.FC<EditGroupProps> = ({ group, onFinishEdit }) => 
         >
           Cancel
         </Button>
+        <IconButton
+          size="small"
+          css={{ alignSelf: 'center' }}
+          onClick={() => {
+            deleteGroup(group.id);
+            onFinishEdit();
+          }}
+        >
+          <i className="far fa-trash-alt" css={{ fontSize: 13, padding: 4 }} />
+        </IconButton>
       </div>
     </div>
   );

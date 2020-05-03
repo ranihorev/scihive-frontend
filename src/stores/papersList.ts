@@ -74,26 +74,6 @@ const stateAndActions = (set: NamedSetState<PapersListState>, get: GetState<Pape
         finallyCb();
       }
     },
-    updateBookmark: async ({ paperId, checked }: AddRemoveBookmark) => {
-      try {
-        addRemoveBookmarkHelper({ paperId, checked });
-      } catch (err) {
-        console.log(err);
-        return;
-      }
-      set(
-        produce((draftState: PapersListState) => {
-          for (const paper of draftState.papers) {
-            if (paper._id === paperId) {
-              paper.saved_in_library = checked;
-            }
-          }
-          return draftState;
-        }),
-        'updateBookmark',
-      );
-      document.dispatchEvent(eventsGenerator.updateLibrary({ checked }));
-    },
     updatePaperGroups: (payload: AddRemovePaperToGroup) => {
       try {
         addRemovePaperToGroupHelper(payload);
@@ -104,7 +84,7 @@ const stateAndActions = (set: NamedSetState<PapersListState>, get: GetState<Pape
       set(
         produce((draftState: PapersListState) => {
           for (const paper of draftState.papers) {
-            if (paper._id === payload.paperId) {
+            if (paper.id === payload.paperId) {
               if (payload.shouldAdd) {
                 paper.groups.push(payload.groupId);
               } else {

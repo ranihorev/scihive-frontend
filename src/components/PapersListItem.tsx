@@ -103,7 +103,7 @@ const GroupMarkers: React.FC<{ paperGroupIds: string[]; groups: Group[] }> = ({ 
 };
 
 const PaperMetadata: React.FC<{ paper: PaperListItem }> = ({ paper }) => {
-  const { comments_count, twtr_score, twtr_links, bookmarks_count, github } = paper;
+  const { comments_count, twitter_score, twitter_links, num_stars, github } = paper;
   return (
     <React.Fragment>
       <span data-rh="Paper comments" data-rh-at="top">
@@ -125,11 +125,11 @@ const PaperMetadata: React.FC<{ paper: PaperListItem }> = ({ paper }) => {
             padding: 0 4px;
           `}
         >
-          <i className="fa fa-star" css={metadataCss} /> {bookmarks_count || '0'}
+          <i className="fa fa-star" css={metadataCss} /> {num_stars || '0'}
         </Button>
       </span>
       <div data-rh="Σ Likes, RTs and replies" data-rh-at="top">
-        <TwitterMeta twtr_score={twtr_score} twtr_links={twtr_links} iconCss={metadataCss} />
+        <TwitterMeta twtr_score={twitter_score} twtr_links={twitter_links} iconCss={metadataCss} />
       </div>
       {!isEmpty(github) && (
         <div data-rh="Github stars (by PapersWithCode)" data-rh-at="top">
@@ -161,13 +161,10 @@ const ExpandPaper: React.FC<{ expanded: boolean; handleExpandClick: (e: React.Mo
 );
 
 const PapersListItem: React.FC<PapersListItemProps> = ({ paper, groups, showAbstract = true, showMetadata = true }) => {
-  const { saved_in_library: isBookmarked, github } = paper;
+  const { github } = paper;
   const [expanded, setExpanded] = useState(false);
   const params = useParams<{ groupId?: string }>();
-  const { updatePaperGroups, updateBookmark } = usePapersListStore(
-    state => pick(state, ['updatePaperGroups', 'updateBookmark']),
-    shallow,
-  );
+  const { updatePaperGroups } = usePapersListStore(state => pick(state, ['updatePaperGroups']), shallow);
 
   const handleExpandClick = (e: React.MouseEvent) => {
     e.preventDefault();
@@ -206,7 +203,7 @@ const PapersListItem: React.FC<PapersListItemProps> = ({ paper, groups, showAbst
             `}
           >
             <Link
-              to={`/paper/${paper._id}?${params.groupId ? `list=${params.groupId}` : ``}`}
+              to={`/paper/${paper.id}?${params.groupId ? `list=${params.groupId}` : ``}`}
               css={css`
                 color: #333;
                 font-weight: 500;
@@ -285,12 +282,10 @@ const PapersListItem: React.FC<PapersListItemProps> = ({ paper, groups, showAbst
         `}
       >
         <Bookmark
-          paperId={paper._id}
+          paperId={paper.id}
           size={20}
-          isBookmarked={isBookmarked}
           selectedGroupIds={paper.groups}
           updatePaperGroup={updatePaperGroups}
-          setBookmark={updateBookmark}
           type="list"
         />
       </div>
@@ -314,7 +309,7 @@ const PapersListItem: React.FC<PapersListItemProps> = ({ paper, groups, showAbst
           <CardContent style={{ paddingBottom: 0 }}>
             {expanded ? (
               <div css={paragraphCss}>
-                <Latex>{paper.summary}</Latex>
+                <Latex>{paper.abstract}</Latex>
                 {!isEmpty(github) && (
                   <div
                     css={css`
@@ -343,7 +338,7 @@ const PapersListItem: React.FC<PapersListItemProps> = ({ paper, groups, showAbst
                 element="div"
                 truncateText="…"
                 css={paragraphCss}
-                text={paper.summary}
+                text={paper.abstract}
                 textTruncateChild={
                   <button
                     type="button"

@@ -299,7 +299,7 @@ const PapersList: React.FC = () => {
           }
         >
           {papers.map(p => (
-            <PapersListItem key={p._id} paper={p} groups={groups} showAbstract={!isLibraryOrList} showMetadata={true} />
+            <PapersListItem key={p.id} paper={p} groups={groups} showAbstract={!isLibraryOrList} showMetadata={true} />
           ))}
         </InfiniteScroll>
       </Grid>

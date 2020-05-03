@@ -18,27 +18,8 @@ export const PaperDekstopMenu: React.FC = () => {
   const [anchorEl, setAnchorEl] = React.useState<HTMLElement | null>(null);
   const [shareText, setShareText] = React.useState(DEFAULT_SHARE_TEXT);
   const timeoutId = React.useRef<NodeJS.Timeout | null>(null);
-  const {
-    paperId,
-    url,
-    isEditable,
-    codeMeta,
-    groupIds,
-    updatePaperGroups,
-    updateBookmark,
-    isBookmarked,
-  } = usePaperStore(
-    state =>
-      pick(state, [
-        'url',
-        'paperId',
-        'isEditable',
-        'codeMeta',
-        'groupIds',
-        'updatePaperGroups',
-        'updateBookmark',
-        'isBookmarked',
-      ]),
+  const { id, url, isEditable, codeMeta, groupIds, updatePaperGroups } = usePaperStore(
+    state => pick(state, ['url', 'id', 'isEditable', 'codeMeta', 'groupIds', 'updatePaperGroups']),
     shallow,
   );
   const isMenuOpen = Boolean(anchorEl);
@@ -57,14 +38,14 @@ export const PaperDekstopMenu: React.FC = () => {
     setAnchorEl(null);
   };
   // TODO: replace isEditable with proper metadata from the backend
-  if (!paperId) return null;
+  if (!id) return null;
   return (
     <React.Fragment>
       <ArrowTooltip title={shareText}>
         <IconButton
           size="small"
           onClick={() => {
-            copy(`${window.location.origin}/paper/${paperId}/`);
+            copy(`${window.location.origin}/paper/${id}/`);
             if (timeoutId.current) clearTimeout(timeoutId.current);
             setShareText('Link was copied to clipboard');
             setTimeout(() => {
@@ -76,12 +57,10 @@ export const PaperDekstopMenu: React.FC = () => {
         </IconButton>
       </ArrowTooltip>
       <Bookmark
-        paperId={paperId}
+        paperId={id}
         color="white"
-        isBookmarked={isBookmarked}
         selectedGroupIds={groupIds}
         updatePaperGroup={updatePaperGroups}
-        setBookmark={updateBookmark}
         size={23}
         type="single"
       />
@@ -101,22 +80,16 @@ export const PaperDekstopMenu: React.FC = () => {
             </a>
           )}
           <a
-            href={isEditable ? url : `https://arxiv.org/pdf/${paperId}.pdf?download=1`} // download=1 ensures that the extension will ignore the link
+            href={isEditable ? url : `https://arxiv.org/pdf/${id}.pdf?download=1`} // download=1 ensures that the extension will ignore the link
             css={simpleLink}
             target="_blank"
             rel="noopener noreferrer"
-            download={`${paperId}.pdf`}
+            download={`${id}.pdf`}
           >
             <MenuItem onClick={handleMenuClose}>PDF</MenuItem>
           </a>
           {!isEditable && (
-            <a
-              href={`https://arxiv.org/abs/${paperId}`}
-              css={simpleLink}
-              target="_blank"
-              rel="noopener noreferrer"
-              download
-            >
+            <a href={`https://arxiv.org/abs/${id}`} css={simpleLink} target="_blank" rel="noopener noreferrer" download>
               <MenuItem onClick={handleMenuClose}>Abstract</MenuItem>
             </a>
           )}
@@ -127,19 +100,19 @@ export const PaperDekstopMenu: React.FC = () => {
 };
 
 export const PaperMobileMenu = () => {
-  const { paperId, codeMeta, isEditable, url } = usePaperStore(
-    state => pick(state, ['paperId', 'codeMeta', 'isEditable', 'url']),
+  const { id, codeMeta, isEditable, url } = usePaperStore(
+    state => pick(state, ['id', 'codeMeta', 'isEditable', 'url']),
     shallow,
   );
 
   const res = [
     <a
       key="pdf"
-      href={isEditable ? url : `https://arxiv.org/pdf/${paperId}.pdf?download=1`}
+      href={isEditable ? url : `https://arxiv.org/pdf/${id}.pdf?download=1`}
       css={simpleLink}
       target="_blank"
       rel="noopener noreferrer"
-      download={`${paperId}.pdf`}
+      download={`${id}.pdf`}
     >
       <MenuItem>Download PDF</MenuItem>
     </a>,
@@ -148,7 +121,7 @@ export const PaperMobileMenu = () => {
     res.push(
       <a
         key="latex"
-        href={`https://arxiv.org/e-print/${paperId}`}
+        href={`https://arxiv.org/e-print/${id}`}
         css={simpleLink}
         target="_blank"
         rel="noopener noreferrer"

@@ -15,8 +15,8 @@ const sectionCss = css({ marginBottom: 12, lineHeight: 1.4, wordBreak: 'break-wo
 
 export const Info: React.FC = () => {
   const [isEditOpen, setIsEditOpen] = React.useState(false);
-  const { title, authors, date, summary, isEditable } = usePaperStore(
-    state => pick(state, ['title', 'authors', 'date', 'summary', 'isEditable']),
+  const { title, authors, time_published, abstract, isEditable } = usePaperStore(
+    state => pick(state, ['title', 'authors', 'time_published', 'abstract', 'isEditable']),
     shallow,
   );
   return (
@@ -49,11 +49,11 @@ export const Info: React.FC = () => {
           </div>
           <div css={sectionCss}>
             <div css={{ fontWeight: 500 }}>Published</div>
-            {moment.utc(date).format('MMM DD, YYYY')}
+            {time_published && moment.utc(time_published).format('MMM DD, YYYY')}
           </div>
           <div css={sectionCss}>
-            <div css={{ fontWeight: 500 }}>Summary</div>
-            <Latex>{summary || ''}</Latex>
+            <div css={{ fontWeight: 500 }}>Abstract</div>
+            <Latex>{abstract || ''}</Latex>
           </div>
         </div>
       </div>

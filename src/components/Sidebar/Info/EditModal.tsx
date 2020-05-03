@@ -20,8 +20,8 @@ export const EditModal: React.FC<Props> = ({ isOpen, closeModal }) => {
       title: state.title || '',
       md5: '',
       authors: state.authors,
-      date: state.date || new Date().toString(),
-      abstract: state.summary || '',
+      date: state.time_published || new Date().toString(),
+      abstract: state.abstract || '',
     }),
     shallow,
   );

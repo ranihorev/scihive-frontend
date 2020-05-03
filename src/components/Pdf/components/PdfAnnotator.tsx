@@ -93,7 +93,7 @@ const pdfViewerCss = css`
 `;
 
 interface PdfAnnotatorProps {
-  enableAreaSelection: (event: MouseEvent) => boolean;
+  enableAreaSelection?: (event: MouseEvent) => boolean;
   setReferencePopoverState?: (props: ReferencesPopoverState) => void;
   pdfDocument: PDFDocumentProxy;
 }
@@ -179,9 +179,7 @@ const PdfAnnotator: React.FC<PdfAnnotatorProps> = ({ enableAreaSelection, setRef
 
     const viewportPosition = { boundingRect, rects, pageNumber: page.number };
 
-    const content: T_NewHighlight['content'] = {
-      text: newRange.toString(),
-    };
+    const content: T_NewHighlight['content'] = newRange.toString();
     renderTipAtPosition(viewportPosition, content);
   }, 30);
 
@@ -223,27 +221,6 @@ const PdfAnnotator: React.FC<PdfAnnotatorProps> = ({ enableAreaSelection, setRef
       bottom: boundingRect.top + page.node.offsetTop + boundingRect.height,
     };
     setTempHighlight({ position: scaledPosition, content, size });
-  };
-
-  const onAreaSelection = (startTarget: HTMLElement, boundingRect: T_LTWH) => {
-    const page = getPageFromElement(startTarget);
-
-    if (!page) return;
-
-    const pageBoundingRect = {
-      ...boundingRect,
-      top: boundingRect.top - page.node.offsetTop,
-      left: boundingRect.left - page.node.offsetLeft,
-    };
-
-    const viewportPosition = {
-      boundingRect: pageBoundingRect,
-      rects: [],
-      pageNumber: page.number,
-    };
-
-    const image = screenshot(pageBoundingRect, page.number);
-    renderTipAtPosition(viewportPosition, { image });
   };
 
   const scaledPositionToViewport = ({ pageNumber, boundingRect, rects, usePdfCoordinates }: T_ScaledPosition) => {
@@ -497,19 +474,6 @@ const PdfAnnotator: React.FC<PdfAnnotatorProps> = ({ enableAreaSelection, setRef
         <div className="pdfViewer" />
         <TipContainer isOnboarding={isOnboarding.current} />
         <div ref={highlightLayerNode} />
-        {typeof enableAreaSelection === 'function' ? (
-          <MouseSelection
-            onDragStart={() => toggleTextSelection(true)}
-            onDragEnd={() => toggleTextSelection(false)}
-            onChange={() => {}}
-            shouldStart={event =>
-              enableAreaSelection(event) &&
-              event.target instanceof HTMLElement &&
-              Boolean(event.target.closest('.page'))
-            }
-            onSelection={onAreaSelection}
-          />
-        ) : null}
       </div>
     </React.Fragment>
   );

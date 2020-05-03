@@ -16,7 +16,7 @@ import get_age from '../../../timeUtils';
 import { ActionIconButton, actionIconCss } from './ActionButton';
 import { Quote } from './Quote';
 
-const visibiltyToIcon: { [key in VisibilityType]: string } = {
+const visibilityToIcon: { [key in VisibilityType]: string } = {
   private: 'fas fa-user-shield',
   public: 'fas fa-globe',
   anonymous: 'fas fa-globe',
@@ -31,7 +31,7 @@ interface CommentProps {
 }
 
 export const SidebarHighlightItem = React.forwardRef<HTMLDivElement, CommentProps>(({ isFocused, highlight }, ref) => {
-  const content = isDirectHighlight(highlight) ? highlight.content : {};
+  const content = isDirectHighlight(highlight) ? highlight.content : '';
   const [isHover, setIsHover] = React.useState(false);
   const [editMode, setEditMode] = React.useState(false);
   const [showReply, setShowReply] = React.useState(false);
@@ -56,7 +56,7 @@ export const SidebarHighlightItem = React.forwardRef<HTMLDivElement, CommentProp
     return null;
   }
 
-  const hasCommentText = Boolean(highlight.comment.text);
+  const hasCommentText = Boolean(highlight.comment);
 
   return (
     <div
@@ -99,7 +99,7 @@ export const SidebarHighlightItem = React.forwardRef<HTMLDivElement, CommentProp
             placement="bottom"
           >
             <EditHighlight
-              text={highlight.comment.text}
+              text={highlight.comment}
               onSubmit={data => {
                 updateHighlight(highlight.id, data)
                   .then(() => {
@@ -111,20 +111,7 @@ export const SidebarHighlightItem = React.forwardRef<HTMLDivElement, CommentProp
               isTextRequired={false}
             />
           </PopoverMenu>
-          <div>
-            {content.image && (
-              <CardMedia
-                css={css`
-                  height: 0;
-                  padding-top: 56.25%;
-                  border-bottom: solid 1px #bdbdbd;
-                `}
-                image={content.image}
-                title="screenshot"
-              />
-            )}
-            {content.text && !hasCommentText && <Quote text={content.text} />}
-          </div>
+          <div>{content && !hasCommentText && <Quote text={content} />}</div>
 
           <Typography
             component="div"
@@ -132,7 +119,7 @@ export const SidebarHighlightItem = React.forwardRef<HTMLDivElement, CommentProp
               font-size: 0.8rem;
             `}
           >
-            <TextLinkifyLatex text={highlight.comment.text} />
+            <TextLinkifyLatex text={highlight.comment} />
           </Typography>
 
           <React.Fragment>
@@ -179,7 +166,7 @@ export const SidebarHighlightItem = React.forwardRef<HTMLDivElement, CommentProp
                   `}
                 >
                   <Tooltip title={capitalize(highlight.visibility.type)} placement="top">
-                    <i className={visibiltyToIcon[highlight.visibility.type]} css={actionIconCss} />
+                    <i className={visibilityToIcon[highlight.visibility.type]} css={actionIconCss} />
                   </Tooltip>
                 </div>
               )}

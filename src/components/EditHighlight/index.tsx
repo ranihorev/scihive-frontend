@@ -31,17 +31,13 @@ export const EditHighlight: React.FC<Props> = ({ onSubmit, text = '', visibility
   return (
     <form
       css={css`
-        padding: 0px 10px 10px;
+        padding: 5px 10px 10px;
         background: #fff;
         background-clip: padding-box;
         border: 1px solid #e8e8e8;
         border-radius: 4px;
         box-shadow: 0 2px 4px rgba(37, 40, 43, 0.2);
         width: 290px;
-        input[type='submit'] {
-          margin-top: 5px;
-          font-size: large;
-        }
       `}
       onSubmit={event => {
         event.preventDefault();

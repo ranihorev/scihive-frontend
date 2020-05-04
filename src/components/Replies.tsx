@@ -8,6 +8,7 @@ const Replies: React.FC<{ replies: Reply[] }> = ({ replies }) => {
     <div
       css={css`
         border-top: 1px solid #cfcfcf;
+        margin-bottom: 4px;
       `}
     >
       {replies.map((reply, index) => {

@@ -1,8 +1,8 @@
 /** @jsx jsx */
 import { jsx } from '@emotion/core';
+import { ClickAwayListener, MuiThemeProvider, Popper, PopperProps } from '@material-ui/core';
 import React from 'react';
-import { Popper, PopperProps } from '@material-ui/core';
-import { useResizeObserver } from '../utils/hooks';
+import { theme } from '../themes';
 
 interface PopupProps {
   bodyElement: React.ReactElement;
@@ -14,6 +14,7 @@ export const Popup: React.FC<PopupProps> = React.memo(({ bodyElement, popupConte
   const contentRef = React.useRef<HTMLElement>(null);
   const popperRef: PopperProps['popperRef'] = React.useRef(null);
   const timeoutRef = React.useRef<NodeJS.Timeout>();
+  const hideOnLeave = React.useRef(true);
   const [isOpen, setIsOpen] = React.useState(false);
   const showPopup = () => {
     if (timeoutRef.current) clearTimeout(timeoutRef.current);
@@ -28,6 +29,12 @@ export const Popup: React.FC<PopupProps> = React.memo(({ bodyElement, popupConte
     return () => timeoutRef.current && clearTimeout(timeoutRef.current);
   }, []);
 
+  React.useEffect(() => {
+    if (!isOpen) {
+      hideOnLeave.current = true;
+    }
+  }, [isOpen]);
+
   const onPopupResize = React.useCallback(() => {
     popperRef.current?.update();
   }, []);
@@ -40,14 +47,18 @@ export const Popup: React.FC<PopupProps> = React.memo(({ bodyElement, popupConte
         ref: contentRef,
       })}
       <Popper open={isOpen} anchorEl={contentRef.current} placement="top" style={{ zIndex: 10 }} popperRef={popperRef}>
-        <span
-          onMouseEnter={() => {
-            if (timeoutRef.current) clearTimeout(timeoutRef.current);
-          }}
-          onMouseLeave={() => hidePopup()}
-        >
-          {React.cloneElement(popupContent, { onResize: onPopupResize, onHide: hidePopup })}
-        </span>
+        <MuiThemeProvider theme={theme}>
+          <ClickAwayListener onClickAway={() => !hideOnLeave.current && hidePopup()}>
+            <span
+              onMouseEnter={() => {
+                if (timeoutRef.current) clearTimeout(timeoutRef.current);
+              }}
+              onMouseLeave={() => hideOnLeave.current && hidePopup()}
+            >
+              {React.cloneElement(popupContent, { onResize: onPopupResize, onHide: hidePopup, hideOnLeave })}
+            </span>
+          </ClickAwayListener>
+        </MuiThemeProvider>
       </Popper>
     </React.Fragment>
   );

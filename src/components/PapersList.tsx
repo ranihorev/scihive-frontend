@@ -108,11 +108,8 @@ const PapersList: React.FC = () => {
       sort: getSortQuery(queryParams),
       q: (queryParams.q as string) || undefined,
       group: groupId || queryParams.group,
+      library: isLibraryMode,
     };
-
-    if (isLibraryMode) {
-      url = '/library';
-    }
 
     setIsLoading(true);
     fetchPapers({ url, requestParams, setHasMorePapers, finallyCb: () => setIsLoading(false) });

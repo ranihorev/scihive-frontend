@@ -89,8 +89,7 @@ const sortHighlights = (highlights: AllHighlight[]): AllHighlight[] => {
 const stateAndActions = (set: NamedSetState<PaperState>, get: GetState<PaperState>) => {
   const fetchComments = async (paperId: string) => {
     try {
-      const res = await axios.get(`/paper/${paperId}/comments`);
-      console.log(res.data);
+      const res = await axios.get<{ comments: AllHighlight[] }>(`/paper/${paperId}/comments`);
       set({ highlights: sortHighlights(res.data.comments) });
     } catch (err) {
       console.warn(err.response);
@@ -162,7 +161,7 @@ const stateAndActions = (set: NamedSetState<PaperState>, get: GetState<PaperStat
         try {
           const response = await axios.post<{ comment: T_Highlight }>(`/paper/${paperId}/new_comment`, highlight);
           const newHighlight = response.data.comment;
-          track(highlight.comment ? 'newComment' : 'newHighlight');
+          track(highlight.text ? 'newComment' : 'newHighlight');
           set(
             state => ({
               highlights: sortHighlights([...state.highlights, newHighlight]),
@@ -184,7 +183,7 @@ const stateAndActions = (set: NamedSetState<PaperState>, get: GetState<PaperStat
         return;
       }
       axios
-        .delete(`/paper/${paperId}/comment/${highlightId}`)
+        .delete(`/paper/comment/${highlightId}`)
         .then(() => {
           set(state => ({ highlights: state.highlights.filter(h => h.id !== highlightId) }), 'removeHighlight');
         })
@@ -195,8 +194,8 @@ const stateAndActions = (set: NamedSetState<PaperState>, get: GetState<PaperStat
         try {
           const paperId = get().id;
           if (!paperId) reject('Paper id is missing');
-          const res = await axios.patch<{ comment: T_Highlight }>(`/paper/${paperId}/comment/${highlightId}`, {
-            comment: data.text,
+          const res = await axios.patch<{ comment: T_Highlight }>(`/paper/comment/${highlightId}`, {
+            text: data.text,
             visibility: data.visibility,
           });
           track('editHighlight');
@@ -210,9 +209,7 @@ const stateAndActions = (set: NamedSetState<PaperState>, get: GetState<PaperStat
     replyToHighlight: (highlightId: string, replyText: string) => {
       return new Promise(async (resolve, reject) => {
         try {
-          const paperId = get().id;
-          if (!paperId) reject('Paper id is missing');
-          const res = await axios.post(`/paper/${paperId}/comment/${highlightId}/reply`, {
+          const res = await axios.post(`/paper/comment/${highlightId}/reply`, {
             text: replyText,
           });
           track('newReply');
@@ -240,7 +237,8 @@ const stateAndActions = (set: NamedSetState<PaperState>, get: GetState<PaperStat
       set(newState, 'setPaper');
       fetchComments(paperId);
       fetchReferences(paperId);
-      fetchAcronyms(paperId);
+      // TODO: add this back once backend is fixed
+      // fetchAcronyms(paperId);
       return data;
     },
     editPaper: async (data: FileMetadata) => {

@@ -45,9 +45,19 @@ const ActionButton: React.FC<{ onClick: () => void; icon: string }> = ({ onClick
 interface PopupContentProps extends T_Highlight {
   onResize?: () => void;
   onHide?: () => void;
+  hideOnLeave?: React.MutableRefObject<boolean>;
 }
 
-const PopupContent: React.FC<PopupContentProps> = ({ content, visibility, comment, canEdit, id, onResize, onHide }) => {
+const PopupContent: React.FC<PopupContentProps> = ({
+  highlighted_text: content,
+  visibility,
+  text: comment,
+  canEdit,
+  id,
+  onResize,
+  onHide,
+  hideOnLeave,
+}) => {
   const contentText = content || '';
   const hasContent = Boolean(contentText);
   const [isEditOpen, setIsEditOpen] = React.useState(false);
@@ -104,7 +114,17 @@ const PopupContent: React.FC<PopupContentProps> = ({ content, visibility, commen
               icon="far fa-copy"
             />
           )}
-          {canEdit && <ActionButton icon="fas fa-pencil-alt" onClick={() => setIsEditOpen(true)} />}
+          {canEdit && (
+            <ActionButton
+              icon="fas fa-pencil-alt"
+              onClick={() => {
+                setIsEditOpen(true);
+                if (hideOnLeave) {
+                  hideOnLeave.current = false;
+                }
+              }}
+            />
+          )}
           {removeHighlight && <ActionButton icon="far fa-trash-alt" onClick={() => removeHighlight(id)} />}
         </div>
       </div>

@@ -2,15 +2,7 @@ import axios from 'axios';
 import produce from 'immer';
 import { GetState } from 'zustand';
 import { Category, PaperListItem } from '../models';
-import { eventsGenerator } from '../utils';
-import {
-  AddRemoveBookmark,
-  addRemoveBookmarkHelper,
-  AddRemovePaperToGroup,
-  addRemovePaperToGroupHelper,
-  createWithDevtools,
-  NamedSetState,
-} from './utils';
+import { AddRemovePaperToGroup, addRemovePaperToGroupHelper, createWithDevtools, NamedSetState } from './utils';
 
 interface PapersListState {
   papers: PaperListItem[];
@@ -35,6 +27,7 @@ export interface RequestParams {
   author: string;
   page_num: number;
   group: string;
+  library: boolean;
 }
 
 interface FetchPapers {
@@ -61,6 +54,7 @@ const stateAndActions = (set: NamedSetState<PapersListState>, get: GetState<Pape
       try {
         const result = await axios.get(url, { params: requestParams });
         const newPapers = result.data.papers;
+        console.log(newPapers);
         // Everytime we load page 0 we assume it's a new query
         if (page === 1) {
           clearPapersHelper();

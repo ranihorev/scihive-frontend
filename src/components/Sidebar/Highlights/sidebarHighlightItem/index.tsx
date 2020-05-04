@@ -1,11 +1,11 @@
 /** @jsx jsx */
 import { css, jsx } from '@emotion/core';
-import { Card, CardContent, CardMedia, Grid, Tooltip, Typography } from '@material-ui/core';
-import { pick } from 'lodash';
+import { Card, CardContent, Grid, Tooltip, Typography } from '@material-ui/core';
+import { isEmpty, pick } from 'lodash';
 import React from 'react';
 import { useHistory } from 'react-router';
 import shallow from 'zustand/shallow';
-import { VisibilityType, AllHighlight, isDirectHighlight } from '../../../../models';
+import { AllHighlight, isDirectHighlight, VisibilityType } from '../../../../models';
 import { usePaperStore } from '../../../../stores/paper';
 import { EditHighlight } from '../../../EditHighlight';
 import NewReply from '../../../NewReply';
@@ -31,7 +31,7 @@ interface CommentProps {
 }
 
 export const SidebarHighlightItem = React.forwardRef<HTMLDivElement, CommentProps>(({ isFocused, highlight }, ref) => {
-  const content = isDirectHighlight(highlight) ? highlight.content : '';
+  const highlightedText = isDirectHighlight(highlight) ? highlight.highlighted_text : '';
   const [isHover, setIsHover] = React.useState(false);
   const [editMode, setEditMode] = React.useState(false);
   const [showReply, setShowReply] = React.useState(false);
@@ -52,11 +52,7 @@ export const SidebarHighlightItem = React.forwardRef<HTMLDivElement, CommentProp
       .catch(err => console.log(err.response));
   };
 
-  if (!content) {
-    return null;
-  }
-
-  const hasCommentText = Boolean(highlight.comment);
+  const hasCommentText = Boolean(highlight.text);
 
   return (
     <div
@@ -99,7 +95,7 @@ export const SidebarHighlightItem = React.forwardRef<HTMLDivElement, CommentProp
             placement="bottom"
           >
             <EditHighlight
-              text={highlight.comment}
+              text={highlight.text}
               onSubmit={data => {
                 updateHighlight(highlight.id, data)
                   .then(() => {
@@ -111,7 +107,7 @@ export const SidebarHighlightItem = React.forwardRef<HTMLDivElement, CommentProp
               isTextRequired={false}
             />
           </PopoverMenu>
-          <div>{content && !hasCommentText && <Quote text={content} />}</div>
+          <div>{highlightedText && !hasCommentText && <Quote text={highlightedText} />}</div>
 
           <Typography
             component="div"
@@ -119,7 +115,7 @@ export const SidebarHighlightItem = React.forwardRef<HTMLDivElement, CommentProp
               font-size: 0.8rem;
             `}
           >
-            <TextLinkifyLatex text={highlight.comment} />
+            <TextLinkifyLatex text={highlight.text} />
           </Typography>
 
           <React.Fragment>
@@ -130,7 +126,7 @@ export const SidebarHighlightItem = React.forwardRef<HTMLDivElement, CommentProp
               `}
             >
               <div>
-                <b>{highlight.user || 'Anonymous'}</b>, <small>{get_age(highlight.createdAt)}</small>
+                <b>{highlight.username || 'Anonymous'}</b>, <small>{get_age(highlight.createdAt)}</small>
               </div>
             </div>
             <Grid
@@ -172,7 +168,7 @@ export const SidebarHighlightItem = React.forwardRef<HTMLDivElement, CommentProp
               )}
             </Grid>
           </React.Fragment>
-          {highlight.replies && <Replies replies={highlight.replies} />}
+          {!isEmpty(highlight.replies) && <Replies replies={highlight.replies} />}
           {showReply && <NewReply onSubmit={submitReply} />}
         </CardContent>
       </Card>

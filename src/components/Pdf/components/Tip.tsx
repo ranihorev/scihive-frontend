@@ -87,9 +87,9 @@ const Tip: React.FC<TipProps> = ({ updateTipPosition, onMouseDown = () => {}, is
     setCommentVisibilitySettings(visibility);
     if (tempHighlight) {
       addHighlight(paperId, {
-        comment: text,
+        text: text,
         visibility,
-        content: tempHighlight.content,
+        highlighted_text: tempHighlight.highlighted_text,
         position: tempHighlight.position,
       });
     }
@@ -122,9 +122,9 @@ const Tip: React.FC<TipProps> = ({ updateTipPosition, onMouseDown = () => {}, is
               onClick={async () => {
                 if (!tempHighlight) return;
                 const data: T_NewHighlight = {
-                  comment: '',
+                  text: '',
                   visibility: commentVisibility,
-                  content: tempHighlight.content,
+                  highlighted_text: tempHighlight.highlighted_text,
                   position: tempHighlight.position,
                 };
                 const highlight = await addHighlight(paperId, data, false);

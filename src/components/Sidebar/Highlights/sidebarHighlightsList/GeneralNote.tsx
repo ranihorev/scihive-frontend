@@ -39,7 +39,7 @@ export const GeneralNote: React.FC = () => {
       >
         <EditHighlight
           onSubmit={data => {
-            addHighlight(id, { visibility: data.visibility, comment: data.text, isGeneral: true })
+            addHighlight(id, { visibility: data.visibility, text: data.text, isGeneral: true })
               .then(() => {
                 setIsOpen(false);
               })

@@ -179,8 +179,8 @@ const PdfAnnotator: React.FC<PdfAnnotatorProps> = ({ enableAreaSelection, setRef
 
     const viewportPosition = { boundingRect, rects, pageNumber: page.number };
 
-    const content: T_NewHighlight['content'] = newRange.toString();
-    renderTipAtPosition(viewportPosition, content);
+    const highlighted_text: T_NewHighlight['highlighted_text'] = newRange.toString();
+    renderTipAtPosition(viewportPosition, highlighted_text);
   }, 30);
 
   const onTextSelectionChange = () => {
@@ -210,7 +210,7 @@ const PdfAnnotator: React.FC<PdfAnnotatorProps> = ({ enableAreaSelection, setRef
     };
   };
 
-  const renderTipAtPosition = (position: T_Position, content: T_NewHighlight['content']) => {
+  const renderTipAtPosition = (position: T_Position, highlighted_text: T_NewHighlight['highlighted_text']) => {
     const { boundingRect, pageNumber } = position;
     const page = { node: viewer.current.getPageView(pageNumber - 1).div };
     const scaledPosition = viewportPositionToScaled(position);
@@ -220,7 +220,7 @@ const PdfAnnotator: React.FC<PdfAnnotatorProps> = ({ enableAreaSelection, setRef
       top: boundingRect.top + page.node.offsetTop,
       bottom: boundingRect.top + page.node.offsetTop + boundingRect.height,
     };
-    setTempHighlight({ position: scaledPosition, content, size });
+    setTempHighlight({ position: scaledPosition, highlighted_text, size });
   };
 
   const scaledPositionToViewport = ({ pageNumber, boundingRect, rects, usePdfCoordinates }: T_ScaledPosition) => {

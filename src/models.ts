@@ -49,13 +49,13 @@ export interface Visibility {
 
 export interface T_NewHighlight {
   position: T_ScaledPosition;
-  content: string;
-  comment: string;
+  highlighted_text: string;
+  text: string;
   visibility: Visibility;
 }
 
 export interface NewGeneralHighlight {
-  comment: string;
+  text: string;
   visibility: Visibility;
   isGeneral: true;
 }
@@ -75,19 +75,20 @@ interface ServerHighlightData {
   id: string;
   createdAt: string;
   replies: Reply[];
-  user: User;
+  username: User;
   canEdit: boolean;
+  isGeneral: boolean;
 }
 
 export interface T_Highlight extends T_NewHighlight, ServerHighlightData {}
-export interface GeneralHighlight extends NewGeneralHighlight, ServerHighlightData {}
+export interface GeneralHighlight extends NewGeneralHighlight, Omit<ServerHighlightData, 'isGeneral'> {}
 export type AllHighlight = T_Highlight | GeneralHighlight;
 export type AllNewHighlight = T_NewHighlight | NewGeneralHighlight;
 
-export const isGeneralHighlight = (h: AllHighlight): h is GeneralHighlight => h.hasOwnProperty('isGeneral');
+export const isGeneralHighlight = (h: AllHighlight): h is GeneralHighlight => h.isGeneral;
 export const isDirectHighlight = (h: AllHighlight): h is T_Highlight => h.hasOwnProperty('position');
 
-export interface TempHighlight extends Pick<T_NewHighlight, 'position' | 'content'> {
+export interface TempHighlight extends Pick<T_NewHighlight, 'position' | 'highlighted_text'> {
   size: { left: number; top: number; bottom: number };
 }
 

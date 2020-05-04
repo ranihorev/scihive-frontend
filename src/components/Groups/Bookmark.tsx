@@ -11,7 +11,7 @@ import React from 'react';
 import shallow from 'zustand/shallow';
 import { Group } from '../../models';
 import { useUserStore } from '../../stores/user';
-import { AddRemoveBookmark, AddRemovePaperToGroup } from '../../stores/utils';
+import { AddRemovePaperToGroup } from '../../stores/utils';
 import { presets } from '../../utils';
 import { BASE_GROUP_COLOR, COLORS, GROUP_COLORS, pickRandomColor, smallIconPadding } from '../../utils/presets';
 import { PopoverMenu } from '../PopoverMenu';

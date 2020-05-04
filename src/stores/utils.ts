@@ -33,14 +33,5 @@ export interface AddRemovePaperToGroup {
 }
 
 export const addRemovePaperToGroupHelper = async ({ paperId, groupId, shouldAdd }: AddRemovePaperToGroup) => {
-  return axios.post(`/groups/group/${groupId}`, { paper_id: paperId, add: Number(shouldAdd) });
-};
-
-export interface AddRemoveBookmark {
-  paperId: string;
-  checked: boolean;
-}
-
-export const addRemoveBookmarkHelper = async (payload: AddRemoveBookmark) => {
-  return await axios.post(`/library/${payload.paperId}/${payload.checked ? 'save' : 'remove'}`);
+  return axios.post(`/groups/group/${groupId}`, { paper_id: paperId, add: shouldAdd });
 };

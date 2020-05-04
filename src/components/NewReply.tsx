@@ -17,6 +17,7 @@ const NewReply: React.FC<{ onSubmit: (reply: string) => void }> = ({ onSubmit })
     <form
       css={css`
         text-align: left;
+        margin-bottom: 8px;
       `}
       onSubmit={submitForm}
     >

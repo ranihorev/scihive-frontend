@@ -88,7 +88,7 @@ const HighlightsList: React.FC = () => {
           <GeneralNote />
         </div>
         {highlights.map(highlight => {
-          if (hideQuoteHighlights && !highlight.comment) return null;
+          if (hideQuoteHighlights && !highlight.text) return null;
           return (
             <SidebarHighlightItem
               key={highlight.id}

@@ -65,8 +65,8 @@ const PdfCommenter: React.FC = () => {
 
   const paperId = usePaperId();
   const location = useLocation();
-  const { title, clearPaper, fetchPaper } = usePaperStore(
-    state => pick(state, ['title', 'clearPaper', 'fetchPaper']),
+  const { title, clearPaper, fetchPaper, setSidebarTab } = usePaperStore(
+    state => pick(state, ['title', 'clearPaper', 'fetchPaper', 'setSidebarTab']),
     shallow,
   );
 
@@ -78,6 +78,10 @@ const PdfCommenter: React.FC = () => {
     fetchPaper({ paperId, selectedGroupId })
       .then(data => {
         setUrl(data.url);
+        // Set sidebar tab to info
+        if (queryString.parse(location.search).info) {
+          setSidebarTab('Info');
+        }
       })
       .catch(e => {
         console.log(e.response);

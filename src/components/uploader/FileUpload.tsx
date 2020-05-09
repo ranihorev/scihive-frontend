@@ -7,7 +7,6 @@ import React from 'react';
 import { DropzoneOptions, useDropzone } from 'react-dropzone';
 import { useHistory } from 'react-router';
 import { toast } from 'react-toastify';
-import { FileMetadata } from '../../models';
 import { track } from '../../Tracker';
 import { useGetUploadLink } from './utils';
 
@@ -18,7 +17,7 @@ const isArxivLink = (link: string) => {
   return url.host === 'arxiv.org';
 };
 
-export const FileUpload: React.FC<{ setFileMeta: (meta: FileMetadata) => void }> = ({ setFileMeta }) => {
+export const FileUpload: React.FC = () => {
   const history = useHistory();
   const [uploadStatus, setUploadStatus] = React.useState<{ status: UploadStatus; prct: number }>({
     status: 'idle',
@@ -26,34 +25,31 @@ export const FileUpload: React.FC<{ setFileMeta: (meta: FileMetadata) => void }>
   });
 
   const [link, setLink] = React.useState(useGetUploadLink() || '');
-  const onDrop = React.useCallback<Required<DropzoneOptions>['onDrop']>(
-    acceptedFiles => {
-      if (isEmpty(acceptedFiles)) {
-        return;
-      }
-      const formData = new FormData();
-      formData.append('file', acceptedFiles[0]);
-      setUploadStatus({ status: 'uploading', prct: 0 });
-      track('uploadPaper');
-      Axios.post('/new_paper/add', formData, {
-        headers: {
-          'Content-Type': 'multipart/form-data',
-        },
-        onUploadProgress: progressEvent => {
-          const prct = (100 * progressEvent.loaded) / progressEvent.total;
-          setUploadStatus({ status: prct >= 100 ? 'processing' : 'uploading', prct: prct });
-        },
+  const onDrop = React.useCallback<Required<DropzoneOptions>['onDrop']>(acceptedFiles => {
+    if (isEmpty(acceptedFiles)) {
+      return;
+    }
+    const formData = new FormData();
+    formData.append('file', acceptedFiles[0]);
+    setUploadStatus({ status: 'uploading', prct: 0 });
+    track('uploadPaper', { type: 'file' });
+    Axios.post<{ id: string }>('/new_paper/add', formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+      onUploadProgress: progressEvent => {
+        const prct = (100 * progressEvent.loaded) / progressEvent.total;
+        setUploadStatus({ status: prct >= 100 ? 'processing' : 'uploading', prct: prct });
+      },
+    })
+      .then(res => {
+        history.push(`/paper/${res.data.id}`);
       })
-        .then(res => {
-          setFileMeta(res.data);
-        })
-        .catch(err => {
-          console.error(err.message);
-          setUploadStatus({ status: 'idle', prct: 0 });
-        });
-    },
-    [setFileMeta],
-  );
+      .catch(err => {
+        console.error(err.message);
+        setUploadStatus({ status: 'idle', prct: 0 });
+      });
+  }, []);
 
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
     onDrop,
@@ -67,7 +63,7 @@ export const FileUpload: React.FC<{ setFileMeta: (meta: FileMetadata) => void }>
     if (isArxivLink(link)) {
       const regResult = /(?<paperId>(\d{4}\.\d{4,5})|([a-zA-Z\-.]+\/\d{6,10}))(v(?<version>\d+))?(\.pdf)?$/.exec(link);
       if (regResult?.groups) {
-        history.push(`/paper/${regResult.groups.paperId}`);
+        history.push(`/paper/${regResult.groups.paperId}?info=True`);
         return;
       }
     }
@@ -75,10 +71,11 @@ export const FileUpload: React.FC<{ setFileMeta: (meta: FileMetadata) => void }>
       toast.error('Only PDF links are supported, please try a different link');
       return;
     }
+    track('uploadPaper', { type: 'link' });
     setUploadStatus({ status: 'processing', prct: 0 });
-    Axios.post('/new_paper/add', { link })
+    Axios.post<{ id: string }>('/new_paper/add', { link })
       .then(res => {
-        setFileMeta(res.data);
+        history.push(`/paper/${res.data.id}`);
       })
       .catch(err => {
         console.error(err.message);

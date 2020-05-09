@@ -54,8 +54,7 @@ const stateAndActions = (set: NamedSetState<PapersListState>, get: GetState<Pape
       try {
         const result = await axios.get(url, { params: requestParams });
         const newPapers = result.data.papers;
-        console.log(newPapers);
-        // Everytime we load page 0 we assume it's a new query
+        // Every time we load page 0 we assume it's a new query
         if (page === 1) {
           clearPapersHelper();
         }

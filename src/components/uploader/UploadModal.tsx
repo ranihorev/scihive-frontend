@@ -12,35 +12,19 @@ import { Warning } from './Warning';
 
 export const UploadModal: React.FC<{ isOpen: boolean; closeModal: () => void }> = React.memo(
   ({ isOpen, closeModal }) => {
-    const [fileMeta, setFileMeta] = React.useState<FileMetadata | undefined>();
-    React.useEffect(() => {
-      if (isOpen) {
-        setFileMeta(undefined);
-      }
-    }, [isOpen]);
     const history = useHistory();
-    const onSubmit = React.useCallback(
-      (metadata: FileMetadata) => {
-        uploadPaperDetails(metadata, history);
-      },
-      [history],
-    );
     return (
       <Modal
         open={isOpen}
         onClose={() => {
-          !fileMeta && closeModal();
+          closeModal();
         }}
       >
         <Fade in={isOpen}>
           <div css={[presets.modalCss, { width: 600 }]}>
             <Typography variant="h6">Upload a Paper</Typography>
             <Warning />
-            {!fileMeta ? (
-              <FileUpload setFileMeta={setFileMeta} />
-            ) : (
-              <MetadataEditor metadata={fileMeta} onClose={closeModal} onSubmit={onSubmit} />
-            )}
+            <FileUpload />
           </div>
         </Fade>
       </Modal>

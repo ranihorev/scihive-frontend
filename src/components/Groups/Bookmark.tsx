@@ -27,12 +27,22 @@ interface BookmarkProps {
   type: 'single' | 'list';
 }
 
-const NewGroup: React.FC<{ value: string; setValue: React.Dispatch<string> }> = ({ value, setValue }) => {
+interface NewGroupProps {
+  value: string;
+  setValue: React.Dispatch<string>;
+  addPaperToGroup: (groupId: string) => void;
+}
+
+const NewGroup: React.FC<NewGroupProps> = ({ value, setValue, addPaperToGroup }) => {
   const createGroup = useUserStore(state => state.newGroup);
 
-  const submitGroup = () => {
+  const submitGroup = async () => {
     if (isEmpty(value)) return;
-    createGroup({ name: value, color: pickRandomColor(), onSuccessCb: () => setValue('') });
+    const response = await createGroup({ name: value, color: pickRandomColor() });
+    if (response) {
+      setValue('');
+      addPaperToGroup(response.new_id);
+    }
   };
   return (
     <ListItem css={{ paddingTop: 12 }}>
@@ -155,7 +165,11 @@ const GroupsList: React.FC<GroupListProps> = ({ selectedGroupIds, updatePaperGro
   const groups = useUserStore(state => state.groups);
   return (
     <React.Fragment>
-      <NewGroup value={newGroupValue} setValue={setNewGroupValue} />
+      <NewGroup
+        value={newGroupValue}
+        setValue={setNewGroupValue}
+        addPaperToGroup={groupId => updatePaperGroup({ groupId, paperId, shouldAdd: true })}
+      />
       <List
         dense
         css={css`

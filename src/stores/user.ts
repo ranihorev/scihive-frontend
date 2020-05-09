@@ -1,4 +1,6 @@
+import * as Sentry from '@sentry/browser';
 import axios from 'axios';
+import { toast } from 'react-toastify';
 import { GetState } from 'zustand';
 import { Group, User } from '../models';
 import { notifyOnNewGroup } from '../notifications/newGroup';
@@ -58,19 +60,17 @@ const stateAndActions = (set: NamedSetState<UserState>, get: GetState<UserState>
         })
         .catch(e => console.warn(e.message));
     },
-    newGroup: (payload: { name: string; color?: GroupColor; finallyCb?: () => void; onSuccessCb?: () => void }) => {
-      const { name, color, onSuccessCb, finallyCb } = payload;
+    newGroup: async ({ name, color }: { name: string; color?: GroupColor }) => {
       track('newGroup');
-      return axios
-        .post('/groups/new', { name, color })
-        .then(res => {
-          updateGroups(res.data, 'newGroup');
-          onSuccessCb && onSuccessCb();
-        })
-        .catch(e => console.warn(e.message))
-        .finally(() => {
-          finallyCb && finallyCb();
-        });
+      try {
+        const res = await axios.post<{ groups: Group[]; new_id: string }>('/groups/new', { name, color });
+        updateGroups(res.data.groups, 'newGroup');
+        return res.data;
+      } catch (e) {
+        toast.error('Failed to create a new group :(');
+        Sentry.captureException(e);
+        return undefined;
+      }
     },
     deleteGroup: (id: string) => {
       axios

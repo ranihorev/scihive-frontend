@@ -1,7 +1,7 @@
 import axios from 'axios';
 import produce from 'immer';
 import { GetState } from 'zustand';
-import { Category, PaperListItem } from '../models';
+import { Category, PaperListItem, SortBy } from '../models';
 import { AddRemovePaperToGroup, addRemovePaperToGroupHelper, createWithDevtools, NamedSetState } from './utils';
 
 interface PapersListState {
@@ -23,7 +23,7 @@ const initialState: PapersListState = {
 export interface RequestParams {
   age: string;
   q: string;
-  sort: string;
+  sort: SortBy;
   author: string;
   page_num: number;
   group: string;
@@ -58,8 +58,9 @@ const stateAndActions = (set: NamedSetState<PapersListState>, get: GetState<Pape
         if (page === 1) {
           clearPapersHelper();
         }
-        addPapersHelper({ papers: newPapers, total: page === 1 ? result.data.count : undefined });
-        setHasMorePapers(newPapers.length !== 0);
+        const totalPapers = result.data.count;
+        addPapersHelper({ papers: newPapers, total: page === 1 ? totalPapers : undefined });
+        setHasMorePapers(get().papers.length < totalPapers);
       } catch (e) {
         console.warn('Failed to load content', e);
         setHasMorePapers(false);

@@ -194,7 +194,7 @@ export interface PaperListItem extends BasePaperData {
   twitter_score: number;
   twitter_links?: TwitterLink[];
   num_stars: number;
-  github: CodeMeta;
+  code: CodeMeta;
   groups: string[];
 }
 
@@ -210,3 +210,11 @@ export interface FileMetadata {
   date: string;
   removed_authors?: string[];
 }
+
+const SORT_BY = ['tweets', 'date', 'score', 'bookmarks', 'date_added'] as const;
+
+export type SortBy = typeof SORT_BY[number];
+
+export const isValidSort = (sort: string | undefined): sort is SortBy => {
+  return typeof sort === 'string' && SORT_BY.includes(sort as any);
+};

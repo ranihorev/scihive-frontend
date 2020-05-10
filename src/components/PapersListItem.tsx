@@ -103,7 +103,7 @@ const GroupMarkers: React.FC<{ paperGroupIds: string[]; groups: Group[] }> = ({ 
 };
 
 const PaperMetadata: React.FC<{ paper: PaperListItem }> = ({ paper }) => {
-  const { comments_count, twitter_score, twitter_links, num_stars, github } = paper;
+  const { comments_count, twitter_score, twitter_links, num_stars, code } = paper;
   return (
     <React.Fragment>
       <span data-rh="Paper comments" data-rh-at="top">
@@ -131,9 +131,9 @@ const PaperMetadata: React.FC<{ paper: PaperListItem }> = ({ paper }) => {
       <div data-rh="Σ Likes, RTs and replies" data-rh-at="top">
         <TwitterMeta twtr_score={twitter_score} twtr_links={twitter_links} iconCss={metadataCss} />
       </div>
-      {!isEmpty(github) && (
+      {!isEmpty(code) && (
         <div data-rh="Github stars (by PapersWithCode)" data-rh-at="top">
-          <CodeMetaRender data={github} iconCss={metadataCss} />
+          <CodeMetaRender data={code} iconCss={metadataCss} />
         </div>
       )}
     </React.Fragment>
@@ -161,7 +161,7 @@ const ExpandPaper: React.FC<{ expanded: boolean; handleExpandClick: (e: React.Mo
 );
 
 const PapersListItem: React.FC<PapersListItemProps> = ({ paper, groups, showAbstract = true, showMetadata = true }) => {
-  const { github } = paper;
+  const { code: github } = paper;
   const [expanded, setExpanded] = useState(false);
   const params = useParams<{ groupId?: string }>();
   const { updatePaperGroups } = usePapersListStore(state => pick(state, ['updatePaperGroups']), shallow);

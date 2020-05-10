@@ -4,10 +4,10 @@ import { CircularProgress, FormControl, Grid, Input, MenuItem, Select, Typograph
 import { isEmpty, pick } from 'lodash';
 import * as queryString from 'query-string';
 import React from 'react';
-import { useHistory, useLocation, useRouteMatch, useParams } from 'react-router';
+import { useHistory, useLocation, useParams, useRouteMatch } from 'react-router';
 import shallow from 'zustand/shallow';
 import { LocationContext } from '../LocationContext';
-import { Group } from '../models';
+import { Group, SortBy, isValidSort } from '../models';
 import { RequestParams, usePapersListStore } from '../stores/papersList';
 import { useUserStore } from '../stores/user';
 import * as presets from '../utils/presets';
@@ -47,7 +47,7 @@ const filterMenuItemCss = css`
 
 interface QueryParams {
   age?: string;
-  q?: string;
+  q?: SortBy;
   sort?: string;
 }
 
@@ -63,6 +63,18 @@ const getGroupName = (groups: Group[], groupId: string | undefined) => {
   const group = groups.find(g => g.id === groupId);
   if (group) return group.name;
   return undefined;
+};
+
+const getAgeQuery = (queryParams: Partial<RequestParams>, isLibraryOrList: boolean) => {
+  const isDefaultAgeToAll = isLibraryOrList || queryParams.q;
+  return queryParams.age || (isDefaultAgeToAll ? 'all' : 'week');
+};
+
+const getSortQuery = (queryParams: Partial<RequestParams>, isLibraryOrList: boolean): RequestParams['sort'] => {
+  return (
+    (isValidSort(queryParams.sort) && queryParams.sort) ||
+    (queryParams.q ? 'score' : isLibraryOrList ? 'date_added' : 'date')
+  );
 };
 
 const PapersList: React.FC = () => {
@@ -87,25 +99,18 @@ const PapersList: React.FC = () => {
   const isLibraryOrList = isLibraryMode || Boolean(groupId);
 
   let groupName = getGroupName(inviteGroup ? [...groups, inviteGroup] : groups, groupId);
-
-  const getAgeQuery = (queryParams: QueryParams) => {
-    const isDefaultAgeToAll = isLibraryMode || queryParams.q || !isEmpty(match.params);
-    return queryParams.age || (isDefaultAgeToAll ? 'all' : 'week');
-  };
-
-  const getSortQuery = (queryParams: QueryParams) => {
-    return queryParams.sort || (queryParams.q ? 'score' : isLibraryOrList ? 'date_added' : 'tweets');
-  };
+  const queryParams = queryString.parse(location.search) as Partial<RequestParams>;
+  const age = getAgeQuery(queryParams, isLibraryOrList);
+  const sort = getSortQuery(queryParams, isLibraryOrList);
 
   const loadPapers = (page: number) => {
     let url = '/papers/all';
 
-    const queryParams = queryString.parse(location.search) as Partial<RequestParams>;
     const requestParams: Partial<RequestParams> = {
       author: authorId,
       page_num: page,
-      age: getAgeQuery(queryParams),
-      sort: getSortQuery(queryParams),
+      age: getAgeQuery(queryParams, isLibraryOrList),
+      sort: getSortQuery(queryParams, isLibraryOrList),
       q: (queryParams.q as string) || undefined,
       group: groupId || queryParams.group,
       library: isLibraryMode,
@@ -148,10 +153,6 @@ const PapersList: React.FC = () => {
     }
     previousLocation.location = location.key;
   }, [clearPapers, location]);
-
-  const q = queryString.parse(location.search);
-  const age = getAgeQuery(q);
-  const sort = getSortQuery(q);
 
   return (
     <div
@@ -235,7 +236,7 @@ const PapersList: React.FC = () => {
               <MenuItem css={filterMenuItemCss} value="bookmarks">
                 Stars
               </MenuItem>
-              {q && q.q && (
+              {queryParams.q && (
                 <MenuItem css={filterMenuItemCss} value="score">
                   Relevance
                 </MenuItem>

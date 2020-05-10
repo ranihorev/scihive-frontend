@@ -1,15 +1,19 @@
 /** @jsx jsx */
 import MomentUtils from '@date-io/moment';
-import { jsx } from '@emotion/core';
+import { jsx, css } from '@emotion/core';
 import { Button, IconButton, TextField, Typography } from '@material-ui/core';
 import AddIcon from '@material-ui/icons/Add';
+import EventIcon from '@material-ui/icons/Event';
 import CloseIcon from '@material-ui/icons/Close';
 import { KeyboardDatePicker, MuiPickersUtilsProvider } from '@material-ui/pickers';
 import produce from 'immer';
 import moment, { Moment } from 'moment';
 import React from 'react';
-import { FileMetadata } from '../../models';
-import { presets } from '../../utils';
+import { toast } from 'react-toastify';
+import shallow from 'zustand/shallow';
+import { FileMetadata } from '../../../models';
+import { usePaperStore } from '../../../stores/paper';
+import { presets } from '../../../utils';
 
 interface FileMetadataInternal extends Omit<FileMetadata, 'date'> {
   date: Moment;
@@ -29,42 +33,21 @@ class UTCUtils extends MomentUtils {
 
 const Header: React.FC = ({ children }) => {
   return (
-    <Typography variant="h6" css={{ fontSize: 18 }}>
+    <Typography variant="h6" css={{ fontSize: 16 }}>
       {children}
     </Typography>
   );
 };
 
-export const MetadataEditor: React.FC<AllProps> = ({ onSubmit, onClose, metadata: inputMetadata }) => {
-  const [metadata, setMetadata] = React.useState<FileMetadataInternal>({
+const MetadataEditorInternal: React.FC<AllProps> = ({ onSubmit, onClose, metadata: inputMetadata }) => {
+  const [metadata, setMetadata] = React.useState<Required<FileMetadataInternal>>({
     ...inputMetadata,
     title: inputMetadata.title || '',
     date: moment.utc(inputMetadata.date),
+    removed_authors: [],
   });
   const [isDatePickerOpen, setIsDatePickerOpen] = React.useState(false);
   const newAuthorAdded = React.useRef(false);
-  const isFirstLoad = React.useRef(true);
-  const [secondCancel, setSecondCancel] = React.useState(false);
-
-  React.useEffect(() => {
-    if (isFirstLoad.current) {
-      isFirstLoad.current = false;
-      return;
-    }
-    setMetadata({ ...inputMetadata, date: moment.utc(inputMetadata.date) });
-  }, [inputMetadata]);
-
-  React.useEffect(() => {
-    if (secondCancel) {
-      const timeoutId = setTimeout(() => {
-        setSecondCancel(false);
-      }, 5000);
-      return () => {
-        clearTimeout(timeoutId);
-      };
-    }
-    return;
-  }, [secondCancel]);
 
   React.useEffect(() => {
     newAuthorAdded.current = false;
@@ -78,7 +61,16 @@ export const MetadataEditor: React.FC<AllProps> = ({ onSubmit, onClose, metadata
       }}
       css={{ display: 'flex', flexDirection: 'column', overflowY: 'hidden' }}
     >
-      <div css={{ color: '#4a4a4a', display: 'flex', flexDirection: 'column', overflowY: 'auto' }}>
+      <div
+        css={{
+          color: '#4a4a4a',
+          display: 'flex',
+          flexDirection: 'column',
+          overflowY: 'auto',
+          textarea: { fontSize: 13 },
+          input: { fontSize: 13 },
+        }}
+      >
         {/* Title */}
         <div>
           <Header>Title</Header>
@@ -117,8 +109,11 @@ export const MetadataEditor: React.FC<AllProps> = ({ onSubmit, onClose, metadata
                 onClickCapture: () => {
                   setIsDatePickerOpen(true);
                 },
+                size: 'small',
+                style: { padding: 6 },
                 'aria-label': 'change date',
               }}
+              keyboardIcon={<EventIcon fontSize="small" />}
               PopoverProps={{
                 onClose: () => setIsDatePickerOpen(false),
               }}
@@ -171,6 +166,10 @@ export const MetadataEditor: React.FC<AllProps> = ({ onSubmit, onClose, metadata
                   onClick={() => {
                     setMetadata(
                       produce(metadata, draft => {
+                        const authorId = draft.authors[index].id;
+                        if (authorId) {
+                          draft.removed_authors.push(authorId);
+                        }
                         draft.authors.splice(index, 1);
                         return draft;
                       }),
@@ -201,22 +200,42 @@ export const MetadataEditor: React.FC<AllProps> = ({ onSubmit, onClose, metadata
       <div css={{ marginTop: 24, display: 'flex', flexDirection: 'row', justifyContent: 'space-between' }}>
         <Button
           onClick={() => {
-            if (secondCancel) {
-              onClose();
-            } else {
-              setSecondCancel(true);
-            }
+            onClose();
           }}
           variant="outlined"
           color="secondary"
-          css={{ width: 120, paddingLeft: 5, paddingRight: 5 }}
+          css={{ width: 80 }}
+          size="small"
         >
-          {secondCancel ? 'Are you sure?' : 'Cancel'}
+          Cancel
         </Button>
-        <Button type="submit" variant="contained" color="primary" css={{ width: 120 }}>
+        <Button type="submit" variant="contained" color="primary" size="small" css={{ width: 80 }}>
           Save
         </Button>
       </div>
     </form>
   );
+};
+
+export const MetadataEditor: React.FC<{ onClose: () => void }> = ({ onClose }) => {
+  const metadata: FileMetadata = usePaperStore(
+    state => ({
+      title: state.title || '',
+      authors: state.authors,
+      date: state.time_published || new Date().toString(),
+      abstract: state.abstract || '',
+    }),
+    shallow,
+  );
+  const editPaper = usePaperStore(state => state.editPaper);
+  const onSubmit = async (data: FileMetadata) => {
+    try {
+      await editPaper(data);
+      onClose();
+    } catch (e) {
+      toast.error('Failed to update paper :(', { autoClose: 3000 });
+    }
+  };
+
+  return <MetadataEditorInternal {...{ onClose, onSubmit, metadata }} />;
 };

@@ -20,6 +20,7 @@ import {
   T_Highlight,
   Visibility,
   BasePaperData,
+  Author,
 } from '../models';
 import { track } from '../Tracker';
 import { AddRemovePaperToGroup, addRemovePaperToGroupHelper, createWithDevtools, NamedSetState } from './utils';
@@ -62,7 +63,7 @@ const initialState: PaperState = {
 };
 
 interface FetchPaperResponse {
-  authors: { name: string }[];
+  authors: Author[];
   time_published?: string;
   abstract?: string;
   url: string;

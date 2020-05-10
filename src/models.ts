@@ -185,7 +185,7 @@ export interface BasePaperData {
   id: string;
   title: string;
   abstract: string;
-  authors: { name: string }[];
+  authors: Author[];
   time_published: string;
 }
 
@@ -198,14 +198,15 @@ export interface PaperListItem extends BasePaperData {
   groups: string[];
 }
 
-interface Author {
+export interface Author {
   name: string;
+  id?: string;
 }
 
 export interface FileMetadata {
-  md5: string;
   title: string;
   abstract: string;
   authors: Author[];
   date: string;
+  removed_authors?: string[];
 }

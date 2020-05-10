@@ -7,7 +7,7 @@ import React from 'react';
 export const UploadButton: React.FC<{ openModal: () => void }> = ({ openModal }) => {
   return (
     <div css={{ position: 'fixed', bottom: 15, right: 15 }}>
-      <Fab color="primary" aria-label="add" size="small" onClick={openModal}>
+      <Fab color="primary" aria-label="add" size="small" onClick={openModal} data-rh="Upload a new paper">
         <AddIcon />
       </Fab>
     </div>

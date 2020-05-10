@@ -43,7 +43,7 @@ export const FileUpload: React.FC = () => {
       },
     })
       .then(res => {
-        history.push(`/paper/${res.data.id}`);
+        history.push(`/paper/${res.data.id}?info=True`);
       })
       .catch(err => {
         console.error(err.message);
@@ -63,7 +63,7 @@ export const FileUpload: React.FC = () => {
     if (isArxivLink(link)) {
       const regResult = /(?<paperId>(\d{4}\.\d{4,5})|([a-zA-Z\-.]+\/\d{6,10}))(v(?<version>\d+))?(\.pdf)?$/.exec(link);
       if (regResult?.groups) {
-        history.push(`/paper/${regResult.groups.paperId}?info=True`);
+        history.push(`/paper/${regResult.groups.paperId}`);
         return;
       }
     }
@@ -75,7 +75,7 @@ export const FileUpload: React.FC = () => {
     setUploadStatus({ status: 'processing', prct: 0 });
     Axios.post<{ id: string }>('/new_paper/add', { link })
       .then(res => {
-        history.push(`/paper/${res.data.id}`);
+        history.push(`/paper/${res.data.id}?info=True`);
       })
       .catch(err => {
         console.error(err.message);

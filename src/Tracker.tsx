@@ -10,6 +10,9 @@ if (process.env.REACT_APP_MIXPANEL_TOKEN) {
 
 export const track: typeof mixpanel.track = (event, properties) => {
   mixpanel.track(event, properties);
+  if (process.env.NODE_ENV === 'development') {
+    console.log(event, properties);
+  }
 };
 
 export const useTracker = (options = {}) => {

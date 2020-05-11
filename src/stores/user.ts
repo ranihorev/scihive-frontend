@@ -1,5 +1,7 @@
 import * as Sentry from '@sentry/browser';
 import axios from 'axios';
+import produce from 'immer';
+import { findIndex } from 'lodash';
 import { toast } from 'react-toastify';
 import { GetState } from 'zustand';
 import { Group, User } from '../models';
@@ -54,9 +56,18 @@ const stateAndActions = (set: NamedSetState<UserState>, get: GetState<UserState>
     editGroup: async (id: string, payload: { name?: string; color?: GroupColor }) => {
       track('editGroup');
       return axios
-        .patch(`/groups/group/${id}`, payload)
+        .patch<Group[]>(`/groups/group/${id}`, payload)
         .then(res => {
-          updateGroups(res.data, 'editGroup');
+          set(
+            produce((draftState: UserState) => {
+              const newData = res.data.filter(g => g.id === id)[0];
+              const idx = findIndex(draftState.groups, g => g.id === id);
+              if (newData && idx >= 0) {
+                draftState.groups[idx] = newData;
+              }
+              return draftState;
+            }),
+          );
         })
         .catch(e => console.warn(e.message));
     },

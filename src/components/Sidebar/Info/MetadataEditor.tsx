@@ -1,10 +1,10 @@
 /** @jsx jsx */
 import MomentUtils from '@date-io/moment';
-import { jsx, css } from '@emotion/core';
+import { jsx } from '@emotion/core';
 import { Button, IconButton, TextField, Typography } from '@material-ui/core';
 import AddIcon from '@material-ui/icons/Add';
-import EventIcon from '@material-ui/icons/Event';
 import CloseIcon from '@material-ui/icons/Close';
+import EventIcon from '@material-ui/icons/Event';
 import { KeyboardDatePicker, MuiPickersUtilsProvider } from '@material-ui/pickers';
 import produce from 'immer';
 import moment, { Moment } from 'moment';

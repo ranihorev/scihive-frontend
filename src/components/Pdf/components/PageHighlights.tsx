@@ -20,7 +20,6 @@ import { presets } from '../../../utils';
 import { EditHighlight } from '../../EditHighlight';
 import { Popup } from '../../Popup';
 import { TextLinkifyLatex } from '../../TextLinkifyLatex';
-import AreaHighlight from './AreaHighlight';
 import Highlight from './Highlight';
 
 const ActionButton: React.FC<{ onClick: () => void; icon: string }> = ({ onClick, icon }) => (
@@ -130,8 +129,6 @@ const PopupContent: React.FC<PopupContentProps> = ({
       </div>
     </Paper>
   );
-
-  return null;
 };
 
 interface SingleHighlight {

@@ -68,7 +68,6 @@ const Tip: React.FC<TipProps> = ({ updateTipPosition, onMouseDown = () => {}, is
     commentVisibility,
     addHighlight,
     updateHighlight,
-    clearTempHighlight,
     setCommentVisibilitySettings,
   } = usePaperStore(state => {
     return {
@@ -77,7 +76,6 @@ const Tip: React.FC<TipProps> = ({ updateTipPosition, onMouseDown = () => {}, is
         'commentVisibility',
         'addHighlight',
         'updateHighlight',
-        'clearTempHighlight',
         'setCommentVisibilitySettings',
       ]),
     };

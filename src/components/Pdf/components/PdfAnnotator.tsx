@@ -7,6 +7,7 @@ import { PDFDocumentProxy } from 'pdfjs-dist';
 import { PDFFindController, PDFLinkService, PDFViewer } from 'pdfjs-dist/web/pdf_viewer';
 import 'pdfjs-dist/web/pdf_viewer.css';
 import React from 'react';
+import { useCookies } from 'react-cookie';
 import { isMobile } from 'react-device-detect';
 import ReactDom from 'react-dom';
 import shallow from 'zustand/shallow';
@@ -28,19 +29,12 @@ import { scaledToViewport, viewportToScaled } from '../lib/coordinates';
 import getAreaAsPng from '../lib/get-area-as-png';
 import getBoundingRect from '../lib/get-bounding-rect';
 import getClientRects from '../lib/get-client-rects';
-import {
-  findOrCreateContainerLayer,
-  getElementFromRange,
-  getPageFromElement,
-  getPageFromRange,
-} from '../lib/pdfjs-dom';
+import { findOrCreateContainerLayer, getElementFromRange, getPageFromRange } from '../lib/pdfjs-dom';
 import { convertMatches, renderMatches } from '../lib/pdfSearchUtils';
 import '../style/PdfHighlighter.css';
-import MouseSelection from './MouseSelection';
 import { PageHighlights } from './PageHighlights';
 import { TipContainer } from './TipContainer';
 import { useJumpToHandler } from './useJumpToHandler';
-import { useCookies } from 'react-cookie';
 
 const zoomButtonCss = css`
   color: black;

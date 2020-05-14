@@ -52,7 +52,7 @@ const stateAndActions = (set: NamedSetState<PapersListState>, get: GetState<Pape
     fetchPapers: async ({ url, requestParams, setHasMorePapers, finallyCb }: FetchPapers) => {
       const page = requestParams.page_num;
       try {
-        const result = await axios.get(url, { params: requestParams });
+        const result = await axios.get<{ papers: PaperListItem[]; count: number }>(url, { params: requestParams });
         const newPapers = result.data.papers;
         // Every time we load page 0 we assume it's a new query
         if (page === 1) {

@@ -70,16 +70,9 @@ export const SidebarHighlightItem = React.forwardRef<HTMLDivElement, CommentProp
           transition: '0.8s background-color',
           margin: '5px 8px',
           boxShadow: '0px 1px 3px 0px rgba(0,0,0,0.12)',
-          cursor: isDirectHighlight(highlight) ? 'pointer' : undefined,
         }}
         onMouseEnter={() => setIsHover(true)}
         onMouseLeave={() => setIsHover(false)}
-        onClick={e => {
-          if (isDirectHighlight(highlight) && !actionsRef.current?.contains(e.target as Node)) {
-            setPaperJumpTo({ area: 'paper', type: 'highlight', id: highlight.id, location: highlight.position });
-            history.push({ hash: `highlight-${highlight.id}` });
-          }
-        }}
       >
         <CardContent
           css={css`
@@ -107,16 +100,27 @@ export const SidebarHighlightItem = React.forwardRef<HTMLDivElement, CommentProp
               isTextRequired={false}
             />
           </PopoverMenu>
-          <div>{highlightedText && !hasCommentText && <Quote text={highlightedText} />}</div>
-
-          <Typography
-            component="div"
-            css={css`
-              font-size: 0.8rem;
-            `}
+          <div
+            css={{ cursor: isDirectHighlight(highlight) ? 'pointer' : undefined }}
+            onClick={e => {
+              if (isDirectHighlight(highlight) && !actionsRef.current?.contains(e.target as Node)) {
+                setPaperJumpTo({ area: 'paper', type: 'highlight', id: highlight.id, location: highlight.position });
+                history.push({ hash: `highlight-${highlight.id}` });
+              }
+            }}
           >
-            <TextLinkifyLatex text={highlight.text} />
-          </Typography>
+            {highlightedText && !hasCommentText && <Quote text={highlightedText} />}
+            {hasCommentText && (
+              <Typography
+                component="div"
+                css={css`
+                  font-size: 0.8rem;
+                `}
+              >
+                <TextLinkifyLatex text={highlight.text} />
+              </Typography>
+            )}
+          </div>
 
           <React.Fragment>
             <div

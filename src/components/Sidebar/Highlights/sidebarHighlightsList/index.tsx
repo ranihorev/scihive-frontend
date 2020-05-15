@@ -14,7 +14,8 @@ const WELCOME_COOKIE = 'comments-welcome';
 
 const WelcomeMessage: React.FC = () => {
   const [cookies, setCookie] = useCookies([]);
-  if (cookies[WELCOME_COOKIE]) return null;
+  const [hide, setHide] = React.useState(false);
+  if (hide || cookies[WELCOME_COOKIE]) return null;
   return (
     <div style={{ padding: '0.2rem 0.7rem' }}>
       <small>
@@ -27,7 +28,14 @@ const WelcomeMessage: React.FC = () => {
             margin-top: -17px;
           `}
         >
-          <button type="button" css={linkButton} onClick={() => setCookie(WELCOME_COOKIE, 1)}>
+          <button
+            type="button"
+            css={linkButton}
+            onClick={() => {
+              setCookie(WELCOME_COOKIE, 1);
+              setHide(true);
+            }}
+          >
             Got it
           </button>
         </div>

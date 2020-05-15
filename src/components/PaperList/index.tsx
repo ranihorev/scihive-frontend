@@ -1,20 +1,22 @@
 /** @jsx jsx */
 import { css, jsx } from '@emotion/core';
-import { CircularProgress, FormControl, Grid, Input, MenuItem, Select, Typography } from '@material-ui/core';
+import { CircularProgress, FormControl, Grid, Input, MenuItem, Select, Typography, Button } from '@material-ui/core';
 import { isEmpty, pick } from 'lodash';
 import * as queryString from 'query-string';
 import React from 'react';
 import { useHistory, useLocation, useParams, useRouteMatch } from 'react-router';
 import shallow from 'zustand/shallow';
-import { LocationContext } from '../LocationContext';
-import { Group, SortBy, isValidSort } from '../models';
-import { RequestParams, usePapersListStore } from '../stores/papersList';
-import { useUserStore } from '../stores/user';
-import * as presets from '../utils/presets';
-import GroupShare from './Groups/GroupShare';
-import InfiniteScroll from './InfiniteScroll';
-import PapersListItem from './PapersListItem';
-import { FileUploader } from './uploader';
+import { LocationContext } from '../../LocationContext';
+import { Group, SortBy, isValidSort } from '../../models';
+import { RequestParams, usePapersListStore } from '../../stores/papersList';
+import { useUserStore } from '../../stores/user';
+import * as presets from '../../utils/presets';
+import GroupShare from '../Groups/GroupShare';
+import InfiniteScroll from '../InfiniteScroll';
+import PapersListItem from '../PapersListItem';
+import { FileUploader } from '../uploader';
+import { Link } from 'react-router-dom';
+import { Title } from './Title';
 
 const formControlCss = css({
   margin: '8px 8px 8px 0px',
@@ -162,21 +164,7 @@ const PapersList: React.FC = () => {
         }
       `}
     >
-      {(isLibraryMode || authorId || groupId) && (
-        <div css={[presets.row, css({ alignItems: 'center', marginBottom: 5 })]}>
-          <Typography
-            variant="h5"
-            css={css({
-              fontWeight: 700,
-              marginRight: 5,
-              paddingBottom: 1,
-            })}
-          >
-            {isLibraryMode ? 'My Library' : authorId ? authorId : groupName}
-          </Typography>
-          {groupId && groupName && <GroupShare iconSize={12} buttonSize="small" groupId={groupId} />}
-        </div>
-      )}
+      <Title {...{ isLibraryMode, authorId, groupId, groupName }} />
       <div
         css={css`
           ${presets.row};

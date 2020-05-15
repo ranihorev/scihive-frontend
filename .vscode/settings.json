@@ -22,5 +22,6 @@
     "uploader",
     "zustand"
   ],
-  "peacock.color": "#b408c4"
+  "peacock.color": "#b408c4",
+  "eslint.enable": true
 }

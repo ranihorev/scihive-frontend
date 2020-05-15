@@ -16,6 +16,7 @@ interface Props {
 
 export const VisibilityControl: React.FC<Props> = ({ visibilitySettings, setCommentVisibility, selectStyle }) => {
   const paperGroupIds = usePaperStore(state => state.groupIds);
+  console.log(paperGroupIds);
   const { username, groups } = useUserStore(
     state => ({ username: state.userData?.username, groups: state.groups.filter(g => paperGroupIds.includes(g.id)) }),
     shallow,

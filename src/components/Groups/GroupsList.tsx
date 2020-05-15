@@ -35,19 +35,22 @@ const GroupRender: React.FC<GroupProps> = ({ group }) => {
       >
         <div
           css={css`
-            width: 15px;
-            height: 15px;
+            width: 12px;
+            height: 12px;
             border-radius: 3px;
-            margin-right: 6px;
+            margin-right: 8px;
           `}
           style={{ backgroundColor: getGroupColor(group.color) }}
         />
         <div
           css={css`
             flex-grow: 1;
+            line-height: 1;
           `}
         >
-          {group.name}
+          <Link to={`/collection/${group.id}/`} css={[presets.simpleLinkWithHover]}>
+            {group.name}
+          </Link>
         </div>
         <div css={presets.row}>
           <div ref={editRef}>
@@ -60,11 +63,6 @@ const GroupRender: React.FC<GroupProps> = ({ group }) => {
               <i className="fas fa-pencil-alt" css={iconCss} />
             </IconButton>
           </div>
-          <Link to={`/collection/${group.id}/`}>
-            <IconButton aria-label="Open">
-              <i className="fas fa-external-link-square-alt" css={iconCss} />
-            </IconButton>
-          </Link>
           <GroupShare iconSize={ICON_SIZE} groupId={group.id} />
           <IconButton aria-label="Delete" onClick={() => deleteGroup(group.id)}>
             <i className="far fa-trash-alt" css={iconCss} />

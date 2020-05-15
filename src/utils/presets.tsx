@@ -27,6 +27,8 @@ export const simpleLink = css`
   }
 `;
 
+export const simpleLinkWithHover = css([simpleLink, { '&:hover': { textDecoration: 'underline' } }]);
+
 export const linkButton = css`
   background-color: transparent;
   border: none;

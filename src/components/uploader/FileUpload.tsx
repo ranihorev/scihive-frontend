@@ -25,31 +25,34 @@ export const FileUpload: React.FC = () => {
   });
 
   const [link, setLink] = React.useState(useGetUploadLink() || '');
-  const onDrop = React.useCallback<Required<DropzoneOptions>['onDrop']>(acceptedFiles => {
-    if (isEmpty(acceptedFiles)) {
-      return;
-    }
-    const formData = new FormData();
-    formData.append('file', acceptedFiles[0]);
-    setUploadStatus({ status: 'uploading', prct: 0 });
-    track('uploadPaper', { type: 'file' });
-    Axios.post<{ id: string }>('/new_paper/add', formData, {
-      headers: {
-        'Content-Type': 'multipart/form-data',
-      },
-      onUploadProgress: progressEvent => {
-        const prct = (100 * progressEvent.loaded) / progressEvent.total;
-        setUploadStatus({ status: prct >= 100 ? 'processing' : 'uploading', prct: prct });
-      },
-    })
-      .then(res => {
-        history.push(`/paper/${res.data.id}?info=True`);
+  const onDrop = React.useCallback<Required<DropzoneOptions>['onDrop']>(
+    acceptedFiles => {
+      if (isEmpty(acceptedFiles)) {
+        return;
+      }
+      const formData = new FormData();
+      formData.append('file', acceptedFiles[0]);
+      setUploadStatus({ status: 'uploading', prct: 0 });
+      track('uploadPaper', { type: 'file' });
+      Axios.post<{ id: string }>('/new_paper/add', formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+        onUploadProgress: progressEvent => {
+          const prct = (100 * progressEvent.loaded) / progressEvent.total;
+          setUploadStatus({ status: prct >= 100 ? 'processing' : 'uploading', prct: prct });
+        },
       })
-      .catch(err => {
-        console.error(err.message);
-        setUploadStatus({ status: 'idle', prct: 0 });
-      });
-  }, []);
+        .then(res => {
+          history.push(`/paper/${res.data.id}?info=True`);
+        })
+        .catch(err => {
+          console.error(err.message);
+          setUploadStatus({ status: 'idle', prct: 0 });
+        });
+    },
+    [history],
+  );
 
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
     onDrop,
@@ -98,7 +101,7 @@ export const FileUpload: React.FC = () => {
           />
         </React.Fragment>
       ) : (
-        <>
+        <React.Fragment>
           <form
             onSubmit={e => {
               e.preventDefault();
@@ -147,7 +150,7 @@ export const FileUpload: React.FC = () => {
             <input {...getInputProps()} />
             <p>{isDragActive ? 'Drop file here...' : "Drag 'n' drop file here, or click to select"}</p>
           </div>
-        </>
+        </React.Fragment>
       )}
     </div>
   );

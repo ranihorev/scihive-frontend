@@ -17,7 +17,7 @@ export const GeneralNote: React.FC = () => {
   const [isOpen, setIsOpen] = React.useState(false);
   if (!id) return null;
   return (
-    <>
+    <React.Fragment>
       <Button
         ref={ref}
         onClick={() => {
@@ -49,6 +49,6 @@ export const GeneralNote: React.FC = () => {
           isTextRequired={true}
         />
       </PopoverMenu>
-    </>
+    </React.Fragment>
   );
 };

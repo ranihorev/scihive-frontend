@@ -147,7 +147,7 @@ const PapersList: React.FC = () => {
     setIsLoading(false);
     setScrollId(Math.random());
     previousLocation.location = location.key;
-  }, [clearPapers, location]);
+  }, [clearPapers, location, previousLocation]);
 
   return (
     <div

@@ -69,13 +69,13 @@ export const Info: React.FC = () => {
         <React.Fragment>
           <InfoInternal />
           {isEditable && (
-            <>
+            <React.Fragment>
               <div>
                 <Button variant="contained" color="primary" size="small" onClick={() => setIsEditOpen(true)}>
                   Edit
                 </Button>
               </div>
-            </>
+            </React.Fragment>
           )}
         </React.Fragment>
       )}

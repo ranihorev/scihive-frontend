@@ -16,10 +16,9 @@ import NotFound from './pages/NotFound';
 import Paper from './pages/Paper';
 import './react-hint.css';
 import { useUserStore } from './stores/user';
+import { theme } from './themes';
 import { useTracker } from './Tracker';
 import ChromeExtensionPopup from './utils/chromeExtension';
-import { theme } from './themes';
-import { createListener, removeListener } from './utils';
 
 const ReactHint = ReactHintFactory(React);
 
@@ -33,15 +32,13 @@ const App: React.FC = () => {
     setCookie('first_load', true, { domain: '.scihive.org', sameSite: true, path: '/' });
   }, [setCookie]);
 
+  React.useEffect(() => {}, [user]);
+
   React.useEffect(() => {
     if (user && !isFirstLoad.current) {
       setKey(Math.random());
     }
-    isFirstLoad.current = false;
-  }, [user]);
-
-  React.useEffect(() => {
-    if (user) {
+    if (user && isFirstLoad.current) {
       axios
         .get('/user/validate')
         .then(() => {})
@@ -52,7 +49,8 @@ const App: React.FC = () => {
           }
         });
     }
-  }, []);
+    isFirstLoad.current = false;
+  }, [user]);
 
   useTracker();
 

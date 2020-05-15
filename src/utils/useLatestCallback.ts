@@ -8,6 +8,7 @@ export function useLatestCallback<Args extends any[], Output>(
 
   React.useLayoutEffect(() => {
     ref.current = fn;
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [...dependencies, fn]);
 
   return React.useCallback(

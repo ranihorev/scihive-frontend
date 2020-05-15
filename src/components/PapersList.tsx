@@ -91,7 +91,6 @@ const PapersList: React.FC = () => {
   const { groupId, authorId } = useParams<PaperListRouterParams>();
   const location = useLocation();
   const history = useHistory();
-  const isFirstLoad = React.useRef(true);
   const [scrollId, setScrollId] = React.useState(Math.random());
   const [hasMorePapers, setHasMorePapers] = React.useState(true);
   const [isLoading, setIsLoading] = React.useState(false);
@@ -144,13 +143,9 @@ const PapersList: React.FC = () => {
   React.useEffect(() => {
     if (previousLocation.location === location.key) return;
     clearPapers();
-    if (isFirstLoad.current) {
-      isFirstLoad.current = false;
-    } else {
-      setHasMorePapers(true);
-      setIsLoading(false);
-      setScrollId(Math.random());
-    }
+    setHasMorePapers(true);
+    setIsLoading(false);
+    setScrollId(Math.random());
     previousLocation.location = location.key;
   }, [clearPapers, location]);
 

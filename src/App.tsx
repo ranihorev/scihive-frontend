@@ -19,16 +19,26 @@ import { useUserStore } from './stores/user';
 import { useTracker } from './Tracker';
 import ChromeExtensionPopup from './utils/chromeExtension';
 import { theme } from './themes';
+import { createListener, removeListener } from './utils';
 
 const ReactHint = ReactHintFactory(React);
 
 const App: React.FC = () => {
   const [, setCookie] = useCookies([]);
   const { user } = useUserStore(state => ({ user: Boolean(state.userData) }), shallow);
+  const [key, setKey] = React.useState(Math.random());
+  const isFirstLoad = React.useRef(true);
 
   React.useEffect(() => {
     setCookie('first_load', true, { domain: '.scihive.org', sameSite: true, path: '/' });
   }, [setCookie]);
+
+  React.useEffect(() => {
+    if (user && !isFirstLoad.current) {
+      setKey(Math.random());
+    }
+    isFirstLoad.current = false;
+  }, [user]);
 
   React.useEffect(() => {
     if (user) {
@@ -50,7 +60,7 @@ const App: React.FC = () => {
     <MuiThemeProvider theme={theme}>
       <LoginSignupModal />
       <LocationProvider>
-        <Switch>
+        <Switch key={key}>
           <Route path="/library" exact component={Home} />
           <Route path="/" exact component={Home} />
           <Route path="/home" exact component={Home} />

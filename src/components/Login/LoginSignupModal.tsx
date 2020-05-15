@@ -50,21 +50,7 @@ const LoginSignupForm: React.FC = () => {
         track(isLogin ? 'Login' : 'Register');
         // Redundant: keep it here in case we won't reload the page one day
         onSubmitSuccess(res.data);
-        const onRefresh = (refreshEvent: React.MouseEvent) => {
-          refreshEvent.preventDefault();
-          window.location.reload();
-        };
-        const content = (
-          <span>
-            You are now logged in!
-            <br />
-            <button type="button" css={presets.linkButton} onClick={onRefresh} style={{ color: 'inherit' }}>
-              Refresh
-            </button>{' '}
-            to view your data.
-          </span>
-        );
-        toast.success(content);
+        toast.success('You are now logged in!');
       })
       .catch(err => {
         let msg = 'Failed to reach server';

@@ -1,36 +1,25 @@
 /** @jsx jsx */
 import { css, jsx } from '@emotion/core';
-import { CircularProgress, FormControl, Grid, Input, MenuItem, Select, Typography, Button } from '@material-ui/core';
-import { isEmpty, pick } from 'lodash';
+import { Card, FormControl, Grid, Input, MenuItem, Select, Typography } from '@material-ui/core';
+import { isEmpty, pick, range } from 'lodash';
 import * as queryString from 'query-string';
 import React from 'react';
+import ContentLoader from 'react-content-loader';
 import { useHistory, useLocation, useParams, useRouteMatch } from 'react-router';
 import shallow from 'zustand/shallow';
 import { LocationContext } from '../../LocationContext';
-import { Group, SortBy, isValidSort } from '../../models';
+import { Group, isValidSort, SortBy } from '../../models';
 import { RequestParams, usePapersListStore } from '../../stores/papersList';
 import { useUserStore } from '../../stores/user';
 import * as presets from '../../utils/presets';
-import GroupShare from '../Groups/GroupShare';
 import InfiniteScroll from '../InfiniteScroll';
 import PapersListItem from '../PapersListItem';
 import { FileUploader } from '../uploader';
-import { Link } from 'react-router-dom';
 import { Title } from './Title';
 
 const formControlCss = css({
   margin: '8px 8px 8px 0px',
   minWidth: 80,
-});
-
-const spinnerEmptyStateCss = css({
-  position: 'absolute',
-  top: '50%',
-  left: '50%',
-});
-
-const spinnerCss = css({
-  textAlign: 'center',
 });
 
 const filtersCss = css`
@@ -78,6 +67,34 @@ const getSortQuery = (queryParams: Partial<RequestParams>, isLibraryOrList: bool
     (queryParams.q ? 'score' : isLibraryOrList ? 'date_added' : 'date')
   );
 };
+
+const PostLoader: React.FC<{ count: number }> = React.memo(({ count }) => (
+  <React.Fragment>
+    {range(0, count).map(() => (
+      <Card
+        css={css`
+          margin: 10px 0;
+          width: 100%;
+          position: relative;
+          margin-bottom: 20px;
+        `}
+      >
+        <div css={{ padding: `28px 20px` }}>
+          <ContentLoader height={140} width={800}>
+            <rect x="0" y="0" rx="4" ry="4" width="100%" height="10" />
+            <rect x="0" y="18" rx="4" ry="4" width="35%" height="10" />
+            <rect x="0" y="46" rx="4" ry="4" width="10%" height="8" />
+            <rect x="11%" y="46" rx="4" ry="4" width="10%" height="8" />
+            <rect x="0" y="70" rx="4" ry="4" width="100%" height="1" />
+            <rect x="0" y="90" rx="4" ry="4" width="100%" height="8" />
+            <rect x="0" y="110" rx="4" ry="4" width="100%" height="8" />
+            <rect x="0" y="130" rx="4" ry="4" width="90%" height="8" />
+          </ContentLoader>
+        </div>
+      </Card>
+    ))}
+  </React.Fragment>
+));
 
 const PapersList: React.FC = () => {
   const { groups, inviteGroup } = useUserStore(
@@ -273,12 +290,13 @@ const PapersList: React.FC = () => {
           }}
           hasMore={hasMorePapers && !isLoading}
           isLoading={isLoading}
-          loader={
-            <div key={0} css={papers.length === 0 ? spinnerEmptyStateCss : spinnerCss}>
-              <CircularProgress disableShrink={true} />
-            </div>
-          }
+          loader={papers.length === 0 ? <PostLoader count={5} /> : <PostLoader count={2} />}
         >
+          {isEmpty(papers) && !isLoading && !hasMorePapers && (
+            <Typography variant="h5" css={{ textAlign: 'center', fontWeight: 'bold', marginTop: 60 }}>
+              No papers found :(
+            </Typography>
+          )}
           {papers.map(p => (
             <PapersListItem key={p.id} paper={p} groups={groups} showAbstract={!isLibraryOrList} showMetadata={true} />
           ))}

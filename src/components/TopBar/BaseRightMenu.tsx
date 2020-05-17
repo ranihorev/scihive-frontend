@@ -75,8 +75,8 @@ export const MobileMenu: React.FC<MobileMenuProps> = ({ rootChildren, submenuChi
           <Link to="/collections" css={simpleLink} key="collections">
             <MenuItem>My Collections</MenuItem>
           </Link>,
-        ]}
-        <Divider />
+          <Divider />
+      ]}
         <a
           href="https://chrome.google.com/webstore/detail/scihive/dijdhkcfdaocpepndegmbkgphbpomdai"
           target="_blank"
@@ -185,10 +185,6 @@ export const DesktopMenu: React.FC = ({ children }) => {
             }
           `}
         >
-          <Link to="/collections" css={simpleLink}>
-            <MenuItem color="inherit">My Collections</MenuItem>
-          </Link>
-          <Divider />
           <a
             href="https://chrome.google.com/webstore/detail/scihive/dijdhkcfdaocpepndegmbkgphbpomdai"
             target="_blank"

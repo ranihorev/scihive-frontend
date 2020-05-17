@@ -36,7 +36,7 @@ export const Title: React.FC<Props> = ({ isLibraryMode, authorId, groupId, group
       {groupId && groupName && (
         <GroupShare iconSize={12} buttonSize="small" groupId={groupId} css={{ gridColumn: 'share' }} />
       )}
-      {!isLibraryMode && (
+      {(
         <Button component={Link} to="/collections" color="primary" css={{ gridColumn: 'collection' }}>
           My Collections
         </Button>

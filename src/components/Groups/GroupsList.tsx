@@ -118,7 +118,7 @@ const Groups: React.FC = () => {
         My Collections
       </Typography>
 
-      <Typography>Collections allow you to organize papers and share comments with groups of peers</Typography>
+      <Typography>Collections allow you to organize papers and share comments with groups of peers.</Typography>
       <div
         css={css`
           width: 100%;

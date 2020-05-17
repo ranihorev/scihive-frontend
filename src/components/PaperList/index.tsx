@@ -265,7 +265,7 @@ const PapersList: React.FC = () => {
                 css={filterValueCss}
               >
                 <MenuItem css={filterMenuItemCss} value={ALL_COLLECTIONS}>
-                  All lists
+                  All collections
                 </MenuItem>
                 {groups.map(group => (
                   <MenuItem css={filterMenuItemCss} value={group.id} key={group.id}>

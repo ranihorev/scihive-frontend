@@ -68,15 +68,11 @@ export const MobileMenu: React.FC<MobileMenuProps> = ({ rootChildren, submenuChi
         onClick={() => handleMobileMenuClose()}
       >
         {submenuChildren}
-        {isLoggedIn && [
-          <Link to="/library" css={simpleLink} key="library">
+        {isLoggedIn && (
+          <Link to="/library" css={simpleLink}>
             <MenuItem>My Library</MenuItem>
-          </Link>,
-          <Link to="/collections" css={simpleLink} key="collections">
-            <MenuItem>My Collections</MenuItem>
-          </Link>,
-          <Divider />
-      ]}
+          </Link>
+        )}
         <a
           href="https://chrome.google.com/webstore/detail/scihive/dijdhkcfdaocpepndegmbkgphbpomdai"
           target="_blank"

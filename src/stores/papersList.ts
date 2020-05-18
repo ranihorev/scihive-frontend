@@ -33,8 +33,6 @@ export interface RequestParams {
 interface FetchPapers {
   url: string;
   requestParams: Partial<RequestParams>;
-  setHasMorePapers: (value: boolean) => void;
-  finallyCb: () => void;
 }
 
 const stateAndActions = (set: NamedSetState<PapersListState>, get: GetState<PapersListState>) => {
@@ -49,7 +47,7 @@ const stateAndActions = (set: NamedSetState<PapersListState>, get: GetState<Pape
   return {
     ...initialState,
     clearPapers: () => set(state => ({ papers: [], totalPapers: 0 }), 'clearPapers'),
-    fetchPapers: async ({ url, requestParams, setHasMorePapers, finallyCb }: FetchPapers) => {
+    fetchPapers: async ({ url, requestParams }: FetchPapers) => {
       const page = requestParams.page_num;
       try {
         const result = await axios.get<{ papers: PaperListItem[]; count: number }>(url, { params: requestParams });
@@ -60,12 +58,10 @@ const stateAndActions = (set: NamedSetState<PapersListState>, get: GetState<Pape
         }
         const totalPapers = result.data.count;
         addPapersHelper({ papers: newPapers, total: page === 1 ? totalPapers : undefined });
-        setHasMorePapers(get().papers.length < totalPapers);
+        return get().papers.length < totalPapers;
       } catch (e) {
         console.warn('Failed to load content', e);
-        setHasMorePapers(false);
-      } finally {
-        finallyCb();
+        return false;
       }
     },
     updatePaperGroups: (payload: AddRemovePaperToGroup) => {

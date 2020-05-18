@@ -27,7 +27,7 @@
     // "no-param-reassign": "off",
     // "class-methods-use-this": "off",
     "react-hooks/rules-of-hooks": "error",
-    "react-hooks/exhaustive-deps": ["warn", { "additionalHooks": "useLatestCallback" }]
+    "react-hooks/exhaustive-deps": ["warn", { "additionalHooks": "useLatestCallback|useInfiniteScroll" }]
   },
   "globals": {
     "window": true,

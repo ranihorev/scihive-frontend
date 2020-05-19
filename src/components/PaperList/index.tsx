@@ -6,7 +6,6 @@ import * as queryString from 'query-string';
 import React from 'react';
 import ContentLoader from 'react-content-loader';
 import { isMobile } from 'react-device-detect';
-import InfiniteScroll from 'react-infinite-scroller';
 import { useHistory, useLocation, useParams, useRouteMatch } from 'react-router';
 import shallow from 'zustand/shallow';
 import { LocationContext } from '../../LocationContext';

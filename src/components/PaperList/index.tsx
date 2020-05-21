@@ -142,7 +142,7 @@ const PapersList: React.FC = () => {
 
   const { hasMore, isLoading } = useInfiniteScroll(
     loadPapers,
-    [loadPapers, authorId, groupId, isLibraryMode, isLibraryOrList, location.search],
+    [loadPapers, authorId, groupId, isLibraryMode, isLibraryOrList, location.search, location.key],
     { initialLoad: true, thresholdPx: 250 },
   );
 

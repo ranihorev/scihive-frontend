@@ -19,6 +19,7 @@ import { FilterEvent, GroupFilter, SortControl, TimeFilter } from './Filters';
 import { Title } from './Title';
 import { useInfiniteScroll } from '../../utils/useInfiniteScroll';
 import { useLatestCallback } from '../../utils/useLatestCallback';
+import TagSelector from '../TagSelector';
 
 const filtersCss = css`
   ${presets.row};
@@ -178,6 +179,7 @@ const PapersList: React.FC = () => {
       `}
     >
       <Title {...{ isLibraryMode, authorId, groupId, groupName }} />
+      {/* <TagSelector /> */}
       <div
         css={css`
           ${presets.row};

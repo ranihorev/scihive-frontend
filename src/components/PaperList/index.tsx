@@ -112,8 +112,6 @@ const PapersList: React.FC = () => {
   const loadPapers = useLatestCallback(
     async (page: number) => {
       initialLoadRef.current = false;
-      console.log('loading start');
-      console.log('loading', page);
       let url = '/papers/all';
 
       const queryParams = queryString.parse(location.search) as Partial<RequestParams>;

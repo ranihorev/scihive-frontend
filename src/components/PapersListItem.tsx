@@ -106,7 +106,7 @@ const PaperMetadata: React.FC<{ paper: PaperListItem }> = ({ paper }) => {
   const { comments_count, twitter_score, twitter_links, num_stars, code } = paper;
   return (
     <React.Fragment>
-      <span data-rh="Paper comments" data-rh-at="top">
+      <span data-rh="Comments" data-rh-at="top">
         <Button
           disabled={true}
           size="small"
@@ -117,7 +117,7 @@ const PaperMetadata: React.FC<{ paper: PaperListItem }> = ({ paper }) => {
           <i className="fas fa-comments" css={metadataCss} /> {comments_count || '0'}
         </Button>
       </span>
-      <span data-rh="Users bookmarked" data-rh-at="top">
+      <span data-rh="Collections the paper belongs to" data-rh-at="top">
         <Button
           disabled={true}
           size="small"
@@ -128,11 +128,11 @@ const PaperMetadata: React.FC<{ paper: PaperListItem }> = ({ paper }) => {
           <i className="fa fa-star" css={metadataCss} /> {num_stars || '0'}
         </Button>
       </span>
-      <div data-rh="Σ Likes, RTs and replies" data-rh-at="top">
+      <div data-rh="Likes, retweets and replies" data-rh-at="top">
         <TwitterMeta twtr_score={twitter_score} twtr_links={twitter_links} iconCss={metadataCss} />
       </div>
       {!isEmpty(code) && (
-        <div data-rh="Github stars (by PapersWithCode)" data-rh-at="top">
+        <div data-rh="GitHub stars (by PapersWithCode)" data-rh-at="top">
           <CodeMetaRender data={code} iconCss={metadataCss} />
         </div>
       )}

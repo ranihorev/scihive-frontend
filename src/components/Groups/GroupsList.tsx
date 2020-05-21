@@ -11,6 +11,7 @@ import { getGroupColor } from '../../utils/presets';
 import { EditGroup } from './EditGroup';
 import GroupShare from './GroupShare';
 import { PopoverMenu } from '../PopoverMenu';
+import Tooltip from '@material-ui/core/Tooltip';
 
 const ICON_SIZE = 16;
 const iconCss = css({ fontSize: ICON_SIZE });
@@ -54,6 +55,7 @@ const GroupRender: React.FC<GroupProps> = ({ group }) => {
         </div>
         <div css={presets.row}>
           <div ref={editRef}>
+          <Tooltip title="Edit" placement="top">
             <IconButton
               aria-label="Open"
               onClick={() => {
@@ -62,11 +64,12 @@ const GroupRender: React.FC<GroupProps> = ({ group }) => {
             >
               <i className="fas fa-pencil-alt" css={iconCss} />
             </IconButton>
+            </Tooltip>
           </div>
           <GroupShare iconSize={ICON_SIZE} groupId={group.id} />
-          <IconButton aria-label="Delete" onClick={() => deleteGroup(group.id)}>
+          {/* <IconButton aria-label="Delete" onClick={() => deleteGroup(group.id)}>
             <i className="far fa-trash-alt" css={iconCss} />
-          </IconButton>
+          </IconButton> */}
         </div>
         <PopoverMenu
           open={isEditOpen}
@@ -137,7 +140,7 @@ const Groups: React.FC = () => {
           <TextField
             type="text"
             name="name"
-            placeholder="Your new list"
+            placeholder="Your new collection"
             value={newGroupName}
             onChange={event => setNewGroupName(event.target.value)}
             fullWidth

@@ -48,7 +48,7 @@ const NewGroup: React.FC<NewGroupProps> = ({ value, setValue, addPaperToGroup })
     <ListItem css={{ paddingTop: 12 }}>
       <Input
         value={value}
-        placeholder="New list"
+        placeholder="New collection"
         autoFocus
         onChange={e => {
           setValue(e.target.value);
@@ -196,7 +196,7 @@ const GroupsList: React.FC<GroupListProps> = ({ selectedGroupIds, updatePaperGro
   );
 };
 
-const hint = 'Organize your papers in collections and share them with collaborators';
+const hint = 'Add paper to a collection. Collections allow you to organize papers and can be shared with collaborators.';
 
 const Bookmark: React.FC<BookmarkProps> = ({
   updatePaperGroup,

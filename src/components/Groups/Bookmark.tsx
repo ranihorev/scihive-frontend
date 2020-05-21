@@ -196,7 +196,7 @@ const GroupsList: React.FC<GroupListProps> = ({ selectedGroupIds, updatePaperGro
   );
 };
 
-const hint = 'Add paper to a collection. Collections can be shared with collaborators.';
+const hint = 'Add paper to a collection. Collections allow you to organize papers and can be shared with collaborators.';
 
 const Bookmark: React.FC<BookmarkProps> = ({
   updatePaperGroup,

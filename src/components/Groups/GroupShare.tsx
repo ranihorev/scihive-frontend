@@ -4,6 +4,7 @@ import { IconButton, IconButtonProps } from '@material-ui/core';
 import copy from 'clipboard-copy';
 import React from 'react';
 import { toast } from 'react-toastify';
+import Tooltip from '@material-ui/core/Tooltip';
 
 interface Props extends IconButtonProps {
   iconSize: number;
@@ -18,12 +19,14 @@ const GroupShare: React.FC<Props> = ({ iconSize, buttonSize, groupId, ...props }
   };
 
   return (
-    <IconButton aria-label="Share" onClick={() => handleGroupShare()} size={buttonSize} {...props}>
-      <i
-        className="fas fa-share-alt"
-        css={{ fontSize: iconSize, marginLeft: -1, padding: buttonSize === 'small' ? 5 : undefined }}
-      />
-    </IconButton>
+    <Tooltip title="Share" placement="top">
+      <IconButton aria-label="Share" onClick={() => handleGroupShare()} size={buttonSize} {...props}>
+        <i
+          className="fas fa-share-alt"
+          css={{ fontSize: iconSize, marginLeft: -1, padding: buttonSize === 'small' ? 5 : undefined }}
+        />
+      </IconButton>
+    </Tooltip>
   );
 };
 

@@ -110,6 +110,9 @@ const SearchBar: React.FC<Props> = ({ classes }) => {
   const urlQuery = queryString.parse(location.search).q as string;
   const [value, setValue] = React.useState(urlQuery || '');
   const [suggestions, setSuggestions] = React.useState([]);
+  const requestId = React.useRef(0);
+  const isFocused = React.useRef(false);
+  const ref = React.useRef<any>();
 
   React.useEffect(() => {
     setValue(urlQuery || '');
@@ -142,6 +145,7 @@ const SearchBar: React.FC<Props> = ({ classes }) => {
   return (
     <Autosuggest
       {...autosuggestProps}
+      ref={ref}
       renderInputComponent={({ onChange, onBlur, color, ...inputProps }) => {
         return (
           <div className={classes.search}>
@@ -176,18 +180,28 @@ const SearchBar: React.FC<Props> = ({ classes }) => {
       getSuggestionValue={suggestion => suggestion.name}
       onSuggestionsFetchRequested={({ value: reqValue, reason }) => {
         if (reason === 'input-changed') {
+          const currentId = requestId.current;
           axios
             .get('/papers/autocomplete', { params: { q: reqValue } })
             .then(res => {
+              if (currentId + 1 < requestId.current) return; // Ignore old requests
+              if (!isFocused.current) return;
               setSuggestions(res.data);
             })
             .catch(err => console.log(err));
+          requestId.current++;
         }
       }}
       inputProps={{
         placeholder: 'Search',
         value,
         onChange: handleChange,
+        onBlur: () => {
+          isFocused.current = false;
+        },
+        onFocus: () => {
+          isFocused.current = true;
+        },
         onKeyDown,
       }}
       theme={{

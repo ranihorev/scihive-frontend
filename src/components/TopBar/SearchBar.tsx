@@ -129,6 +129,7 @@ const SearchBar: React.FC<Props> = ({ classes }) => {
       e.preventDefault();
       e.stopPropagation();
       history.push({ search: `q=${value}` });
+      onSuggestionsClearRequested();
     }
   };
 
@@ -141,7 +142,7 @@ const SearchBar: React.FC<Props> = ({ classes }) => {
   return (
     <Autosuggest
       {...autosuggestProps}
-      renderInputComponent={({onChange, onBlur, color, ...inputProps}) => {
+      renderInputComponent={({ onChange, onBlur, color, ...inputProps }) => {
         return (
           <div className={classes.search}>
             <div className={classes.searchIcon}>
@@ -153,7 +154,7 @@ const SearchBar: React.FC<Props> = ({ classes }) => {
                 root: classes.inputRoot,
                 input: classes.inputInput,
               }}
-              onChange={e => onChange(e, {newValue: e.target.value, method: 'type'})}
+              onChange={e => onChange(e, { newValue: e.target.value, method: 'type' })}
               onBlur={onBlur}
               {...inputProps}
             />

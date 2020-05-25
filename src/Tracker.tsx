@@ -15,7 +15,7 @@ export const track: typeof mixpanel.track = (event, properties) => {
   }
 };
 
-export const useTracker = (options = {}) => {
+export const useTracker = (isUser: boolean, options = {}) => {
   const trackPage = React.useCallback(
     (page: string) => {
       ReactGA.set({
@@ -35,7 +35,7 @@ export const useTracker = (options = {}) => {
     } else {
       console.log(`Track: ${page}`);
     }
-    track('PageView', { page });
+    track('PageView', { page, isUser });
   }, [trackPage, location.pathname, location.search]);
 
   return null;

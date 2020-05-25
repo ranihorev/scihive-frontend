@@ -53,7 +53,7 @@ const App: React.FC = () => {
     isFirstLoad.current = false;
   }, [user]);
 
-  useTracker();
+  useTracker(user);
 
   return (
     <MuiThemeProvider theme={theme}>

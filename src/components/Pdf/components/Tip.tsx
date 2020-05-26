@@ -60,10 +60,10 @@ const CompactTipButton: React.FC<{ onClick: (e: React.MouseEvent) => void; icon:
 
 const Tip: React.FC<TipProps> = ({ updateTipPosition, onMouseDown = () => {}, isOnboarding = false }) => {
   const [type, setType] = React.useState<'compact' | 'highlight' | 'comment'>('compact');
-  const paperId = usePaperId();
   const newHighlightId = React.useRef<string | undefined>();
   // const isLoggedIn = useUserStore(state => Boolean(state.userData));
   const {
+    id: paperId,
     tempHighlight,
     commentVisibility,
     addHighlight,
@@ -72,6 +72,7 @@ const Tip: React.FC<TipProps> = ({ updateTipPosition, onMouseDown = () => {}, is
   } = usePaperStore(state => {
     return {
       ...pick(state, [
+        'id',
         'tempHighlight',
         'commentVisibility',
         'addHighlight',

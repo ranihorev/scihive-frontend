@@ -63,6 +63,7 @@ const initialState: PaperState = {
 };
 
 interface FetchPaperResponse {
+  id: string;
   authors: Author[];
   time_published?: string;
   abstract?: string;
@@ -223,12 +224,12 @@ const stateAndActions = (set: NamedSetState<PaperState>, get: GetState<PaperStat
     },
     fetchPaper: async ({ paperId, selectedGroupId }: { paperId: string; selectedGroupId?: string }) => {
       const { data } = await axios.get<FetchPaperResponse>(`/paper/${paperId}`);
+      paperId = data.id;
       const newState: Partial<PaperState> = {
         url: data.url,
         codeMeta: data.code,
         groupIds: data.groups,
         isEditable: data.is_editable,
-        id: paperId,
         ...pick(data, ['id', 'time_published', 'title', 'abstract', 'authors']),
       };
 

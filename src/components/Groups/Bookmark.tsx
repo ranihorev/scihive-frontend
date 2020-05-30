@@ -38,7 +38,7 @@ const NewGroup: React.FC<NewGroupProps> = ({ value, setValue, submitGroup }) => 
     <ListItem css={{ paddingTop: 12 }}>
       <Input
         value={value}
-        placeholder="New collection"
+        placeholder="Search or Create..."
         autoFocus
         onChange={e => {
           setValue(e.target.value);

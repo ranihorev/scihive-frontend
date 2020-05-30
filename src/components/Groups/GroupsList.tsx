@@ -140,7 +140,7 @@ const Groups: React.FC = () => {
           <TextField
             type="text"
             name="name"
-            placeholder="Your new collection"
+            placeholder="Create collection"
             value={newGroupName}
             onChange={event => setNewGroupName(event.target.value)}
             fullWidth

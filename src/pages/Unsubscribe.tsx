@@ -1,10 +1,11 @@
 /** @jsx jsx */
 import { jsx } from '@emotion/core';
 import * as Sentry from '@sentry/browser';
-import React from 'react';
-import { BasePage } from './BasePage';
 import Axios from 'axios';
+import React from 'react';
 import { useParams } from 'react-router';
+import { track } from '../Tracker';
+import { BasePage } from './BasePage';
 
 type Status = 'sending' | 'success' | 'error';
 
@@ -19,6 +20,7 @@ export const Unsubscribe: React.FC = () => {
   const [title, setTitle] = React.useState('');
   const { token } = useParams<{ token: string }>();
   React.useEffect(() => {
+    track('unsubscribe'); // TODO: provide paper_id in the link
     Axios.post<{ title: string }>(`/user/unsubscribe/${token}`)
       .then(res => {
         setStatus('success');

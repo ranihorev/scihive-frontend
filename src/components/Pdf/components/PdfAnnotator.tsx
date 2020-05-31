@@ -99,7 +99,6 @@ const PdfAnnotator: React.FC<PdfAnnotatorProps> = ({ enableAreaSelection, setRef
   const [isSelecting, setIsSelecting] = React.useState(false);
   const lastTempHighlightPage = React.useRef<number | undefined>();
   const selectionTextLayerRef = React.useRef<HTMLElement | null>(null);
-  const [isDocumentReady, setIsDocumentReady] = React.useState(false);
   const pagesReadyToRender = React.useRef<number[]>([]);
   const [acronymPositions, setAcronymPositions] = React.useState<AcronymPositions>({});
   const canZoom = React.useRef(true);
@@ -117,6 +116,8 @@ const PdfAnnotator: React.FC<PdfAnnotatorProps> = ({ enableAreaSelection, setRef
     clearTempHighlight,
     tempHighlight,
     setTempHighlight,
+    isDocumentReady,
+    setDocumentReady,
   } = usePaperStore(
     state => ({
       ...pick(state, [
@@ -129,6 +130,8 @@ const PdfAnnotator: React.FC<PdfAnnotatorProps> = ({ enableAreaSelection, setRef
         'setTempHighlight',
         'tempHighlight',
         'clearTempHighlight',
+        'isDocumentReady',
+        'setDocumentReady',
       ]),
       jumpToComment: (id: string) => {
         state.setSidebarTab('Comments');
@@ -155,7 +158,7 @@ const PdfAnnotator: React.FC<PdfAnnotatorProps> = ({ enableAreaSelection, setRef
     }
     const { viewport } = viewer.current.getPageView(0);
     viewer.current.currentScaleValue = containerNode.current.clientWidth / viewport.width - 0.05;
-    setIsDocumentReady(true);
+    setDocumentReady();
   };
 
   const screenshot = (position: T_LTWH, pageNumber: number) => {
@@ -305,10 +308,6 @@ const PdfAnnotator: React.FC<PdfAnnotatorProps> = ({ enableAreaSelection, setRef
       selectionTextLayerRef.current.style.zIndex = '';
       selectionTextLayerRef.current = null;
     }
-  };
-
-  const toggleTextSelection = (flag: boolean) => {
-    viewer.current.viewer.classList.toggle('PdfHighlighter--disable-selection', flag);
   };
 
   const onViewerScroll = () => {

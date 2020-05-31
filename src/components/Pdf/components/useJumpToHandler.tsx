@@ -6,6 +6,7 @@ import shallow from 'zustand/shallow';
 import { usePaperStore } from '../../../stores/paper';
 import { scaledToViewport } from '../lib/coordinates';
 import { PaperJump } from '../../../models';
+import { useLocation } from 'react-router';
 
 interface Props {
   viewer: PDFViewer;
@@ -14,11 +15,30 @@ interface Props {
 
 export const useJumpToHandler = ({ viewer, renderHighlights }: Props) => {
   const prevJumpData = React.useRef<PaperJump | undefined>(undefined);
+  const { hash } = useLocation();
 
-  const { paperJumpData, clearPaperJumpTo } = usePaperStore(
-    state => pick(state, ['paperJumpData', 'clearPaperJumpTo']),
+  const { paperJumpData, clearPaperJumpTo, setPaperJumpTo, isDocumentReady, highlightsState, sections } = usePaperStore(
+    state =>
+      pick(state, [
+        'paperJumpData',
+        'clearPaperJumpTo',
+        'setPaperJumpTo',
+        'isDocumentReady',
+        'highlightsState',
+        'sections',
+      ]),
     shallow,
   );
+
+  React.useEffect(() => {
+    if (!isDocumentReady || highlightsState !== 'loaded' || sections === undefined) return;
+    const jumpToRegex = /(?<type>(section|highlight))-(?<id>\d+)/;
+    const groups = hash.match(jumpToRegex)?.groups;
+    if (groups && (groups.type === 'highlight' || groups.type === 'section')) {
+      setPaperJumpTo({ type: groups.type, id: groups.id });
+    }
+  }, [isDocumentReady, highlightsState, hash, setPaperJumpTo, sections]);
+
   React.useEffect(() => {
     if (!paperJumpData) return;
 

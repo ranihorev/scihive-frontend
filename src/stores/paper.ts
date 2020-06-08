@@ -6,6 +6,8 @@ import {
   Acronyms,
   AllHighlight,
   AllNewHighlight,
+  Author,
+  BasePaperData,
   CodeMeta,
   EditHighlightData,
   FileMetadata,
@@ -19,18 +21,19 @@ import {
   TempHighlight,
   T_Highlight,
   Visibility,
-  BasePaperData,
-  Author,
 } from '../models';
 import { track } from '../Tracker';
+import { getSectionPosition } from '../utils';
 import { AddRemovePaperToGroup, addRemovePaperToGroupHelper, createWithDevtools, NamedSetState } from './utils';
 
 export interface PaperState extends BasePaperData {
   url?: string;
+  isDocumentReady: boolean;
   sections?: Section[];
   references: References;
   acronyms: Acronyms;
   highlights: AllHighlight[];
+  highlightsState: 'loading' | 'loaded';
   isEditable: boolean;
   groupIds: string[];
   hiddenHighlights: AllHighlight[];
@@ -53,6 +56,7 @@ const initialState: PaperState = {
   authors: [],
   readingProgress: 0,
   references: {},
+  highlightsState: 'loading',
   highlights: [],
   hiddenHighlights: [],
   acronyms: {},
@@ -60,6 +64,7 @@ const initialState: PaperState = {
   groupIds: [],
   commentVisibility: { type: 'public' },
   isEditable: false,
+  isDocumentReady: false,
 };
 
 interface FetchPaperResponse {
@@ -89,10 +94,10 @@ const sortHighlights = (highlights: AllHighlight[]): AllHighlight[] => {
 };
 
 const stateAndActions = (set: NamedSetState<PaperState>, get: GetState<PaperState>) => {
-  const fetchComments = async (paperId: string) => {
+  const fetchComments = async (paperId: string, hash: string = '') => {
     try {
       const res = await axios.get<{ comments: AllHighlight[] }>(`/paper/${paperId}/comments`);
-      set({ highlights: sortHighlights(res.data.comments) });
+      set({ highlights: sortHighlights(res.data.comments), highlightsState: 'loaded' });
     } catch (err) {
       console.warn(err.response);
     }
@@ -122,6 +127,10 @@ const stateAndActions = (set: NamedSetState<PaperState>, get: GetState<PaperStat
       }),
       'updateHighlight',
     );
+  };
+
+  const resetState = () => {
+    set(initialState, 'resetState');
   };
 
   return {
@@ -222,7 +231,16 @@ const stateAndActions = (set: NamedSetState<PaperState>, get: GetState<PaperStat
         }
       });
     },
-    fetchPaper: async ({ paperId, selectedGroupId }: { paperId: string; selectedGroupId?: string }) => {
+    fetchPaper: async ({
+      paperId,
+      selectedGroupId,
+      hash,
+    }: {
+      paperId: string;
+      selectedGroupId?: string;
+      hash?: string;
+    }) => {
+      resetState();
       const { data } = await axios.get<FetchPaperResponse>(`/paper/${paperId}`);
       paperId = data.id;
       const newState: Partial<PaperState> = {
@@ -237,7 +255,7 @@ const stateAndActions = (set: NamedSetState<PaperState>, get: GetState<PaperStat
         newState.commentVisibility = { type: 'group', id: selectedGroupId as string };
       }
       set(newState, 'setPaper');
-      fetchComments(paperId);
+      fetchComments(paperId, hash);
       fetchReferences(paperId);
       // TODO: add this back once backend is fixed
       // fetchAcronyms(paperId);
@@ -254,7 +272,31 @@ const stateAndActions = (set: NamedSetState<PaperState>, get: GetState<PaperStat
       set(newData, 'editPaper');
     },
     setSidebarJumpTo: (jumpData: SidebarCommentJump) => set({ sidebarJumpData: jumpData }, 'jumpToSidebar'),
-    setPaperJumpTo: (jumpData: PaperJump) => set({ paperJumpData: jumpData }, 'jumpToPaper'),
+    setPaperJumpTo: ({ type, id }: { type: 'section' | 'highlight'; id: string }) => {
+      let jumpData: PaperJump;
+      if (type === 'section') {
+        const sections = get().sections || [];
+        const currentSection = sections[parseInt(id)];
+        if (!currentSection) return;
+        jumpData = {
+          area: 'paper',
+          type: 'section',
+          id: id,
+          location: getSectionPosition(currentSection),
+        };
+      } else {
+        // type === 'highlight'
+        const matchingComment = get().highlights.find(h => h.id === id);
+        if (!matchingComment || isGeneralHighlight(matchingComment)) return;
+        jumpData = {
+          id: matchingComment.id,
+          area: 'paper',
+          type: 'highlight',
+          location: matchingComment.position,
+        };
+      }
+      set({ paperJumpData: jumpData }, 'jumpToPaper');
+    },
     clearSidebarJumpTo: () => set({ sidebarJumpData: undefined }, 'clearSidebarJumpTo'),
     clearPaperJumpTo: () => set({ paperJumpData: undefined }, 'clearPaperJumpTo'),
     setCommentVisibilitySettings: (visibility: Visibility) =>
@@ -263,6 +305,7 @@ const stateAndActions = (set: NamedSetState<PaperState>, get: GetState<PaperStat
     setSections: (sections: Section[]) => set({ sections }, 'setSections'),
     setTempHighlight: (highlight: TempHighlight) => set({ tempHighlight: highlight }),
     clearTempHighlight: () => set({ tempHighlight: undefined }),
+    setDocumentReady: () => set({ isDocumentReady: true }),
   };
 };
 

@@ -28,6 +28,8 @@ export const EditHighlight: React.FC<Props> = ({ onSubmit, text = '', visibility
     setInternalText(text);
   }, [text]);
 
+  const onSubmitHelper = () => onSubmit({ text: internalText, visibility: internalVisibility });
+
   return (
     <form
       css={css`
@@ -41,7 +43,7 @@ export const EditHighlight: React.FC<Props> = ({ onSubmit, text = '', visibility
       `}
       onSubmit={event => {
         event.preventDefault();
-        onSubmit({ text: internalText, visibility: internalVisibility });
+        onSubmitHelper();
       }}
     >
       <div>
@@ -61,6 +63,11 @@ export const EditHighlight: React.FC<Props> = ({ onSubmit, text = '', visibility
             if (inp && firstFocus.current) {
               firstFocus.current = false;
               setTimeout(() => inp.focus(), 100);
+            }
+          }}
+          onKeyDown={e => {
+            if ((e.metaKey || e.ctrlKey) && e.key === 'Enter') {
+              onSubmitHelper();
             }
           }}
           css={{ textarea: { minHeight: 70 }, '.MuiInputBase-marginDense': { padding: '10px 10px' } }}

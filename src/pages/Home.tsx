@@ -1,20 +1,12 @@
-import Grid from '@material-ui/core/Grid';
 import React from 'react';
-import Helmet from 'react-helmet';
 import PapersList from '../components/PaperList';
-import PrimaryAppBar from '../components/TopBar/PrimaryAppBar';
+import { BasePage } from './BasePage';
 
 const Home: React.FC = () => {
   return (
-    <React.Fragment>
-      <Helmet>
-        <title>SciHive</title>
-      </Helmet>
-      <PrimaryAppBar />
-      <Grid container direction="row" justify="center">
-        <PapersList />
-      </Grid>
-    </React.Fragment>
+    <BasePage title="SciHive">
+      <PapersList />
+    </BasePage>
   );
 };
 

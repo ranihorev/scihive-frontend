@@ -8,7 +8,7 @@ import { useHistory } from 'react-router';
 import shallow from 'zustand/shallow';
 import { Section } from '../../models';
 import { usePaperStore } from '../../stores/paper';
-import { getSectionPosition, presets } from '../../utils';
+import { presets } from '../../utils';
 
 const asc = (arr: number[]) => arr.sort((a, b) => a - b);
 
@@ -203,10 +203,7 @@ export const extractSections = (document: PDFDocumentProxy, onSuccess: (sections
 
 export const PaperSections: React.FC = () => {
   const history = useHistory();
-  const { sections, jumpToSection } = usePaperStore(
-    state => ({ sections: state.sections, jumpToSection: state.setPaperJumpTo }),
-    shallow,
-  );
+  const sections = usePaperStore(state => state.sections, shallow);
   return (
     <div
       css={css`
@@ -220,12 +217,6 @@ export const PaperSections: React.FC = () => {
           return (
             <span
               onClick={() => {
-                jumpToSection({
-                  area: 'paper',
-                  type: 'section',
-                  id: idx.toString(),
-                  location: getSectionPosition(section),
-                });
                 history.push({ hash: `section-${idx}` });
               }}
               key={idx}

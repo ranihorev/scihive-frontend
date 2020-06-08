@@ -39,8 +39,8 @@ export const SidebarHighlightItem = React.forwardRef<HTMLDivElement, CommentProp
   const actionsRef = React.useRef<HTMLDivElement>(null);
   const history = useHistory();
 
-  const { setPaperJumpTo, updateHighlight, replyToHighlight, removeHighlight } = usePaperStore(
-    state => pick(state, ['setPaperJumpTo', 'updateHighlight', 'replyToHighlight', 'removeHighlight']),
+  const { updateHighlight, replyToHighlight, removeHighlight } = usePaperStore(
+    state => pick(state, ['updateHighlight', 'replyToHighlight', 'removeHighlight']),
     shallow,
   );
 
@@ -104,7 +104,6 @@ export const SidebarHighlightItem = React.forwardRef<HTMLDivElement, CommentProp
             css={{ cursor: isDirectHighlight(highlight) ? 'pointer' : undefined }}
             onClick={e => {
               if (isDirectHighlight(highlight) && !actionsRef.current?.contains(e.target as Node)) {
-                setPaperJumpTo({ area: 'paper', type: 'highlight', id: highlight.id, location: highlight.position });
                 history.push({ hash: `highlight-${highlight.id}` });
               }
             }}

@@ -7,7 +7,6 @@ import shallow from 'zustand/shallow';
 import { EditHighlightData, T_NewHighlight } from '../../../models';
 import { usePaperStore } from '../../../stores/paper';
 import { presets } from '../../../utils';
-import { usePaperId } from '../../../utils/hooks';
 import { EditHighlight } from '../../EditHighlight';
 import { VisibilityControl } from '../../EditHighlight/VisibilityControl';
 

@@ -14,6 +14,7 @@ import Groups from './pages/Groups';
 import Home from './pages/Home';
 import NotFound from './pages/NotFound';
 import Paper from './pages/Paper';
+import { Unsubscribe } from './pages/Unsubscribe';
 import './react-hint.css';
 import { useUserStore } from './stores/user';
 import { theme } from './themes';
@@ -66,6 +67,7 @@ const App: React.FC = () => {
           <Route path="/author/:authorId" exact component={Home} />
           <Route path="/paper/:paperId" exact component={Paper} />
           <Route path="/paper/:field/:paperId" exact component={Paper} />
+          <Route path="/user/unsubscribe/:token" exact component={Unsubscribe} />
           <Route path="/list/:groupId" exact component={Home} />
           <Route path="/lists" exact component={Groups} />
           <Route path="/collection/:groupId" exact component={Home} />

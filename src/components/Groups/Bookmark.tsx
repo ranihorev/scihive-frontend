@@ -1,6 +1,6 @@
 /** @jsx jsx */
 import { css, jsx } from '@emotion/core';
-import { IconButton, Input, List, ListItem } from '@material-ui/core';
+import { Button, IconButton, Input, List, ListItem } from '@material-ui/core';
 import CreateIcon from '@material-ui/icons/Create';
 import DoneIcon from '@material-ui/icons/Done';
 import StarIcon from '@material-ui/icons/Star';
@@ -30,25 +30,15 @@ interface BookmarkProps {
 interface NewGroupProps {
   value: string;
   setValue: React.Dispatch<string>;
-  addPaperToGroup: (groupId: string) => void;
+  submitGroup: () => void;
 }
 
-const NewGroup: React.FC<NewGroupProps> = ({ value, setValue, addPaperToGroup }) => {
-  const createGroup = useUserStore(state => state.newGroup);
-
-  const submitGroup = async () => {
-    if (isEmpty(value)) return;
-    const response = await createGroup({ name: value, color: pickRandomColor() });
-    if (response) {
-      setValue('');
-      addPaperToGroup(response.new_id);
-    }
-  };
+const NewGroup: React.FC<NewGroupProps> = ({ value, setValue, submitGroup }) => {
   return (
     <ListItem css={{ paddingTop: 12 }}>
       <Input
         value={value}
-        placeholder="New collection"
+        placeholder="Search or Create..."
         autoFocus
         onChange={e => {
           setValue(e.target.value);
@@ -58,18 +48,6 @@ const NewGroup: React.FC<NewGroupProps> = ({ value, setValue, addPaperToGroup })
         }}
         inputProps={{ style: { padding: '3px 0 4px' } }}
         fullWidth
-      />
-      <i
-        className="fas fa-plus"
-        css={css`
-          font-size: 14px;
-          cursor: pointer;
-          margin-left: 5px;
-          margin-right: 2px;
-          padding: 4px 0;
-          color: #a5a5a5;
-        `}
-        onClick={() => submitGroup()}
       />
     </ListItem>
   );
@@ -163,25 +141,34 @@ interface GroupListProps extends Pick<BookmarkProps, 'selectedGroupIds' | 'updat
 const GroupsList: React.FC<GroupListProps> = ({ selectedGroupIds, updatePaperGroup, setGroupInEdit, paperId }) => {
   const [newGroupValue, setNewGroupValue] = React.useState('');
   const groups = useUserStore(state => state.groups);
+
+  const createGroup = useUserStore(state => state.newGroup);
+
+  const submitGroup = async () => {
+    if (isEmpty(newGroupValue)) return;
+    const response = await createGroup({ name: newGroupValue, color: pickRandomColor() });
+    if (response) {
+      setNewGroupValue('');
+      updatePaperGroup({ groupId: response.new_id, paperId, shouldAdd: true });
+    }
+  };
+
+  const filteredGroups = groups.filter(group => new RegExp(`^${newGroupValue}`, 'i').test(group.name));
+
   return (
     <React.Fragment>
-      <NewGroup
-        value={newGroupValue}
-        setValue={setNewGroupValue}
-        addPaperToGroup={groupId => updatePaperGroup({ groupId, paperId, shouldAdd: true })}
-      />
-      <List
-        dense
-        css={css`
-          max-height: 250px;
-          overflow-y: auto;
-          width: 100%;
-          padding-top: 4px;
-        `}
-      >
-        {groups
-          .filter(group => new RegExp(`^${newGroupValue}`, 'i').test(group.name))
-          .map(group => {
+      <NewGroup value={newGroupValue} setValue={setNewGroupValue} submitGroup={submitGroup} />
+      {filteredGroups.length > 0 && (
+        <List
+          dense
+          css={css`
+            max-height: 250px;
+            overflow-y: auto;
+            width: 100%;
+            padding-top: 4px;
+          `}
+        >
+          {filteredGroups.map(group => {
             const selected = selectedGroupIds.some(id => id === group.id);
             return (
               <GroupRender
@@ -191,12 +178,21 @@ const GroupsList: React.FC<GroupListProps> = ({ selectedGroupIds, updatePaperGro
               />
             );
           })}
-      </List>
+        </List>
+      )}
+      {newGroupValue && (
+        <ListItem>
+          <Button variant="outlined" style={{ textTransform: 'none' }} fullWidth onClick={submitGroup}>
+            Create "{newGroupValue}"
+          </Button>
+        </ListItem>
+      )}
     </React.Fragment>
   );
 };
 
-const hint = 'Add paper to a collection. Collections allow you to organize papers and can be shared with collaborators.';
+const hint =
+  'Add paper to a collection. Collections allow you to organize papers and can be shared with collaborators.';
 
 const Bookmark: React.FC<BookmarkProps> = ({
   updatePaperGroup,

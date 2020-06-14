@@ -20,10 +20,11 @@ import { useUserStore } from './stores/user';
 import { theme } from './themes';
 import { useTracker } from './Tracker';
 import ChromeExtensionPopup from './utils/chromeExtension';
+import CollabMain from './collab';
 
 const ReactHint = ReactHintFactory(React);
 
-const App: React.FC = () => {
+const OldApp: React.FC = () => {
   const [, setCookie] = useCookies([]);
   const { user } = useUserStore(state => ({ user: Boolean(state.userData) }), shallow);
   const [key, setKey] = React.useState(Math.random());
@@ -52,11 +53,8 @@ const App: React.FC = () => {
     }
     isFirstLoad.current = false;
   }, [user]);
-
-  useTracker();
-
   return (
-    <MuiThemeProvider theme={theme}>
+    <React.Fragment>
       <LoginSignupModal />
       <LocationProvider>
         <Switch key={key}>
@@ -77,6 +75,20 @@ const App: React.FC = () => {
         </Switch>
       </LocationProvider>
       <GroupLoader />
+      <ChromeExtensionPopup />
+    </React.Fragment>
+  );
+};
+
+const App: React.FC = () => {
+  useTracker();
+
+  return (
+    <MuiThemeProvider theme={theme}>
+      <Switch>
+        <Route path="/collab" component={CollabMain} />
+        <Route component={OldApp} />
+      </Switch>
       <ToastContainer
         position="bottom-center"
         autoClose={false}
@@ -87,7 +99,6 @@ const App: React.FC = () => {
         draggable
       />
       <ReactHint autoPosition events={{ hover: true }} delay={{ show: 300, hide: 0 }} />
-      <ChromeExtensionPopup />
     </MuiThemeProvider>
   );
 };

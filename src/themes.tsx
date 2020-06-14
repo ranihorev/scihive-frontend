@@ -1,9 +1,20 @@
+import { createMuiTheme, responsiveFontSizes } from '@material-ui/core';
 import { themePalette } from './utils/presets';
-import { createMuiTheme } from '@material-ui/core';
 
-export const theme = createMuiTheme({
+const themeInner = createMuiTheme({
   palette: themePalette,
   typography: {
     fontFamily: 'Roboto, Helvetica, Arial, sans-serif',
+    h3: {
+      fontSize: '2.2rem',
+    },
+    h4: {
+      fontSize: '1.7rem',
+    },
+    h5: {
+      fontSize: '1.3rem',
+    },
   },
 });
+
+export const theme = responsiveFontSizes(themeInner);

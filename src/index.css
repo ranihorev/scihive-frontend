@@ -25,3 +25,8 @@ code {
 .download-extesion {
   text-align: center;
 }
+
+.hidden {
+  display: none;
+  visibility: hidden;
+}

@@ -20,6 +20,7 @@ import { useUserStore } from './stores/user';
 import { theme } from './themes';
 import { useTracker } from './Tracker';
 import ChromeExtensionPopup from './utils/chromeExtension';
+import GoogleAuth from './components/auth/GoogleAuth';
 
 const ReactHint = ReactHintFactory(React);
 
@@ -61,6 +62,7 @@ const App: React.FC = () => {
       <LocationProvider>
         <Switch key={key}>
           <Route path="/library" exact component={Home} />
+          <Route path="/google" exact component={GoogleAuth} />
           <Route path="/" exact component={Home} />
           <Route path="/home" exact component={Home} />
           <Route path="/search/" exact component={Home} />

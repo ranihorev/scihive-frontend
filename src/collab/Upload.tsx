@@ -1,17 +1,20 @@
 /** @jsx jsx */
 import { jsx } from '@emotion/core';
-import React from 'react';
 import { Button, LinearProgress, TextField, Typography } from '@material-ui/core';
 import Axios from 'axios';
 import { isEmpty } from 'lodash';
+import React from 'react';
 import { DropzoneOptions, useDropzone } from 'react-dropzone';
 import { useHistory } from 'react-router';
 import { toast } from 'react-toastify';
+import { LogoutWithGoogle } from '../auth';
 import { track } from '../Tracker';
+import { CenteredFullScreen } from './utils/CenteredFullScreen';
+import { Spacer } from './utils/Spacer';
 
 type UploadStatus = 'idle' | 'uploading' | 'processing';
 
-const Spacer: React.FC<{ size: number }> = ({ size }) => <div css={{ width: size, height: size }} />;
+const getPaperPath = (paperId: string) => `/collab/paper/${paperId}/invite`;
 
 export const FileUpload: React.FC = () => {
   const history = useHistory();
@@ -40,7 +43,7 @@ export const FileUpload: React.FC = () => {
         },
       })
         .then(res => {
-          history.push(`/paper/${res.data.id}?info=True`);
+          history.push(getPaperPath(res.data.id));
         })
         .catch(err => {
           console.error(err.message);
@@ -59,15 +62,11 @@ export const FileUpload: React.FC = () => {
   });
 
   const onSubmitLink = () => {
-    if (!link.endsWith('.pdf')) {
-      toast.error('Only PDF links are supported, please try a different link');
-      return;
-    }
     track('uploadPaper', { type: 'link' });
     setUploadStatus({ status: 'processing', prct: 0 });
     Axios.post<{ id: string }>('/new_paper/add', { link })
       .then(res => {
-        history.push(`/paper/${res.data.id}?info=True`);
+        history.push(getPaperPath(res.data.id));
       })
       .catch(err => {
         console.error(err.message);
@@ -147,19 +146,12 @@ export const FileUpload: React.FC = () => {
 
 export const Upload: React.FC = () => {
   return (
-    <div
-      css={{
-        display: 'flex',
-        flexDirection: 'column',
-        alignItems: 'center',
-        justifyContent: 'center',
-        minWidth: '100vw',
-        minHeight: '100vh',
-      }}
-    >
+    <CenteredFullScreen>
       <Typography variant="h4">Which paper would you like to upload?</Typography>
       <Spacer size={24} />
       <FileUpload />
-    </div>
+      <Spacer size={24} />
+      <LogoutWithGoogle onSuccess={() => window.location.reload()} />
+    </CenteredFullScreen>
   );
 };

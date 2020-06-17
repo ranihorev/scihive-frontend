@@ -1,20 +1,34 @@
+/** @jsx jsx */
+import { jsx } from '@emotion/core';
 import React from 'react';
-import { GoogleLogin } from 'react-google-login';
+import { useHistory } from 'react-router';
+import { LoginWithGoogle } from '../auth';
+import { useIsLoggedIn } from '../auth/utils';
+import { CenteredFullScreen } from './utils/CenteredFullScreen';
+
+// This is the scope required for readonly access to contacts
 
 export const Landing: React.FC = () => {
-  const responseGoogle = (response: any) => {
-    console.log(response);
-  };
+  const history = useHistory();
+  const loginStatus = useIsLoggedIn();
 
-  if (!process.env.REACT_APP_GOOGLE_ID) throw Error('Google Client ID is missing');
+  const onLogin = React.useCallback(() => {
+    history.push('/collab/upload');
+  }, [history]);
+
+  React.useEffect(() => {
+    if (loginStatus === 'loggedIn') {
+      onLogin();
+    }
+  }, [loginStatus, onLogin]);
 
   return (
-    <GoogleLogin
-      clientId={process.env.REACT_APP_GOOGLE_ID}
-      buttonText="Login with Google"
-      onSuccess={responseGoogle}
-      onFailure={responseGoogle}
-      cookiePolicy={'single_host_origin'}
-    />
+    <CenteredFullScreen>
+      <LoginWithGoogle
+        onSuccess={() => {
+          onLogin();
+        }}
+      />
+    </CenteredFullScreen>
   );
 };

@@ -20,6 +20,7 @@ import { useUserStore } from './stores/user';
 import { theme } from './themes';
 import { useTracker } from './Tracker';
 import ChromeExtensionPopup from './utils/chromeExtension';
+import Welcome from './pages/Welcome';
 
 const ReactHint = ReactHintFactory(React);
 
@@ -63,6 +64,7 @@ const App: React.FC = () => {
           <Route path="/library" exact component={Home} />
           <Route path="/" exact component={Home} />
           <Route path="/home" exact component={Home} />
+          <Route path="/welcome" exact component={Welcome} />
           <Route path="/search/" exact component={Home} />
           <Route path="/author/:authorId" exact component={Home} />
           <Route path="/paper/:paperId" exact component={Paper} />

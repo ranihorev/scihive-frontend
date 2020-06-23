@@ -1,9 +1,9 @@
 /** @jsx jsx */
 import { css, jsx } from '@emotion/core';
 import { TextLinkifyLatex } from './TextLinkifyLatex';
-import { Reply } from '../models';
+import { ReplyProps } from '../models';
 
-const Replies: React.FC<{ replies: Reply[] }> = ({ replies }) => {
+const Replies: React.FC<{ replies: ReplyProps[] }> = ({ replies }) => {
   return (
     <div
       css={css`

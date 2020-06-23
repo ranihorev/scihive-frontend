@@ -1,6 +1,8 @@
 /** @jsx jsx */
 import { jsx } from '@emotion/core';
 import pdfjs, { getDocument, PDFDocumentProxy } from 'pdfjs-dist';
+// @ts-ignore
+import { PDFViewer } from 'pdfjs-dist/web/pdf_viewer';
 import React from 'react';
 import shallow from 'zustand/shallow';
 import { PdfAnnotator } from '..';
@@ -27,6 +29,7 @@ const PdfViewer: React.FC<PdfViewerProps> = ({ url, setReferencePopoverState }) 
   const [status, setStatus] = React.useState<STATUS>(STATUS.LOADING);
   const [pdfDocument, setPdfDocument] = React.useState<PDFDocumentProxy>();
   const setSections = usePaperStore(state => state.setSections, shallow);
+  const viewer = React.useRef<PDFViewer>(null);
 
   React.useEffect(() => {
     const doc = getDocument(url);
@@ -43,7 +46,7 @@ const PdfViewer: React.FC<PdfViewerProps> = ({ url, setReferencePopoverState }) 
   return (
     <React.Fragment>
       {status === STATUS.SUCCESS && pdfDocument && (
-        <PdfAnnotator pdfDocument={pdfDocument} setReferencePopoverState={setReferencePopoverState} />
+        <PdfAnnotator {...{ viewer, pdfDocument, setReferencePopoverState }} />
       )}
     </React.Fragment>
   );

@@ -1,12 +1,15 @@
 /** @jsx jsx */
 import { jsx } from '@emotion/core';
-import React from 'react';
-import { Modal, Fade, Typography, TextField, CircularProgress, Chip } from '@material-ui/core';
-import { presets } from '../utils';
-import { useHasContactsPermission } from '../auth/utils';
+import { Button, Chip, CircularProgress, Fade, IconButton, Modal, TextField, Typography } from '@material-ui/core';
+import CloseIcon from '@material-ui/icons/Close';
 import Autocomplete from '@material-ui/lab/Autocomplete';
-import { LoginWithGoogle } from '../auth';
 import { isEmpty } from 'lodash';
+import React from 'react';
+import { LoginWithGoogle } from '../auth';
+import { useHasContactsPermission } from '../auth/utils';
+import { usePaperStore } from '../stores/paper';
+import { presets } from '../utils';
+import styles from './invite.module.css';
 import { Spacer } from './utils/Spacer';
 
 interface Suggestion {
@@ -16,7 +19,7 @@ interface Suggestion {
 
 const loadGoogleAPIClientAsync = async () => {
   return new Promise((resolve, reject) => {
-    gapi.load('client', err => (err ? reject(err) : resolve()));
+    window.gapi.load('client', err => (err ? reject(err) : resolve()));
   });
 };
 
@@ -26,7 +29,7 @@ const loadContactSuggestions = async (query: string): Promise<Suggestion[]> => {
     result: {
       feed: { entry },
     },
-  } = await gapi.client.request({
+  } = await window.gapi.client.request({
     method: 'GET',
     path: '/m8/feeds/contacts/default/full',
     params: {
@@ -49,75 +52,108 @@ const loadContactSuggestions = async (query: string): Promise<Suggestion[]> => {
   return options.filter((option: Suggestion | null) => option !== null);
 };
 
-export const Invite: React.FC<{ isOpen: boolean; setIsOpen: React.Dispatch<boolean> }> = ({ isOpen, setIsOpen }) => {
+const EmailsInput: React.FC = React.memo(() => {
   const hasPermission = useHasContactsPermission();
+  const [, setRefreshKey] = React.useState(0); // We need to refresh the view on login success
+
   const [options, setOptions] = React.useState<Suggestion[]>([]);
   const [selected, setSelected] = React.useState<Suggestion[]>([]);
+  // We need to ignore old in-flight requests, therefore, we keep track of the response and request ids
   const requestId = React.useRef(0);
   const responseId = React.useRef(0);
   const [isLoading, setIsLoading] = React.useState(false);
-  return (
-    <Modal
-      disableBackdropClick
-      open={isOpen}
-      onClose={() => {
-        setIsOpen(false);
+  return hasPermission ? (
+    <Autocomplete
+      multiple
+      filterSelectedOptions
+      getOptionLabel={option => `${option.name} <${option.email}>`}
+      options={[...selected, ...options]}
+      onChange={(_, suggestions) => {
+        setSelected(suggestions);
       }}
-    >
-      <Fade in={isOpen}>
-        <div css={[presets.modalCss, { width: 600 }]}>
-          <Typography align="center">Invite collaborators to read and discuss the paper with you</Typography>
-          <Spacer size={16} />
-          {hasPermission ? (
-            <Autocomplete
-              multiple
-              filterSelectedOptions
-              getOptionLabel={option => `${option.name} <${option.email}>`}
-              options={[...selected, ...options]}
-              onChange={(_, suggestions) => {
-                setSelected(suggestions);
-              }}
-              renderTags={(tagValue, getTagProps) =>
-                tagValue.map((option, index) => <Chip label={option.name} {...getTagProps({ index })} />)
-              }
-              renderInput={params => (
-                <TextField
-                  {...params}
-                  label="Type name or email"
-                  variant="outlined"
-                  onChange={async e => {
-                    const currentRequestId = requestId.current;
-                    requestId.current += 1;
-                    setIsLoading(true);
-                    const newSuggestions = await loadContactSuggestions(e.target.value);
-                    if (responseId.current > currentRequestId) return; // We already processed a newer request
-                    setOptions(newSuggestions);
-                    setIsLoading(false);
-                    responseId.current = currentRequestId;
-                  }}
-                  InputProps={{
-                    ...params.InputProps,
-                    endAdornment: (
-                      <React.Fragment>
-                        {isLoading ? <CircularProgress color="inherit" size={20} /> : null}
-                        {params.InputProps.endAdornment}
-                      </React.Fragment>
-                    ),
-                  }}
-                />
-              )}
-            />
-          ) : (
-            <div>
-              <LoginWithGoogle
-                onSuccess={resp => {
-                  console.log(resp);
-                }}
-              />
-            </div>
-          )}
-        </div>
-      </Fade>
-    </Modal>
+      renderTags={(tagValue, getTagProps) =>
+        tagValue.map((option, index) => <Chip key={option.email} size="small" label={option.name} {...getTagProps({ index })} />)
+      }
+      renderInput={params => (
+        <TextField
+          {...params}
+          label="Type name or email"
+          variant="outlined"
+          onChange={async e => {
+            const currentRequestId = requestId.current;
+            requestId.current += 1;
+            setIsLoading(true);
+            const newSuggestions = await loadContactSuggestions(e.target.value);
+            if (responseId.current > currentRequestId) return; // We already processed a newer request
+            setOptions(newSuggestions);
+            setIsLoading(false);
+            responseId.current = currentRequestId;
+          }}
+          InputProps={{
+            ...params.InputProps,
+            endAdornment: (
+              <React.Fragment>
+                {isLoading ? <CircularProgress color="inherit" size={20} /> : null}
+                {params.InputProps.endAdornment}
+              </React.Fragment>
+            ),
+          }}
+        />
+      )}
+    />
+  ) : (
+    <div css={{ display: 'flex', justifyContent: 'center' }}>
+      <LoginWithGoogle
+        onSuccess={() => {
+          setRefreshKey(state => state + 1);
+        }}
+      />
+    </div>
   );
-};
+});
+
+export const Invite: React.FC<{ isOpen: boolean; setIsOpen: React.Dispatch<boolean> }> = React.memo(
+  ({ isOpen, setIsOpen }) => {
+    const title = usePaperStore(state => state.title);
+    const [inviteText, setInviteText] = React.useState(`Check out this paper I'm reading - ${title}`);
+    return (
+      <Modal
+        disableBackdropClick
+        open={isOpen}
+        onClose={() => {
+          setIsOpen(false);
+        }}
+      >
+        <Fade in={isOpen}>
+          <div css={[presets.modalCss, { width: 600 }]}>
+            <div className={styles.close}>
+              <IconButton size="small" onClick={() => setIsOpen(false)}>
+                <CloseIcon fontSize="small" />
+              </IconButton>
+            </div>
+            <Typography align="center" variant="h6">
+              Invite collaborators to discuss this paper
+            </Typography>
+            <Spacer size={16} />
+            <EmailsInput />
+            <Spacer size={16} />
+            <Typography align="center">Explain your peers why this paper is interesting</Typography>
+            <Spacer size={12} />
+            <TextField
+              multiline
+              fullWidth
+              variant="outlined"
+              rows={5}
+              value={inviteText}
+              onChange={e => setInviteText(e.target.value)}
+            />
+            <Spacer size={12} />
+            <Button variant="contained" color="primary" onClick={() => {}} css={{ alignSelf: 'center' }}>
+              Invite
+            </Button>
+          </div>
+        </Fade>
+      </Modal>
+    );
+  },
+);

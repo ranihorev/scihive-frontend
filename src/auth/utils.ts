@@ -1,19 +1,33 @@
-import { useGoogleLogin } from 'react-google-login';
-import { useUserNewStore } from '../stores/userNew';
-import shallow from 'zustand/shallow';
 import { pick } from 'lodash';
+import { GoogleLoginResponse, GoogleLoginResponseOffline, useGoogleLogin } from 'react-google-login';
+import shallow from 'zustand/shallow';
+import { useUserNewStore } from '../stores/userNew';
 
 export const contactsScope = 'https://www.googleapis.com/auth/contacts.readonly';
 
+export const isOnlineResponse = (res: GoogleLoginResponse | GoogleLoginResponseOffline): res is GoogleLoginResponse => {
+  return 'tokenId' in res && 'profileObj' in res;
+};
+
 export const useIsLoggedIn = () => {
-  const { setStatus, status } = useUserNewStore(state => pick(state, ['setStatus', 'status']), shallow);
+  const { setStatus, status, onGoogleLogicSuccess } = useUserNewStore(
+    state => pick(state, ['setStatus', 'status', 'onGoogleLogicSuccess']),
+    shallow,
+  );
+
   if (!process.env.REACT_APP_GOOGLE_ID) throw Error('Google Client ID is missing');
   useGoogleLogin({
     clientId: process.env.REACT_APP_GOOGLE_ID,
     onAutoLoadFinished: isIn => {
-      setStatus(isIn ? 'loggedIn' : 'notAuthenticated');
+      if (!isIn) {
+        setStatus('notAuthenticated');
+      }
     },
-    onSuccess: () => {},
+    onSuccess: async res => {
+      if (isOnlineResponse(res)) {
+        onGoogleLogicSuccess(res);
+      }
+    },
     onFailure: () => {},
     isSignedIn: true, // TODO: get this from localstorage
     scope: `profile email ${contactsScope}`,

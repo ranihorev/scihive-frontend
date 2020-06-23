@@ -36,7 +36,7 @@ export const useResizeObserver = (
   domRef: React.RefObject<HTMLElement>,
   onResize: (rect: ResizeObserverEntry['contentRect']) => void,
 ) => {
-  React.useEffect(() => {
+  React.useLayoutEffect(() => {
     const resizeObserver = new ResizeObserver(entries => {
       window.requestAnimationFrame(() => {
         if (!Array.isArray(entries) || !entries.length) {

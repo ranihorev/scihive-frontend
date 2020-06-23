@@ -47,4 +47,6 @@ export const createEventExtender = <T extends any>(name: string): EventExtender<
   };
 };
 
+export const isMac = /mac/i.test(navigator.platform);
+
 export { presets };

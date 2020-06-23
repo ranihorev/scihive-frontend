@@ -12,6 +12,7 @@ if (process.env.REACT_APP_SENTRY_DSN && process.env.NODE_ENV === 'production')
 
 axios.defaults.baseURL = process.env.REACT_APP_BASE_URL;
 axios.defaults.withCredentials = true;
+
 const user = localStorage.getItem('username');
 
 if (user) {

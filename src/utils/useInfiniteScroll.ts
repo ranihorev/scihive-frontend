@@ -15,8 +15,7 @@ export const useInfiniteScroll = (
     setIsLoading(true);
     setHasMore(await fetchMore(pageNum.current));
     setIsLoading(false);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [setIsLoading, ...dependencies]);
+  });
 
   React.useLayoutEffect(() => {
     pageNum.current = 0;

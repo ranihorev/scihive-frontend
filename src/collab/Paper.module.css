@@ -1,0 +1,10 @@
+.wrapper {
+  position: relative;
+  overflow-y: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.notFound {
+  margin: auto;
+}

@@ -109,28 +109,25 @@ const PapersList: React.FC = () => {
   const age = getAgeQuery(queryParams, isLibraryOrList);
   const sort = getSortQuery(queryParams, isLibraryOrList);
 
-  const loadPapers = useLatestCallback(
-    async (page: number) => {
-      initialLoadRef.current = false;
-      let url = '/papers/all';
+  const loadPapers = useLatestCallback(async (page: number) => {
+    initialLoadRef.current = false;
+    let url = '/papers/all';
 
-      const queryParams = queryString.parse(location.search) as Partial<RequestParams>;
+    const queryParams = queryString.parse(location.search) as Partial<RequestParams>;
 
-      const requestParams: Partial<RequestParams> = {
-        author: authorId,
-        page_num: page,
-        age: getAgeQuery(queryParams, isLibraryOrList),
-        sort: getSortQuery(queryParams, isLibraryOrList),
-        q: (queryParams.q as string) || undefined,
-        group: groupId || queryParams.group,
-        library: isLibraryMode,
-      };
+    const requestParams: Partial<RequestParams> = {
+      author: authorId,
+      page_num: page,
+      age: getAgeQuery(queryParams, isLibraryOrList),
+      sort: getSortQuery(queryParams, isLibraryOrList),
+      q: (queryParams.q as string) || undefined,
+      group: groupId || queryParams.group,
+      library: isLibraryMode,
+    };
 
-      const hasMore = await fetchPapers({ url, requestParams });
-      return hasMore;
-    },
-    [authorId, fetchPapers, groupId, isLibraryMode, isLibraryOrList, location.search],
-  );
+    const hasMore = await fetchPapers({ url, requestParams });
+    return hasMore;
+  });
 
   React.useEffect(() => {
     if (previousLocation.location === location.key) return;

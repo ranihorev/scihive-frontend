@@ -1,4 +1,4 @@
-import axios from 'axios';
+import BaseAxios from 'axios';
 import produce from 'immer';
 import { isEmpty, pick, sortBy } from 'lodash';
 import { GetState } from 'zustand';
@@ -25,6 +25,8 @@ import {
 import { track } from '../Tracker';
 import { getSectionPosition } from '../utils';
 import { AddRemovePaperToGroup, addRemovePaperToGroupHelper, createWithDevtools, NamedSetState } from './utils';
+
+let axios = BaseAxios.create({ withCredentials: true });
 
 export interface PaperState extends BasePaperData {
   url?: string;
@@ -96,16 +98,8 @@ const sortHighlights = (highlights: AllHighlight[]): AllHighlight[] => {
 const stateAndActions = (set: NamedSetState<PaperState>, get: GetState<PaperState>) => {
   const fetchComments = async (paperId: string, hash: string = '') => {
     try {
-      const res = await axios.get<{ comments: AllHighlight[] }>(`/paper/${paperId}/comments`);
+      const res = await axios.get<{ comments: AllHighlight[] }>(`/${paperId}/comments`);
       set({ highlights: sortHighlights(res.data.comments), highlightsState: 'loaded' });
-    } catch (err) {
-      console.warn(err.response);
-    }
-  };
-  const fetchAcronyms = async (paperId: string) => {
-    try {
-      const res = await axios.get(`/paper/${paperId}/acronyms`);
-      set({ acronyms: res.data }, 'setAcronyms');
     } catch (err) {
       console.warn(err.response);
     }
@@ -113,7 +107,7 @@ const stateAndActions = (set: NamedSetState<PaperState>, get: GetState<PaperStat
 
   const fetchReferences = async (paperId: string) => {
     try {
-      const res = await axios.get(`/paper/${paperId}/references`);
+      const res = await axios.get(`/${paperId}/references`);
       set({ references: res.data }, 'setReferences');
     } catch (err) {
       console.warn(err.response);
@@ -168,24 +162,18 @@ const stateAndActions = (set: NamedSetState<PaperState>, get: GetState<PaperStat
       }
     },
     addHighlight: async (paperId: string, highlight: AllNewHighlight, clearTempHighlight: boolean = true) => {
-      return new Promise<T_Highlight>(async (resolve, reject) => {
-        try {
-          const response = await axios.post<{ comment: T_Highlight }>(`/paper/${paperId}/new_comment`, highlight);
-          const newHighlight = response.data.comment;
-          track(highlight.text ? 'newComment' : 'newHighlight');
-          set(
-            state => ({
-              highlights: sortHighlights([...state.highlights, newHighlight]),
-              sidebarTab: 'Comments',
-              ...(clearTempHighlight ? { tempHighlight: undefined } : {}),
-            }),
-            'addHighlight',
-          );
-          resolve(newHighlight);
-        } catch (e) {
-          reject(e);
-        }
-      });
+      const response = await axios.post<{ comment: T_Highlight }>(`/${paperId}/new_comment`, highlight);
+      const newHighlight = response.data.comment;
+      track(highlight.text ? 'newComment' : 'newHighlight');
+      set(
+        state => ({
+          highlights: sortHighlights([...state.highlights, newHighlight]),
+          sidebarTab: 'Comments',
+          ...(clearTempHighlight ? { tempHighlight: undefined } : {}),
+        }),
+        'addHighlight',
+      );
+      return newHighlight;
     },
     removeHighlight: (highlightId: string) => {
       const paperId = get().id;
@@ -194,54 +182,49 @@ const stateAndActions = (set: NamedSetState<PaperState>, get: GetState<PaperStat
         return;
       }
       axios
-        .delete(`/paper/comment/${highlightId}`)
+        .delete(`/comment/${highlightId}`)
         .then(() => {
           set(state => ({ highlights: state.highlights.filter(h => h.id !== highlightId) }), 'removeHighlight');
         })
         .catch((err: any) => console.warn(err.response));
     },
-    updateHighlight: (highlightId: string, data: EditHighlightData) => {
-      return new Promise(async (resolve, reject) => {
-        try {
-          const paperId = get().id;
-          if (!paperId) reject('Paper id is missing');
-          const res = await axios.patch<{ comment: T_Highlight }>(`/paper/comment/${highlightId}`, {
-            text: data.text,
-            visibility: data.visibility,
-          });
-          track('editHighlight');
-          updateHighlightHelper(res.data.comment);
-          resolve(res.data.comment);
-        } catch (e) {
-          reject(e);
-        }
+    updateHighlight: async (highlightId: string, data: EditHighlightData) => {
+      const paperId = get().id;
+      if (!paperId) throw Error('Paper id is missing');
+      const res = await axios.patch<{ comment: T_Highlight }>(`/comment/${highlightId}`, {
+        text: data.text,
+        visibility: data.visibility,
       });
+      track('editHighlight');
+      updateHighlightHelper(res.data.comment);
+      return res.data.comment;
     },
-    replyToHighlight: (highlightId: string, replyText: string) => {
-      return new Promise(async (resolve, reject) => {
-        try {
-          const res = await axios.post(`/paper/comment/${highlightId}/reply`, {
-            text: replyText,
-          });
-          track('newReply');
-          updateHighlightHelper(res.data.comment);
-          resolve(res.data.comment);
-        } catch (e) {
-          reject(e);
-        }
+    replyToHighlight: async (highlightId: string, replyText: string) => {
+      const res = await axios.post(`/comment/${highlightId}/reply`, {
+        text: replyText,
       });
+      track('newReply');
+      updateHighlightHelper(res.data.comment);
+      return res.data.comment;
     },
     fetchPaper: async ({
       paperId,
       selectedGroupId,
       hash,
+      isCollab,
     }: {
       paperId: string;
       selectedGroupId?: string;
       hash?: string;
+      isCollab?: boolean;
     }) => {
       resetState();
-      const { data } = await axios.get<FetchPaperResponse>(`/paper/${paperId}`);
+      axios = BaseAxios.create({ withCredentials: true, baseURL: new URL(
+        isCollab ? '/collab/paper' : '/paper',
+        process.env.REACT_APP_BASE_URL,
+      ).toString() });
+
+      const { data } = await axios.get<FetchPaperResponse>(`/${paperId}`, {withCredentials: true});
       paperId = data.id;
       const newState: Partial<PaperState> = {
         url: data.url,
@@ -267,7 +250,7 @@ const stateAndActions = (set: NamedSetState<PaperState>, get: GetState<PaperStat
         console.warn('paper id is missing');
         return;
       }
-      const { data: respData } = await axios.post<FetchPaperResponse>(`/paper/${paperId}/edit`, data);
+      const { data: respData } = await axios.post<FetchPaperResponse>(`/${paperId}/edit`, data);
       const newData = pick(respData, ['time_published', 'title', 'abstract', 'authors']);
       set(newData, 'editPaper');
     },

@@ -60,7 +60,7 @@ export interface NewGeneralHighlight {
   isGeneral: true;
 }
 
-export interface Reply {
+export interface ReplyProps {
   id: string;
   user: string;
   text: string;
@@ -74,7 +74,7 @@ export interface User {
 interface ServerHighlightData {
   id: string;
   createdAt: string;
-  replies: Reply[];
+  replies: ReplyProps[];
   username: User;
   canEdit: boolean;
   isGeneral: boolean;

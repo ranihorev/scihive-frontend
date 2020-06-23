@@ -42,13 +42,15 @@ const OldApp: React.FC = () => {
     }
     if (user && isFirstLoad.current) {
       axios
-        .get('/user/validate')
-        .then(() => {})
-        .catch(err => {
-          if (err.response && err.response.status) {
+        .get<{ status: boolean }>('/user/validate')
+        .then(response => {
+          if (!response.data.status) {
             localStorage.removeItem('username');
             window.location.reload();
           }
+        })
+        .catch(err => {
+          console.log(err);
         });
     }
     isFirstLoad.current = false;

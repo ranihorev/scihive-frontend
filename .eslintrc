@@ -1,6 +1,14 @@
 {
-  "extends": ["react-app", "prettier", "prettier/@typescript-eslint"],
-  "plugins": ["@typescript-eslint", "prettier", "react", "standard", "react-hooks", "emotion"],
+  "extends": [
+    "react-app",
+    "eslint:recommended",
+    "plugin:react/recommended",
+    "prettier",
+    "prettier/@typescript-eslint",
+    "prettier/react",
+    "prettier/standard"
+  ],
+  "plugins": ["@typescript-eslint", "prettier", "react", "react-hooks", "emotion"],
   "overrides": [
     {
       "files": ["**/*.ts?(x)"]
@@ -8,11 +16,12 @@
   ],
   "rules": {
     "react-hooks/rules-of-hooks": "error",
-    "react-hooks/exhaustive-deps": ["warn", { "additionalHooks": "useLatestCallback|useInfiniteScroll" }],
+    "react-hooks/exhaustive-deps": ["warn", { "additionalHooks": "useInfiniteScroll" }],
     "emotion/jsx-import": "error",
     "emotion/no-vanilla": "error",
     "emotion/import-from-emotion": "error",
-    "emotion/styled-import": "error"
+    "emotion/styled-import": "error",
+    "react/prop-types": 0
   },
   "globals": {
     "window": true,

@@ -1,0 +1,33 @@
+.pdfHighlighter {
+  position: relative;
+  overflow: auto;
+  min-width: 100%;
+  margin: auto;
+}
+
+.pdfViewer {
+  padding-top: 10px;
+  padding-right: 500px;
+  padding-left: 10px;
+
+  :global(.textLayer ::selection) {
+    background: rgb(255, 172, 0);
+    opacity: 1;
+    mix-blend-mode: multiply;
+  }
+  :global(.page-highlights) {
+    z-index: 2;
+    opacity: 1;
+    mix-blend-mode: multiply;
+  }
+
+  :global(.annotationLayer) {
+    position: absolute;
+    top: 0;
+    z-index: 3;
+  }
+
+  :global(.page) {
+    box-shadow: 0 0 0 0.75pt #d1d1d1, 0 0 3pt 0.75pt #ccc;
+  }
+}

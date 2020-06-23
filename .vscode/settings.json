@@ -13,15 +13,15 @@
     "activityBarBadge.background": "#5c5404",
     "activityBarBadge.foreground": "#e7e7e7",
     "statusBar.background": "#b408c4",
-    "statusBar.border": "#b408c4",
     "statusBar.foreground": "#e7e7e7",
-    "statusBarItem.hoverBackground": "#e10af5",
-    "titleBar.border": "#b408c4"
+    "statusBarItem.hoverBackground": "#e10af5"
   },
   "cSpell.words": [
     "uploader",
     "zustand"
   ],
   "peacock.color": "#b408c4",
-  "eslint.enable": true
+  "eslint.enable": true,
+  "typescript.tsdk": "node_modules/typescript/lib",
+  "python.pythonPath": "/usr/bin/python"
 }

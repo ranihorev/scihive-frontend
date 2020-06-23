@@ -1,0 +1,18 @@
+$main: #36a0f5;
+
+.popup {
+  padding: 10px;
+  max-width: 300px;
+  max-height: 200px;
+  overflow-y: auto;
+  font-size: 0.8rem;
+  line-height: 1.4;
+  border-radius: 8px;
+  color: #303030;
+  p:first-of-type {
+    margin-top: 0;
+  }
+  p:last-of-type {
+    margin-bottom: 0;
+  }
+}

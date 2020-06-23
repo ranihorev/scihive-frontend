@@ -1,7 +1,7 @@
 /** @jsx jsx */
 import { css, jsx } from '@emotion/core';
 import Fab from '@material-ui/core/Fab';
-import { cloneDeep, debounce, isEmpty, pick } from 'lodash';
+import { debounce, pick } from 'lodash';
 import { PDFDocumentProxy } from 'pdfjs-dist';
 // @ts-ignore
 import { PDFFindController, PDFLinkService, PDFViewer } from 'pdfjs-dist/web/pdf_viewer';
@@ -11,30 +11,19 @@ import { useCookies } from 'react-cookie';
 import { isMobile } from 'react-device-detect';
 import ReactDom from 'react-dom';
 import shallow from 'zustand/shallow';
-import { Spacer } from '../../../collab/utils/Spacer';
-import {
-  AcronymPositions,
-  isDirectHighlight,
-  T_Highlight,
-  T_LTWH,
-  T_NewHighlight,
-  T_Position,
-  T_ScaledPosition,
-} from '../../../models';
-import { usePaperStore } from '../../../stores/paper';
-import { activateOnboarding } from '../../../utils/hooks';
-import { useLatestCallback } from '../../../utils/useLatestCallback';
-import { ReferencesPopoverState } from '../../ReferencesProvider';
-import { scaledToViewport, viewportToScaled } from '../lib/coordinates';
-import getAreaAsPng from '../lib/get-area-as-png';
-import getBoundingRect from '../lib/get-bounding-rect';
-import getClientRects from '../lib/get-client-rects';
-import { findOrCreateContainerLayer, getElementFromRange, getPageFromRange } from '../lib/pdfjs-dom';
-import { convertMatches, renderMatches } from '../lib/pdfSearchUtils';
-import { PageHighlights } from './PageHighlights';
+import { scaledToViewport, viewportToScaled } from '../components/Pdf/lib/coordinates';
+import getBoundingRect from '../components/Pdf/lib/get-bounding-rect';
+import getClientRects from '../components/Pdf/lib/get-client-rects';
+import { findOrCreateContainerLayer, getElementFromRange, getPageFromRange } from '../components/Pdf/lib/pdfjs-dom';
+import { ReferencesPopoverState } from '../components/ReferencesProvider';
+import { isDirectHighlight, T_Highlight, T_NewHighlight, T_Position, T_ScaledPosition } from '../models';
+import { usePaperStore } from '../stores/paper';
+import { useLatestCallback } from '../utils/useLatestCallback';
+import { PageHighlights } from './highlights/PageHighlights';
+import { TipContainer } from './highlights/TipContainer';
 import styles from './PdfAnnotator.module.scss';
-import { TipContainer } from './TipContainer';
-import { useJumpToHandler } from './useJumpToHandler';
+import { Spacer } from './utils/Spacer';
+import { useJumpToHandler } from '../components/Pdf/components/useJumpToHandler';
 
 const zoomButtonCss = css`
   color: black;
@@ -66,12 +55,10 @@ interface PdfAnnotatorProps {
 const ONBOARDING_COOKIE = 'onboarding_cookie';
 
 const PdfAnnotator: React.FC<PdfAnnotatorProps> = ({ setReferencePopoverState, pdfDocument, initialWidth, viewer }) => {
-  // const [scrolledToHighlightId, setScrolledToHighlightId] = React.useState(EMPTY_ID);
   const [isSelecting, setIsSelecting] = React.useState(false);
   const lastTempHighlightPage = React.useRef<number | undefined>();
   const selectionTextLayerRef = React.useRef<HTMLElement | null>(null);
   const pagesReadyToRender = React.useRef<number[]>([]);
-  const [acronymPositions, setAcronymPositions] = React.useState<AcronymPositions>({});
   const canZoom = React.useRef(true);
   const [cookies, setCookie] = useCookies([]);
   const isOnboarding = React.useRef(false);
@@ -81,9 +68,7 @@ const PdfAnnotator: React.FC<PdfAnnotatorProps> = ({ setReferencePopoverState, p
     references,
     paperJumpData,
     highlights,
-    jumpToComment,
     updateReadingProgress,
-    acronyms,
     clearTempHighlight,
     tempHighlight,
     setTempHighlight,
@@ -97,17 +82,12 @@ const PdfAnnotator: React.FC<PdfAnnotatorProps> = ({ setReferencePopoverState, p
         'paperJumpData',
         'highlights',
         'updateReadingProgress',
-        'acronyms',
         'setTempHighlight',
         'tempHighlight',
         'clearTempHighlight',
         'isDocumentReady',
         'setDocumentReady',
       ]),
-      jumpToComment: (id: string) => {
-        state.setSidebarTab('Comments');
-        state.setSidebarJumpTo({ area: 'sidebar', type: 'comment', id });
-      },
     }),
     shallow,
   );
@@ -134,11 +114,6 @@ const PdfAnnotator: React.FC<PdfAnnotatorProps> = ({ setReferencePopoverState, p
     }
     containerNode.current.scrollTop = 0;
     setDocumentReady();
-  };
-
-  const screenshot = (position: T_LTWH, pageNumber: number) => {
-    const { canvas } = viewer.current.getPageView(pageNumber - 1);
-    return getAreaAsPng(canvas, position);
   };
 
   const debouncedOnTextSelection = debounce(newRange => {
@@ -226,9 +201,8 @@ const PdfAnnotator: React.FC<PdfAnnotatorProps> = ({ setReferencePopoverState, p
     if (highlightLayer) {
       ReactDom.render(
         <PageHighlights
-          onHighlightClick={jumpToComment}
+          onHighlightClick={() => {}}
           highlights={pageHighlights}
-          screenshot={(boundingRect: T_LTWH) => screenshot(boundingRect, pageNumber)}
           scaledPositionToViewport={scaledPositionToViewport}
           jumpData={paperJumpData}
         />,
@@ -238,14 +212,6 @@ const PdfAnnotator: React.FC<PdfAnnotatorProps> = ({ setReferencePopoverState, p
   };
   useJumpToHandler({ viewer, renderHighlights });
 
-  const renderAcronyms = (pageNumber: number) => {
-    const { textLayer } = viewer.current.getPageView(pageNumber - 1);
-    for (const acronym of Object.keys(acronymPositions)) {
-      const m = convertMatches(acronym.length, acronymPositions[acronym][pageNumber - 1], textLayer);
-      renderMatches(m, 0, textLayer, acronyms[acronym]);
-    }
-  };
-
   const onTextLayerRendered = useLatestCallback((event: CustomEvent<{ pageNumber: number }>) => {
     // TODO: clear previous timeout and remove timeout on unmount
     setTimeout(() => {
@@ -254,11 +220,10 @@ const PdfAnnotator: React.FC<PdfAnnotatorProps> = ({ setReferencePopoverState, p
     }, 200);
     const { pageNumber } = event.detail;
     renderHighlights(pageNumber);
-    renderAcronyms(pageNumber);
     pagesReadyToRender.current.push(pageNumber);
     const { textLayer } = viewer.current.getPageView(pageNumber - 1);
     if (pageNumber - 1 === 0 && !cookies[ONBOARDING_COOKIE]) {
-      onboardingTeardown.current = activateOnboarding(textLayer);
+      // onboardingTeardown.current = activateOnboarding(textLayer);
       isOnboarding.current = true;
       setCookie(ONBOARDING_COOKIE, { domain: '.scihive.org', sameSite: true, path: '/' });
     }
@@ -373,43 +338,6 @@ const PdfAnnotator: React.FC<PdfAnnotatorProps> = ({ setReferencePopoverState, p
       renderHighlights(lastTempHighlightPage.current);
     }
   }, [tempHighlight, isSelecting]);
-
-  React.useEffect(() => {
-    if (!isDocumentReady) return;
-    for (const pageNumber of pagesReadyToRender.current) {
-      renderAcronyms(pageNumber);
-    }
-  }, [isDocumentReady, acronymPositions]);
-
-  React.useEffect(() => {
-    // Find acronyms in the pdf
-    if (!pdfDocument || !isDocumentReady || isEmpty(acronyms)) return;
-    const { findController } = viewer.current;
-    // We are accessing private functions of findController. Not ideal...
-    findController._firstPageCapability.promise.then(async () => {
-      findController._extractText();
-      const tempAcronymsPos: AcronymPositions = {};
-      for (const acronym of Object.keys(acronyms)) {
-        findController._state = {
-          query: acronym,
-          caseSensitive: true,
-          highlightAll: false,
-          entireWord: true,
-        };
-        for (let i = 0; i < pdfDocument.numPages; i++) {
-          findController._pendingFindMatches[i] = true;
-          findController._extractTextPromises[i].then((pageIdx: number) => {
-            delete findController._pendingFindMatches[pageIdx];
-            findController._calculateMatch(pageIdx);
-          });
-        }
-        // eslint-disable-next-line no-await-in-loop
-        await Promise.all(findController._extractTextPromises);
-        tempAcronymsPos[acronym] = cloneDeep(findController.pageMatches);
-      }
-      setAcronymPositions(tempAcronymsPos);
-    });
-  }, [isDocumentReady, acronyms, pdfDocument]);
 
   return (
     <React.Fragment>

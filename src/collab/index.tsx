@@ -28,12 +28,18 @@ const Main: React.FC = () => {
   useIsLoggedIn();
   return (
     <Switch>
-      <Route path={`${path}/start`} exact component={Landing} />
-      <PrivateRoute path={`${path}/upload`} exact component={Upload} />
+      <Route path={`${path}/start`} exact>
+        <Landing />
+        </Route>
+      <PrivateRoute path={`${path}/upload`} exact>
+        <Upload />
+        </PrivateRoute>
       <PrivateRoute path={`${path}/paper/:paperId/invite`} exact>
         <CollaboratedPdf showInviteOnLoad={true} />
       </PrivateRoute>
-      <Route component={NotFound} />
+      <Route>
+        <NotFound />
+        </Route>
     </Switch>
   );
 };

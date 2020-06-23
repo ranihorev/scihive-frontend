@@ -51,7 +51,7 @@ const getAgeQuery = (queryParams: Partial<RequestParams>, isLibraryOrList: boole
 const getSortQuery = (queryParams: Partial<RequestParams>, isLibraryOrList: boolean): RequestParams['sort'] => {
   return (
     (isValidSort(queryParams.sort) && queryParams.sort) ||
-    (queryParams.q ? 'score' : isLibraryOrList ? 'date_added' : 'date')
+    (queryParams.q ? 'score' : isLibraryOrList ? 'date_added' : 'tweets')
   );
 };
 

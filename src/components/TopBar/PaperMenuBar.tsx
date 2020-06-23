@@ -18,8 +18,8 @@ export const PaperDekstopMenu: React.FC = () => {
   const [anchorEl, setAnchorEl] = React.useState<HTMLElement | null>(null);
   const [shareText, setShareText] = React.useState(DEFAULT_SHARE_TEXT);
   const timeoutId = React.useRef<NodeJS.Timeout | null>(null);
-  const { id, url, isEditable, codeMeta, groupIds, updatePaperGroups } = usePaperStore(
-    state => pick(state, ['url', 'id', 'isEditable', 'codeMeta', 'groupIds', 'updatePaperGroups']),
+  const { id, url, isEditable, codeMeta, groupIds, updatePaperGroups, arxivId } = usePaperStore(
+    state => pick(state, ['url', 'id', 'isEditable', 'codeMeta', 'groupIds', 'updatePaperGroups', 'arxivId']),
     shallow,
   );
   const isMenuOpen = Boolean(anchorEl);
@@ -80,7 +80,7 @@ export const PaperDekstopMenu: React.FC = () => {
             </a>
           )}
           <a
-            href={isEditable ? url : `https://arxiv.org/pdf/${id}.pdf?download=1`} // download=1 ensures that the extension will ignore the link
+            href={isEditable ? url : arxivId ? `https://arxiv.org/pdf/${arxivId}.pdf?download=1` : ''} // download=1 ensures that the extension will ignore the link
             css={simpleLink}
             target="_blank"
             rel="noopener noreferrer"
@@ -88,8 +88,14 @@ export const PaperDekstopMenu: React.FC = () => {
           >
             <MenuItem onClick={handleMenuClose}>PDF</MenuItem>
           </a>
-          {!isEditable && (
-            <a href={`https://arxiv.org/abs/${id}`} css={simpleLink} target="_blank" rel="noopener noreferrer" download>
+          {!isEditable && arxivId && (
+            <a
+              href={`https://arxiv.org/abs/${arxivId}`}
+              css={simpleLink}
+              target="_blank"
+              rel="noopener noreferrer"
+              download
+            >
               <MenuItem onClick={handleMenuClose}>Abstract</MenuItem>
             </a>
           )}
@@ -100,15 +106,15 @@ export const PaperDekstopMenu: React.FC = () => {
 };
 
 export const PaperMobileMenu = () => {
-  const { id, codeMeta, isEditable, url } = usePaperStore(
-    state => pick(state, ['id', 'codeMeta', 'isEditable', 'url']),
+  const { id, codeMeta, isEditable, url, arxivId } = usePaperStore(
+    state => pick(state, ['id', 'codeMeta', 'isEditable', 'url', 'arxivId']),
     shallow,
   );
 
   const res = [
     <a
       key="pdf"
-      href={isEditable ? url : `https://arxiv.org/pdf/${id}.pdf?download=1`}
+      href={isEditable ? url : arxivId ? `https://arxiv.org/pdf/${arxivId}.pdf?download=1` : ''}
       css={simpleLink}
       target="_blank"
       rel="noopener noreferrer"
@@ -117,11 +123,11 @@ export const PaperMobileMenu = () => {
       <MenuItem>Download PDF</MenuItem>
     </a>,
   ];
-  if (!isEditable) {
+  if (!isEditable && arxivId) {
     res.push(
       <a
         key="latex"
-        href={`https://arxiv.org/e-print/${id}`}
+        href={`https://arxiv.org/e-print/${arxivId}`}
         css={simpleLink}
         target="_blank"
         rel="noopener noreferrer"

@@ -45,6 +45,7 @@ export interface PaperState extends BasePaperData {
   commentVisibility: Visibility;
   // new highlight data
   tempHighlight?: TempHighlight;
+  arxivId?: string;
 }
 
 const initialState: PaperState = {
@@ -77,6 +78,7 @@ interface FetchPaperResponse {
   code?: CodeMeta;
   groups: string[];
   is_editable: boolean;
+  arxiv_id?: string;
 }
 
 const sortHighlights = (highlights: AllHighlight[]): AllHighlight[] => {
@@ -248,6 +250,7 @@ const stateAndActions = (set: NamedSetState<PaperState>, get: GetState<PaperStat
         codeMeta: data.code,
         groupIds: data.groups,
         isEditable: data.is_editable,
+        arxivId: data.arxiv_id,
         ...pick(data, ['id', 'time_published', 'title', 'abstract', 'authors']),
       };
 

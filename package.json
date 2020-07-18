@@ -20,7 +20,7 @@
     "eslint-plugin-react-hooks": "^4.0.2",
     "immer": "^4.0.1",
     "katex": "^0.10.2",
-    "lodash": "^4.17.14",
+    "lodash": "^4.17.19",
     "mixpanel-browser": "^2.32.0",
     "moment": "^2.24.0",
     "pdfjs-dist": "^2.2.228",

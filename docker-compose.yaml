@@ -1,0 +1,15 @@
+version: '3.5'
+services:
+  web:
+    build: .
+    command: npm start
+    volumes:
+      - .:/usr/src/app
+    ports:
+      - "3000:3000"
+    networks:
+      - default
+    env_file:
+      .env
+    # This is required for react-app-rewired to work dockerized
+    stdin_open: true

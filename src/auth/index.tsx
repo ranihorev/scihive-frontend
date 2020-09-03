@@ -1,9 +1,8 @@
 import React from 'react';
 import { GoogleLogin, GoogleLoginProps, GoogleLogout, GoogleLogoutProps } from 'react-google-login';
 import { toast } from 'react-toastify';
-import { contactsScope, isOnlineResponse } from './utils';
-import Axios from 'axios';
 import { useUserNewStore } from '../stores/userNew';
+import { contactsScope, isOnlineResponse } from './utils';
 
 interface LoginProps {
   onSuccess?: GoogleLoginProps['onSuccess'];

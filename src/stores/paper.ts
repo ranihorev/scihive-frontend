@@ -47,6 +47,7 @@ export interface PaperState extends BasePaperData {
   commentVisibility: Visibility;
   // new highlight data
   tempHighlight?: TempHighlight;
+  isInviteOpen: boolean;
 }
 
 const initialState: PaperState = {
@@ -67,6 +68,7 @@ const initialState: PaperState = {
   commentVisibility: { type: 'public' },
   isEditable: false,
   isDocumentReady: false,
+  isInviteOpen: false,
 };
 
 interface FetchPaperResponse {
@@ -219,12 +221,12 @@ const stateAndActions = (set: NamedSetState<PaperState>, get: GetState<PaperStat
       isCollab?: boolean;
     }) => {
       resetState();
-      axios = BaseAxios.create({ withCredentials: true, baseURL: new URL(
-        isCollab ? '/collab/paper' : '/paper',
-        process.env.REACT_APP_BASE_URL,
-      ).toString() });
+      axios = BaseAxios.create({
+        withCredentials: true,
+        baseURL: new URL(isCollab ? '/collab/paper' : '/paper', process.env.REACT_APP_BASE_URL).toString(),
+      });
 
-      const { data } = await axios.get<FetchPaperResponse>(`/${paperId}`, {withCredentials: true});
+      const { data } = await axios.get<FetchPaperResponse>(`/${paperId}`, { withCredentials: true });
       paperId = data.id;
       const newState: Partial<PaperState> = {
         url: data.url,
@@ -289,6 +291,7 @@ const stateAndActions = (set: NamedSetState<PaperState>, get: GetState<PaperStat
     setTempHighlight: (highlight: TempHighlight) => set({ tempHighlight: highlight }),
     clearTempHighlight: () => set({ tempHighlight: undefined }),
     setDocumentReady: () => set({ isDocumentReady: true }),
+    setIsInviteOpen: (isInviteOpen: boolean) => set({ isInviteOpen }),
   };
 };
 

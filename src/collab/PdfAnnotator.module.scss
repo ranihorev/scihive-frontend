@@ -31,3 +31,10 @@
     box-shadow: 0 0 0 0.75pt #d1d1d1, 0 0 3pt 0.75pt #ccc;
   }
 }
+
+.zoomWrapper {
+  position: absolute;
+  bottom: 10px;
+  right: 8px;
+  z-index: 1000;
+}

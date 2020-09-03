@@ -3,13 +3,13 @@ import Autosuggest from 'react-autosuggest';
 import match from 'autosuggest-highlight/match';
 import parse from 'autosuggest-highlight/parse';
 import useReactRouter from 'use-react-router';
-import Paper from '@material-ui/core/Paper/index';
-import MenuItem from '@material-ui/core/MenuItem/index';
-import { withStyles, WithStyles, Theme } from '@material-ui/core/styles/index';
-import InputBase from '@material-ui/core/InputBase/index';
+import Paper from '@material-ui/core/Paper';
+import MenuItem from '@material-ui/core/MenuItem';
+import { withStyles, WithStyles, Theme } from '@material-ui/core/styles';
+import InputBase from '@material-ui/core/InputBase';
 import { fade } from '@material-ui/core/styles/colorManipulator';
 import SearchIcon from '@material-ui/icons/Search';
-import axios from 'axios/index';
+import axios from 'axios';
 import * as queryString from 'query-string';
 
 const styles = (theme: Theme) =>

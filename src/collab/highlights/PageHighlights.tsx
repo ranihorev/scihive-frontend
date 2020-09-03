@@ -119,32 +119,37 @@ const ExpandedHighlight: React.FC<ExpandedHighlightProps> = ({
     }
   };
 
-  const hasComment = Boolean(comment);
   return (
-    <Paper className={baseStyles.popup} style={{ minWidth: hasComment ? 200 : undefined }} ref={wrapperRef}>
+    <Paper className={baseStyles.popup} ref={wrapperRef}>
       <div css={presets.col}>
         <span>
           <span className={styles.username}>{username}</span>, <span className={styles.date}>{get_age(createdAt)}</span>
         </span>
-        {hasComment && <Spacer size={4} />}
-        {hasComment &&
-          (isEditOpen ? (
-            <EditHighlight
-              text={comment}
-              onSubmit={text => {
-                updateHighlight(id, { text, visibility: { type: 'public' } })
-                  .then(() => {
-                    onHide && onHide();
-                  })
-                  .catch(err => console.error(err.response));
-              }}
-              isTextRequired={false}
-            />
+
+        <React.Fragment>
+          {isEditOpen ? (
+            <React.Fragment>
+              <Spacer size={4} />
+              <EditHighlight
+                text={comment}
+                onSubmit={text => {
+                  updateHighlight(id, { text, visibility: { type: 'public' } })
+                    .then(() => {
+                      onHide && onHide();
+                    })
+                    .catch(err => console.error(err.response));
+                }}
+                isTextRequired={false}
+              />
+              <Spacer size={8} />
+            </React.Fragment>
           ) : (
             <div>
               <TextLinkifyLatex text={comment} />
             </div>
-          ))}
+          )}
+        </React.Fragment>
+
         <Spacer size={4} />
         <CommentActions
           {...{ canEdit, id, contentText }}

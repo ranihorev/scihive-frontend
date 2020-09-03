@@ -21,7 +21,8 @@
     "emotion/no-vanilla": "error",
     "emotion/import-from-emotion": "error",
     "emotion/styled-import": "error",
-    "react/prop-types": 0
+    "react/prop-types": 0,
+    "no-prototype-builtins": "off"
   },
   "globals": {
     "window": true,

@@ -3,9 +3,11 @@ import axios from 'axios';
 import React from 'react';
 import { useCookies } from 'react-cookie';
 import * as ReactHintFactory from 'react-hint';
+import { ReactQueryDevtools } from 'react-query-devtools';
 import { Route, Switch } from 'react-router-dom';
 import { ToastContainer } from 'react-toastify';
 import shallow from 'zustand/shallow';
+import CollabMain from './collab';
 import GroupLoader from './components/Groups/GroupLoader';
 import LoginSignupModal from './components/Login/LoginSignupModal';
 import { LocationProvider } from './LocationContext';
@@ -20,7 +22,6 @@ import { useUserStore } from './stores/user';
 import { theme } from './themes';
 import { useTracker } from './Tracker';
 import ChromeExtensionPopup from './utils/chromeExtension';
-import CollabMain from './collab';
 
 const ReactHint = ReactHintFactory(React);
 
@@ -100,6 +101,7 @@ const App: React.FC = () => {
         rtl={false}
         draggable
       />
+      <ReactQueryDevtools />
       <ReactHint autoPosition events={{ hover: true }} delay={{ show: 300, hide: 0 }} />
     </MuiThemeProvider>
   );

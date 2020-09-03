@@ -14,6 +14,9 @@ const themeInner = createMuiTheme({
     h5: {
       fontSize: '1.3rem',
     },
+    h6: {
+      fontSize: '1rem',
+    },
   },
 });
 

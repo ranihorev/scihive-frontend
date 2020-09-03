@@ -2,4 +2,6 @@
 import { jsx } from '@emotion/core';
 import React from 'react';
 
-export const Spacer: React.FC<{ size: number }> = ({ size }) => <div css={{ width: size, height: size }} />;
+export const Spacer: React.FC<{ size: number }> = ({ size }) => (
+  <div className="spacer" css={{ width: size, height: size }} />
+);

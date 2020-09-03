@@ -1,7 +1,9 @@
 import { pick } from 'lodash';
-import { GoogleLoginResponse, GoogleLoginResponseOffline, useGoogleLogin } from 'react-google-login';
+import { GoogleLoginResponse, GoogleLoginResponseOffline, useGoogleLogin, useGoogleLogout } from 'react-google-login';
+import { useHistory } from 'react-router';
 import shallow from 'zustand/shallow';
 import { useUserNewStore } from '../stores/userNew';
+import { useLatestCallback } from '../utils/useLatestCallback';
 
 export const contactsScope = 'https://www.googleapis.com/auth/contacts.readonly';
 
@@ -36,9 +38,8 @@ export const useIsLoggedIn = () => {
 };
 
 export const useHasContactsPermission = () => {
-  const status = useIsLoggedIn();
-  const { contactsPermission, setContactsPermission } = useUserNewStore(
-    state => pick(state, ['contactsPermission', 'setContactsPermission']),
+  const { status, contactsPermission, setContactsPermission } = useUserNewStore(
+    state => pick(state, ['status', 'contactsPermission', 'setContactsPermission']),
     shallow,
   );
   if (status !== 'loggedIn') return false;
@@ -51,4 +52,17 @@ export const useHasContactsPermission = () => {
     setContactsPermission(contactsInScope);
   }
   return contactsInScope;
+};
+
+export const useLogout = (goToPath: string) => {
+  if (!process.env.REACT_APP_GOOGLE_ID) throw Error('Google Client ID is missing');
+  const history = useHistory();
+  const storeLogout = useUserNewStore(state => state.onLogout);
+  const { signOut: googleLogOut } = useGoogleLogout({ clientId: process.env.REACT_APP_GOOGLE_ID });
+  const logOut = useLatestCallback(() => {
+    googleLogOut();
+    storeLogout();
+    history.push(goToPath);
+  });
+  return logOut;
 };

@@ -1,20 +1,22 @@
 /** @jsx jsx */
 import { css, jsx } from '@emotion/core';
-import styles from './Paper.module.css';
-import { CircularProgress } from '@material-ui/core';
+import { Button, CircularProgress } from '@material-ui/core';
 import { pick } from 'lodash';
 import { getDocument, PDFDocumentProxy } from 'pdfjs-dist';
 import * as queryString from 'query-string';
-import React, { useState } from 'react';
+import React from 'react';
 import { Helmet } from 'react-helmet';
 import { useLocation } from 'react-router-dom';
 import shallow from 'zustand/shallow';
-import PdfAnnotator from './PdfAnnotator';
 import { ReadingProgress } from '../components/ReadingProgress';
 import { extractSections } from '../components/Sidebar/PaperSections';
 import { usePaperStore } from '../stores/paper';
 import { usePaperId } from '../utils/hooks';
 import { Invite } from './Invite';
+import styles from './Paper.module.css';
+import PdfAnnotator from './PdfAnnotator';
+import { Sidebar } from './sideBar';
+import { TopBar } from './topBar';
 
 const Loader = () => (
   <div
@@ -75,28 +77,34 @@ const useLoadPaper = (paperId: string) => {
 
 const SHOW_INVITE_STATUS: LoadStatus[] = ['DownloadingPdf', 'Ready'];
 
-export const CollaboratedPdf: React.FC<{ showInviteOnLoad: boolean }> = ({ showInviteOnLoad }) => {
-  const [isInviteOpen, setIsInviteOpen] = useState(showInviteOnLoad);
-
+export const CollaboratedPdf: React.FC<{ showInviteOnLoad?: boolean }> = ({ showInviteOnLoad }) => {
   const paperId = usePaperId();
   const viewer = React.useRef<any>(null);
   const { status, pdfDocument } = useLoadPaper(paperId);
   const wrapperRef = React.useRef<HTMLDivElement>(null);
-  const { title } = usePaperStore(state => pick(state, ['title']), shallow);
+  const { title, setIsInviteOpen } = usePaperStore(state => pick(state, ['title', 'setIsInviteOpen']), shallow);
+
+  React.useEffect(() => {
+    if (SHOW_INVITE_STATUS.includes(status) && showInviteOnLoad) {
+      setIsInviteOpen(true);
+    }
+  }, [setIsInviteOpen, showInviteOnLoad, status]);
 
   return (
     <React.Fragment>
       <Helmet>
         <title>{title || 'SciHive'}</title>
       </Helmet>
-      {SHOW_INVITE_STATUS.includes(status) && false && <Invite isOpen={isInviteOpen} setIsOpen={setIsInviteOpen} />}
-      <div
-        className={styles.wrapper}
-        style={{
-          height: '100vh',
-        }}
-        ref={wrapperRef}
-      >
+      <Invite />
+      <TopBar
+        rightMenu={
+          <Button color="inherit" onClick={() => setIsInviteOpen(true)}>
+            Share
+          </Button>
+        }
+        drawerContent={<Sidebar />}
+      />
+      <div className={styles.wrapper} ref={wrapperRef}>
         {(status === 'FetchingURL' || status === 'DownloadingPdf') && <Loader />}
         {(status === 'PdfError' || status === 'UrlNotFound') && (
           <div className={styles.notFound}>{status === 'PdfError' ? 'PDF file does not exist' : 'URL not found'}</div>

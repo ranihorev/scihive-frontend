@@ -5,7 +5,7 @@ import NotFound from '../pages/NotFound';
 import { useUserNewStore } from '../stores/userNew';
 import { Landing } from './Landing';
 import { CollaboratedPdf } from './Paper';
-import { Upload } from './Upload';
+import { Upload } from './upload';
 import { CenteredFullScreen } from './utils/CenteredFullScreen';
 
 const PrivateRoute: React.FC<RouteProps> = ({ children, ...rest }) => {
@@ -30,16 +30,19 @@ const Main: React.FC = () => {
     <Switch>
       <Route path={`${path}/start`} exact>
         <Landing />
-        </Route>
+      </Route>
       <PrivateRoute path={`${path}/upload`} exact>
         <Upload />
-        </PrivateRoute>
+      </PrivateRoute>
       <PrivateRoute path={`${path}/paper/:paperId/invite`} exact>
-        <CollaboratedPdf showInviteOnLoad={true} />
+        <CollaboratedPdf showInviteOnLoad />
+      </PrivateRoute>
+      <PrivateRoute path={`${path}/paper/:paperId`} exact>
+        <CollaboratedPdf />
       </PrivateRoute>
       <Route>
         <NotFound />
-        </Route>
+      </Route>
     </Switch>
   );
 };

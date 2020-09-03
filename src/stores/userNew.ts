@@ -2,6 +2,7 @@ import { GetState } from 'zustand';
 import { createWithDevtools, NamedSetState } from './utils';
 import { GoogleLoginResponse } from 'react-google-login';
 import Axios from 'axios';
+import { omit } from 'lodash';
 
 interface UserState {
   status: 'loggingIn' | 'loggedIn' | 'notAuthenticated';
@@ -31,6 +32,9 @@ const stateAndActions = (set: NamedSetState<UserState>, get: GetState<UserState>
     onGoogleLogicSuccess: async (res: GoogleLoginResponse) => {
       await Axios.post('/user/google_login', { token: res.tokenId });
       set({ profile: { ...res.profileObj, token: res.tokenId }, status: 'loggedIn' });
+    },
+    onLogout: () => {
+      set(state => ({ status: 'notAuthenticated', ...omit(state, ['profile', 'status']) }));
     },
   };
 };

@@ -1,0 +1,48 @@
+.root {
+  min-width: 100vw;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.fullScreen {
+  display: flex;
+  flex-direction: column;
+  flex-grow: 1;
+  justify-content: center;
+  align-items: center;
+}
+
+.uploadRoot {
+  display: flex;
+  flex-direction: column;
+  border: 1px solid #ececec;
+  border-radius: 5px;
+  width: 80%;
+  max-width: 600px;
+  padding: 24px;
+}
+
+.fileUrl {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+}
+
+.dragDrop {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 40px 20px;
+  border-width: 2px;
+  border-radius: 2px;
+  border-style: dashed;
+  background-color: #fafafa;
+  color: #bdbdbd;
+  outline: none;
+  transition: border 0.24s ease-in-out;
+  &:focus {
+    border-color: #2196f3;
+  }
+}

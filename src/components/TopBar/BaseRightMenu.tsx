@@ -2,7 +2,7 @@
 import { css, jsx } from '@emotion/core';
 import { Badge, Button, Divider, IconButton, Menu, MenuItem } from '@material-ui/core';
 import MoreIcon from '@material-ui/icons/MoreVert';
-import axios from 'axios/index';
+import axios from 'axios';
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import shallow from 'zustand/shallow';

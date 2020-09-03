@@ -3,14 +3,19 @@ import { jsx } from '@emotion/core';
 import { Button, Chip, CircularProgress, Fade, IconButton, Modal, TextField, Typography } from '@material-ui/core';
 import CloseIcon from '@material-ui/icons/Close';
 import Autocomplete from '@material-ui/lab/Autocomplete';
-import { isEmpty } from 'lodash';
+import { isEmpty, pick } from 'lodash';
 import React from 'react';
+import { toast } from 'react-toastify';
+import shallow from 'zustand/shallow';
 import { LoginWithGoogle } from '../auth';
 import { useHasContactsPermission } from '../auth/utils';
 import { usePaperStore } from '../stores/paper';
-import { presets } from '../utils';
 import styles from './invite.module.css';
 import { Spacer } from './utils/Spacer';
+import { useQuery, useMutation, queryCache } from 'react-query';
+import Axios from 'axios';
+import baseStyle from '../base.module.scss';
+import GroupAddIcon from '@material-ui/icons/GroupAdd';
 
 interface Suggestion {
   email: string;
@@ -72,7 +77,9 @@ const EmailsInput: React.FC = React.memo(() => {
         setSelected(suggestions);
       }}
       renderTags={(tagValue, getTagProps) =>
-        tagValue.map((option, index) => <Chip key={option.email} size="small" label={option.name} {...getTagProps({ index })} />)
+        tagValue.map((option, index) => (
+          <Chip key={option.email} size="small" label={option.name} {...getTagProps({ index })} />
+        ))
       }
       renderInput={params => (
         <TextField
@@ -112,48 +119,103 @@ const EmailsInput: React.FC = React.memo(() => {
   );
 });
 
-export const Invite: React.FC<{ isOpen: boolean; setIsOpen: React.Dispatch<boolean> }> = React.memo(
-  ({ isOpen, setIsOpen }) => {
-    const title = usePaperStore(state => state.title);
-    const [inviteText, setInviteText] = React.useState(`Check out this paper I'm reading - ${title}`);
-    return (
-      <Modal
-        disableBackdropClick
-        open={isOpen}
-        onClose={() => {
-          setIsOpen(false);
+const GET_PERMISSIONS_Q = 'currentPermissions';
+
+const Permissions: React.FC = React.memo(() => {
+  const paperId = usePaperStore(state => state.id);
+  const { data } = useQuery(
+    GET_PERMISSIONS_Q,
+    async () => {
+      const res = await Axios.get<{
+        author: { first_name?: string; last_name?: string; username: string; email: string };
+      }>(`/collab/paper/${paperId}/invite`);
+      return res.data;
+    },
+    { staleTime: 5000 },
+  );
+
+  const [removePermission] = useMutation(
+    (props: { email: string }) => {
+      return Axios.delete('');
+    },
+    {
+      onSuccess: () => {
+        // Query Invalidations
+        queryCache.invalidateQueries(GET_PERMISSIONS_Q);
+      },
+    },
+  );
+
+  if (!data) return null;
+  return (
+    <div>
+      <Typography variant="h6">Current Collaborators</Typography>
+      <Spacer size={12} />
+      <Chip
+        label={`${data.author.first_name} ${data.author.last_name}`}
+        color="default"
+        onDelete={() => {
+          removePermission({ email: data.author.email });
         }}
-      >
-        <Fade in={isOpen}>
-          <div css={[presets.modalCss, { width: 600 }]}>
-            <div className={styles.close}>
-              <IconButton size="small" onClick={() => setIsOpen(false)}>
-                <CloseIcon fontSize="small" />
-              </IconButton>
-            </div>
-            <Typography align="center" variant="h6">
+      />
+    </div>
+  );
+});
+
+export const Invite: React.FC = React.memo(() => {
+  const { title, isInviteOpen, setIsInviteOpen } = usePaperStore(
+    state => pick(state, ['title', 'isInviteOpen', 'setIsInviteOpen']),
+    shallow,
+  );
+  const [inviteText, setInviteText] = React.useState(`Check out this paper I'm reading - ${title}`);
+  return (
+    <Modal
+      disableBackdropClick
+      open={isInviteOpen}
+      onClose={() => {
+        setIsInviteOpen(false);
+      }}
+    >
+      <Fade in={isInviteOpen}>
+        <div className={baseStyle.modal} style={{ width: 600 }}>
+          <div className={styles.close}>
+            <IconButton size="small" onClick={() => setIsInviteOpen(false)}>
+              <CloseIcon fontSize="small" />
+            </IconButton>
+          </div>
+          <div className={baseStyle.centeredRow}>
+            <GroupAddIcon color="primary" fontSize="large" />
+            <Spacer size={12} />
+            <Typography align="left" variant="h5">
               Invite collaborators to discuss this paper
             </Typography>
-            <Spacer size={16} />
-            <EmailsInput />
-            <Spacer size={16} />
-            <Typography align="center">Explain your peers why this paper is interesting</Typography>
-            <Spacer size={12} />
-            <TextField
-              multiline
-              fullWidth
-              variant="outlined"
-              rows={5}
-              value={inviteText}
-              onChange={e => setInviteText(e.target.value)}
-            />
-            <Spacer size={12} />
-            <Button variant="contained" color="primary" onClick={() => {}} css={{ alignSelf: 'center' }}>
-              Invite
-            </Button>
           </div>
-        </Fade>
-      </Modal>
-    );
-  },
-);
+          <Spacer size={20} />
+          <EmailsInput />
+          <Spacer size={16} />
+          <TextField
+            multiline
+            fullWidth
+            label="Add Message"
+            variant="outlined"
+            rows={3}
+            value={inviteText}
+            onChange={e => setInviteText(e.target.value)}
+          />
+          <Spacer size={12} />
+          <Button
+            variant="contained"
+            color="primary"
+            onClick={() => {
+              toast.success('Invites Sent!', { autoClose: 5000 });
+            }}
+            css={{ alignSelf: 'center' }}
+          >
+            Invite
+          </Button>
+          <Permissions />
+        </div>
+      </Fade>
+    </Modal>
+  );
+});

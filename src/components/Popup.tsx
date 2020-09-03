@@ -21,6 +21,7 @@ export const Popup: React.FC<PopupProps> = React.memo(({ bodyElement, popupConte
     setIsOpen(true);
   };
   const hidePopup = () => {
+    if (!hideOnLeave.current) return;
     timeoutRef.current = setTimeout(() => setIsOpen(false), 200);
   };
 
@@ -48,7 +49,12 @@ export const Popup: React.FC<PopupProps> = React.memo(({ bodyElement, popupConte
       })}
       <Popper open={isOpen} anchorEl={contentRef.current} placement="top" style={{ zIndex: 10 }} popperRef={popperRef}>
         <MuiThemeProvider theme={theme}>
-          <ClickAwayListener onClickAway={() => !hideOnLeave.current && hidePopup()}>
+          <ClickAwayListener
+            onClickAway={() => {
+              // TODO: only close if element not dirty
+              setIsOpen(false);
+            }}
+          >
             <span
               onMouseEnter={() => {
                 if (timeoutRef.current) clearTimeout(timeoutRef.current);

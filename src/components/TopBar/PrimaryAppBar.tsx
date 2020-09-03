@@ -1,16 +1,16 @@
 /** @jsx jsx */
 import { jsx } from '@emotion/core';
-import AppBar from '@material-ui/core/AppBar/index';
-import { Theme, withStyles } from '@material-ui/core/styles/index';
-import Toolbar from '@material-ui/core/Toolbar/index';
+import AppBar from '@material-ui/core/AppBar';
+import { Theme, withStyles } from '@material-ui/core/styles';
+import Toolbar from '@material-ui/core/Toolbar';
 import React from 'react';
 import { isMobile } from 'react-device-detect';
 import Headroom from 'react-headroom';
 import { Link } from 'react-router-dom';
 import { themePalette } from '../../utils/presets';
 import { DesktopMenu, MobileMenu } from './BaseRightMenu';
-import { ReactComponent as Logo } from './logoWhite.svg';
-import { ReactComponent as LogoWithText } from './logoWithText.svg';
+import { ReactComponent as Logo } from '../../images/logoWhite.svg';
+import { ReactComponent as LogoWithText } from '../../images/logoWithText.svg';
 import SearchBar from './SearchBar';
 
 const styles = (theme: Theme) => ({

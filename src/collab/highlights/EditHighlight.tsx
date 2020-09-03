@@ -68,7 +68,7 @@ export const EditHighlight: React.FC<Props> = ({ onSubmit, text = '', isTextRequ
           {
             width: '100%',
             justifyContent: 'flex-end',
-            marginTop: 15,
+            marginTop: 8,
           },
         ]}
       >

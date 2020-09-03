@@ -186,7 +186,7 @@ const PdfAnnotator: React.FC<PdfAnnotatorProps> = ({ setReferencePopoverState, p
     return findOrCreateContainerLayer(annotationLayer.pageDiv, 'page-highlights');
   };
 
-  const renderHighlights = (pageNumber: number) => {
+  const renderHighlights = useLatestCallback((pageNumber: number) => {
     const existingPageHighlights: T_Highlight[] = [];
     for (const h of highlights) {
       if (isDirectHighlight(h) && h.position.pageNumber === pageNumber) existingPageHighlights.push(h);
@@ -209,7 +209,8 @@ const PdfAnnotator: React.FC<PdfAnnotatorProps> = ({ setReferencePopoverState, p
         highlightLayer,
       );
     }
-  };
+  });
+
   useJumpToHandler({ viewer, renderHighlights });
 
   const onTextLayerRendered = useLatestCallback((event: CustomEvent<{ pageNumber: number }>) => {
@@ -221,7 +222,7 @@ const PdfAnnotator: React.FC<PdfAnnotatorProps> = ({ setReferencePopoverState, p
     const { pageNumber } = event.detail;
     renderHighlights(pageNumber);
     pagesReadyToRender.current.push(pageNumber);
-    const { textLayer } = viewer.current.getPageView(pageNumber - 1);
+    // const { textLayer } = viewer.current.getPageView(pageNumber - 1);
     if (pageNumber - 1 === 0 && !cookies[ONBOARDING_COOKIE]) {
       // onboardingTeardown.current = activateOnboarding(textLayer);
       isOnboarding.current = true;
@@ -326,7 +327,7 @@ const PdfAnnotator: React.FC<PdfAnnotatorProps> = ({ setReferencePopoverState, p
     for (const pageNumber of pagesReadyToRender.current) {
       renderHighlights(pageNumber);
     }
-  }, [isDocumentReady, highlights]);
+  }, [isDocumentReady, highlights, renderHighlights]);
 
   React.useEffect(() => {
     if (tempHighlight && !isSelecting) {
@@ -337,18 +338,11 @@ const PdfAnnotator: React.FC<PdfAnnotatorProps> = ({ setReferencePopoverState, p
       // Render when temp highlight is cleared
       renderHighlights(lastTempHighlightPage.current);
     }
-  }, [tempHighlight, isSelecting]);
+  }, [tempHighlight, isSelecting, renderHighlights]);
 
   return (
     <React.Fragment>
-      <div
-        css={css`
-          position: absolute;
-          bottom: 10px;
-          right: 8px;
-          z-index: 1000;
-        `}
-      >
+      <div className={styles.zoomWrapper}>
         <ZoomButton direction="in" onClick={() => zoom(1)} />
         <Spacer size={8} />
         <ZoomButton direction="out" onClick={() => zoom(-1)} />

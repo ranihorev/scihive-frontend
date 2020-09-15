@@ -8,15 +8,15 @@ import React from 'react';
 import { Helmet } from 'react-helmet';
 import { useLocation } from 'react-router-dom';
 import shallow from 'zustand/shallow';
-import { ReadingProgress } from '../components/ReadingProgress';
-import { extractSections } from '../components/Sidebar/PaperSections';
-import { usePaperStore } from '../stores/paper';
-import { usePaperId } from '../utils/hooks';
-import { Invite } from './Invite';
+import { ReadingProgress } from '../../components/ReadingProgress';
+import { extractSections } from '../../components/Sidebar/PaperSections';
+import { usePaperStore } from '../../stores/paper';
+import { usePaperId } from '../../utils/hooks';
+import { Invite } from '../Invite';
 import styles from './Paper.module.css';
 import PdfAnnotator from './PdfAnnotator';
-import { Sidebar } from './sideBar';
-import { TopBar } from './topBar';
+import { Sidebar } from '../sideBar';
+import { TopBar } from '../topBar';
 
 const Loader = () => (
   <div

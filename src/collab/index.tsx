@@ -1,5 +1,6 @@
 import React from 'react';
-import { Redirect, Route, RouteProps, Switch, useRouteMatch } from 'react-router-dom';
+import { Redirect, Route, RouteProps, Switch, useLocation, useRouteMatch } from 'react-router-dom';
+import { REDIRECT_TO } from '../auth';
 import { useIsLoggedIn } from '../auth/utils';
 import NotFound from '../pages/NotFound';
 import { useUserNewStore } from '../stores/userNew';
@@ -10,6 +11,7 @@ import { CenteredFullScreen } from './utils/CenteredFullScreen';
 
 const PrivateRoute: React.FC<RouteProps> = ({ children, ...rest }) => {
   const user = useUserNewStore();
+  const location = useLocation();
   return (
     <Route {...rest}>
       {user.status === 'loggedIn' ? (
@@ -17,7 +19,7 @@ const PrivateRoute: React.FC<RouteProps> = ({ children, ...rest }) => {
       ) : user.status === 'loggingIn' ? (
         <CenteredFullScreen>Logging in</CenteredFullScreen>
       ) : (
-        <Redirect to="/collab/start" />
+        <Redirect to={`/collab/start?${REDIRECT_TO}=${location.pathname}`} />
       )}
     </Route>
   );

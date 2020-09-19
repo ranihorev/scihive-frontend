@@ -25,10 +25,28 @@ const HideOnScroll: React.FC<{ children: React.ReactElement }> = ({ children }) 
   );
 };
 
-const MoreMenu: React.FC = () => {
-  const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
+const MoreMenuContent: React.FC = () => {
   const onLogOut = useLogout('/collab/start');
   const username = useUserNewStore(state => state.profile?.name);
+  return (
+    <React.Fragment>
+      <MenuItem disabled>{username}</MenuItem>
+      <Divider />
+      <MenuItem
+        onClick={() => {
+          onLogOut();
+        }}
+      >
+        Log Out
+      </MenuItem>
+    </React.Fragment>
+  );
+};
+
+const MoreMenu: React.FC = () => {
+  const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
+  const loggedIn = useUserNewStore(state => state.status === 'loggedIn');
+  if (!loggedIn) return null;
   return (
     <>
       <IconButton
@@ -43,20 +61,11 @@ const MoreMenu: React.FC = () => {
         anchorEl={anchorEl}
         getContentAnchorEl={null}
         anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
-        keepMounted
         transformOrigin={{ vertical: 'top', horizontal: 'right' }}
         open={Boolean(anchorEl)}
         onClose={() => setAnchorEl(null)}
       >
-        <MenuItem disabled>{username}</MenuItem>
-        <Divider />
-        <MenuItem
-          onClick={() => {
-            onLogOut();
-          }}
-        >
-          Log Out
-        </MenuItem>
+        <MoreMenuContent />
       </Menu>
     </>
   );

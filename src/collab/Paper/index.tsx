@@ -1,6 +1,7 @@
 /** @jsx jsx */
-import { css, jsx } from '@emotion/core';
-import { Button, CircularProgress } from '@material-ui/core';
+import { jsx } from '@emotion/core';
+import { Button, CircularProgress, Typography } from '@material-ui/core';
+import { AxiosError } from 'axios';
 import { pick } from 'lodash';
 import { getDocument, PDFDocumentProxy } from 'pdfjs-dist';
 import * as queryString from 'query-string';
@@ -8,20 +9,22 @@ import React from 'react';
 import { Helmet } from 'react-helmet';
 import { useLocation } from 'react-router-dom';
 import shallow from 'zustand/shallow';
+import baseStyles from '../../base.module.scss';
 import { ReadingProgress } from '../../components/ReadingProgress';
 import { extractSections } from '../../components/Sidebar/PaperSections';
 import { usePaperStore } from '../../stores/paper';
 import { usePaperId } from '../../utils/hooks';
 import { Invite } from '../Invite';
-import styles from './Paper.module.css';
-import baseStyles from '../../base.module.scss';
-import PdfAnnotator from './PdfAnnotator';
 import { Sidebar } from '../sideBar';
 import { TopBar } from '../topBar';
-import { AxiosError } from 'axios';
+import { Spacer } from '../utils/Spacer';
+import styles from './Paper.module.css';
+import PdfAnnotator from './PdfAnnotator';
 
 const Loader = () => (
   <div className={styles.fullScreen}>
+    <Typography>Loading Paper</Typography>
+    <Spacer size={8} />
     <CircularProgress />
   </div>
 );

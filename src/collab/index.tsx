@@ -1,13 +1,29 @@
+import { CircularProgress, Typography } from '@material-ui/core';
 import React from 'react';
 import { Redirect, Route, RouteProps, Switch, useLocation, useRouteMatch } from 'react-router-dom';
 import { REDIRECT_TO } from '../auth';
 import { useIsLoggedIn } from '../auth/utils';
+import baseStyles from '../base.module.scss';
 import NotFound from '../pages/NotFound';
 import { useUserNewStore } from '../stores/userNew';
 import { Landing } from './Landing';
 import { CollaboratedPdf } from './Paper';
+import { TopBar } from './topBar';
 import { Upload } from './upload';
-import { CenteredFullScreen } from './utils/CenteredFullScreen';
+import { Spacer } from './utils/Spacer';
+
+const LoggingIn: React.FC = () => {
+  return (
+    <div className={baseStyles.fullScreen}>
+      <TopBar />
+      <div className={baseStyles.screenCentered}>
+        <Typography>Logging in</Typography>
+        <Spacer size={8} />
+        <CircularProgress />
+      </div>
+    </div>
+  );
+};
 
 const PrivateRoute: React.FC<RouteProps> = ({ children, ...rest }) => {
   const user = useUserNewStore();
@@ -17,7 +33,7 @@ const PrivateRoute: React.FC<RouteProps> = ({ children, ...rest }) => {
       {user.status === 'loggedIn' ? (
         children
       ) : user.status === 'loggingIn' ? (
-        <CenteredFullScreen>Logging in</CenteredFullScreen>
+        <LoggingIn />
       ) : (
         <Redirect to={`/collab/start?${REDIRECT_TO}=${location.pathname}`} />
       )}

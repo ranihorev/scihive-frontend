@@ -17,7 +17,7 @@ import Autocomplete from '@material-ui/lab/Autocomplete';
 import Axios from 'axios';
 import { isEmpty, pick, uniqBy } from 'lodash';
 import React from 'react';
-import { queryCache, useMutation } from 'react-query';
+import { queryCache, useMutation, useQuery } from 'react-query';
 import { toast } from 'react-toastify';
 import shallow from 'zustand/shallow';
 import { LoginWithGoogle } from '../../auth';
@@ -76,12 +76,15 @@ interface EmailsInputProps {
 const EmailsInput: React.FC<EmailsInputProps> = React.memo(({ selected, setSelected }) => {
   const hasPermission = useHasContactsPermission();
   const [, setRefreshKey] = React.useState(0); // We need to refresh the view on login success
+  const [inputValue, setInputValue] = React.useState('');
+  const { data: options, isLoading } = useQuery(
+    `LOAD_SUGGESTIONS_Q_${inputValue}`,
+    () => {
+      return loadContactSuggestions(inputValue);
+    },
+    { refetchOnWindowFocus: false, initialData: [], keepPreviousData: true },
+  );
 
-  const [options, setOptions] = React.useState<Suggestion[]>([]);
-  // We need to ignore old in-flight requests, therefore, we keep track of the response and request ids
-  const requestId = React.useRef(0);
-  const responseId = React.useRef(0);
-  const [isLoading, setIsLoading] = React.useState(false);
   return hasPermission ? (
     <Autocomplete
       multiple
@@ -94,7 +97,7 @@ const EmailsInput: React.FC<EmailsInputProps> = React.memo(({ selected, setSelec
         return options.filter(option => !selectedEmails.has(option.email));
       }}
       getOptionLabel={option => `${option.name} <${option.email}>`}
-      options={[...selected, ...options]}
+      options={[...selected, ...(options || [])]}
       value={selected}
       onChange={(_, newValues) => {
         const newSelected: Suggestion[] = newValues.map(value =>
@@ -116,14 +119,7 @@ const EmailsInput: React.FC<EmailsInputProps> = React.memo(({ selected, setSelec
           label="Type name or email"
           variant="outlined"
           onChange={async e => {
-            const currentRequestId = requestId.current;
-            requestId.current += 1;
-            setIsLoading(true);
-            const newSuggestions = await loadContactSuggestions(e.target.value);
-            if (responseId.current > currentRequestId) return; // We already processed a newer request
-            setOptions(newSuggestions);
-            setIsLoading(false);
-            responseId.current = currentRequestId;
+            setInputValue(e.target.value);
           }}
           InputProps={{
             ...params.InputProps,

@@ -1,4 +1,4 @@
-import { AppBar, Drawer, IconButton, Menu, MenuItem, Slide, Toolbar } from '@material-ui/core';
+import { AppBar, Drawer, IconButton, Menu, MenuItem, Slide, Toolbar, Divider } from '@material-ui/core';
 import useScrollTrigger from '@material-ui/core/useScrollTrigger';
 import AccountCircleIcon from '@material-ui/icons/AccountCircle';
 import MenuIcon from '@material-ui/icons/Menu';
@@ -10,6 +10,7 @@ import { ReactComponent as Logo } from '../../images/logoWhite.svg';
 import { ReactComponent as LogoWithText } from '../../images/logoWithText.svg';
 import { Spacer } from '../utils/Spacer';
 import styles from './styles.module.scss';
+import { useUserNewStore } from '../../stores/userNew';
 
 const HideOnScroll: React.FC<{ children: React.ReactElement }> = ({ children }) => {
   // Note that you normally won't need to set the window ref as useScrollTrigger
@@ -27,6 +28,7 @@ const HideOnScroll: React.FC<{ children: React.ReactElement }> = ({ children }) 
 const MoreMenu: React.FC = () => {
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
   const onLogOut = useLogout('/collab/start');
+  const username = useUserNewStore(state => state.profile?.name);
   return (
     <>
       <IconButton
@@ -46,6 +48,8 @@ const MoreMenu: React.FC = () => {
         open={Boolean(anchorEl)}
         onClose={() => setAnchorEl(null)}
       >
+        <MenuItem disabled>{username}</MenuItem>
+        <Divider />
         <MenuItem
           onClick={() => {
             onLogOut();

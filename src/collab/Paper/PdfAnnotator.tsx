@@ -1,6 +1,7 @@
 /** @jsx jsx */
 import { css, jsx } from '@emotion/core';
 import Fab from '@material-ui/core/Fab';
+import cx from 'classnames';
 import { debounce, pick } from 'lodash';
 import { PDFDocumentProxy } from 'pdfjs-dist';
 // @ts-ignore
@@ -11,6 +12,7 @@ import { useCookies } from 'react-cookie';
 import { isMobile } from 'react-device-detect';
 import ReactDom from 'react-dom';
 import shallow from 'zustand/shallow';
+import { useJumpToHandler } from '../../components/Pdf/components/useJumpToHandler';
 import { scaledToViewport, viewportToScaled } from '../../components/Pdf/lib/coordinates';
 import getBoundingRect from '../../components/Pdf/lib/get-bounding-rect';
 import getClientRects from '../../components/Pdf/lib/get-client-rects';
@@ -21,9 +23,8 @@ import { usePaperStore } from '../../stores/paper';
 import { useLatestCallback } from '../../utils/useLatestCallback';
 import { PageHighlights } from '../highlights/PageHighlights';
 import { TipContainer } from '../highlights/TipContainer';
-import styles from './PdfAnnotator.module.scss';
 import { Spacer } from '../utils/Spacer';
-import { useJumpToHandler } from '../../components/Pdf/components/useJumpToHandler';
+import styles from './PdfAnnotator.module.scss';
 
 const zoomButtonCss = css`
   color: black;
@@ -108,6 +109,7 @@ const PdfAnnotator: React.FC<PdfAnnotatorProps> = ({ setReferencePopoverState, p
     }
     if (!initialWidth) {
       viewer.current.currentScaleValue = 'page-width';
+      viewer.current.currentScale *= 0.95;
     } else {
       const { viewport } = viewer.current.getPageView(0);
       viewer.current.currentScale = initialWidth / viewport.width - 0.1;
@@ -357,7 +359,7 @@ const PdfAnnotator: React.FC<PdfAnnotatorProps> = ({ setReferencePopoverState, p
         onClick={onReferenceEnter}
         onMouseOver={onReferenceEnter}
       >
-        <div id="pdfViewer" className={`${styles.pdfViewer} pdfViewer`} />
+        <div id="pdfViewer" className={cx(styles.pdfViewer, 'pdfViewer')} />
         <TipContainer isOnboarding={isOnboarding.current} />
         <div ref={highlightLayerNode} />
       </div>

@@ -11,6 +11,7 @@ import { track } from '../../Tracker';
 import { TopBar } from '../topBar';
 import { Spacer } from '../utils/Spacer';
 import styles from './styles.module.scss';
+import baseStyles from '../../base.module.scss';
 
 type UploadStatus = 'idle' | 'uploading' | 'processing';
 
@@ -76,7 +77,7 @@ export const FileUpload: React.FC = () => {
   };
 
   return (
-    <div className={styles.fullScreen}>
+    <div className={baseStyles.screenCentered}>
       <div className={styles.uploadRoot}>
         <Typography variant="h4">Which paper would you like to upload?</Typography>
         <Spacer size={24} />
@@ -141,7 +142,7 @@ export const FileUpload: React.FC = () => {
 
 export const Upload: React.FC = () => {
   return (
-    <div className={styles.root}>
+    <div className={baseStyles.fullScreen}>
       <TopBar />
       <FileUpload />
     </div>

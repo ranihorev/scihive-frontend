@@ -46,11 +46,17 @@ $main: #36a0f5;
   align-items: center;
 }
 
-.fullScreenCentered {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
+.fullScreen {
   min-width: 100vw;
   min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.screenCentered {
+  display: flex;
+  flex-direction: column;
+  flex-grow: 1;
+  justify-content: center;
+  align-items: center;
 }

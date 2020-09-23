@@ -198,6 +198,12 @@ export interface PaperListItem extends BasePaperData {
   groups: string[];
 }
 
+export interface PaperListResponse {
+  papers: PaperListItem[];
+  count: number;
+  hasMore: boolean;
+}
+
 export interface Author {
   name: string;
   id?: string;

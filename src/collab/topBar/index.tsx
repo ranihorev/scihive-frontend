@@ -80,7 +80,7 @@ export const TopBar: React.FC<{ rightMenu?: React.ReactElement; drawerContent?: 
     <React.Fragment>
       <HideOnScroll>
         <AppBar position="sticky">
-          <Toolbar variant="dense" className={styles.topBar}>
+          <Toolbar variant="dense" className={styles.topBar} disableGutters={isMobile}>
             <div>
               {drawerContent && (
                 <IconButton

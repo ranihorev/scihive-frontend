@@ -2,7 +2,7 @@
 import { jsx } from '@emotion/core';
 import pdfjs, { getDocument, PDFDocumentProxy } from 'pdfjs-dist';
 // @ts-ignore
-import { PDFViewer } from 'pdfjs-dist/web/pdf_viewer';
+import { PDFViewer } from '../../../collab/paper/node_modules/pdfjs-dist/web/pdf_viewer';
 import React from 'react';
 import shallow from 'zustand/shallow';
 import { PdfAnnotator } from '..';

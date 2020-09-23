@@ -1,5 +1,3 @@
-@import '../../base.module.scss';
-
 .newComment {
   padding: 5px 10px 10px;
   background: #fff;
@@ -21,6 +19,6 @@
     margin-right: 8px;
   }
   &:hover {
-    color: $main;
+    color: var(--main-color);
   }
 }

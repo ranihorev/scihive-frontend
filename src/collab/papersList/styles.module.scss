@@ -1,0 +1,66 @@
+.placeholderCard {
+  margin: 10px 0;
+  display: flex;
+  flex-shrink: 1;
+  position: relative;
+  margin-bottom: 20px;
+  padding: 28px 20px;
+
+  @media only screen and (max-width: 480px) {
+    padding: 16px;
+  }
+}
+
+.paperListTitleWrapper {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.paperListTitle {
+  text-transform: uppercase;
+}
+
+.itemCard {
+  margin: 10px 0;
+  width: 100%;
+  position: relative;
+  padding: 16px 0;
+
+  .itemCardContent {
+    padding-bottom: 4px;
+    padding-top: 4px;
+
+    &:last-child {
+      padding-bottom: 4px;
+    }
+  }
+}
+
+.itemTitleSection {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  column-gap: 12px;
+}
+
+.itemBookmark {
+  margin-right: -4px;
+  margin-top: -8px;
+}
+
+.groupMarkers {
+  display: flex;
+  flex-direction: row-reverse;
+  position: absolute;
+  top: 0;
+  right: 10px;
+}
+
+.groupMarker {
+  border-radius: 0 0 3px 3px;
+  height: 6px;
+  min-width: 30px;
+  margin-right: 5px;
+  padding: 1px;
+}

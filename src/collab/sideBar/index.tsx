@@ -4,7 +4,7 @@ import ExpandLess from '@material-ui/icons/ExpandLess';
 import ExpandMore from '@material-ui/icons/ExpandMore';
 import InfoIcon from '@material-ui/icons/Info';
 import React from 'react';
-import { Info } from '../Info';
+import { Info } from '../paperInfo';
 import { PaperSections } from '../sections';
 import styles from './styles.module.scss';
 

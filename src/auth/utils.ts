@@ -16,7 +16,6 @@ export const useIsLoggedIn = () => {
     state => pick(state, ['setStatus', 'status', 'onGoogleLogicSuccess']),
     shallow,
   );
-
   if (!process.env.REACT_APP_GOOGLE_ID) throw Error('Google Client ID is missing');
   useGoogleLogin({
     clientId: process.env.REACT_APP_GOOGLE_ID,

@@ -129,7 +129,7 @@ const PaperMetadata: React.FC<{ paper: PaperListItem }> = ({ paper }) => {
         </Button>
       </span>
       <div data-rh="Likes, retweets and replies" data-rh-at="top">
-        <TwitterMeta twtr_score={twitter_score} twtr_links={twitter_links} iconCss={metadataCss} />
+        <TwitterMeta twtr_score={twitter_score} iconCss={metadataCss} />
       </div>
       {!isEmpty(code) && (
         <div data-rh="GitHub stars (by PapersWithCode)" data-rh-at="top">

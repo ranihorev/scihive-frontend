@@ -7,10 +7,13 @@ import baseStyles from '../base.module.scss';
 import NotFound from '../pages/NotFound';
 import { useUserNewStore } from '../stores/userNew';
 import { Landing } from './Landing';
-import { CollaboratedPdf } from './Paper';
+import { CollaboratedPdf } from './paper';
+import { PapersList } from './papersList';
 import { TopBar } from './topBar';
 import { Upload } from './upload';
+import { QueryProvider } from './utils/QueryContext';
 import { Spacer } from './utils/Spacer';
+import { Groups } from './groups';
 
 const LoggingIn: React.FC = () => {
   return (
@@ -45,23 +48,34 @@ const Main: React.FC = () => {
   const { path } = useRouteMatch();
   useIsLoggedIn();
   return (
-    <Switch>
-      <Route path={`${path}/start`} exact>
-        <Landing />
-      </Route>
-      <PrivateRoute path={`${path}/upload`} exact>
-        <Upload />
-      </PrivateRoute>
-      <PrivateRoute path={`${path}/paper/:paperId/invite`} exact>
-        <CollaboratedPdf showInviteOnLoad />
-      </PrivateRoute>
-      <PrivateRoute path={`${path}/paper/:paperId`} exact>
-        <CollaboratedPdf />
-      </PrivateRoute>
-      <Route>
-        <NotFound />
-      </Route>
-    </Switch>
+    <QueryProvider>
+      <Switch>
+        <Route path={`${path}/start`} exact>
+          <Landing />
+        </Route>
+        <Route path={`${path}/discover`} exact>
+          <PapersList />
+        </Route>
+        <PrivateRoute path={`${path}/library`} exact>
+          <PapersList isLibraryMode />
+        </PrivateRoute>
+        <PrivateRoute path={`${path}/collections`} exact>
+          <Groups />
+        </PrivateRoute>
+        <PrivateRoute path={`${path}/upload`} exact>
+          <Upload />
+        </PrivateRoute>
+        <PrivateRoute path={`${path}/paper/:paperId/invite`} exact>
+          <CollaboratedPdf showInviteOnLoad />
+        </PrivateRoute>
+        <PrivateRoute path={`${path}/paper/:paperId`} exact>
+          <CollaboratedPdf />
+        </PrivateRoute>
+        <Route>
+          <NotFound />
+        </Route>
+      </Switch>
+    </QueryProvider>
   );
 };
 

@@ -14,7 +14,7 @@ import { ReadingProgress } from '../../components/ReadingProgress';
 import { extractSections } from '../../components/Sidebar/PaperSections';
 import { usePaperStore } from '../../stores/paper';
 import { usePaperId } from '../../utils/hooks';
-import { Invite } from '../Invite';
+import { Invite } from '../invite';
 import { Sidebar } from '../sideBar';
 import { TopBar } from '../topBar';
 import { Spacer } from '../utils/Spacer';

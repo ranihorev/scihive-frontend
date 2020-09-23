@@ -1,4 +1,6 @@
-$main: #36a0f5;
+:root {
+  --main-color: #36a0f5;
+}
 
 .popup {
   padding: 10px;
@@ -40,6 +42,11 @@ $main: #36a0f5;
   flex-direction: row;
 }
 
+.col {
+  display: flex;
+  flex-direction: column;
+}
+
 .centeredRow {
   display: flex;
   flex-direction: row;
@@ -59,4 +66,33 @@ $main: #36a0f5;
   flex-grow: 1;
   justify-content: center;
   align-items: center;
+}
+
+.simpleLink {
+  text-transform: none;
+  text-decoration: none;
+  color: inherit;
+  &:focus {
+    outline: none;
+  }
+}
+
+$arrowMargin: 10px;
+
+.arrowTooltipTop {
+  margin-bottom: $arrowMargin !important;
+}
+
+.arrowTooltipBottom {
+  margin-top: $arrowMargin !important;
+}
+
+.basePage {
+  --padding: 10px;
+  display: flex;
+  flex-direction: column;
+  max-width: 992px;
+  padding: var(--padding);
+  align-self: center;
+  width: calc(100% - 2 * var(--padding));
 }

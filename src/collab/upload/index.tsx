@@ -79,7 +79,7 @@ export const FileUpload: React.FC = () => {
   return (
     <div className={baseStyles.screenCentered}>
       <div className={styles.uploadRoot}>
-        <Typography variant="h4">Which paper would you like to upload?</Typography>
+        <Typography variant="h4">Upload paper</Typography>
         <Spacer size={24} />
 
         {uploadStatus.status !== 'idle' ? (

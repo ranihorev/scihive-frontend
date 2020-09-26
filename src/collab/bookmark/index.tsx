@@ -71,6 +71,7 @@ export const Bookmark: React.FC<BookmarkProps> = ({
         onClose={() => setIsOpen(false)}
         anchorEl={anchorRef.current}
         placement="bottom-end"
+        zIndex={9999}
         contentCss={css`
           width: 230px;
         `}

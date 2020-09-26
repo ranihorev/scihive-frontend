@@ -4,7 +4,7 @@ import AccountCircleIcon from '@material-ui/icons/AccountCircle';
 import MenuIcon from '@material-ui/icons/Menu';
 import React from 'react';
 import { isMobile } from 'react-device-detect';
-import { Link } from 'react-router-dom';
+import { Link as RouterLink } from 'react-router-dom';
 import { useLogout } from '../../auth/utils';
 import { ReactComponent as Logo } from '../../images/logoWhite.svg';
 import { ReactComponent as LogoWithText } from '../../images/logoWithText.svg';
@@ -25,12 +25,15 @@ const HideOnScroll: React.FC<{ children: React.ReactElement }> = ({ children }) 
   );
 };
 
-const MoreMenuContent: React.FC = () => {
+const UserMenuContent: React.FC = () => {
   const onLogOut = useLogout('/collab/start');
   const username = useUserNewStore(state => state.profile?.name);
   return (
     <React.Fragment>
       <MenuItem disabled>{username}</MenuItem>
+      <MenuItem component={RouterLink} to="/collab/library">
+        Library
+      </MenuItem>
       <Divider />
       <MenuItem
         onClick={() => {
@@ -43,7 +46,7 @@ const MoreMenuContent: React.FC = () => {
   );
 };
 
-const MoreMenu: React.FC = () => {
+const UserMenu: React.FC = () => {
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
   const loggedIn = useUserNewStore(state => state.status === 'loggedIn');
   if (!loggedIn) return null;
@@ -65,7 +68,9 @@ const MoreMenu: React.FC = () => {
         open={Boolean(anchorEl)}
         onClose={() => setAnchorEl(null)}
       >
-        <MoreMenuContent />
+        <div>
+          <UserMenuContent />
+        </div>
       </Menu>
     </>
   );
@@ -95,11 +100,13 @@ export const TopBar: React.FC<{ rightMenu?: React.ReactElement; drawerContent?: 
                 </IconButton>
               )}
               <Spacer size={8} />
-              <Link to="/collab/start">{isMobile ? <Logo height={26} /> : <LogoWithText height={26} />}</Link>
+              <RouterLink to="/collab/start">
+                {isMobile ? <Logo height={26} /> : <LogoWithText height={26} />}
+              </RouterLink>
             </div>
             <div>
               {rightMenu}
-              <MoreMenu />
+              <UserMenu />
             </div>
           </Toolbar>
         </AppBar>

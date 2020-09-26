@@ -107,7 +107,7 @@ export const Item: React.FC<PapersListItemProps> = ({ paper, groups }) => {
       <GroupMarkers groups={groups} paperGroupIds={paper.groups} />
       <CardContent classes={{ root: styles.itemCardContent }}>
         <div className={styles.itemTitleSection}>
-          <Link variant="h6" color="textPrimary" component={RouterLink} to={`collab/paper/${paper.id}`}>
+          <Link variant="h6" color="textPrimary" component={RouterLink} to={`/collab/paper/${paper.id}`}>
             <Latex>{paper.title}</Latex>
           </Link>
           <Bookmark
@@ -125,7 +125,12 @@ export const Item: React.FC<PapersListItemProps> = ({ paper, groups }) => {
         <Typography component="div" variant="body2" color="textSecondary">
           {paper.authors.map((author, index) => (
             <React.Fragment key={index}>
-              <Link component={RouterLink} variant="body2" color="textSecondary" to={`/author/${author.name}`}>
+              <Link
+                component={RouterLink}
+                variant="body2"
+                color="textSecondary"
+                to={`/collab/discover/?author=${author.name}`}
+              >
                 {author.name}
               </Link>
               {index < paper.authors.length - 1 ? <React.Fragment>,&nbsp;</React.Fragment> : ''}

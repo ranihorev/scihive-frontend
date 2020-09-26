@@ -5,11 +5,11 @@
   "dependencies": {
     "@date-io/moment": "^1.3.13",
     "@emotion/core": "^10.0.28",
-    "@material-ui/core": "^4.9.10",
+    "@material-ui/core": "^4.11.0",
     "@material-ui/icons": "^4.9.1",
     "@material-ui/lab": "^4.0.0-alpha.56",
     "@material-ui/pickers": "^3.2.8",
-    "@material-ui/styles": "^4.7.1",
+    "@material-ui/styles": "^4.10.0",
     "@sentry/browser": "^5.4.0",
     "@types/mixpanel-browser": "^2.23.2",
     "autosuggest-highlight": "^3.1.1",
@@ -43,7 +43,6 @@
     "react-linkify": "^1.0.0-alpha",
     "react-pointable": "^1.1.3",
     "react-query": "^2.12.1",
-    "react-query-devtools": "^2.4.4",
     "react-rnd": "^10.0.0",
     "react-router": "^5.1.2",
     "react-router-dom": "^5.1.2",
@@ -109,6 +108,7 @@
     "flow-bin": "^0.95.1",
     "prettier": "^1.17.0",
     "react-app-rewired": "^2.1.3",
-    "typescript-plugin-css-modules": "^2.3.0"
+    "typescript-plugin-css-modules": "^2.3.0",
+    "react-query-devtools": "^2.4.4"
   }
 }

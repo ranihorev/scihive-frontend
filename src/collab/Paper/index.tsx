@@ -1,7 +1,7 @@
 /** @jsx jsx */
 import { jsx } from '@emotion/core';
 import { Button, CircularProgress, Typography } from '@material-ui/core';
-import { AxiosError } from 'axios';
+import axios, { AxiosError } from 'axios';
 import { pick } from 'lodash';
 import { getDocument, PDFDocumentProxy } from 'pdfjs-dist';
 import * as queryString from 'query-string';
@@ -20,6 +20,8 @@ import { TopBar } from '../topBar';
 import { Spacer } from '../utils/Spacer';
 import styles from './Paper.module.css';
 import PdfAnnotator from './PdfAnnotator';
+import { Bookmark } from '../bookmark';
+import { useQuery, queryCache } from 'react-query';
 
 const Loader = () => (
   <div className={styles.fullScreen}>
@@ -97,6 +99,29 @@ const useLoadPaper = (paperId: string) => {
 const SHOW_INVITE_STATES: LoadStatusState[] = ['DownloadingPdf', 'Ready'];
 const LOADING_STATES: LoadStatusState[] = ['DownloadingPdf', 'FetchingURL'];
 
+const GROUPS_Q = 'paper_groups';
+
+const PaperBookmark: React.FC<{ paperId: string }> = ({ paperId }) => {
+  const { data, isSuccess } = useQuery(GROUPS_Q, async () => {
+    const response = await axios.get<{ groups: string[] }>(`/collab/paper/${paperId}/groups`);
+    return response.data;
+  });
+  if (!isSuccess) return null;
+
+  return (
+    <Bookmark
+      color="white"
+      type="single"
+      paperId={paperId}
+      size={20}
+      selectedGroupIds={data?.groups || []}
+      updatePaperGroup={() => {
+        queryCache.invalidateQueries(GROUPS_Q);
+      }}
+    />
+  );
+};
+
 export const CollaboratedPdf: React.FC<{ showInviteOnLoad?: boolean }> = ({ showInviteOnLoad }) => {
   const paperId = usePaperId();
   const viewer = React.useRef<any>(null);
@@ -118,9 +143,12 @@ export const CollaboratedPdf: React.FC<{ showInviteOnLoad?: boolean }> = ({ show
       <Invite />
       <TopBar
         rightMenu={
-          <Button color="inherit" onClick={() => setIsInviteOpen(true)}>
-            Share
-          </Button>
+          <React.Fragment>
+            <PaperBookmark paperId={paperId} />
+            <Button color="inherit" onClick={() => setIsInviteOpen(true)}>
+              Share
+            </Button>
+          </React.Fragment>
         }
         drawerContent={<Sidebar />}
       />

@@ -1,10 +1,10 @@
 /** @jsx jsx */
-import { css, jsx } from '@emotion/core';
+import { jsx } from '@emotion/core';
+import { Tooltip } from '@material-ui/core';
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { Group } from '../../models';
 import { presets } from '../../utils';
-import { Tooltip } from '@material-ui/core';
 import styles from './styles.module.scss';
 
 const SingleGroupMarker: React.FC<{ group?: Group; index: number }> = ({ group, index }) => {
@@ -13,7 +13,7 @@ const SingleGroupMarker: React.FC<{ group?: Group; index: number }> = ({ group, 
   return (
     <Tooltip title={group.name} placement="top" arrow>
       <Link
-        to={`/collection/${group.id}/`}
+        to={`/collab/library/?group=${group.id}`}
         className={styles.groupMarker}
         style={{
           backgroundColor: presets.getGroupColor(group.color),

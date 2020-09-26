@@ -1,25 +1,25 @@
 /** @jsx jsx */
-import { css, jsx } from '@emotion/core';
-import { Button, Typography, Box } from '@material-ui/core';
+import { jsx } from '@emotion/core';
+import { Button, Typography } from '@material-ui/core';
 import axios from 'axios';
 import * as queryString from 'query-string';
 import React from 'react';
 import { useInfiniteQuery } from 'react-query';
-import { useLocation } from 'react-router';
+import { useLocation, useHistory } from 'react-router';
 import { Link as RouterLink } from 'react-router-dom';
 import baseStyles from '../../base.module.scss';
 import { Group, isValidSort, PaperListResponse } from '../../models';
 import { RequestParams } from '../../stores/papersList';
-import * as presets from '../../utils/presets';
+import { useUserNewStore } from '../../stores/userNew';
 import { useLatestCallback } from '../../utils/useLatestCallback';
 import { TopBar } from '../topBar';
 import { QueryContext } from '../utils/QueryContext';
+import { Spacer } from '../utils/Spacer';
 import { useFetchGroups } from '../utils/useGroups';
 import { Item } from './Item';
 import { ItemPlaceholder } from './ItemPlaceholder';
 import styles from './styles.module.scss';
-import { Spacer } from '../utils/Spacer';
-import { useUserNewStore } from '../../stores/userNew';
+import { SearchField, Filters } from './filters';
 
 export interface PaperListRouterParams {
   authorId?: string;
@@ -48,19 +48,20 @@ const PapersListContent: React.FC<{ isLibraryMode: boolean }> = ({ isLibraryMode
   const queryContext = React.useContext(QueryContext);
   const groups = useFetchGroups();
   const location = useLocation();
-  const isLibraryOrList = isLibraryMode;
+  const history = useHistory();
 
   const queryParams = queryString.parse(location.search) as Partial<RequestParams>;
   const group = isLibraryMode ? queryParams.group : undefined;
   const author = queryParams.author;
-  const age = getAgeQuery(queryParams, isLibraryOrList);
-  const sort = getSortQuery(queryParams, isLibraryOrList);
+  const age = getAgeQuery(queryParams, isLibraryMode);
+  const sort = getSortQuery(queryParams, isLibraryMode);
+  const searchQuery = queryParams.q;
 
   const requestParams: Partial<RequestParams> = {
     author,
     age,
     sort,
-    q: (queryParams.q as string) || undefined,
+    q: searchQuery,
     group,
     library: isLibraryMode,
   };
@@ -82,6 +83,18 @@ const PapersListContent: React.FC<{ isLibraryMode: boolean }> = ({ isLibraryMode
     },
   );
 
+  const updateQueryParams = (key: keyof RequestParams, value: string | undefined) => {
+    const newQ = {
+      ...queryString.parse(location.search),
+      [key]: value,
+    };
+    if (!value) delete newQ[key];
+    history.push({
+      pathname: location.pathname,
+      search: queryString.stringify(newQ),
+    });
+  };
+
   const totalPapers = data ? data[0].count : undefined;
 
   const thresholdPx = 250;
@@ -98,13 +111,6 @@ const PapersListContent: React.FC<{ isLibraryMode: boolean }> = ({ isLibraryMode
     return () => window.removeEventListener('scroll', onScroll);
   }, [onScroll, canFetchMore]);
 
-  if (totalPapers === 0) {
-    return (
-      <div className={baseStyles.screenCentered}>
-        <Typography variant="h5">No papers found :(</Typography>
-      </div>
-    );
-  }
   return (
     <div className={baseStyles.basePage}>
       <Spacer size={16} />
@@ -112,22 +118,25 @@ const PapersListContent: React.FC<{ isLibraryMode: boolean }> = ({ isLibraryMode
         <Typography variant="h4" className={styles.paperListTitle}>
           {group ? getGroupName(groups, group) : author ? author : isLibraryMode ? 'My Library' : 'Discover'}
         </Typography>
+        <Spacer size={8} grow />
         <Button component={RouterLink} to="/collab/collections" color="primary">
           Collections
         </Button>
       </div>
-      <Spacer size={20} />
-      {totalPapers !== undefined && totalPapers > 0 && (
-        <div
-          css={css`
-            ${presets.row};
-            align-items: center;
-            justify-content: space-between;
-          `}
-        >
-          <Typography variant="subtitle2">{totalPapers} papers</Typography>
-        </div>
+      <Spacer size={4} />
+      {totalPapers !== undefined && (
+        <React.Fragment>
+          <div className={styles.filtersRow}>
+            <Typography variant="subtitle2">{totalPapers} papers</Typography>
+            <div className={baseStyles.centeredRow}>
+              <SearchField {...{ requestParams, updateQueryParams }} />
+              <Filters {...{ requestParams, updateQueryParams }} />
+            </div>
+          </div>
+          <Spacer size={16} />
+        </React.Fragment>
       )}
+      {totalPapers === 0 && <Typography variant="h5">No papers found :(</Typography>}
       <div>
         {data?.map(group => group.papers.map(paper => <Item key={paper.id} paper={paper} groups={groups} />))}
         {(!data || isFetchingMore) && <ItemPlaceholder count={data ? 2 : 5} />}

@@ -15,7 +15,6 @@
   display: flex;
   flex-direction: row;
   align-items: center;
-  justify-content: space-between;
 }
 
 .paperListTitle {
@@ -63,4 +62,26 @@
   min-width: 30px;
   margin-right: 5px;
   padding: 1px;
+}
+
+.filtersRow {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.filtersMenu {
+  min-width: 200px;
+  padding: 16px;
+
+  .filterField {
+    min-width: 200px;
+  }
+}
+
+.searchFilter {
+  .searchInputField {
+    padding-right: 0;
+  }
 }

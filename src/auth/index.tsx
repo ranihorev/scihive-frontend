@@ -29,7 +29,7 @@ export const LoginWithGoogle: React.FC<LoginProps> = React.memo(
     return (
       <GoogleLogin
         clientId={clientId}
-        buttonText="Login with Google"
+        buttonText="Sign in with Google"
         onSuccess={async res => {
           try {
             if (isOnlineResponse(res)) {

@@ -7,21 +7,23 @@ import { getDocument, PDFDocumentProxy } from 'pdfjs-dist';
 import * as queryString from 'query-string';
 import React from 'react';
 import { Helmet } from 'react-helmet';
+import { queryCache, useMutation, useQuery } from 'react-query';
 import { useLocation } from 'react-router-dom';
+import { toast } from 'react-toastify';
 import shallow from 'zustand/shallow';
 import baseStyles from '../../base.module.scss';
 import { ReadingProgress } from '../../components/ReadingProgress';
 import { extractSections } from '../../components/Sidebar/PaperSections';
 import { usePaperStore } from '../../stores/paper';
 import { usePaperId } from '../../utils/hooks';
+import { Bookmark } from '../bookmark';
 import { Invite } from '../invite';
 import { Sidebar } from '../sideBar';
 import { TopBar } from '../topBar';
 import { Spacer } from '../utils/Spacer';
+import { addOrRemovePaperToGroupRequest, addRemoveGroupFromPaperCache, OnSelectGroupProps } from '../utils/useGroups';
 import styles from './Paper.module.css';
 import PdfAnnotator from './PdfAnnotator';
-import { Bookmark } from '../bookmark';
-import { useQuery, queryCache } from 'react-query';
 
 const Loader = () => (
   <div className={styles.fullScreen}>
@@ -101,11 +103,38 @@ const LOADING_STATES: LoadStatusState[] = ['DownloadingPdf', 'FetchingURL'];
 
 const GROUPS_Q = 'paper_groups';
 
+interface GroupIds {
+  groups: string[];
+}
+
 const PaperBookmark: React.FC<{ paperId: string }> = ({ paperId }) => {
   const { data, isSuccess } = useQuery(GROUPS_Q, async () => {
-    const response = await axios.get<{ groups: string[] }>(`/collab/paper/${paperId}/groups`);
+    const response = await axios.get<GroupIds>(`/collab/paper/${paperId}/groups`);
     return response.data;
   });
+
+  const [onSelectGroup] = useMutation(
+    async (props: OnSelectGroupProps) => {
+      return addOrRemovePaperToGroupRequest({ paperId, ...props });
+    },
+    {
+      onMutate: ({ shouldAdd, groupId }) => {
+        addRemoveGroupFromPaperCache({ groupId, queryKey: GROUPS_Q, shouldAdd });
+
+        return () => {
+          return addRemoveGroupFromPaperCache({ groupId, queryKey: GROUPS_Q, shouldAdd: !shouldAdd });
+        };
+      },
+      onError: (err, props, rollback: () => void) => {
+        rollback();
+        toast.error('Failed to update collection');
+      },
+      onSettled: () => {
+        queryCache.invalidateQueries(GROUPS_Q);
+      },
+    },
+  );
+
   if (!isSuccess) return null;
 
   return (
@@ -115,8 +144,8 @@ const PaperBookmark: React.FC<{ paperId: string }> = ({ paperId }) => {
       paperId={paperId}
       size={20}
       selectedGroupIds={data?.groups || []}
-      updatePaperGroup={() => {
-        queryCache.invalidateQueries(GROUPS_Q);
+      onSelectGroup={props => {
+        onSelectGroup(props);
       }}
     />
   );

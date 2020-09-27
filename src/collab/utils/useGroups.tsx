@@ -1,29 +1,9 @@
 import axios from 'axios';
-import { useQuery, useMutation, queryCache } from 'react-query';
+import { queryCache, QueryKey, useMutation, useQuery } from 'react-query';
 import { Group, PaperListResponse } from '../../models';
 import { GroupColor } from '../../utils/presets';
-import React from 'react';
-import { QueryContext } from './QueryContext';
 
 const FETCH_GROUPS_Q = 'fetchGroups';
-
-export const useUpdatePaperGroupsCache = () => {
-  const queryContext = React.useContext(QueryContext);
-  const updateGroups = (paperId: string, groupIds: string[]) => {
-    queryCache.setQueryData<PaperListResponse[]>(['papers', queryContext.query], oldData => {
-      oldData?.forEach(batch => {
-        batch.papers.forEach(currentPaper => {
-          if (paperId === currentPaper.id) {
-            currentPaper.groups = groupIds;
-          }
-          return oldData;
-        });
-      });
-      return oldData || [];
-    });
-  };
-  return updateGroups;
-};
 
 export const useFetchGroups = () => {
   const { data } = useQuery(
@@ -58,23 +38,6 @@ export const useCreateGroup = () => {
   return createGroup;
 };
 
-export interface AddRemovePaperToGroup {
-  paperId: string;
-  shouldAdd: boolean;
-  groupId: string;
-}
-
-export const useAddOrRemovePaperToGroup = () => {
-  const [submitRequest] = useMutation(async ({ paperId, groupId, shouldAdd }: AddRemovePaperToGroup) => {
-    const response = await axios.post<Group[]>(`/groups/group/${groupId}`, {
-      paper_id: paperId,
-      add: shouldAdd,
-    });
-    return response.data;
-  });
-  return submitRequest;
-};
-
 export const useEditGroup = () => {
   const [submitRequest] = useMutation(
     async ({ groupId, ...payload }: { groupId: string; name?: string; color?: GroupColor }) => {
@@ -101,4 +64,64 @@ export const useDeleteGroup = () => {
     },
   );
   return submitRequest;
+};
+
+export interface OnSelectGroupProps {
+  shouldAdd: boolean;
+  groupId: string;
+}
+
+export interface AddRemovePaperToGroup extends OnSelectGroupProps {
+  paperId: string;
+}
+
+export const addOrRemovePaperToGroupRequest = async ({ groupId, paperId, shouldAdd }: AddRemovePaperToGroup) => {
+  const response = await axios.post<Group[]>(`/groups/group/${groupId}`, {
+    paper_id: paperId,
+    add: shouldAdd,
+  });
+  return response.data;
+};
+
+export const addOrRemoveToList = ({ groups, shouldAdd, groupId }: OnSelectGroupProps & { groups: string[] }) => {
+  return shouldAdd ? [...groups, groupId] : groups.filter(g => g !== groupId);
+};
+
+export const addRemoveGroupFromPapersListCache = ({
+  queryKey,
+  shouldAdd,
+  paperId,
+  groupId,
+}: {
+  queryKey: QueryKey;
+  shouldAdd: boolean;
+  paperId: string;
+  groupId: string;
+}) => {
+  queryCache.setQueryData<PaperListResponse[]>(queryKey, oldData => {
+    oldData?.forEach(batch => {
+      batch.papers.forEach(currentPaper => {
+        if (paperId === currentPaper.id) {
+          currentPaper.groups = addOrRemoveToList({ groups: currentPaper.groups, groupId, shouldAdd });
+        }
+        return oldData;
+      });
+    });
+    return oldData || [];
+  });
+};
+
+export const addRemoveGroupFromPaperCache = ({
+  queryKey,
+  shouldAdd,
+  groupId,
+}: {
+  queryKey: QueryKey;
+  shouldAdd: boolean;
+  groupId: string;
+}) => {
+  queryCache.setQueryData<{ groups: string[] }>(queryKey, oldData => {
+    if (!oldData) return { groups: [] };
+    return { groups: addOrRemoveToList({ groups: oldData.groups, groupId, shouldAdd }) };
+  });
 };

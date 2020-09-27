@@ -38,3 +38,14 @@ svg.groupSelected {
     padding: 5px 0 5px 5px;
   }
 }
+
+.bookmarkContentWrapper {
+  width: 230px;
+}
+
+.groupsList {
+  max-height: 250px;
+  overflow-y: auto;
+  width: 100%;
+  padding-top: 4px;
+}

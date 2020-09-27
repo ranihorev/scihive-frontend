@@ -8,11 +8,13 @@ import React from 'react';
 import { PopoverMenu } from '../../components/PopoverMenu';
 import { Group } from '../../models';
 import { COLORS, smallIconPadding } from '../../utils/presets';
+import { OnSelectGroupProps } from '../utils/useGroups';
 import { EditGroup } from './EditGroup';
 import { GroupsList } from './GroupsList';
+import styles from './styles.module.scss';
 
 interface BookmarkProps {
-  updatePaperGroup: (groups: string[]) => void;
+  onSelectGroup: (props: OnSelectGroupProps) => void;
   color?: string | undefined;
   size?: number;
   paperId: string;
@@ -26,7 +28,7 @@ const hint =
   'Add paper to a collection. Collections allow you to organize papers and can be shared with collaborators.';
 
 export const Bookmark: React.FC<BookmarkProps> = ({
-  updatePaperGroup,
+  onSelectGroup,
   selectedGroupIds,
   paperId,
   color = COLORS.grey,
@@ -72,14 +74,12 @@ export const Bookmark: React.FC<BookmarkProps> = ({
         anchorEl={anchorRef.current}
         placement="bottom-end"
         zIndex={9999}
-        contentCss={css`
-          width: 230px;
-        `}
+        className={styles.bookmarkContentWrapper}
       >
         {groupInEdit ? (
           <EditGroup group={groupInEdit} onFinishEdit={() => setGroupInEdit(undefined)} />
         ) : (
-          <GroupsList {...{ updatePaperGroup, selectedGroupIds, setGroupInEdit, paperId }} />
+          <GroupsList {...{ onSelectGroup, selectedGroupIds, setGroupInEdit, paperId }} />
         )}
       </PopoverMenu>
     </div>

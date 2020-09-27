@@ -8,7 +8,7 @@ import { isEmpty } from 'lodash';
 import React from 'react';
 import { Group } from '../../models';
 import { BASE_GROUP_COLOR, GROUP_COLORS, pickRandomColor } from '../../utils/presets';
-import { useAddOrRemovePaperToGroup, useCreateGroup, useFetchGroups } from '../utils/useGroups';
+import { OnSelectGroupProps, useCreateGroup, useFetchGroups } from '../utils/useGroups';
 import { NewGroup } from './NewGroup';
 import styles from './styles.module.scss';
 
@@ -16,11 +16,11 @@ interface GroupRenderProps {
   group: Group;
   selected: boolean;
   paperId: string;
-  updatePaperGroup: (groups: string[]) => void;
+  onSelect: (props: OnSelectGroupProps) => void;
   onEdit: () => void;
 }
 
-const GroupRender: React.FC<GroupRenderProps> = ({ group, selected, paperId, updatePaperGroup, onEdit }) => {
+const GroupRender: React.FC<GroupRenderProps> = ({ group, selected, paperId, onSelect, onEdit }) => {
   let backgroundHoverColor;
   const backgroundColor = GROUP_COLORS[group.color || BASE_GROUP_COLOR];
   try {
@@ -29,7 +29,6 @@ const GroupRender: React.FC<GroupRenderProps> = ({ group, selected, paperId, upd
     backgroundHoverColor = Color(GROUP_COLORS[BASE_GROUP_COLOR]);
   }
   backgroundHoverColor = backgroundHoverColor.darken(0.1).string();
-  const addRemoveGroup = useAddOrRemovePaperToGroup();
 
   return (
     <ListItem key={group.id} className={styles.groupRoot}>
@@ -42,10 +41,7 @@ const GroupRender: React.FC<GroupRenderProps> = ({ group, selected, paperId, upd
           }
         `}
         onClick={async () => {
-          const paperGroups = await addRemoveGroup({ paperId, groupId: group.id, shouldAdd: !selected });
-          if (paperGroups) {
-            updatePaperGroup(paperGroups.map(g => g.id));
-          }
+          onSelect({ groupId: group.id, shouldAdd: !selected });
         }}
       >
         <Typography variant="body2" className={styles.groupName}>
@@ -61,18 +57,13 @@ const GroupRender: React.FC<GroupRenderProps> = ({ group, selected, paperId, upd
 };
 
 interface GroupListProps {
-  updatePaperGroup: (groups: string[]) => void;
+  onSelectGroup: (props: OnSelectGroupProps) => void;
   paperId: string;
   selectedGroupIds: string[];
   setGroupInEdit: React.Dispatch<Group | undefined>;
 }
 
-export const GroupsList: React.FC<GroupListProps> = ({
-  selectedGroupIds,
-  updatePaperGroup,
-  setGroupInEdit,
-  paperId,
-}) => {
+export const GroupsList: React.FC<GroupListProps> = ({ selectedGroupIds, onSelectGroup, setGroupInEdit, paperId }) => {
   const [newGroupValue, setNewGroupValue] = React.useState('');
 
   const [createGroup] = useCreateGroup();
@@ -82,7 +73,7 @@ export const GroupsList: React.FC<GroupListProps> = ({
     const response = await createGroup({ name: newGroupValue, color: pickRandomColor(), paperId });
     setNewGroupValue('');
     if (response) {
-      updatePaperGroup(response.groups.map(g => g.id));
+      onSelectGroup({ groupId: response.new_id, shouldAdd: true });
     }
   };
 
@@ -94,21 +85,14 @@ export const GroupsList: React.FC<GroupListProps> = ({
     <React.Fragment>
       <NewGroup value={newGroupValue} setValue={setNewGroupValue} submitGroup={submitGroup} />
       {filteredGroups.length > 0 && (
-        <List
-          dense
-          css={css`
-            max-height: 250px;
-            overflow-y: auto;
-            width: 100%;
-            padding-top: 4px;
-          `}
-        >
+        <List dense className={styles.groupsList}>
           {filteredGroups.map(group => {
             const selected = selectedGroupIds.some(id => id === group.id);
             return (
               <GroupRender
                 key={group.id}
-                {...{ group, paperId, selected, updatePaperGroup }}
+                {...{ group, paperId, selected }}
+                onSelect={onSelectGroup}
                 onEdit={() => setGroupInEdit(group)}
               />
             );

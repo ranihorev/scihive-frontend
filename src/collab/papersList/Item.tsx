@@ -5,14 +5,21 @@ import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import { isEmpty } from 'lodash';
 import moment from 'moment';
 import React, { useState } from 'react';
+import { useMutation } from 'react-query';
 import { Link as RouterLink } from 'react-router-dom';
+import { toast } from 'react-toastify';
 import baseStyles from '../../base.module.scss';
 import { Group, PaperListItem } from '../../models';
 import { Latex } from '../../utils/latex';
 import { arrowTooltipsClasses as arrowTooltipClasses } from '../../utils/presets';
 import { Bookmark } from '../bookmark';
+import { QueryContext } from '../utils/QueryContext';
 import { Spacer } from '../utils/Spacer';
-import { useUpdatePaperGroupsCache } from '../utils/useGroups';
+import {
+  addOrRemovePaperToGroupRequest,
+  addRemoveGroupFromPapersListCache,
+  OnSelectGroupProps,
+} from '../utils/useGroups';
 import { GroupMarkers } from './ItemGroups';
 import styles from './styles.module.scss';
 
@@ -83,24 +90,37 @@ const ExpandPaper: React.FC<{ expanded: boolean; handleExpandClick: (e: React.Mo
     aria-label="Show more"
     size="small"
   >
-    <ExpandMoreIcon
-      fontSize="small"
-      // css={css`
-      //   padding: ${presets.smallIconPadding}px;
-      // `}
-    />
+    <ExpandMoreIcon fontSize="small" />
   </IconButton>
 );
 
 export const Item: React.FC<PapersListItemProps> = ({ paper, groups }) => {
   const { code: github } = paper;
   const [expanded, setExpanded] = useState(false);
-  const updateGroups = useUpdatePaperGroupsCache();
 
   const handleExpandClick = (e: React.MouseEvent) => {
     e.preventDefault();
     setExpanded(!expanded);
   };
+
+  const queryContext = React.useContext(QueryContext);
+
+  const [onSelectGroup] = useMutation(
+    async (props: OnSelectGroupProps) => {
+      return addOrRemovePaperToGroupRequest({ paperId: paper.id, ...props });
+    },
+    {
+      onMutate: ({ shouldAdd, groupId }) => {
+        const queryKey = ['papers', queryContext.query];
+        addRemoveGroupFromPapersListCache({ queryKey, groupId, shouldAdd, paperId: paper.id });
+        return () => addRemoveGroupFromPapersListCache({ queryKey, groupId, shouldAdd: !shouldAdd, paperId: paper.id });
+      },
+      onError: (err, props, rollback: () => void) => {
+        rollback();
+        toast.error('Failed to update collection');
+      },
+    },
+  );
 
   return (
     <Card className={styles.itemCard}>
@@ -115,8 +135,8 @@ export const Item: React.FC<PapersListItemProps> = ({ paper, groups }) => {
             paperId={paper.id}
             size={20}
             selectedGroupIds={paper.groups}
-            updatePaperGroup={(groups: string[]) => {
-              updateGroups(paper.id, groups);
+            onSelectGroup={props => {
+              onSelectGroup(props);
             }}
             type="list"
           />

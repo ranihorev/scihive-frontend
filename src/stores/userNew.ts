@@ -9,7 +9,7 @@ interface UserState {
   profile?: {
     token: string;
     googleId: string;
-    imageUrl: string;
+    imageUrl?: string;
     email: string;
     name: string;
     givenName: string;

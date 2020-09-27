@@ -1,9 +1,11 @@
 import { pick } from 'lodash';
+import React from 'react';
 import { GoogleLoginResponse, GoogleLoginResponseOffline, useGoogleLogin, useGoogleLogout } from 'react-google-login';
 import { useHistory } from 'react-router';
 import shallow from 'zustand/shallow';
 import { useUserNewStore } from '../stores/userNew';
 import { useLatestCallback } from '../utils/useLatestCallback';
+import { toast } from 'react-toastify';
 
 export const contactsScope = 'https://www.googleapis.com/auth/contacts.readonly';
 
@@ -29,7 +31,9 @@ export const useIsLoggedIn = () => {
         onGoogleLogicSuccess(res);
       }
     },
-    onFailure: () => {},
+    onFailure: e => {
+      setStatus('notAuthenticated');
+    },
     isSignedIn: true, // TODO: get this from localstorage
     scope: `profile email ${contactsScope}`,
   });
@@ -37,20 +41,30 @@ export const useIsLoggedIn = () => {
 };
 
 export const useHasContactsPermission = () => {
+  const shownError = React.useRef(false);
   const { status, contactsPermission, setContactsPermission } = useUserNewStore(
     state => pick(state, ['status', 'contactsPermission', 'setContactsPermission']),
     shallow,
   );
   if (status !== 'loggedIn') return false;
   if (contactsPermission) return true; // We assume that the permissions won't be removed after approval
-  const authInstance = window.gapi.auth2.getAuthInstance();
-  const currentUser = authInstance.currentUser.get();
-  const scopes = currentUser.getGrantedScopes();
-  const contactsInScope = scopes.indexOf(contactsScope) >= 0;
-  if (contactsPermission !== contactsInScope) {
-    setContactsPermission(contactsInScope);
+  try {
+    const authInstance = window.gapi.auth2.getAuthInstance();
+    const currentUser = authInstance.currentUser.get();
+    const scopes = currentUser.getGrantedScopes();
+    const contactsInScope = scopes.indexOf(contactsScope) >= 0;
+    if (contactsPermission !== contactsInScope) {
+      setContactsPermission(contactsInScope);
+    }
+    shownError.current = false;
+    return contactsInScope;
+  } catch (e) {
+    if (!shownError.current) {
+      toast.error('Failed to connect to Google services');
+      shownError.current = true;
+    }
   }
-  return contactsInScope;
+  return false;
 };
 
 export const useLogout = (goToPath: string) => {

@@ -13,7 +13,7 @@ import { PopoverMenu } from '../PopoverMenu';
 
 const logout = () => {
   axios
-    .post('/user/logout/access')
+    .post('/user/logout')
     .then(() => {
       localStorage.removeItem('username');
       window.location.href = '/';

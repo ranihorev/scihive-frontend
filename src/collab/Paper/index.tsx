@@ -51,7 +51,6 @@ const DEFAULT_ERROR_MESSAGE = 'Unknown Error';
 const useLoadPaper = (paperId: string) => {
   const [status, setStatus] = React.useState<LoadStatus>({ state: 'FetchingURL' });
   const [pdfDocument, setPdfDocument] = React.useState<PDFDocumentProxy | null>(null);
-  const location = useLocation();
   const { clearPaper, fetchPaper, setSections } = usePaperStore(
     state => pick(state, ['clearPaper', 'fetchPaper', 'setSections']),
     shallow,
@@ -62,10 +61,9 @@ const useLoadPaper = (paperId: string) => {
     setPdfDocument(null);
     clearPaper();
     (async () => {
-      const selectedGroupId = queryString.parse(location.search).list as string;
       let url = '';
       try {
-        const urlData = await fetchPaper({ paperId, selectedGroupId, hash: location.hash, isCollab: true });
+        const urlData = await fetchPaper({ paperId, isCollab: true });
         url = urlData.url;
       } catch (e) {
         console.error(e.response);
@@ -93,7 +91,7 @@ const useLoadPaper = (paperId: string) => {
         },
       );
     })();
-  }, [clearPaper, fetchPaper, location, paperId, setSections]);
+  }, [clearPaper, fetchPaper, paperId, setSections]);
 
   return { status, pdfDocument };
 };
@@ -188,12 +186,14 @@ export const CollaboratedPdf: React.FC<{ showInviteOnLoad?: boolean }> = ({ show
         </div>
       )}
       {pdfDocument && status.state === 'Ready' && (
-        <div className={styles.wrapper}>
-          <React.Fragment>
-            <ReadingProgress />
+        <React.Fragment>
+          <div className={styles.wrapper}>
             <PdfAnnotator pdfDocument={pdfDocument} viewer={viewer} />
-          </React.Fragment>
-        </div>
+          </div>
+          <div style={{ position: 'sticky', bottom: 0 }}>
+            <ReadingProgress />
+          </div>
+        </React.Fragment>
       )}
     </div>
   );

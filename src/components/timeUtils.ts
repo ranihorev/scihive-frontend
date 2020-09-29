@@ -14,7 +14,7 @@ function getTimePassed(time: Date) {
   };
 }
 
-export default function get_age(utc_time: string) {
+export default function getAge(utc_time: string) {
   const post_time = new Date(utc_time);
   // const post_time_local = new Date(post_time.valueOf() - post_time.getTimezoneOffset() * 60000);
   const time_passed = getTimePassed(post_time);

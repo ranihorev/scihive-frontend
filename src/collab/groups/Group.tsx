@@ -30,7 +30,7 @@ export const GroupRender: React.FC<GroupProps> = ({ group }) => {
           line-height: 1;
         `}
       >
-        <RouterLink to={`/collab/library/?group=${group.id}`} css={[presets.simpleLinkWithHover]}>
+        <RouterLink to={`/library/?group=${group.id}`} css={[presets.simpleLinkWithHover]}>
           {group.name}
         </RouterLink>
       </div>

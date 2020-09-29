@@ -1,6 +1,6 @@
 /** @jsx jsx */
 import { css, jsx } from '@emotion/core';
-import { IconButton, Tooltip } from '@material-ui/core';
+import { IconButton } from '@material-ui/core';
 import StarIcon from '@material-ui/icons/Star';
 import StarBorderIcon from '@material-ui/icons/StarBorder';
 import { isEmpty } from 'lodash';
@@ -8,6 +8,7 @@ import React from 'react';
 import { PopoverMenu } from '../../components/PopoverMenu';
 import { Group } from '../../models';
 import { COLORS, smallIconPadding } from '../../utils/presets';
+import { HelpTooltip } from '../utils/HelpTooltip';
 import { OnSelectGroupProps } from '../utils/useGroups';
 import { EditGroup } from './EditGroup';
 import { GroupsList } from './GroupsList';
@@ -62,11 +63,11 @@ export const Bookmark: React.FC<BookmarkProps> = ({
       `}
       className={className}
     >
-      <Tooltip title={hint} arrow enterDelay={500} enterNextDelay={500}>
+      <HelpTooltip title={hint}>
         <IconButton onClick={onListsClick} buttonRef={anchorRef} size="small">
           <Star style={{ width: size, height: size, color, padding: smallIconPadding }} />
         </IconButton>
-      </Tooltip>
+      </HelpTooltip>
       <div />
       <PopoverMenu
         open={isOpen}

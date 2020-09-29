@@ -40,6 +40,12 @@ export const Popup: React.FC<PopupProps> = React.memo(({ bodyElement, popupConte
     popperRef.current?.update();
   }, []);
 
+  const disableHideOnLeave = React.useCallback(() => {
+    if (hideOnLeave) {
+      hideOnLeave.current = false;
+    }
+  }, []);
+
   return (
     <React.Fragment>
       {React.cloneElement(bodyElement, {
@@ -61,7 +67,12 @@ export const Popup: React.FC<PopupProps> = React.memo(({ bodyElement, popupConte
               }}
               onMouseLeave={() => hideOnLeave.current && hidePopup()}
             >
-              {React.cloneElement(popupContent, { onResize: onPopupResize, onHide: hidePopup, hideOnLeave })}
+              {React.cloneElement(popupContent, {
+                onResize: onPopupResize,
+                onHide: hidePopup,
+                hideOnLeave,
+                onAction: disableHideOnLeave,
+              })}
             </span>
           </ClickAwayListener>
         </MuiThemeProvider>

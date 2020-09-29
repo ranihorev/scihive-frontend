@@ -1,25 +1,27 @@
 /** @jsx jsx */
 import { jsx } from '@emotion/core';
-import { Button, Typography } from '@material-ui/core';
+import { Button, Fab, Typography } from '@material-ui/core';
+import AddIcon from '@material-ui/icons/Add';
 import axios from 'axios';
 import * as queryString from 'query-string';
 import React from 'react';
 import { useInfiniteQuery } from 'react-query';
-import { useLocation, useHistory } from 'react-router';
+import { useHistory, useLocation } from 'react-router';
 import { Link as RouterLink } from 'react-router-dom';
 import baseStyles from '../../base.module.scss';
 import { Group, isValidSort, PaperListResponse } from '../../models';
 import { RequestParams } from '../../stores/papersList';
 import { useUserNewStore } from '../../stores/userNew';
 import { useLatestCallback } from '../../utils/useLatestCallback';
-import { TopBar } from '../topBar';
+import { TopBar, TopBarButton } from '../topBar';
+import { HelpTooltip } from '../utils/HelpTooltip';
 import { QueryContext } from '../utils/QueryContext';
 import { Spacer } from '../utils/Spacer';
 import { useFetchGroups } from '../utils/useGroups';
+import { Filters, SearchField } from './filters';
 import { Item } from './Item';
 import { ItemPlaceholder } from './ItemPlaceholder';
 import styles from './styles.module.scss';
-import { SearchField, Filters } from './filters';
 
 export interface PaperListRouterParams {
   authorId?: string;
@@ -119,7 +121,7 @@ const PapersListContent: React.FC<{ isLibraryMode: boolean }> = ({ isLibraryMode
           {group ? getGroupName(groups, group) : author ? author : isLibraryMode ? 'My Library' : 'Discover'}
         </Typography>
         <Spacer size={8} grow />
-        <Button component={RouterLink} to="/collab/collections" color="primary">
+        <Button component={RouterLink} to="/collections" color="primary">
           Collections
         </Button>
       </div>
@@ -147,22 +149,34 @@ const PapersListContent: React.FC<{ isLibraryMode: boolean }> = ({ isLibraryMode
 
 export const PapersList: React.FC<{ isLibraryMode?: boolean }> = ({ isLibraryMode = false }) => {
   const isLoggedIn = useUserNewStore(state => state.status === 'loggedIn');
+  console.log(isLibraryMode);
   return (
     <div className={baseStyles.fullScreen}>
       <TopBar
         rightMenu={
           isLoggedIn ? (
-            <Button component={RouterLink} to="/collab/library" color="inherit">
-              Library
-            </Button>
+            isLibraryMode ? (
+              <TopBarButton to="/discover">Discover</TopBarButton>
+            ) : (
+              <TopBarButton to="/library">Library</TopBarButton>
+            )
           ) : (
-            <Button component={RouterLink} to="/collab/start" color="inherit">
-              Log in
-            </Button>
+            <TopBarButton to="/start">Log in</TopBarButton>
           )
         }
       />
       <PapersListContent {...{ isLibraryMode }} />
+      {isLibraryMode && (
+        <div className={styles.uploadPaperButton}>
+          <HelpTooltip title="Upload Paper" arrow={false} placement="left">
+            <RouterLink to="/upload">
+              <Fab color="primary" aria-label="add" size="small">
+                <AddIcon />
+              </Fab>
+            </RouterLink>
+          </HelpTooltip>
+        </div>
+      )}
     </div>
   );
 };

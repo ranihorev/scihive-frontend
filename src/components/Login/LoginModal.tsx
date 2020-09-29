@@ -6,10 +6,11 @@ import React, { useState } from 'react';
 import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import shallow from 'zustand/shallow';
+import baseStyles from '../../base.module.scss';
 import { User } from '../../models';
 import { useUserStore } from '../../stores/user';
+import { useUserNewStore } from '../../stores/userNew';
 import { track } from '../../Tracker';
-import * as presets from '../../utils/presets';
 
 const formControl = css`
   margin-top: 20px;
@@ -26,7 +27,6 @@ const LoginSignupForm: React.FC = () => {
     }),
     shallow,
   );
-  const [isLogin, setIsLogin] = useState(true);
   const [userData, setUserData] = useState({
     email: '',
     password: '',
@@ -42,12 +42,12 @@ const LoginSignupForm: React.FC = () => {
   const submitForm = (e: React.FormEvent) => {
     e.preventDefault();
     setErrMsg('');
-    const endpoint = `/user/${isLogin ? 'login' : 'register'}`;
+    const endpoint = `/user/login`;
     axios
       .post(endpoint, userData)
       .then(res => {
         localStorage.setItem('username', res.data.username);
-        track(isLogin ? 'Login' : 'Register');
+        track('Login');
         // Redundant: keep it here in case we won't reload the page one day
         onSubmitSuccess(res.data);
         toast.success('You are now logged in!');
@@ -63,12 +63,6 @@ const LoginSignupForm: React.FC = () => {
       });
   };
 
-  const switchForm = (e: React.MouseEvent) => {
-    e.preventDefault();
-    setIsLogin(!isLogin);
-  };
-
-  const title = isLogin ? 'Log in' : 'Sign up';
   return (
     <form onSubmit={submitForm} className="loginSignupForm">
       <div
@@ -78,14 +72,8 @@ const LoginSignupForm: React.FC = () => {
           font-weight: bold;
         `}
       >
-        {loginModalMessage || title}
+        {loginModalMessage || 'Log in'}
       </div>
-      {!isLogin ? (
-        <FormControl css={formControl} fullWidth>
-          <InputLabel>User Name (Optional)</InputLabel>
-          <Input name="username" value={userData.username} onChange={handleChange} required />
-        </FormControl>
-      ) : null}
       <FormControl css={formControl} fullWidth>
         <InputLabel>Email</InputLabel>
         <Input type="email" name="email" value={userData.email} onChange={handleChange} required />
@@ -114,25 +102,14 @@ const LoginSignupForm: React.FC = () => {
       >
         {errMsg}
       </div>
-      <div
-        css={css`
-          margin-top: 20px;
-          text-align: center;
-        `}
-      >
-        {isLogin ? 'Not a member yet?' : 'Already a member?'}{' '}
-        <button type="button" css={presets.linkButton} onClick={switchForm}>
-          {isLogin ? 'Sign up' : 'Log in'}
-        </button>
-      </div>
     </form>
   );
 };
 
-const LoginSignupModal: React.FC = () => {
-  const { isLoginModalOpen, toggleLoginModal } = useUserStore(
+export const LoginModal: React.FC = () => {
+  const { isLoginModalOpen, toggleLoginModal } = useUserNewStore(
     state => ({
-      isLoginModalOpen: state.isLoginModalOpen,
+      isLoginModalOpen: state.loginModal.isOpen,
       toggleLoginModal: () => state.toggleLoginModal(),
     }),
     shallow,
@@ -140,12 +117,10 @@ const LoginSignupModal: React.FC = () => {
   return (
     <React.Fragment>
       <Modal open={isLoginModalOpen} onClose={toggleLoginModal}>
-        <div css={presets.modalCss}>
+        <div className={baseStyles.modal}>
           <LoginSignupForm />
         </div>
       </Modal>
     </React.Fragment>
   );
 };
-
-export default LoginSignupModal;

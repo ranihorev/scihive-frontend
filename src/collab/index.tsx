@@ -4,16 +4,16 @@ import { Redirect, Route, RouteProps, Switch, useLocation, useRouteMatch } from 
 import { REDIRECT_TO } from '../auth';
 import { useIsLoggedIn } from '../auth/utils';
 import baseStyles from '../base.module.scss';
-import NotFound from '../pages/NotFound';
 import { useUserNewStore } from '../stores/userNew';
+import { Groups } from './groups';
 import { Landing } from './Landing';
+import { NotFound } from './NotFound';
 import { CollaboratedPdf } from './paper';
 import { PapersList } from './papersList';
 import { TopBar } from './topBar';
 import { Upload } from './upload';
 import { QueryProvider } from './utils/QueryContext';
 import { Spacer } from './utils/Spacer';
-import { Groups } from './groups';
 
 const LoggingIn: React.FC = () => {
   return (
@@ -38,37 +38,39 @@ const PrivateRoute: React.FC<RouteProps> = ({ children, ...rest }) => {
       ) : user.status === 'loggingIn' ? (
         <LoggingIn />
       ) : (
-        <Redirect to={`/collab/start?${REDIRECT_TO}=${location.pathname}`} />
+        <Redirect to={`/start?${REDIRECT_TO}=${location.pathname}`} />
       )}
     </Route>
   );
 };
 
-const Main: React.FC = () => {
-  const { path } = useRouteMatch();
+export const Main: React.FC = () => {
   useIsLoggedIn();
   return (
     <QueryProvider>
       <Switch>
-        <Route path={`${path}/start`} exact>
+        <Route path="/" exact>
           <Landing />
         </Route>
-        <Route path={`${path}/discover`} exact>
+        <Route path="/start" exact>
+          <Landing />
+        </Route>
+        <Route path="/discover" exact>
           <PapersList />
         </Route>
-        <PrivateRoute path={`${path}/library`} exact>
+        <PrivateRoute path="/library" exact>
           <PapersList isLibraryMode />
         </PrivateRoute>
-        <PrivateRoute path={`${path}/collections`} exact>
+        <PrivateRoute path="/collections" exact>
           <Groups />
         </PrivateRoute>
-        <PrivateRoute path={`${path}/upload`} exact>
+        <PrivateRoute path="/upload" exact>
           <Upload />
         </PrivateRoute>
-        <PrivateRoute path={`${path}/paper/:paperId/invite`} exact>
+        <PrivateRoute path="/paper/:paperId/invite" exact>
           <CollaboratedPdf showInviteOnLoad />
         </PrivateRoute>
-        <PrivateRoute path={`${path}/paper/:paperId`} exact>
+        <PrivateRoute path="/paper/:paperId" exact>
           <CollaboratedPdf />
         </PrivateRoute>
         <Route>
@@ -78,5 +80,3 @@ const Main: React.FC = () => {
     </QueryProvider>
   );
 };
-
-export default Main;

@@ -74,8 +74,7 @@ const PdfCommenter: React.FC = () => {
     // Fetch paper data
     setUrl(FETCHING);
     clearPaper();
-    const selectedGroupId = queryString.parse(location.search).list as string;
-    fetchPaper({ paperId, selectedGroupId, hash: location.hash })
+    fetchPaper({ paperId })
       .then(data => {
         setUrl(data.url);
         // Set sidebar tab to info

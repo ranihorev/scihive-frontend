@@ -1,4 +1,4 @@
-import BaseAxios from 'axios';
+import axios from 'axios';
 import produce from 'immer';
 import { isEmpty, pick, sortBy } from 'lodash';
 import { GetState } from 'zustand';
@@ -25,8 +25,6 @@ import {
 import { track } from '../Tracker';
 import { getSectionPosition } from '../utils';
 import { AddRemovePaperToGroup, addRemovePaperToGroupHelper, createWithDevtools, NamedSetState } from './utils';
-
-let axios = BaseAxios.create({ withCredentials: true });
 
 export interface PaperState extends BasePaperData {
   url?: string;
@@ -98,7 +96,7 @@ const sortHighlights = (highlights: AllHighlight[]): AllHighlight[] => {
 };
 
 const stateAndActions = (set: NamedSetState<PaperState>, get: GetState<PaperState>) => {
-  const fetchComments = async (paperId: string, hash: string = '') => {
+  const fetchComments = async (paperId: string) => {
     try {
       const res = await axios.get<{ comments: AllHighlight[] }>(`/${paperId}/comments`);
       set({ highlights: sortHighlights(res.data.comments), highlightsState: 'loaded' });
@@ -209,23 +207,8 @@ const stateAndActions = (set: NamedSetState<PaperState>, get: GetState<PaperStat
       updateHighlightHelper(res.data.comment);
       return res.data.comment;
     },
-    fetchPaper: async ({
-      paperId,
-      selectedGroupId,
-      hash,
-      isCollab,
-    }: {
-      paperId: string;
-      selectedGroupId?: string;
-      hash?: string;
-      isCollab?: boolean;
-    }) => {
+    fetchPaper: async ({ paperId, isCollab }: { paperId: string; isCollab?: boolean }) => {
       resetState();
-      axios = BaseAxios.create({
-        withCredentials: true,
-        baseURL: new URL(isCollab ? '/collab/paper' : '/paper', process.env.REACT_APP_BASE_URL).toString(),
-      });
-
       const { data } = await axios.get<FetchPaperResponse>(`/${paperId}`, { withCredentials: true });
       paperId = data.id;
       const newState: Partial<PaperState> = {
@@ -236,14 +219,9 @@ const stateAndActions = (set: NamedSetState<PaperState>, get: GetState<PaperStat
         ...pick(data, ['id', 'time_published', 'title', 'abstract', 'authors']),
       };
 
-      if (selectedGroupId) {
-        newState.commentVisibility = { type: 'group', id: selectedGroupId as string };
-      }
       set(newState, 'setPaper');
-      fetchComments(paperId, hash);
+      fetchComments(paperId);
       fetchReferences(paperId);
-      // TODO: add this back once backend is fixed
-      // fetchAcronyms(paperId);
       return data;
     },
     editPaper: async (data: FileMetadata) => {

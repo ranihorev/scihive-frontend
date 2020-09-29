@@ -1,9 +1,11 @@
 import { Collapse, List, ListItem, ListItemIcon, ListItemText } from '@material-ui/core';
 import AccountTreeIcon from '@material-ui/icons/AccountTree';
+import ChatIcon from '@material-ui/icons/Chat';
 import ExpandLess from '@material-ui/icons/ExpandLess';
 import ExpandMore from '@material-ui/icons/ExpandMore';
 import InfoIcon from '@material-ui/icons/Info';
 import React from 'react';
+import { SidebarComments } from '../highlights/sidebar';
 import { Info } from '../paperInfo';
 import { PaperSections } from '../sections';
 import styles from './styles.module.scss';
@@ -17,7 +19,7 @@ const CollapsibleItem: React.FC<{ icon?: React.ReactElement; title: string }> = 
         <ListItemText primary={title} />
         {isOpen ? <ExpandLess /> : <ExpandMore />}
       </ListItem>
-      <Collapse in={isOpen} timeout="auto" unmountOnExit>
+      <Collapse in={isOpen} timeout={300} unmountOnExit>
         <ListItem>{children}</ListItem>
       </Collapse>
     </>
@@ -32,6 +34,9 @@ export const Sidebar: React.FC = React.memo(() => {
       </CollapsibleItem>
       <CollapsibleItem icon={<AccountTreeIcon />} title="Sections">
         <PaperSections />
+      </CollapsibleItem>
+      <CollapsibleItem icon={<ChatIcon />} title="Comments">
+        <SidebarComments />
       </CollapsibleItem>
     </List>
   );

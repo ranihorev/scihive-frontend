@@ -15,7 +15,7 @@ import baseStyles from '../../base.module.scss';
 
 type UploadStatus = 'idle' | 'uploading' | 'processing';
 
-const getPaperPath = (paperId: string) => `/collab/paper/${paperId}/invite`;
+const getPaperPath = (paperId: string) => `/paper/${paperId}/invite`;
 
 export const FileUpload: React.FC = () => {
   const history = useHistory();

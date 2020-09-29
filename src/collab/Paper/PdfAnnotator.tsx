@@ -250,13 +250,6 @@ const PdfAnnotator: React.FC<PdfAnnotatorProps> = ({ setReferencePopoverState, p
     }
   };
 
-  const onViewerScroll = () => {
-    const { viewer: viewerInner, container } = viewer.current;
-    const maxYpos = Math.max(0, viewerInner.clientHeight - container.clientHeight);
-    const progress = Math.min(1, container.scrollTop / maxYpos) * 100;
-    updateReadingProgress(progress);
-  };
-
   const zoom = (sign: number) => {
     if (canZoom.current) {
       viewer.current.currentScale = viewer.current.currentScale + sign * 0.05;
@@ -288,6 +281,20 @@ const PdfAnnotator: React.FC<PdfAnnotatorProps> = ({ setReferencePopoverState, p
     },
     [setReferencePopoverState, references, isSelecting],
   );
+
+  React.useEffect(() => {
+    // Update scroll progress. (Based on - https://stackoverflow.com/a/8028584/5737533)
+    const onScroll = () => {
+      const docElem = document.documentElement;
+      const docBody = document.body;
+      const scrollTop = docElem.scrollTop || docBody.scrollTop;
+      const scrollHeight = docElem.scrollHeight || docBody.scrollHeight;
+      const percent = (scrollTop / (scrollHeight - docElem.clientHeight)) * 100;
+      updateReadingProgress(percent);
+    };
+    document.addEventListener('scroll', onScroll);
+    return () => document.removeEventListener('scroll', onScroll);
+  }, [updateReadingProgress]);
 
   React.useEffect(() => {
     linkService.current = new PDFLinkService();
@@ -354,7 +361,6 @@ const PdfAnnotator: React.FC<PdfAnnotatorProps> = ({ setReferencePopoverState, p
         onMouseDown={onMouseDown}
         onMouseUp={onMouseUp}
         className={styles.pdfHighlighter}
-        onScroll={onViewerScroll}
         onContextMenu={e => e.preventDefault()}
         onClick={onReferenceEnter}
         onMouseOver={onReferenceEnter}

@@ -5,7 +5,7 @@ import React from 'react';
 import { Link as RouterLink } from 'react-router-dom';
 import baseStyles from '../../base.module.scss';
 import { pickRandomColor } from '../../utils/presets';
-import { TopBar } from '../topBar';
+import { TopBar, TopBarButton } from '../topBar';
 import { Spacer } from '../utils/Spacer';
 import { useCreateGroup, useFetchGroups } from '../utils/useGroups';
 import { GroupRender } from './Group';
@@ -54,13 +54,7 @@ const GroupsList: React.FC = () => {
 export const Groups: React.FC = () => {
   return (
     <div className={baseStyles.fullScreen}>
-      <TopBar
-        rightMenu={
-          <Button component={RouterLink} to="/collab/library" color="inherit">
-            Library
-          </Button>
-        }
-      />
+      <TopBar rightMenu={<TopBarButton to="/library">Library</TopBarButton>} />
       <div className={baseStyles.basePage}>
         <Spacer size={24} />
         <Typography variant="h4">My Collections</Typography>

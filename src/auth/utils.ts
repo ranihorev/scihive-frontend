@@ -3,9 +3,10 @@ import React from 'react';
 import { GoogleLoginResponse, GoogleLoginResponseOffline, useGoogleLogin, useGoogleLogout } from 'react-google-login';
 import { useHistory } from 'react-router';
 import shallow from 'zustand/shallow';
-import { useUserNewStore } from '../stores/userNew';
+import { useUserNewStore, AccountProvider, UserProfile } from '../stores/userNew';
 import { useLatestCallback } from '../utils/useLatestCallback';
 import { toast } from 'react-toastify';
+import axios from 'axios';
 
 export const contactsScope = 'https://www.googleapis.com/auth/contacts.readonly';
 
@@ -13,12 +14,23 @@ export const isOnlineResponse = (res: GoogleLoginResponse | GoogleLoginResponseO
   return 'tokenId' in res && 'profileObj' in res;
 };
 
-export const useIsLoggedIn = () => {
+const STORAGE_KEY = 'loginProvider';
+
+const storeUserLocally = (provider: AccountProvider) => {
+  localStorage.setItem(STORAGE_KEY, provider);
+};
+
+type ProfileResponse = Omit<UserProfile, 'googleData' | 'fullName'>;
+
+// Deprecated - we now use the auth server cookie instead
+export const useIsLogedInViaGoogle = () => {
+  if (!process.env.REACT_APP_GOOGLE_ID) throw Error('Google Client ID is missing');
+  const loginProvider = localStorage.getItem(STORAGE_KEY);
+  const isGoogleLogin = loginProvider === 'Google';
   const { setStatus, status, onGoogleLogicSuccess } = useUserNewStore(
     state => pick(state, ['setStatus', 'status', 'onGoogleLogicSuccess']),
     shallow,
   );
-  if (!process.env.REACT_APP_GOOGLE_ID) throw Error('Google Client ID is missing');
   useGoogleLogin({
     clientId: process.env.REACT_APP_GOOGLE_ID,
     onAutoLoadFinished: isIn => {
@@ -29,14 +41,44 @@ export const useIsLoggedIn = () => {
     onSuccess: async res => {
       if (isOnlineResponse(res)) {
         onGoogleLogicSuccess(res);
+        storeUserLocally('Google');
       }
     },
     onFailure: e => {
       setStatus('notAuthenticated');
     },
-    isSignedIn: true, // TODO: get this from localstorage
+    isSignedIn: isGoogleLogin,
     scope: `profile email ${contactsScope}`,
   });
+  return status;
+};
+
+export const useIsLoggedIn = () => {
+  const { setStatus, status, setProfile } = useUserNewStore(
+    state => pick(state, ['setStatus', 'status', 'setProfile']),
+    shallow,
+  );
+  if (!process.env.REACT_APP_GOOGLE_ID) throw Error('Google Client ID is missing');
+  React.useEffect(() => {
+    if (status !== 'loggingIn') return;
+    if (!localStorage.getItem(STORAGE_KEY)) {
+      setStatus('notAuthenticated');
+    }
+    axios.get<ProfileResponse | null>('/user/validate').then(response => {
+      const profile = response.data;
+      if (profile) {
+        setProfile({
+          ...profile,
+          fullName: profile.firstName
+            ? `${profile.firstName} ${profile.lastName || ''}`
+            : profile.username || 'Unknown',
+        });
+      } else {
+        setStatus('notAuthenticated');
+      }
+    });
+  }, [setProfile, setStatus, status]);
+
   return status;
 };
 

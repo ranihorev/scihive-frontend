@@ -12,7 +12,7 @@ interface HighlightProps {
   onMouseLeave?: (e: React.MouseEvent) => void;
 }
 
-const TextHighlight = React.forwardRef<HTMLDivElement, HighlightProps>(
+const SingleHighlightRects = React.forwardRef<HTMLDivElement, HighlightProps>(
   ({ position, onClick, onMouseEnter, onMouseLeave, isScrolledTo }, ref) => {
     const { rects } = position;
     const left = Math.min(...rects.map(rect => rect.left));
@@ -52,4 +52,4 @@ const TextHighlight = React.forwardRef<HTMLDivElement, HighlightProps>(
   },
 );
 
-export default TextHighlight;
+export default SingleHighlightRects;

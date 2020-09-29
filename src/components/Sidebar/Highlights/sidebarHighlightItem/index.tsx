@@ -12,7 +12,7 @@ import NewReply from '../../../NewReply';
 import { PopoverMenu } from '../../../PopoverMenu';
 import Replies from '../../../Replies';
 import { TextLinkifyLatex } from '../../../TextLinkifyLatex';
-import get_age from '../../../timeUtils';
+import getAge from '../../../timeUtils';
 import { ActionIconButton, actionIconCss } from './ActionButton';
 import { Quote } from './Quote';
 
@@ -129,7 +129,7 @@ export const SidebarHighlightItem = React.forwardRef<HTMLDivElement, CommentProp
               `}
             >
               <div>
-                <b>{highlight.username || 'Anonymous'}</b>, <small>{get_age(highlight.createdAt)}</small>
+                <b>{highlight.username || 'Anonymous'}</b>, <small>{getAge(highlight.createdAt)}</small>
               </div>
             </div>
             <Grid

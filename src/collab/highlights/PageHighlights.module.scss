@@ -1,8 +1,24 @@
-.username {
-  font-weight: 500;
+.repliesRoot {
+  margin-top: 12px;
 }
 
-.date {
-  color: #6f6f6f;
-  font-size: 11px;
+.actionButton {
+  font-size: 0.8rem;
+  cursor: pointer;
+  color: var(--text-primary);
+  opacity: 0.5;
+  padding: 3px;
+  &:not(:first-of-type) {
+    margin-left: 5px;
+  }
+  &:hover {
+    color: var(--main-color);
+  }
+}
+
+.reply {
+  margin-top: 8px;
+  .katex {
+    font-size: 0.75rem;
+  }
 }

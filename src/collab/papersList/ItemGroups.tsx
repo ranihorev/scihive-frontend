@@ -13,7 +13,7 @@ const SingleGroupMarker: React.FC<{ group?: Group; index: number }> = ({ group, 
   return (
     <Tooltip title={group.name} placement="top" arrow>
       <Link
-        to={`/collab/library/?group=${group.id}`}
+        to={`/library/?group=${group.id}`}
         className={styles.groupMarker}
         style={{
           backgroundColor: presets.getGroupColor(group.color),

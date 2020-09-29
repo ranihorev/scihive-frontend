@@ -1,4 +1,16 @@
-import { AppBar, Drawer, IconButton, Menu, MenuItem, Slide, Toolbar, Divider } from '@material-ui/core';
+import {
+  AppBar,
+  Button,
+  ButtonTypeMap,
+  Divider,
+  Drawer,
+  ExtendButtonBase,
+  IconButton,
+  Menu,
+  MenuItem,
+  Slide,
+  Toolbar,
+} from '@material-ui/core';
 import useScrollTrigger from '@material-ui/core/useScrollTrigger';
 import AccountCircleIcon from '@material-ui/icons/AccountCircle';
 import MenuIcon from '@material-ui/icons/Menu';
@@ -8,9 +20,9 @@ import { Link as RouterLink } from 'react-router-dom';
 import { useLogout } from '../../auth/utils';
 import { ReactComponent as Logo } from '../../images/logoWhite.svg';
 import { ReactComponent as LogoWithText } from '../../images/logoWithText.svg';
+import { useUserNewStore } from '../../stores/userNew';
 import { Spacer } from '../utils/Spacer';
 import styles from './styles.module.scss';
-import { useUserNewStore } from '../../stores/userNew';
 
 const HideOnScroll: React.FC<{ children: React.ReactElement }> = ({ children }) => {
   // Note that you normally won't need to set the window ref as useScrollTrigger
@@ -26,12 +38,12 @@ const HideOnScroll: React.FC<{ children: React.ReactElement }> = ({ children }) 
 };
 
 const UserMenuContent: React.FC = () => {
-  const onLogOut = useLogout('/collab/start');
-  const username = useUserNewStore(state => state.profile?.name);
+  const onLogOut = useLogout('/start');
+  const username = useUserNewStore(state => state.profile?.fullName);
   return (
     <React.Fragment>
       <MenuItem disabled>{username}</MenuItem>
-      <MenuItem component={RouterLink} to="/collab/library">
+      <MenuItem component={RouterLink} to="/library">
         Library
       </MenuItem>
       <Divider />
@@ -100,9 +112,7 @@ export const TopBar: React.FC<{ rightMenu?: React.ReactElement; drawerContent?: 
                 </IconButton>
               )}
               <Spacer size={8} />
-              <RouterLink to="/collab/start">
-                {isMobile ? <Logo height={26} /> : <LogoWithText height={26} />}
-              </RouterLink>
+              <RouterLink to="/library">{isMobile ? <Logo height={26} /> : <LogoWithText height={26} />}</RouterLink>
             </div>
             <div>
               {rightMenu}
@@ -122,4 +132,10 @@ export const TopBar: React.FC<{ rightMenu?: React.ReactElement; drawerContent?: 
       </Drawer>
     </React.Fragment>
   );
+};
+
+type ButtonProps = ExtendButtonBase<ButtonTypeMap<{}, 'button'>>;
+
+export const TopBarButton: React.FC<Omit<ButtonProps, 'component'> & { to: string }> = ({ to, ...props }) => {
+  return <Button component={RouterLink} color="inherit" to={to} {...props} />;
 };

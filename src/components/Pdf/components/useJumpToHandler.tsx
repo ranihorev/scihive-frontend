@@ -1,6 +1,6 @@
 import { pick } from 'lodash';
 // @ts-ignore
-import { PDFViewer } from '../../../collab/paper/node_modules/pdfjs-dist/web/pdf_viewer';
+import { PDFViewer } from 'pdfjs-dist/web/pdf_viewer';
 import React from 'react';
 import shallow from 'zustand/shallow';
 import { usePaperStore } from '../../../stores/paper';
@@ -50,10 +50,11 @@ export const useJumpToHandler = ({ viewer, renderHighlights }: Props) => {
     };
 
     if (paperJumpData.type === 'highlight') {
-      // Scrool to highlight
+      // Scroll to highlight
       const { pageNumber, boundingRect } = paperJumpData.location;
       const pageViewport = viewer.current.getPageView(pageNumber - 1).viewport;
       const scrollMargin = 30;
+      console.log('scroll', pageNumber);
       viewer.current.scrollPageIntoView({
         pageNumber,
         destArray: [

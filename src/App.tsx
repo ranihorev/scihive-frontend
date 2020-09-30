@@ -10,7 +10,7 @@ import { useIsLoggedIn } from './auth/utils';
 import { Groups } from './groups';
 import { Landing } from './Landing';
 import { NotFound } from './NotFound';
-import { CollaboratedPdf } from './paper';
+import { PdfPaperPage } from './paper';
 import { PapersList } from './papersList';
 import './react-hint.css';
 import { theme } from './themes';
@@ -46,10 +46,10 @@ const MainRoutes: React.FC = () => {
           <Upload />
         </PrivateRoute>
         <PrivateRoute path="/paper/:paperId/invite" exact>
-          <CollaboratedPdf showInviteOnLoad />
+          <PdfPaperPage showInviteOnLoad />
         </PrivateRoute>
         <PrivateRoute path="/paper/:paperId" exact>
-          <CollaboratedPdf />
+          <PdfPaperPage />
         </PrivateRoute>
         <Route>
           <NotFound />

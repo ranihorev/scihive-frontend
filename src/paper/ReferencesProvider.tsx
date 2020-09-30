@@ -5,7 +5,7 @@ import { pick } from 'lodash';
 import React from 'react';
 import { Link } from 'react-router-dom';
 import shallow from 'zustand/shallow';
-import { Reference } from '../models';
+import { Reference, References } from '../models';
 import { usePaperStore } from '../stores/paper';
 import { presets } from '../utils';
 import { PopupManager } from '../utils/Popup';
@@ -57,8 +57,7 @@ export interface ReferencesPopoverState {
   citeId: string;
 }
 
-export const ReferencesProvider: React.FC = ({ children }) => {
-  const { references } = usePaperStore(state => pick(state, ['references']), shallow);
+export const ReferencesProvider: React.FC<{ references?: References }> = ({ children, references = {} }) => {
   const [referencePopoverState, setReferencePopoverState] = React.useState<ReferencesPopoverState>({
     citeId: '',
   });

@@ -14,7 +14,6 @@ import {
   GeneralHighlight,
   isGeneralHighlight,
   PaperJump,
-  References,
   Section,
   SidebarCommentJump,
   SidebarTab,
@@ -30,7 +29,6 @@ export interface PaperState extends BasePaperData {
   url?: string;
   isDocumentReady: boolean;
   sections?: Section[];
-  references: References;
   acronyms: Acronyms;
   highlights: AllHighlight[];
   highlightsState: 'loading' | 'loaded';
@@ -56,7 +54,6 @@ const initialState: PaperState = {
   time_published: '',
   authors: [],
   readingProgress: 0,
-  references: {},
   highlightsState: 'loading',
   highlights: [],
   hiddenHighlights: [],
@@ -100,15 +97,6 @@ const stateAndActions = (set: NamedSetState<PaperState>, get: GetState<PaperStat
     try {
       const res = await axios.get<{ comments: AllHighlight[] }>(`/paper/${paperId}/comments`);
       set({ highlights: sortHighlights(res.data.comments), highlightsState: 'loaded' });
-    } catch (err) {
-      console.warn(err.response);
-    }
-  };
-
-  const fetchReferences = async (paperId: string) => {
-    try {
-      const res = await axios.get(`/paper/${paperId}/references`);
-      set({ references: res.data }, 'setReferences');
     } catch (err) {
       console.warn(err.response);
     }
@@ -221,7 +209,6 @@ const stateAndActions = (set: NamedSetState<PaperState>, get: GetState<PaperStat
 
       set(newState, 'setPaper');
       fetchComments(paperId);
-      fetchReferences(paperId);
       return data;
     },
     editPaper: async (data: FileMetadata) => {

@@ -12,7 +12,7 @@ import { useCookies } from 'react-cookie';
 import { isMobile } from 'react-device-detect';
 import ReactDom from 'react-dom';
 import shallow from 'zustand/shallow';
-import { isDirectHighlight, T_Highlight, T_NewHighlight, T_Position, T_ScaledPosition } from '../models';
+import { isDirectHighlight, References, T_Highlight, T_NewHighlight, T_Position, T_ScaledPosition } from '../models';
 import { usePaperStore } from '../stores/paper';
 import { Spacer } from '../utils/Spacer';
 import { useJumpToHandler } from '../utils/useJumpToHandler';
@@ -51,11 +51,18 @@ interface PdfAnnotatorProps {
   pdfDocument: PDFDocumentProxy;
   initialWidth?: number;
   viewer: React.MutableRefObject<PDFViewer>;
+  references?: References;
 }
 
 const ONBOARDING_COOKIE = 'onboarding_cookie';
 
-const PdfAnnotator: React.FC<PdfAnnotatorProps> = ({ setReferencePopoverState, pdfDocument, initialWidth, viewer }) => {
+const PdfAnnotator: React.FC<PdfAnnotatorProps> = ({
+  setReferencePopoverState,
+  pdfDocument,
+  initialWidth,
+  viewer,
+  references = {},
+}) => {
   const [isSelecting, setIsSelecting] = React.useState(false);
   const lastTempHighlightPage = React.useRef<number | undefined>();
   const selectionTextLayerRef = React.useRef<HTMLElement | null>(null);
@@ -66,7 +73,6 @@ const PdfAnnotator: React.FC<PdfAnnotatorProps> = ({ setReferencePopoverState, p
   const onboardingTeardown = React.useRef<() => void>();
 
   const {
-    references,
     paperJumpData,
     highlights,
     updateReadingProgress,
@@ -78,7 +84,6 @@ const PdfAnnotator: React.FC<PdfAnnotatorProps> = ({ setReferencePopoverState, p
   } = usePaperStore(
     state => ({
       ...pick(state, [
-        'references',
         'clearPaperJumpTo',
         'paperJumpData',
         'highlights',

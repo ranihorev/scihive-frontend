@@ -217,7 +217,9 @@ export const Invite: React.FC = React.memo(() => {
           ) : (
             <React.Fragment>
               <Spacer size={16} />
-              <Typography>Warning: This paper is public</Typography>
+              <Typography>
+                <b>Warning:</b> This paper is public
+              </Typography>
             </React.Fragment>
           )}
         </div>

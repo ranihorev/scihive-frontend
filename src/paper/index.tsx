@@ -23,6 +23,7 @@ import { ReadingProgress } from './ReadingProgress';
 import { extractSections } from './sections/utils';
 import { Sidebar } from './sideBar';
 import { ReferencesProvider } from './ReferencesProvider';
+import { References } from '../models';
 
 const Loader = () => (
   <div className={styles.fullScreen}>
@@ -148,12 +149,21 @@ const PaperBookmark: React.FC<{ paperId: string }> = ({ paperId }) => {
   );
 };
 
-export const CollaboratedPdf: React.FC<{ showInviteOnLoad?: boolean }> = ({ showInviteOnLoad }) => {
+export const PdfPaperPage: React.FC<{ showInviteOnLoad?: boolean }> = ({ showInviteOnLoad }) => {
   const paperId = usePaperId();
   const viewer = React.useRef<any>(null);
   const { status, pdfDocument } = useLoadPaper(paperId);
 
   const { title, setIsInviteOpen } = usePaperStore(state => pick(state, ['title', 'setIsInviteOpen']), shallow);
+
+  const { data: references } = useQuery(
+    ['references', { paperId }],
+    async () => {
+      const res = await axios.get<References>(`/paper/${paperId}/references`);
+      return res.data;
+    },
+    { refetchOnWindowFocus: false },
+  );
 
   React.useEffect(() => {
     if (SHOW_INVITE_STATES.includes(status.state) && showInviteOnLoad) {
@@ -187,8 +197,8 @@ export const CollaboratedPdf: React.FC<{ showInviteOnLoad?: boolean }> = ({ show
       {pdfDocument && status.state === 'Ready' && (
         <React.Fragment>
           <div className={styles.wrapper}>
-            <ReferencesProvider>
-              <PdfAnnotator pdfDocument={pdfDocument} viewer={viewer} />
+            <ReferencesProvider references={references}>
+              <PdfAnnotator pdfDocument={pdfDocument} viewer={viewer} references={references} />
             </ReferencesProvider>
           </div>
           <div style={{ position: 'sticky', bottom: 0 }}>

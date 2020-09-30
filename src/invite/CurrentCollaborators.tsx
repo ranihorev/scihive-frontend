@@ -53,7 +53,7 @@ export const CurrentCollaborators: React.FC = React.memo(() => {
     <div>
       <Typography variant="h6">Current Collaborators</Typography>
       <Spacer size={12} />
-      <Chip label={userToName(data.author)} color="primary" className={styles.chip} />
+      {data.author && <Chip label={userToName(data.author)} color="primary" className={styles.chip} />}
       {data.users.map(user => (
         <Chip
           className={styles.chip}

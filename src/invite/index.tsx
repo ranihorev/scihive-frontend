@@ -145,8 +145,8 @@ const EmailsInput: React.FC<EmailsInputProps> = React.memo(({ selected, setSelec
 });
 
 export const Invite: React.FC = React.memo(() => {
-  const { id: paperId, title, isInviteOpen, setIsInviteOpen } = usePaperStore(
-    state => pick(state, ['id', 'title', 'isInviteOpen', 'setIsInviteOpen']),
+  const { id: paperId, title, isInviteOpen, setIsInviteOpen, isEditable } = usePaperStore(
+    state => pick(state, ['id', 'title', 'isInviteOpen', 'setIsInviteOpen', 'isEditable']),
     shallow,
   );
   const [newUsers, setNewUsers] = React.useState<Suggestion[]>([]);
@@ -211,7 +211,15 @@ export const Invite: React.FC = React.memo(() => {
           >
             Invite
           </Button>
-          <CurrentCollaborators />
+
+          {isEditable ? (
+            <CurrentCollaborators />
+          ) : (
+            <React.Fragment>
+              <Spacer size={16} />
+              <Typography>Warning: This paper is public</Typography>
+            </React.Fragment>
+          )}
         </div>
       </Fade>
     </Modal>

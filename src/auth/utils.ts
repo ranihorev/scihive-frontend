@@ -74,6 +74,13 @@ export const useIsLoggedIn = () => {
     });
   }, [setProfile, setStatus, status]);
 
+  useGoogleLogin({
+    clientId: process.env.REACT_APP_GOOGLE_ID,
+    onSuccess: () => {},
+    onFailure: () => {},
+    autoLoad: false,
+  });
+
   return status;
 };
 

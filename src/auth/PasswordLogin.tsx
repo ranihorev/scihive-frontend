@@ -8,6 +8,7 @@ import { ProfileResponse, useUserStore } from '../stores/user';
 import { track } from '../Tracker';
 import { Spacer } from '../utils/Spacer';
 import { storeUserLocally, useRedirectTo } from './utils';
+import styles from './styles.module.scss';
 
 export const PasswordLoginForm: React.FC<{ defaultRedirectTo?: string }> = ({ defaultRedirectTo }) => {
   const setProfile = useUserStore(state => state.setProfile);
@@ -47,20 +48,10 @@ export const PasswordLoginForm: React.FC<{ defaultRedirectTo?: string }> = ({ de
   };
 
   return (
-    <form onSubmit={submitForm} className="loginSignupForm">
-      <div
-        css={css`
-          font-size: 20px;
-          text-align: center;
-          font-weight: bold;
-        `}
-      >
-        Log in
-      </div>
-      <Spacer size={20} />
+    <form onSubmit={submitForm} className={styles.passwordForm}>
       <FormControl fullWidth>
         <InputLabel>Email</InputLabel>
-        <Input type="email" name="email" value={userData.email} onChange={handleChange} required />
+        <Input type="email" name="email" value={userData.email} onChange={handleChange} required autoFocus />
       </FormControl>
       <Spacer size={20} />
       <FormControl fullWidth>
@@ -68,25 +59,10 @@ export const PasswordLoginForm: React.FC<{ defaultRedirectTo?: string }> = ({ de
         <Input name="password" value={userData.password} onChange={handleChange} type="password" required />
       </FormControl>
       <Spacer size={20} />
-      <div
-        css={css`
-          text-align: center;
-        `}
-      >
-        <Button type="submit" variant="contained" color="primary">
-          Submit
-        </Button>
-      </div>
-      <div
-        css={css`
-          text-align: center;
-          margin-top: 10px;
-          font-size: 12px;
-          color: red;
-        `}
-      >
-        {errMsg}
-      </div>
+      <Button type="submit" variant="contained" color="primary" className={styles.submitButton}>
+        Submit
+      </Button>
+      <div className={styles.errorMsg}>{errMsg}</div>
     </form>
   );
 };

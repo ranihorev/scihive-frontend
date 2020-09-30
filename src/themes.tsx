@@ -6,7 +6,8 @@ const themeInner = createMuiTheme({
   typography: {
     fontFamily: 'Roboto, Helvetica, Arial, sans-serif',
     h3: {
-      fontSize: '1.7rem',
+      fontSize: '1.6rem',
+      fontWeight: 500,
     },
     h4: {
       fontSize: '1.4rem',

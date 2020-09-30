@@ -8,6 +8,7 @@ import React from 'react';
 import { useInfiniteQuery } from 'react-query';
 import { useHistory, useLocation } from 'react-router';
 import { Link as RouterLink } from 'react-router-dom';
+import shallow from 'zustand/shallow';
 import baseStyles from '../base.module.scss';
 import { Group, isValidSort, PaperListResponse, PapersListRequestParams } from '../models';
 import { useUserStore } from '../stores/user';
@@ -150,8 +151,10 @@ const PapersListContent: React.FC<{ isLibraryMode: boolean }> = ({ isLibraryMode
 };
 
 export const PapersList: React.FC<{ isLibraryMode?: boolean }> = ({ isLibraryMode = false }) => {
-  const isLoggedIn = useUserStore(state => state.status === 'loggedIn');
-  console.log(isLibraryMode);
+  const { isLoggedIn, openLoginModal } = useUserStore(
+    state => ({ isLoggedIn: state.status === 'loggedIn', openLoginModal: state.toggleLoginModal }),
+    shallow,
+  );
   return (
     <div className={baseStyles.fullScreen}>
       <TopBar
@@ -163,7 +166,9 @@ export const PapersList: React.FC<{ isLibraryMode?: boolean }> = ({ isLibraryMod
               <TopBarButton to="/library">Library</TopBarButton>
             )
           ) : (
-            <TopBarButton to="/start">Log in</TopBarButton>
+            <Button color="inherit" onClick={() => openLoginModal()}>
+              Log in
+            </Button>
           )
         }
       />

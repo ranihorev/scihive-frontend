@@ -5,14 +5,17 @@ import StarIcon from '@material-ui/icons/Star';
 import StarBorderIcon from '@material-ui/icons/StarBorder';
 import { isEmpty } from 'lodash';
 import React from 'react';
-import { PopoverMenu } from '../utils/PopoverMenu';
+import shallow from 'zustand/shallow';
 import { Group } from '../models';
-import { COLORS, smallIconPadding } from '../utils/presets';
+import { useUserStore } from '../stores/user';
 import { HelpTooltip } from '../utils/HelpTooltip';
+import { PopoverMenu } from '../utils/PopoverMenu';
+import { COLORS, smallIconPadding } from '../utils/presets';
 import { OnSelectGroupProps } from '../utils/useGroups';
 import { EditGroup } from './EditGroup';
 import { GroupsList } from './GroupsList';
 import styles from './styles.module.scss';
+import { stat } from 'fs';
 
 interface BookmarkProps {
   onSelectGroup: (props: OnSelectGroupProps) => void;
@@ -37,19 +40,19 @@ export const Bookmark: React.FC<BookmarkProps> = ({
   type,
   className,
 }) => {
-  // const { isLoggedIn, toggleLoginModal } = useUserStore(
-  //   state => ({ toggleLoginModal: state.toggleLoginModal, isLoggedIn: Boolean(state.userData) }),
-  //   shallow,
-  // );
+  const { isLoggedIn, toggleLoginModal } = useUserStore(
+    state => ({ toggleLoginModal: state.toggleLoginModal, isLoggedIn: state.status === 'loggedIn' }),
+    shallow,
+  );
   const [isOpen, setIsOpen] = React.useState(false);
   const [groupInEdit, setGroupInEdit] = React.useState<Group | undefined>(undefined);
   const anchorRef = React.useRef<HTMLDivElement>(null);
 
   const onListsClick = (event: React.MouseEvent) => {
-    // if (!isLoggedIn) {
-    //   toggleLoginModal('Please log in to save manage lists and bookmarks');
-    //   return;
-    // }
+    if (!isLoggedIn) {
+      toggleLoginModal('Please log in to save manage lists and bookmarks');
+      return;
+    }
     setIsOpen(true);
   };
 

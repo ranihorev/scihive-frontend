@@ -9,17 +9,18 @@ interface LoginProps {
   defaultRedirectTo?: string;
   onFailure?: GoogleLoginProps['onFailure'];
   withContacts?: boolean;
+  enableRedirect?: boolean;
 }
 
 export const LoginWithGoogle: React.FC<LoginProps> = React.memo(
-  ({ onSuccess, onFailure, defaultRedirectTo, withContacts = true }) => {
+  ({ onSuccess, onFailure, defaultRedirectTo, withContacts = true, enableRedirect = true }) => {
     const clientId = process.env.REACT_APP_GOOGLE_ID || '';
 
     if (!clientId) {
       console.error('Client ID is missing!');
     }
     const onGoogleLogicSuccess = useUserStore(state => state.onGoogleLogicSuccess);
-    const onRedirect = useRedirectTo(defaultRedirectTo);
+    const onRedirect = useRedirectTo(defaultRedirectTo, enableRedirect);
 
     return (
       <GoogleLogin

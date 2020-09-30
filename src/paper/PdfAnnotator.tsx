@@ -17,8 +17,8 @@ import { usePaperStore } from '../stores/paper';
 import { Spacer } from '../utils/Spacer';
 import { useJumpToHandler } from '../utils/useJumpToHandler';
 import { useLatestCallback } from '../utils/useLatestCallback';
+import { NewHighlightContainer } from './highlights/NewHighlightContainer';
 import { PageHighlights } from './highlights/PageHighlights';
-import { TipContainer } from './highlights/TipContainer';
 import styles from './PdfAnnotator.module.scss';
 import { scaledToViewport, viewportToScaled } from './pdfUtils/coordinates';
 import getBoundingRect from './pdfUtils/get-bounding-rect';
@@ -371,7 +371,7 @@ const PdfAnnotator: React.FC<PdfAnnotatorProps> = ({
         onMouseOver={onReferenceEnter}
       >
         <div id="pdfViewer" className={cx(styles.pdfViewer, 'pdfViewer')} />
-        <TipContainer isOnboarding={isOnboarding.current} />
+        <NewHighlightContainer isOnboarding={isOnboarding.current} />
         <div ref={highlightLayerNode} />
       </div>
     </React.Fragment>

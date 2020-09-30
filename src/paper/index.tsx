@@ -12,18 +12,20 @@ import shallow from 'zustand/shallow';
 import baseStyles from '../base.module.scss';
 import { Bookmark } from '../bookmark';
 import { Invite } from '../invite';
+import { References } from '../models';
 import { usePaperStore } from '../stores/paper';
 import { TopBar } from '../topBar';
 import { usePaperId } from '../utils/hooks';
 import { Spacer } from '../utils/Spacer';
 import { addOrRemovePaperToGroupRequest, addRemoveGroupFromPaperCache, OnSelectGroupProps } from '../utils/useGroups';
+import { useProtectedFunc } from '../utils/useProtectFunc';
 import styles from './Paper.module.css';
 import PdfAnnotator from './PdfAnnotator';
 import { ReadingProgress } from './ReadingProgress';
+import { ReferencesProvider } from './ReferencesProvider';
 import { extractSections } from './sections/utils';
 import { Sidebar } from './sideBar';
-import { ReferencesProvider } from './ReferencesProvider';
-import { References } from '../models';
+import { useUserStore } from '../stores/user';
 
 const Loader = () => (
   <div className={styles.fullScreen}>
@@ -106,10 +108,15 @@ interface GroupIds {
 }
 
 const PaperBookmark: React.FC<{ paperId: string }> = ({ paperId }) => {
-  const { data, isSuccess } = useQuery(GROUPS_Q, async () => {
-    const response = await axios.get<GroupIds>(`/paper/${paperId}/groups`);
-    return response.data;
-  });
+  const isLoggedIn = useUserStore(state => state.status === 'loggedIn');
+  const { data, isSuccess } = useQuery(
+    GROUPS_Q,
+    async () => {
+      const response = await axios.get<GroupIds>(`/paper/${paperId}/groups`);
+      return response.data;
+    },
+    { enabled: isLoggedIn },
+  );
 
   const [onSelectGroup] = useMutation(
     async (props: OnSelectGroupProps) => {
@@ -153,7 +160,7 @@ export const PdfPaperPage: React.FC<{ showInviteOnLoad?: boolean }> = ({ showInv
   const paperId = usePaperId();
   const viewer = React.useRef<any>(null);
   const { status, pdfDocument } = useLoadPaper(paperId);
-
+  const { protectFunc } = useProtectedFunc();
   const { title, setIsInviteOpen } = usePaperStore(state => pick(state, ['title', 'setIsInviteOpen']), shallow);
 
   const { data: references } = useQuery(
@@ -181,7 +188,7 @@ export const PdfPaperPage: React.FC<{ showInviteOnLoad?: boolean }> = ({ showInv
         rightMenu={
           <React.Fragment>
             <PaperBookmark paperId={paperId} />
-            <Button color="inherit" onClick={() => setIsInviteOpen(true)}>
+            <Button color="inherit" onClick={() => protectFunc(() => setIsInviteOpen(true))}>
               Share
             </Button>
           </React.Fragment>

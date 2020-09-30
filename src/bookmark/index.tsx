@@ -16,6 +16,7 @@ import { EditGroup } from './EditGroup';
 import { GroupsList } from './GroupsList';
 import styles from './styles.module.scss';
 import { stat } from 'fs';
+import { useProtectedFunc } from '../utils/useProtectFunc';
 
 interface BookmarkProps {
   onSelectGroup: (props: OnSelectGroupProps) => void;
@@ -40,20 +41,13 @@ export const Bookmark: React.FC<BookmarkProps> = ({
   type,
   className,
 }) => {
-  const { isLoggedIn, toggleLoginModal } = useUserStore(
-    state => ({ toggleLoginModal: state.toggleLoginModal, isLoggedIn: state.status === 'loggedIn' }),
-    shallow,
-  );
+  const { protectFunc } = useProtectedFunc();
   const [isOpen, setIsOpen] = React.useState(false);
   const [groupInEdit, setGroupInEdit] = React.useState<Group | undefined>(undefined);
   const anchorRef = React.useRef<HTMLDivElement>(null);
 
   const onListsClick = (event: React.MouseEvent) => {
-    if (!isLoggedIn) {
-      toggleLoginModal('Please log in to save manage lists and bookmarks');
-      return;
-    }
-    setIsOpen(true);
+    protectFunc(() => setIsOpen(true));
   };
 
   const Star = isEmpty(selectedGroupIds) ? StarBorderIcon : StarIcon;

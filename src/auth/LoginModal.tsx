@@ -25,7 +25,12 @@ export const LoginModal: React.FC = () => {
         <div className={cx(baseStyles.modal, styles.modalRoot)}>
           <Typography variant="h3">Log In</Typography>
           <Spacer size={32} />
-          <LoginForm />
+          <LoginForm
+            enableRedirect={false}
+            onSuccess={() => {
+              toggleLoginModal();
+            }}
+          />
         </div>
       </Modal>
     </React.Fragment>

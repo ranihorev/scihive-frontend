@@ -10,7 +10,11 @@ import { Spacer } from '../utils/Spacer';
 import { storeUserLocally, useRedirectTo } from './utils';
 import styles from './styles.module.scss';
 
-export const PasswordLoginForm: React.FC<{ defaultRedirectTo?: string }> = ({ defaultRedirectTo }) => {
+export const PasswordLoginForm: React.FC<{
+  defaultRedirectTo?: string;
+  enableRedirect?: boolean;
+  onSuccess?: () => void;
+}> = ({ defaultRedirectTo, enableRedirect = true, onSuccess }) => {
   const setProfile = useUserStore(state => state.setProfile);
   const [userData, setUserData] = useState({
     email: '',
@@ -18,7 +22,7 @@ export const PasswordLoginForm: React.FC<{ defaultRedirectTo?: string }> = ({ de
     username: '',
   });
   const [errMsg, setErrMsg] = useState('');
-  const onRedirect = useRedirectTo(defaultRedirectTo);
+  const onRedirect = useRedirectTo(defaultRedirectTo, enableRedirect);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const field = e.target.name;
@@ -35,6 +39,7 @@ export const PasswordLoginForm: React.FC<{ defaultRedirectTo?: string }> = ({ de
         setProfile(res.data);
         storeUserLocally('Password');
         onRedirect();
+        onSuccess?.();
       })
       .catch(err => {
         let msg = 'Failed to reach server';

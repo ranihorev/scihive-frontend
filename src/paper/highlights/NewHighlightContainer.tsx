@@ -6,11 +6,10 @@ import { isEmpty, pick } from 'lodash';
 import React from 'react';
 import shallow from 'zustand/shallow';
 import { usePaperStore } from '../../stores/paper';
-import Tip from './Tip';
 import { useLatestCallback } from '../../utils/useLatestCallback';
+import { NewHighlightPopup } from './NewHighlight';
 
-export const TipContainer: React.FC<{ isOnboarding?: boolean }> = React.memo(({ isOnboarding = false }) => {
-  // const [key, setKey] = React.useState(false); // used to reload the popper
+export const NewHighlightContainer: React.FC<{ isOnboarding?: boolean }> = React.memo(({ isOnboarding = false }) => {
   const tooltipNode = React.useRef<HTMLDivElement>(null);
   const popperRef: PopperProps['popperRef'] = React.useRef(null);
   const { tempHighlight } = usePaperStore(state => pick(state, ['tempHighlight']), shallow);
@@ -53,7 +52,7 @@ export const TipContainer: React.FC<{ isOnboarding?: boolean }> = React.memo(({ 
           },
         }}
       >
-        <Tip
+        <NewHighlightPopup
           onMouseDown={e => {
             e.stopPropagation();
           }}

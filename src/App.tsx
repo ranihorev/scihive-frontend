@@ -48,9 +48,9 @@ const MainRoutes: React.FC = () => {
         <PrivateRoute path="/paper/:paperId/invite" exact>
           <PdfPaperPage showInviteOnLoad />
         </PrivateRoute>
-        <PrivateRoute path="/paper/:paperId" exact>
+        <Route path="/paper/:paperId" exact>
           <PdfPaperPage />
-        </PrivateRoute>
+        </Route>
         <Route>
           <NotFound />
         </Route>

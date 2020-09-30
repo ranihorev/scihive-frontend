@@ -124,10 +124,11 @@ export const useLogout = (goToPath: string) => {
   return logOut;
 };
 
-export const useRedirectTo = (defaultRedirectTo?: string) => {
+export const useRedirectTo = (defaultRedirectTo?: string, enabled: boolean = true) => {
   const location = useLocation();
   const history = useHistory();
   return () => {
+    if (!enabled) return;
     const redirect_to = queryString.parse(location.search)[REDIRECT_TO] || defaultRedirectTo;
     if (redirect_to && typeof redirect_to === 'string') {
       history.push(redirect_to);

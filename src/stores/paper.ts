@@ -207,9 +207,9 @@ const stateAndActions = (set: NamedSetState<PaperState>, get: GetState<PaperStat
       updateHighlightHelper(res.data.comment);
       return res.data.comment;
     },
-    fetchPaper: async ({ paperId, isCollab }: { paperId: string; isCollab?: boolean }) => {
+    fetchPaper: async ({ paperId }: { paperId: string }) => {
       resetState();
-      const { data } = await axios.get<FetchPaperResponse>(`/${paperId}`, { withCredentials: true });
+      const { data } = await axios.get<FetchPaperResponse>(`/paper/${paperId}`, { withCredentials: true });
       paperId = data.id;
       const newState: Partial<PaperState> = {
         url: data.url,

@@ -1,12 +1,13 @@
+import axios from 'axios';
 import { pick } from 'lodash';
+import * as queryString from 'query-string';
 import React from 'react';
 import { GoogleLoginResponse, GoogleLoginResponseOffline, useGoogleLogin, useGoogleLogout } from 'react-google-login';
-import { useHistory } from 'react-router';
-import shallow from 'zustand/shallow';
-import { useUserNewStore, AccountProvider, UserProfile } from '../stores/userNew';
-import { useLatestCallback } from '../utils/useLatestCallback';
+import { useHistory, useLocation } from 'react-router';
 import { toast } from 'react-toastify';
-import axios from 'axios';
+import shallow from 'zustand/shallow';
+import { AccountProvider, ProfileResponse, useUserStore } from '../stores/user';
+import { useLatestCallback } from '../utils/useLatestCallback';
 
 export const contactsScope = 'https://www.googleapis.com/auth/contacts.readonly';
 
@@ -14,20 +15,19 @@ export const isOnlineResponse = (res: GoogleLoginResponse | GoogleLoginResponseO
   return 'tokenId' in res && 'profileObj' in res;
 };
 
+export const REDIRECT_TO = 'redirect_to';
 const STORAGE_KEY = 'loginProvider';
 
-const storeUserLocally = (provider: AccountProvider) => {
+export const storeUserLocally = (provider: AccountProvider) => {
   localStorage.setItem(STORAGE_KEY, provider);
 };
 
-type ProfileResponse = Omit<UserProfile, 'googleData' | 'fullName'>;
-
 // Deprecated - we now use the auth server cookie instead
-export const useIsLogedInViaGoogle = () => {
+export const useIsLoggedInViaGoogle = () => {
   if (!process.env.REACT_APP_GOOGLE_ID) throw Error('Google Client ID is missing');
   const loginProvider = localStorage.getItem(STORAGE_KEY);
   const isGoogleLogin = loginProvider === 'Google';
-  const { setStatus, status, onGoogleLogicSuccess } = useUserNewStore(
+  const { setStatus, status, onGoogleLogicSuccess } = useUserStore(
     state => pick(state, ['setStatus', 'status', 'onGoogleLogicSuccess']),
     shallow,
   );
@@ -54,7 +54,7 @@ export const useIsLogedInViaGoogle = () => {
 };
 
 export const useIsLoggedIn = () => {
-  const { setStatus, status, setProfile } = useUserNewStore(
+  const { setStatus, status, setProfile } = useUserStore(
     state => pick(state, ['setStatus', 'status', 'setProfile']),
     shallow,
   );
@@ -67,12 +67,7 @@ export const useIsLoggedIn = () => {
     axios.get<ProfileResponse | null>('/user/validate').then(response => {
       const profile = response.data;
       if (profile) {
-        setProfile({
-          ...profile,
-          fullName: profile.firstName
-            ? `${profile.firstName} ${profile.lastName || ''}`
-            : profile.username || 'Unknown',
-        });
+        setProfile(profile);
       } else {
         setStatus('notAuthenticated');
       }
@@ -84,7 +79,7 @@ export const useIsLoggedIn = () => {
 
 export const useHasContactsPermission = () => {
   const shownError = React.useRef(false);
-  const { status, contactsPermission, setContactsPermission } = useUserNewStore(
+  const { status, contactsPermission, setContactsPermission } = useUserStore(
     state => pick(state, ['status', 'contactsPermission', 'setContactsPermission']),
     shallow,
   );
@@ -112,7 +107,7 @@ export const useHasContactsPermission = () => {
 export const useLogout = (goToPath: string) => {
   if (!process.env.REACT_APP_GOOGLE_ID) throw Error('Google Client ID is missing');
   const history = useHistory();
-  const storeLogout = useUserNewStore(state => state.onLogout);
+  const storeLogout = useUserStore(state => state.onLogout);
   const { signOut: googleLogOut } = useGoogleLogout({ clientId: process.env.REACT_APP_GOOGLE_ID });
   const logOut = useLatestCallback(() => {
     googleLogOut();
@@ -120,4 +115,15 @@ export const useLogout = (goToPath: string) => {
     history.push(goToPath);
   });
   return logOut;
+};
+
+export const useRedirectTo = (defaultRedirectTo?: string) => {
+  const location = useLocation();
+  const history = useHistory();
+  return () => {
+    const redirect_to = queryString.parse(location.search)[REDIRECT_TO] || defaultRedirectTo;
+    if (redirect_to && typeof redirect_to === 'string') {
+      history.push(redirect_to);
+    }
+  };
 };

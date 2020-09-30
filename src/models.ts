@@ -189,12 +189,22 @@ export interface BasePaperData {
   time_published: string;
 }
 
+export interface PapersListRequestParams {
+  age: string;
+  q: string;
+  sort: SortBy;
+  author: string;
+  page_num: number;
+  group: string;
+  library: boolean;
+}
+
 export interface PaperListItem extends BasePaperData {
   comments_count: number;
   twitter_score: number;
   twitter_links?: TwitterLink[];
   num_stars: number;
-  code: CodeMeta;
+  code?: CodeMeta;
   groups: string[];
 }
 

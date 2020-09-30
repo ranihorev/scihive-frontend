@@ -1,99 +1,83 @@
-import * as Sentry from '@sentry/browser';
 import axios from 'axios';
-import produce from 'immer';
-import { findIndex } from 'lodash';
-import { toast } from 'react-toastify';
+import { omit } from 'lodash';
+import { GoogleLoginResponse } from 'react-google-login';
 import { GetState } from 'zustand';
-import { Group, User } from '../models';
-import { notifyOnNewGroup } from '../notifications/newGroup';
-import { track } from '../Tracker';
-import { GroupColor } from '../utils/presets';
 import { createWithDevtools, NamedSetState } from './utils';
 
+export type AccountProvider = 'Password' | 'Google';
+
+export interface UserProfile {
+  googleData?: {
+    token: string;
+    googleId: string;
+    imageUrl?: string;
+  };
+  provider: AccountProvider;
+  username?: string;
+  email: string;
+  fullName: string;
+  firstName?: string;
+  lastName?: string;
+}
+
 interface UserState {
-  isLoginModalOpen: boolean;
-  userData?: User;
-  loginModalMessage?: string;
-  groups: Group[];
-  inviteGroup?: Group;
+  status: 'loggingIn' | 'loggedIn' | 'notAuthenticated';
+  profile?: UserProfile;
+  contactsPermission: boolean;
+  loginModal: {
+    isOpen: boolean;
+    message?: string;
+  };
 }
 
 const initialState: UserState = {
-  isLoginModalOpen: false,
-  groups: [],
+  status: 'loggingIn',
+  contactsPermission: false,
+  loginModal: {
+    isOpen: false,
+  },
 };
 
+export type ProfileResponse = Omit<UserProfile, 'googleData' | 'fullName'>;
+
 const stateAndActions = (set: NamedSetState<UserState>, get: GetState<UserState>) => {
-  const updateGroups = (groups: Group[], actionName?: string) => set(state => ({ groups }), actionName);
   return {
     ...initialState,
-    setUser: (user: User) => set(state => ({ userData: user }), 'setUser'),
-    loadGroups: async (groupId: string | undefined, onSuccess: () => void) => {
-      if (get().userData) {
-        const res = await axios.get('/groups/all');
-        updateGroups(res.data, 'loadGroups');
-      }
-      const groups = get().groups;
-      if (!groupId) return;
-      let group = groups.find(g => g.id === groupId);
-      if (!group) {
-        const res = await axios.get(`/groups/group/${groupId}`);
-        group = res.data;
-        if (!group) {
-          console.warn('Group not found');
-          return;
-        }
-        set(state => ({ inviteGroup: group }));
-        notifyOnNewGroup(group, () => {
-          track('joinGroup');
-          axios.post('/groups/all', { id: groupId }).then(res => {
-            updateGroups(res.data, 'loadGroups');
-            onSuccess();
-          });
-        });
-      }
+    setStatus: (isLoggedIn: UserState['status']) => set({ status: isLoggedIn }),
+    setProfile: (profile: ProfileResponse) => {
+      set({
+        profile: {
+          ...profile,
+          fullName: profile.firstName
+            ? `${profile.firstName} ${profile.lastName || ''}`
+            : profile.username || 'Unknown',
+        },
+        status: 'loggedIn',
+      });
     },
-    editGroup: async (id: string, payload: { name?: string; color?: GroupColor }) => {
-      track('editGroup');
-      return axios
-        .patch<Group[]>(`/groups/group/${id}`, payload)
-        .then(res => {
-          set(
-            produce((draftState: UserState) => {
-              const newData = res.data.filter(g => g.id === id)[0];
-              const idx = findIndex(draftState.groups, g => g.id === id);
-              if (newData && idx >= 0) {
-                draftState.groups[idx] = newData;
-              }
-              return draftState;
-            }),
-          );
-        })
-        .catch(e => console.warn(e.message));
+    setContactsPermission: (contactsPermission: boolean) => set({ contactsPermission }),
+    onGoogleLogicSuccess: async ({ tokenId, profileObj }: GoogleLoginResponse) => {
+      await axios.post('/user/google_login', { token: tokenId });
+      set({
+        profile: {
+          email: profileObj.email,
+          fullName: profileObj.name,
+          firstName: profileObj.givenName,
+          lastName: profileObj.familyName,
+          provider: 'Google',
+          googleData: { token: tokenId, googleId: profileObj.googleId, imageUrl: profileObj.imageUrl },
+        },
+        status: 'loggedIn',
+      });
     },
-    newGroup: async ({ name, color }: { name: string; color?: GroupColor }) => {
-      track('newGroup');
-      try {
-        const res = await axios.post<{ groups: Group[]; new_id: string }>('/groups/new', { name, color });
-        updateGroups(res.data.groups, 'newGroup');
-        return res.data;
-      } catch (e) {
-        toast.error('Failed to create a new group :(');
-        Sentry.captureException(e);
-        return undefined;
-      }
+    onLogout: async () => {
+      set(state => ({ status: 'notAuthenticated', ...omit(state, ['profile', 'status']) }));
+      axios.post('/user/logout');
     },
-    deleteGroup: (id: string) => {
-      axios
-        .delete(`/groups/group/${id}`)
-        .then(res => {
-          updateGroups(res.data, 'deleteGroup');
-        })
-        .catch(e => console.warn(e.message));
+    toggleLoginModal: (message?: string) => {
+      set(state => ({ loginModal: { isOpen: !state.loginModal.isOpen, message } }), 'toggleLoginModal');
     },
-    toggleLoginModal: (message?: string) =>
-      set(state => ({ isLoginModalOpen: !state.isLoginModalOpen, loginModalMessage: message }), 'toggleLoginModal'),
   };
 };
 
-export const [useUserStore, userStoreApi] = createWithDevtools(stateAndActions, 'User');
+export const [useUserStore, userStoreApi] = createWithDevtools(stateAndActions, 'UserNew');

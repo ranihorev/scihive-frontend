@@ -2,12 +2,62 @@ import { MuiThemeProvider } from '@material-ui/core/styles';
 import React from 'react';
 import * as ReactHintFactory from 'react-hint';
 import { ReactQueryDevtools } from 'react-query-devtools';
+import { Route, Switch } from 'react-router-dom';
 import { ToastContainer } from 'react-toastify';
-import { Main } from './collab';
-import { LoginModal } from './components/Login/LoginModal';
+import { LoginModal } from './auth/LoginModal';
+import { PrivateRoute } from './auth/PrivateRoute';
+import { useIsLoggedIn } from './auth/utils';
+import { Groups } from './groups';
+import { Landing } from './Landing';
+import { NotFound } from './NotFound';
+import { CollaboratedPdf } from './paper';
+import { PapersList } from './papersList';
 import './react-hint.css';
 import { theme } from './themes';
 import { useTracker } from './Tracker';
+import { Unsubscribe } from './Unsubscribe';
+import { Upload } from './upload';
+import { QueryProvider } from './utils/QueryContext';
+
+const MainRoutes: React.FC = () => {
+  useIsLoggedIn();
+  return (
+    <QueryProvider>
+      <Switch>
+        <Route path="/" exact>
+          <Landing />
+        </Route>
+        <Route path="/start" exact>
+          <Landing />
+        </Route>
+        <Route path="/user/unsubscribe/:token" exact>
+          <Unsubscribe />
+        </Route>
+        <Route path="/discover" exact>
+          <PapersList />
+        </Route>
+        <PrivateRoute path="/library" exact>
+          <PapersList isLibraryMode />
+        </PrivateRoute>
+        <PrivateRoute path="/collections" exact>
+          <Groups />
+        </PrivateRoute>
+        <PrivateRoute path="/upload" exact>
+          <Upload />
+        </PrivateRoute>
+        <PrivateRoute path="/paper/:paperId/invite" exact>
+          <CollaboratedPdf showInviteOnLoad />
+        </PrivateRoute>
+        <PrivateRoute path="/paper/:paperId" exact>
+          <CollaboratedPdf />
+        </PrivateRoute>
+        <Route>
+          <NotFound />
+        </Route>
+      </Switch>
+    </QueryProvider>
+  );
+};
 
 const ReactHint = ReactHintFactory(React);
 
@@ -16,7 +66,7 @@ const App: React.FC = () => {
 
   return (
     <MuiThemeProvider theme={theme}>
-      <Main />
+      <MainRoutes />
       <ToastContainer
         position="bottom-center"
         autoClose={false}

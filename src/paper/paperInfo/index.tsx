@@ -14,8 +14,10 @@ import styles from './styles.module.scss';
 const InfoItem: React.FC<{ title: string }> = ({ title, children }) => {
   return (
     <div className={styles.paperInfoItem}>
-      <div className={styles.paperInfoItemTitle}>{title}</div>
-      {children}
+      <Typography className={styles.paperInfoItemTitle}>{title}</Typography>
+      <Typography variant="body2" color="textSecondary">
+        {children}
+      </Typography>
     </div>
   );
 };
@@ -35,7 +37,7 @@ const InfoInternal: React.FC = () => {
           {authors.map((author, index) => (
             <React.Fragment key={index}>
               <Link
-                to={`/author/${author.name}`}
+                to={`/discover/?author=${author.name}`}
                 css={{
                   color: 'inherit',
                   textDecoration: 'none',

@@ -1,12 +1,9 @@
 /** @jsx jsx */
 import { css, jsx } from '@emotion/core';
 import { Paper } from '@material-ui/core';
-import { pick } from 'lodash';
 import React from 'react';
 import { Link } from 'react-router-dom';
-import shallow from 'zustand/shallow';
 import { Reference, References } from '../models';
-import { usePaperStore } from '../stores/paper';
 import { presets } from '../utils';
 import { PopupManager } from '../utils/Popup';
 import { popupCss } from '../utils/presets';

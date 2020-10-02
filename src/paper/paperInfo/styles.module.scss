@@ -1,9 +1,8 @@
 .root {
   display: flex;
   flex-direction: column;
-  padding: 0px 12px 16px;
+  padding: 0px 12px 0 0;
   overflow-y: auto;
-  padding-bottom: 24px;
   width: 100%;
 }
 
@@ -41,7 +40,6 @@
 
 .paperInfoWrapper {
   font-size: 13px;
-  color: #656565;
 }
 
 .paperInfoItem {

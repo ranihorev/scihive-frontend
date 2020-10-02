@@ -73,7 +73,6 @@ const PdfAnnotator: React.FC<PdfAnnotatorProps> = ({
   const onboardingTeardown = React.useRef<() => void>();
 
   const {
-    paperJumpData,
     highlights,
     updateReadingProgress,
     clearTempHighlight,
@@ -84,8 +83,6 @@ const PdfAnnotator: React.FC<PdfAnnotatorProps> = ({
   } = usePaperStore(
     state => ({
       ...pick(state, [
-        'clearPaperJumpTo',
-        'paperJumpData',
         'highlights',
         'updateReadingProgress',
         'setTempHighlight',
@@ -107,7 +104,7 @@ const PdfAnnotator: React.FC<PdfAnnotatorProps> = ({
     }
   };
 
-  const onDocumentReady = () => {
+  const onDocumentReady = useLatestCallback(() => {
     if (!containerNode.current) {
       console.error('Container node is not initialized');
       return;
@@ -121,7 +118,7 @@ const PdfAnnotator: React.FC<PdfAnnotatorProps> = ({
     }
     containerNode.current.scrollTop = 0;
     setDocumentReady();
-  };
+  });
 
   const debouncedOnTextSelection = debounce(newRange => {
     const page = getPageFromRange(newRange);
@@ -137,7 +134,7 @@ const PdfAnnotator: React.FC<PdfAnnotatorProps> = ({
     renderTipAtPosition(viewportPosition, highlighted_text);
   }, 30);
 
-  const onTextSelectionChange = () => {
+  const onTextSelectionChange = useLatestCallback(() => {
     const selection = window.getSelection();
     if (!selection || selection.isCollapsed) {
       return;
@@ -152,7 +149,7 @@ const PdfAnnotator: React.FC<PdfAnnotatorProps> = ({
       textLayer.style.zIndex = '5';
     }
     debouncedOnTextSelection(curRange);
-  };
+  });
 
   const viewportPositionToScaled = ({ pageNumber, boundingRect, rects }: T_Position) => {
     const { viewport } = viewer.current.getPageView(pageNumber - 1);
@@ -208,17 +205,17 @@ const PdfAnnotator: React.FC<PdfAnnotatorProps> = ({
     if (highlightLayer) {
       ReactDom.render(
         <PageHighlights
+          pageNumber={pageNumber}
           onHighlightClick={() => {}}
           highlights={pageHighlights}
           scaledPositionToViewport={scaledPositionToViewport}
-          jumpData={paperJumpData}
         />,
         highlightLayer,
       );
     }
   });
 
-  useJumpToHandler({ viewer, renderHighlights });
+  useJumpToHandler(viewer);
 
   const onTextLayerRendered = useLatestCallback((event: CustomEvent<{ pageNumber: number }>) => {
     // TODO: clear previous timeout and remove timeout on unmount
@@ -319,7 +316,7 @@ const PdfAnnotator: React.FC<PdfAnnotatorProps> = ({
     viewer.current.setDocument(pdfDocument);
     linkService.current.setDocument(pdfDocument);
     linkService.current.setViewer(viewer.current);
-  }, [pdfDocument]);
+  }, [pdfDocument, viewer]);
 
   React.useEffect(() => {
     document.addEventListener('pagesinit', onDocumentReady);

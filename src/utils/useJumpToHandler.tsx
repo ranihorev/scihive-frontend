@@ -1,102 +1,91 @@
 import { pick } from 'lodash';
 // @ts-ignore
-import { PDFViewer } from 'pdfjs-dist/web/pdf_viewer';
+import { PDFViewer, CSS_UNITS } from 'pdfjs-dist/web/pdf_viewer';
 import React from 'react';
 import { useLocation } from 'react-router';
 import shallow from 'zustand/shallow';
-import { PaperJump } from '../models';
+import { createEvent, createListener, getSectionPosition } from '.';
+import { AllHighlight, isGeneralHighlight, PaperJump, Section } from '../models';
 import { scaledToViewport } from '../paper/pdfUtils/coordinates';
 import { usePaperStore } from '../stores/paper';
 
-interface Props {
-  viewer: PDFViewer;
-  renderHighlights: (pageNumber: number) => void;
+export const JUMP_TO_EVENT = 'jumpToPaperLocation';
+
+interface CreateJumpToEventProps {
+  type: 'section' | 'highlight';
+  id: string;
+  sections: Section[];
+  highlights: AllHighlight[];
 }
 
-export const useJumpToHandler = ({ viewer, renderHighlights }: Props) => {
-  const prevJumpData = React.useRef<PaperJump | undefined>(undefined);
-  const { hash } = useLocation();
+const createJumpToEvent = ({ type, id, sections, highlights }: CreateJumpToEventProps) => {
+  let jumpData: PaperJump;
+  if (type === 'section') {
+    const currentSection = (sections || [])[parseInt(id)];
+    if (!currentSection) return undefined;
+    jumpData = {
+      area: 'paper',
+      type: 'section',
+      id: id,
+      location: getSectionPosition(currentSection),
+    };
+  } else {
+    // type === 'highlight'
+    const matchingComment = highlights.find(h => h.id === id);
+    if (!matchingComment || isGeneralHighlight(matchingComment)) return undefined;
+    jumpData = {
+      id: matchingComment.id,
+      area: 'paper',
+      type: 'highlight',
+      location: matchingComment.position,
+    };
+  }
+  if (jumpData) {
+    return createEvent<PaperJump>(JUMP_TO_EVENT, jumpData);
+  }
+  return undefined;
+};
 
-  const { paperJumpData, clearPaperJumpTo, setPaperJumpTo, isDocumentReady, highlightsState, sections } = usePaperStore(
-    state =>
-      pick(state, [
-        'paperJumpData',
-        'clearPaperJumpTo',
-        'setPaperJumpTo',
-        'isDocumentReady',
-        'highlightsState',
-        'sections',
-      ]),
+export const useJumpToHandler = (viewer: PDFViewer) => {
+  const { hash } = useLocation();
+  const parsedHash = React.useRef(false);
+
+  const { highlights, isDocumentReady, highlightsState, sections } = usePaperStore(
+    state => pick(state, ['highlights', 'isDocumentReady', 'highlightsState', 'sections']),
     shallow,
   );
 
   React.useEffect(() => {
+    if (parsedHash.current) return; // This runs only once on load;
     if (!isDocumentReady || highlightsState !== 'loaded' || sections === undefined) return;
     const jumpToRegex = /(?<type>(section|highlight))-(?<id>\d+)/;
     const groups = hash.match(jumpToRegex)?.groups;
     if (groups && (groups.type === 'highlight' || groups.type === 'section')) {
-      setPaperJumpTo({ type: groups.type, id: groups.id });
+      const newEvent = createJumpToEvent({ type: groups.type, id: groups.id, highlights, sections });
+      if (newEvent) {
+        document.dispatchEvent(newEvent);
+        parsedHash.current = true;
+      }
     }
-  }, [isDocumentReady, highlightsState, hash, setPaperJumpTo, sections]);
+  }, [isDocumentReady, highlightsState, hash, highlights, sections]);
 
   React.useEffect(() => {
-    if (!paperJumpData) return;
-
-    const onScroll = () => {
-      // TODO: clean hash
-      // window.location.hash = '';
-      viewer.current.container.removeEventListener('scroll', onScroll);
-      clearPaperJumpTo();
-    };
-
-    if (paperJumpData.type === 'highlight') {
-      // Scroll to highlight
-      const { pageNumber, boundingRect } = paperJumpData.location;
-      const pageViewport = viewer.current.getPageView(pageNumber - 1).viewport;
+    return createListener<PaperJump>(JUMP_TO_EVENT, event => {
+      const page = viewer.current.getPageView(event.detail.location.pageNumber - 1);
       const scrollMargin = 30;
-      console.log('scroll', pageNumber);
-      viewer.current.scrollPageIntoView({
-        pageNumber,
-        destArray: [
-          null,
-          { name: 'XYZ' },
-          ...pageViewport.convertToPdfPoint(0, scaledToViewport(boundingRect, pageViewport, false).top - scrollMargin),
-          0,
-        ],
-      });
-    } else {
-      // scroll to section
-      const { pageNumber, position } = paperJumpData.location;
-      viewer.current.scrollPageIntoView({
-        pageNumber,
-        destArray: [null, { name: 'XYZ' }, 0, position],
-      });
-    }
-    // wait for scrolling to finish
-    const timeoutId = setTimeout(() => {
-      viewer.current.container.addEventListener('scroll', onScroll);
-    }, 200);
-
-    return () => {
-      viewer.current.container.removeEventListener('scroll', onScroll);
-      clearTimeout(timeoutId);
-    };
-  }, [paperJumpData, clearPaperJumpTo, viewer]);
-
-  React.useEffect(() => {
-    let renderedPageNumber: number | undefined = undefined;
-    if (prevJumpData.current && prevJumpData.current.type === 'highlight') {
-      renderedPageNumber = prevJumpData.current.location.pageNumber;
-      renderHighlights(renderedPageNumber);
-    }
-    if (
-      paperJumpData &&
-      paperJumpData.type === 'highlight' &&
-      paperJumpData.location.pageNumber !== renderedPageNumber
-    ) {
-      renderHighlights(paperJumpData.location.pageNumber);
-    }
-
-    prevJumpData.current = paperJumpData;
-  }, [paperJumpData]);
+      let inPageOffset: number | undefined;
+      if (event.detail.type === 'highlight') {
+        const { boundingRect } = event.detail.location;
+        if (page && page.div) {
+          inPageOffset = scaledToViewport(boundingRect, page.viewport, false).top;
+        }
+      } else {
+        // scroll to section
+        inPageOffset = page.viewport.convertToViewportPoint(0, event.detail.location.position)[1];
+      }
+      if (inPageOffset !== undefined) {
+        window.scrollTo({ top: (page.div as HTMLDivElement).offsetTop + inPageOffset - scrollMargin });
+      }
+    });
+  }, [viewer]);
 };

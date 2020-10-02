@@ -1,10 +1,12 @@
-import { Collapse, List, ListItem, ListItemIcon, ListItemText } from '@material-ui/core';
+import { Collapse, Drawer, IconButton, List, ListItem, ListItemIcon, ListItemText } from '@material-ui/core';
 import AccountTreeIcon from '@material-ui/icons/AccountTree';
 import ChatIcon from '@material-ui/icons/Chat';
 import ExpandLess from '@material-ui/icons/ExpandLess';
 import ExpandMore from '@material-ui/icons/ExpandMore';
 import InfoIcon from '@material-ui/icons/Info';
+import MenuIcon from '@material-ui/icons/Menu';
 import React from 'react';
+import { Spacer } from '../../utils/Spacer';
 import { SidebarComments } from '../highlights/sidebar';
 import { Info } from '../paperInfo';
 import { PaperSections } from '../sections';
@@ -27,18 +29,41 @@ const CollapsibleItem: React.FC<{ icon?: React.ReactElement; title: string }> = 
 };
 
 export const Sidebar: React.FC = React.memo(() => {
+  const [isDrawerOpen, setIsDrawerOpen] = React.useState(false);
+
   return (
-    <List component="nav" className={styles.list}>
-      <CollapsibleItem icon={<InfoIcon />} title="Paper Details">
-        <Info />
-      </CollapsibleItem>
-      <CollapsibleItem icon={<AccountTreeIcon />} title="Sections">
-        <PaperSections />
-      </CollapsibleItem>
-      <CollapsibleItem icon={<ChatIcon />} title="Comments">
-        <SidebarComments />
-      </CollapsibleItem>
-    </List>
+    <>
+      <IconButton
+        edge="start"
+        color="inherit"
+        aria-label="menu"
+        onClick={() => {
+          setIsDrawerOpen(state => !state);
+        }}
+      >
+        <MenuIcon />
+      </IconButton>
+      <Spacer size={8} />
+      <Drawer
+        anchor="left"
+        open={isDrawerOpen}
+        onClose={() => {
+          setIsDrawerOpen(false);
+        }}
+      >
+        <List component="nav" className={styles.list}>
+          <CollapsibleItem icon={<InfoIcon />} title="Paper Details">
+            <Info />
+          </CollapsibleItem>
+          <CollapsibleItem icon={<AccountTreeIcon />} title="Sections">
+            <PaperSections />
+          </CollapsibleItem>
+          <CollapsibleItem icon={<ChatIcon />} title="Comments">
+            <SidebarComments />
+          </CollapsibleItem>
+        </List>
+      </Drawer>
+    </>
   );
 });
 

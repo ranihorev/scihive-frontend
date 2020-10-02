@@ -3,7 +3,6 @@ import {
   Button,
   ButtonTypeMap,
   Divider,
-  Drawer,
   ExtendButtonBase,
   IconButton,
   Menu,
@@ -13,7 +12,6 @@ import {
 } from '@material-ui/core';
 import useScrollTrigger from '@material-ui/core/useScrollTrigger';
 import AccountCircleIcon from '@material-ui/icons/AccountCircle';
-import MenuIcon from '@material-ui/icons/Menu';
 import React from 'react';
 import { isMobile } from 'react-device-detect';
 import { Link as RouterLink } from 'react-router-dom';
@@ -21,7 +19,6 @@ import { useLogout } from '../auth/utils';
 import { ReactComponent as Logo } from '../images/logoWhite.svg';
 import { ReactComponent as LogoWithText } from '../images/logoWithText.svg';
 import { useUserStore } from '../stores/user';
-import { Spacer } from '../utils/Spacer';
 import styles from './styles.module.scss';
 
 const HideOnScroll: React.FC<{ children: React.ReactElement }> = ({ children }) => {
@@ -88,30 +85,17 @@ const UserMenu: React.FC = () => {
   );
 };
 
-export const TopBar: React.FC<{ rightMenu?: React.ReactElement; drawerContent?: React.ReactElement }> = ({
+export const TopBar: React.FC<{ rightMenu?: React.ReactElement; leftElement?: React.ReactElement }> = ({
   rightMenu,
-  drawerContent,
+  leftElement,
 }) => {
-  const [isDrawerOpen, setIsDrawerOpen] = React.useState(false);
   return (
     <React.Fragment>
       <HideOnScroll>
         <AppBar position="sticky">
           <Toolbar variant="dense" className={styles.topBar} disableGutters={isMobile}>
             <div>
-              {drawerContent && (
-                <IconButton
-                  edge="start"
-                  color="inherit"
-                  aria-label="menu"
-                  onClick={() => {
-                    setIsDrawerOpen(state => !state);
-                  }}
-                >
-                  <MenuIcon />
-                </IconButton>
-              )}
-              <Spacer size={8} />
+              {leftElement}
               <RouterLink to="/library">{isMobile ? <Logo height={26} /> : <LogoWithText height={26} />}</RouterLink>
             </div>
             <div>
@@ -121,15 +105,6 @@ export const TopBar: React.FC<{ rightMenu?: React.ReactElement; drawerContent?: 
           </Toolbar>
         </AppBar>
       </HideOnScroll>
-      <Drawer
-        anchor="left"
-        open={isDrawerOpen}
-        onClose={() => {
-          setIsDrawerOpen(false);
-        }}
-      >
-        {drawerContent}
-      </Drawer>
     </React.Fragment>
   );
 };

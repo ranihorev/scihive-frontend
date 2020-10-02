@@ -193,7 +193,7 @@ export const PdfPaperPage: React.FC<{ showInviteOnLoad?: boolean }> = ({ showInv
             </Button>
           </React.Fragment>
         }
-        drawerContent={<Sidebar />}
+        leftElement={<Sidebar />}
       />
       {LOADING_STATES.includes(status.state) && <Loader />}
       {status.state === 'Error' && (

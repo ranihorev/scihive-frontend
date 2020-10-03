@@ -84,6 +84,12 @@ export const MobileMenu: React.FC<MobileMenuProps> = ({ rootChildren, submenuChi
         <a href="https://start.scihive.org" css={simpleLink}>
           <MenuItem color="inherit">About</MenuItem>
         </a>
+        <Link to="/privacy-policy" css={simpleLink}>
+          <MenuItem>Privacy Policy</MenuItem>
+        </Link>
+        <Link to="/terms-of-service" css={simpleLink}>
+          <MenuItem>Terms of Service</MenuItem>
+        </Link>
         <Divider />
         {isLoggedIn ? (
           <MenuItem color="inherit" onClick={() => logout()}>
@@ -192,6 +198,12 @@ export const DesktopMenu: React.FC = ({ children }) => {
           <a href="https://start.scihive.org" css={simpleLink}>
             <MenuItem color="inherit">About</MenuItem>
           </a>
+          <Link to="/privacy-policy" css={simpleLink}>
+            <MenuItem>Privacy Policy</MenuItem>
+          </Link>
+          <Link to="/terms-of-service" css={simpleLink}>
+            <MenuItem>Terms of Service</MenuItem>
+          </Link>
           {isLoggedIn ? (
             <div>
               <Divider />

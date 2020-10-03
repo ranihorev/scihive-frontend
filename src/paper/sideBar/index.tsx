@@ -1,12 +1,10 @@
-import { Collapse, Drawer, IconButton, List, ListItem, ListItemIcon, ListItemText } from '@material-ui/core';
+import { Collapse, Drawer, List, ListItem, ListItemIcon, ListItemText } from '@material-ui/core';
 import AccountTreeIcon from '@material-ui/icons/AccountTree';
 import ChatIcon from '@material-ui/icons/Chat';
 import ExpandLess from '@material-ui/icons/ExpandLess';
 import ExpandMore from '@material-ui/icons/ExpandMore';
 import InfoIcon from '@material-ui/icons/Info';
-import MenuIcon from '@material-ui/icons/Menu';
 import React from 'react';
-import { Spacer } from '../../utils/Spacer';
 import { SidebarComments } from '../highlights/sidebar';
 import { Info } from '../paperInfo';
 import { PaperSections } from '../sections';
@@ -28,22 +26,9 @@ const CollapsibleItem: React.FC<{ icon?: React.ReactElement; title: string }> = 
   );
 };
 
-export const Sidebar: React.FC = React.memo(() => {
-  const [isDrawerOpen, setIsDrawerOpen] = React.useState(false);
-
-  return (
-    <>
-      <IconButton
-        edge="start"
-        color="inherit"
-        aria-label="menu"
-        onClick={() => {
-          setIsDrawerOpen(state => !state);
-        }}
-      >
-        <MenuIcon />
-      </IconButton>
-      <Spacer size={8} />
+export const Sidebar: React.FC<{ isDrawerOpen: boolean; setIsDrawerOpen: React.Dispatch<boolean> }> = React.memo(
+  ({ isDrawerOpen, setIsDrawerOpen }) => {
+    return (
       <Drawer
         anchor="left"
         open={isDrawerOpen}
@@ -63,8 +48,8 @@ export const Sidebar: React.FC = React.memo(() => {
           </CollapsibleItem>
         </List>
       </Drawer>
-    </>
-  );
-});
+    );
+  },
+);
 
 Sidebar.displayName = 'Sidebar';

@@ -20,6 +20,8 @@ import { useUserStore } from './stores/user';
 import { theme } from './themes';
 import { useTracker } from './Tracker';
 import ChromeExtensionPopup from './utils/chromeExtension';
+import { PrivacyPolicy } from './PrivacyPolicy';
+import { TermOfService } from './TermsOfService';
 
 const ReactHint = ReactHintFactory(React);
 
@@ -73,6 +75,8 @@ const App: React.FC = () => {
           <Route path="/collection/:groupId" exact component={Home} />
           <Route path="/collections" exact component={Groups} />
           <Route path="/admin" exact component={Admin} />
+          <Route path="/privacy-policy" exact component={PrivacyPolicy} />
+          <Route path="/terms-of-service" exact component={TermOfService} />
           <Route component={NotFound} />
         </Switch>
       </LocationProvider>

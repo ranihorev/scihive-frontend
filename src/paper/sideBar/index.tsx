@@ -4,9 +4,9 @@ import ChatIcon from '@material-ui/icons/Chat';
 import ExpandLess from '@material-ui/icons/ExpandLess';
 import ExpandMore from '@material-ui/icons/ExpandMore';
 import InfoIcon from '@material-ui/icons/Info';
-import MenuIcon from '@material-ui/icons/Menu';
 import cx from 'classnames';
 import React from 'react';
+import { HelpTooltip } from '../../utils/HelpTooltip';
 import { SidebarComments } from '../highlights/sidebar';
 import { Info } from '../paperInfo';
 import { PaperSections } from '../sections';
@@ -33,10 +33,20 @@ const CollapsibleItem: React.FC<{ icon?: React.ReactElement; title: string; open
   );
 };
 
-const FloatingMenuButton: React.FC<{ onClick: () => void; children: React.ReactElement }> = ({ onClick, children }) => {
+const FloatingMenuButton: React.FC<{ onClick: () => void; tooltip?: string; children: React.ReactElement }> = ({
+  onClick,
+  tooltip,
+  children,
+}) => {
   return (
     <div onClick={onClick} className={styles.button}>
-      {children}
+      {tooltip ? (
+        <HelpTooltip title={tooltip} placement="right">
+          {children}
+        </HelpTooltip>
+      ) : (
+        children
+      )}
     </div>
   );
 };
@@ -68,16 +78,10 @@ export const Sidebar: React.FC = React.memo(() => {
     <React.Fragment>
       {!isDrawerOpen && (
         <div className={cx(styles.floatingMenu, { [styles.scrolled]: trigger })}>
-          <FloatingMenuButton
-            onClick={() => {
-              setIsDrawerOpen(true);
-            }}
-          >
-            <MenuIcon fontSize="small" />
-          </FloatingMenuButton>
           {Object.entries(menuItems).map(([key, item]) => (
             <FloatingMenuButton
               key={key}
+              tooltip={item.title}
               onClick={() => {
                 setIsDrawerOpen(true);
                 setOpenItem(key as keyof typeof menuItems);

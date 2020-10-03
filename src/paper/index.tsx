@@ -3,7 +3,7 @@ import { jsx } from '@emotion/core';
 import { CircularProgress, Typography } from '@material-ui/core';
 import axios, { AxiosError } from 'axios';
 import { pick } from 'lodash';
-import { getDocument, PDFDocumentProxy } from 'pdfjs-dist';
+import pdfjs, { getDocument, PDFDocumentProxy } from 'pdfjs-dist';
 import React from 'react';
 import { Helmet } from 'react-helmet';
 import { useQuery } from 'react-query';
@@ -20,6 +20,8 @@ import PdfAnnotator from './PdfAnnotator';
 import { ReadingProgress } from './ReadingProgress';
 import { ReferencesProvider } from './ReferencesProvider';
 import { extractSections } from './sections/utils';
+
+pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.js`;
 
 const Loader = () => (
   <div className={styles.fullScreen}>

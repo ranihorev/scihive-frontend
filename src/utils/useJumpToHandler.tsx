@@ -1,6 +1,6 @@
 import { pick } from 'lodash';
 // @ts-ignore
-import { PDFViewer, CSS_UNITS } from 'pdfjs-dist/web/pdf_viewer';
+import { PDFViewer } from 'pdfjs-dist/web/pdf_viewer';
 import React from 'react';
 import { useLocation } from 'react-router';
 import shallow from 'zustand/shallow';

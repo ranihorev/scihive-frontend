@@ -1,25 +1,16 @@
-import {
-  Collapse,
-  Drawer,
-  List,
-  ListItem,
-  ListItemIcon,
-  ListItemText,
-  IconButton,
-  useScrollTrigger,
-} from '@material-ui/core';
+import { Collapse, Drawer, List, ListItem, ListItemIcon, ListItemText, useScrollTrigger } from '@material-ui/core';
 import AccountTreeIcon from '@material-ui/icons/AccountTree';
 import ChatIcon from '@material-ui/icons/Chat';
 import ExpandLess from '@material-ui/icons/ExpandLess';
 import ExpandMore from '@material-ui/icons/ExpandMore';
 import InfoIcon from '@material-ui/icons/Info';
+import MenuIcon from '@material-ui/icons/Menu';
+import cx from 'classnames';
 import React from 'react';
 import { SidebarComments } from '../highlights/sidebar';
 import { Info } from '../paperInfo';
 import { PaperSections } from '../sections';
 import styles from './styles.module.scss';
-import MenuIcon from '@material-ui/icons/Menu';
-import cx from 'classnames';
 
 const CollapsibleItem: React.FC<{ icon?: React.ReactElement; title: string; openOnMount?: boolean }> = ({
   icon,

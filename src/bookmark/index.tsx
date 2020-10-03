@@ -5,18 +5,15 @@ import StarIcon from '@material-ui/icons/Star';
 import StarBorderIcon from '@material-ui/icons/StarBorder';
 import { isEmpty } from 'lodash';
 import React from 'react';
-import shallow from 'zustand/shallow';
 import { Group } from '../models';
-import { useUserStore } from '../stores/user';
 import { HelpTooltip } from '../utils/HelpTooltip';
 import { PopoverMenu } from '../utils/PopoverMenu';
 import { COLORS, smallIconPadding } from '../utils/presets';
 import { OnSelectGroupProps } from '../utils/useGroups';
+import { useProtectedFunc } from '../utils/useProtectFunc';
 import { EditGroup } from './EditGroup';
 import { GroupsList } from './GroupsList';
 import styles from './styles.module.scss';
-import { stat } from 'fs';
-import { useProtectedFunc } from '../utils/useProtectFunc';
 
 interface BookmarkProps {
   onSelectGroup: (props: OnSelectGroupProps) => void;

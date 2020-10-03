@@ -1,5 +1,5 @@
 /** @jsx jsx */
-import { css, jsx } from '@emotion/core';
+import { jsx } from '@emotion/core';
 import { Button, FormControl, Input, InputLabel } from '@material-ui/core';
 import axios from 'axios';
 import React, { useState } from 'react';
@@ -7,8 +7,8 @@ import 'react-toastify/dist/ReactToastify.css';
 import { ProfileResponse, useUserStore } from '../stores/user';
 import { track } from '../Tracker';
 import { Spacer } from '../utils/Spacer';
-import { storeUserLocally, useRedirectTo } from './utils';
 import styles from './styles.module.scss';
+import { storeUserLocally, useRedirectTo } from './utils';
 
 export const PasswordLoginForm: React.FC<{
   defaultRedirectTo?: string;

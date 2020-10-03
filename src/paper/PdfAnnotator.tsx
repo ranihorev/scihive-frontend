@@ -98,11 +98,12 @@ const PdfAnnotator: React.FC<PdfAnnotatorProps> = ({
   const linkService = React.useRef<PDFLinkService>(null);
   const containerNode = React.useRef<HTMLDivElement>(null);
   const highlightLayerNode = React.useRef<HTMLDivElement>(null);
-  const handleKeyDown = (event: KeyboardEvent) => {
+
+  const handleKeyDown = useLatestCallback((event: KeyboardEvent) => {
     if (event.code === 'Escape') {
       clearTempHighlight();
     }
-  };
+  });
 
   const onDocumentReady = useLatestCallback(() => {
     if (!containerNode.current) {
@@ -330,7 +331,7 @@ const PdfAnnotator: React.FC<PdfAnnotatorProps> = ({
       document.removeEventListener('selectionchange', onTextSelectionChange);
       document.removeEventListener('keydown', handleKeyDown);
     };
-  }, []);
+  }, [handleKeyDown, onDocumentReady, onTextLayerRendered, onTextSelectionChange]);
 
   React.useEffect(() => {
     // Render all of the pages that are ready on every change of highlights

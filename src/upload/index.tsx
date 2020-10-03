@@ -12,6 +12,7 @@ import { TopBar } from '../topBar';
 import { track } from '../Tracker';
 import { Spacer } from '../utils/Spacer';
 import styles from './styles.module.scss';
+import Helmet from 'react-helmet';
 
 type UploadStatus = 'idle' | 'uploading' | 'processing';
 
@@ -143,6 +144,9 @@ export const FileUpload: React.FC = () => {
 export const Upload: React.FC = () => {
   return (
     <div className={baseStyles.fullScreen}>
+      <Helmet>
+        <title>Upload Paper</title>
+      </Helmet>
       <TopBar />
       <FileUpload />
     </div>

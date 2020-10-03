@@ -18,39 +18,33 @@ import { useTracker } from './Tracker';
 import { Unsubscribe } from './Unsubscribe';
 import { Upload } from './upload';
 import { QueryProvider } from './utils/QueryContext';
+import { TermOfService } from './TermsOfService';
+import { PrivacyPolicy } from './PrivacyPolicy';
 
 const MainRoutes: React.FC = () => {
   useIsLoggedIn();
   return (
     <QueryProvider>
       <Switch>
-        <Route path="/" exact>
-          <Landing />
-        </Route>
-        <Route path="/start" exact>
-          <Landing />
-        </Route>
-        <Route path="/user/unsubscribe/:token" exact>
-          <Unsubscribe />
-        </Route>
+        <Route path="/" exact component={Landing} />
+        <Route path="/start" exact component={Landing} />
+        <Route path="/user/unsubscribe/:token" exact component={Unsubscribe} />
         <Route path="/discover" exact>
           <PapersList />
         </Route>
         <PrivateRoute path="/library" exact>
           <PapersList isLibraryMode />
         </PrivateRoute>
-        <PrivateRoute path="/collections" exact>
-          <Groups />
-        </PrivateRoute>
-        <PrivateRoute path="/upload" exact>
-          <Upload />
-        </PrivateRoute>
+        <PrivateRoute path="/collections" exact component={Groups} />
+        <PrivateRoute path="/upload" exact component={Upload} />
         <PrivateRoute path="/paper/:paperId/invite" exact>
           <PdfPaperPage showInviteOnLoad />
         </PrivateRoute>
         <Route path="/paper/:paperId" exact>
           <PdfPaperPage />
         </Route>
+        <Route path="/privacy-policy" exact component={PrivacyPolicy} />
+        <Route path="/terms-of-service" exact component={TermOfService} />
         <Route>
           <NotFound />
         </Route>

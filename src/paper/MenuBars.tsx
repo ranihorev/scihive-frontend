@@ -1,4 +1,4 @@
-import { Button, IconButton } from '@material-ui/core';
+import { Button } from '@material-ui/core';
 import axios from 'axios';
 import React from 'react';
 import { queryCache, useMutation, useQuery } from 'react-query';
@@ -10,8 +10,6 @@ import { TopBar } from '../topBar';
 import { addOrRemovePaperToGroupRequest, addRemoveGroupFromPaperCache, OnSelectGroupProps } from '../utils/useGroups';
 import { useProtectedFunc } from '../utils/useProtectFunc';
 import { Sidebar } from './sideBar';
-import MenuIcon from '@material-ui/icons/Menu';
-import { Spacer } from '../utils/Spacer';
 
 const GROUPS_Q = 'paper_groups';
 
@@ -71,7 +69,6 @@ const PaperBookmark: React.FC<{ paperId: string }> = ({ paperId }) => {
 export const MenuBars: React.FC<{ paperId: string }> = ({ paperId }) => {
   const { protectFunc } = useProtectedFunc();
   const setIsInviteOpen = usePaperStore(state => state.setIsInviteOpen);
-  const [isDrawerOpen, setIsDrawerOpen] = React.useState(false);
 
   return (
     <React.Fragment>
@@ -84,23 +81,8 @@ export const MenuBars: React.FC<{ paperId: string }> = ({ paperId }) => {
             </Button>
           </React.Fragment>
         }
-        leftElement={
-          <React.Fragment>
-            <IconButton
-              edge="start"
-              color="inherit"
-              aria-label="menu"
-              onClick={() => {
-                setIsDrawerOpen(state => !state);
-              }}
-            >
-              <MenuIcon />
-            </IconButton>
-            <Spacer size={8} />
-          </React.Fragment>
-        }
       />
-      <Sidebar {...{ isDrawerOpen, setIsDrawerOpen }} />
+      <Sidebar />
     </React.Fragment>
   );
 };

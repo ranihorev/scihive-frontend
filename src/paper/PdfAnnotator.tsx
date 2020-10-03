@@ -111,7 +111,7 @@ const PdfAnnotator: React.FC<PdfAnnotatorProps> = ({
     }
     if (!initialWidth) {
       viewer.current.currentScaleValue = 'page-width';
-      viewer.current.currentScale *= 0.95;
+      viewer.current.currentScale *= 0.9;
     } else {
       const { viewport } = viewer.current.getPageView(0);
       viewer.current.currentScale = initialWidth / viewport.width - 0.1;

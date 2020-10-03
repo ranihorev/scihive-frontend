@@ -5,22 +5,26 @@
 .floatingMenu {
   position: fixed;
   left: 5px;
-  padding: 5px;
+  padding: 10px 5px;
   border-radius: 999px;
   background-color: rgba(var(--main-color-base), 0.15);
   z-index: 999;
   transition: top 0.3s ease;
-  top: 50px;
+  top: 54px;
 
   &.scrolled {
     top: 10px;
   }
 
   .button {
-    opacity: 0.7;
+    opacity: 0.5;
     padding: 5px;
     display: flex;
     cursor: pointer;
+
+    &:not(:first-of-type) {
+      margin-top: 8px;
+    }
 
     &:hover {
       opacity: 1;

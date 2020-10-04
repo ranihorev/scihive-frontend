@@ -5,14 +5,15 @@ import Axios from 'axios';
 import { isEmpty } from 'lodash';
 import React from 'react';
 import { DropzoneOptions, useDropzone } from 'react-dropzone';
+import Helmet from 'react-helmet';
 import { useHistory } from 'react-router';
 import { toast } from 'react-toastify';
 import baseStyles from '../base.module.scss';
-import { TopBar } from '../topBar';
+import { TopBar, TopBarButton } from '../topBar';
 import { track } from '../Tracker';
 import { Spacer } from '../utils/Spacer';
 import styles from './styles.module.scss';
-import Helmet from 'react-helmet';
+import cx from 'classnames';
 
 type UploadStatus = 'idle' | 'uploading' | 'processing';
 
@@ -124,13 +125,7 @@ export const FileUpload: React.FC = () => {
             >
               <i>- or -</i>
             </div>
-            <div
-              {...getRootProps()}
-              className={styles.dragDrop}
-              style={{
-                borderColor: isDragActive ? '#2196f3' : '#eeeeee',
-              }}
-            >
+            <div {...getRootProps()} className={cx(styles.dragDrop, { [styles.active]: isDragActive })}>
               <input {...getInputProps()} />
               <p>{isDragActive ? 'Drop file here...' : "Drag 'n' drop file here, or click to select"}</p>
             </div>
@@ -147,7 +142,7 @@ export const Upload: React.FC = () => {
       <Helmet>
         <title>Upload Paper</title>
       </Helmet>
-      <TopBar />
+      <TopBar rightMenu={<TopBarButton to="/library">Library</TopBarButton>} />
       <FileUpload />
     </div>
   );

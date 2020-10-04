@@ -1,6 +1,6 @@
 :root {
   --main-color-base: 54, 160, 245;
-  --main-color: var(----main-color-base);
+  --main-color: rgb(var(--main-color-base));
   --text-primary: #0d0d0d;
   --text-secondary: #9d9d9d;
   --text-title: #656565;

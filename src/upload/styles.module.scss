@@ -24,10 +24,15 @@
   border-radius: 2px;
   border-style: dashed;
   background-color: #fafafa;
+  border-color: #ececec;
   color: #bdbdbd;
   outline: none;
   transition: border 0.24s ease-in-out;
   &:focus {
-    border-color: #2196f3;
+    border-color: var(--main-color);
+  }
+
+  &.active {
+    border-color: var(--main-color);
   }
 }

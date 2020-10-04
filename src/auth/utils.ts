@@ -54,8 +54,8 @@ export const useIsLoggedInViaGoogle = () => {
 };
 
 export const useIsLoggedIn = () => {
-  const { setStatus, status, setProfile } = useUserStore(
-    state => pick(state, ['setStatus', 'status', 'setProfile']),
+  const { setStatus, status, setProfile, onLogout } = useUserStore(
+    state => pick(state, ['setStatus', 'status', 'setProfile', 'onLogout']),
     shallow,
   );
   if (!process.env.REACT_APP_GOOGLE_ID) throw Error('Google Client ID is missing');
@@ -76,9 +76,15 @@ export const useIsLoggedIn = () => {
 
   useGoogleLogin({
     clientId: process.env.REACT_APP_GOOGLE_ID,
-    onSuccess: () => {},
+    onSuccess: res => {},
     onFailure: () => {},
-    autoLoad: false,
+    onAutoLoadFinished: () => {
+      const instance = window.gapi.auth2.getAuthInstance();
+      const user = instance.currentUser.get();
+      if (!user.isSignedIn()) {
+        onLogout();
+      }
+    },
   });
 
   return status;

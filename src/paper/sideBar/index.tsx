@@ -93,7 +93,6 @@ export const Sidebar: React.FC = React.memo(() => {
         </div>
       )}
       <Drawer
-        style={{ zIndex: 1090 }} // Below tha appBar
         anchor="left"
         open={isDrawerOpen}
         onClose={() => {

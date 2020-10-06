@@ -1,17 +1,15 @@
 /** @jsx jsx */
 import { css, jsx } from '@emotion/core';
 import { IconButton, ListItem } from '@material-ui/core';
+import CreateIcon from '@material-ui/icons/Create';
 import React from 'react';
 import { Link as RouterLink } from 'react-router-dom';
-import { PopoverMenu } from '../utils/PopoverMenu';
+import { EditGroup } from '../bookmark/EditGroup';
 import { Group } from '../models';
 import { presets } from '../utils';
+import { PopoverMenu } from '../utils/PopoverMenu';
 import { getGroupColor } from '../utils/presets';
-import { EditGroup } from '../bookmark/EditGroup';
 import styles from './styles.module.scss';
-
-const ICON_SIZE = 16;
-const iconCss = css({ fontSize: ICON_SIZE });
 
 interface GroupProps {
   group: Group;
@@ -41,8 +39,9 @@ export const GroupRender: React.FC<GroupProps> = ({ group }) => {
             onClick={() => {
               setIsEditOpen(true);
             }}
+            size="small"
           >
-            <i className="fas fa-pencil-alt" css={iconCss} />
+            <CreateIcon fontSize="small" />
           </IconButton>
         </div>
       </div>

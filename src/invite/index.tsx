@@ -6,10 +6,11 @@ import {
   CircularProgress,
   Fade,
   IconButton,
+  Link,
   Modal,
   TextField,
-  Typography,
   Tooltip,
+  Typography,
 } from '@material-ui/core';
 import CloseIcon from '@material-ui/icons/Close';
 import GroupAddIcon from '@material-ui/icons/GroupAdd';
@@ -20,8 +21,7 @@ import React from 'react';
 import { queryCache, useMutation, useQuery } from 'react-query';
 import { toast } from 'react-toastify';
 import shallow from 'zustand/shallow';
-import { LoginWithGoogle } from '../auth/Google';
-import { useHasContactsPermission } from '../auth/utils';
+import { useHasContactsPermission, useLogInViaGoogle } from '../auth/utils';
 import baseStyle from '../base.module.scss';
 import { usePaperStore } from '../stores/paper';
 import { Spacer } from '../utils/Spacer';
@@ -73,9 +73,35 @@ interface EmailsInputProps {
   setSelected: React.Dispatch<Suggestion[]>;
 }
 
+const GooglePermissions: React.FC = () => {
+  const { isLoggedInGoogle, hasPermissions, grantPermissions } = useHasContactsPermission();
+  const { signIn } = useLogInViaGoogle();
+  if (hasPermissions) return null;
+  return (
+    <div className="bg-gray-200 p-3 rounded mb-3">
+      <Typography>
+        Easily invite collaborators by{' '}
+        <Link
+          href="#"
+          onClick={(e: React.MouseEvent) => {
+            e.preventDefault();
+            if (isLoggedInGoogle) {
+              grantPermissions?.();
+            } else {
+              signIn();
+            }
+          }}
+        >
+          {isLoggedInGoogle ? 'allowing access to your Google contacts' : 'connecting your Google account'}
+        </Link>
+        .
+      </Typography>
+      <Typography>No worries, your contacts will only be used locally on your computer.</Typography>
+    </div>
+  );
+};
+
 const EmailsInput: React.FC<EmailsInputProps> = React.memo(({ selected, setSelected }) => {
-  const hasPermission = useHasContactsPermission();
-  const [, setRefreshKey] = React.useState(0); // We need to refresh the view on login success
   const [inputValue, setInputValue] = React.useState('');
   const { data: options, isLoading } = useQuery(
     `LOAD_SUGGESTIONS_Q_${inputValue}`,
@@ -85,62 +111,56 @@ const EmailsInput: React.FC<EmailsInputProps> = React.memo(({ selected, setSelec
     { refetchOnWindowFocus: false, initialData: [], keepPreviousData: true },
   );
 
-  return hasPermission ? (
-    <Autocomplete
-      multiple
-      selectOnFocus
-      handleHomeEndKeys
-      freeSolo
-      filterOptions={options => {
-        // Remove selected from options
-        const selectedEmails = new Set(selected.map(user => user.email));
-        return options.filter(option => !selectedEmails.has(option.email));
-      }}
-      getOptionLabel={option => `${option.name} <${option.email}>`}
-      options={[...selected, ...(options || [])]}
-      value={selected}
-      onChange={(_, newValues) => {
-        const newSelected: Suggestion[] = newValues.map(value =>
-          typeof value === 'string' ? { email: value, name: '' } : value,
-        );
-        // Ensure that we have unique emails
-        setSelected(uniqBy(newSelected, 'email'));
-      }}
-      renderTags={(tagValue, getTagProps) =>
-        tagValue.map((option, index) => (
-          <Tooltip key={option.email} title={option.email} placement="top" arrow>
-            <Chip size="small" label={option.name || option.email} {...getTagProps({ index })} />
-          </Tooltip>
-        ))
-      }
-      renderInput={params => (
-        <TextField
-          {...params}
-          label="Type name or email"
-          variant="outlined"
-          onChange={async e => {
-            setInputValue(e.target.value);
-          }}
-          InputProps={{
-            ...params.InputProps,
-            endAdornment: (
-              <React.Fragment>
-                {isLoading ? <CircularProgress color="inherit" size={20} /> : null}
-                {params.InputProps.endAdornment}
-              </React.Fragment>
-            ),
-          }}
-        />
-      )}
-    />
-  ) : (
-    <div css={{ display: 'flex', justifyContent: 'center' }}>
-      <LoginWithGoogle
-        onSuccess={() => {
-          setRefreshKey(state => state + 1);
+  return (
+    <React.Fragment>
+      <Autocomplete
+        multiple
+        selectOnFocus
+        handleHomeEndKeys
+        freeSolo
+        filterOptions={options => {
+          // Remove selected from options
+          const selectedEmails = new Set(selected.map(user => user.email));
+          return options.filter(option => !selectedEmails.has(option.email));
         }}
+        getOptionLabel={option => `${option.name} <${option.email}>`}
+        options={[...selected, ...(options || [])]}
+        value={selected}
+        onChange={(_, newValues) => {
+          const newSelected: Suggestion[] = newValues.map(value =>
+            typeof value === 'string' ? { email: value, name: '' } : value,
+          );
+          // Ensure that we have unique emails
+          setSelected(uniqBy(newSelected, 'email'));
+        }}
+        renderTags={(tagValue, getTagProps) =>
+          tagValue.map((option, index) => (
+            <Tooltip key={option.email} title={option.email} placement="top" arrow>
+              <Chip size="small" label={option.name || option.email} {...getTagProps({ index })} />
+            </Tooltip>
+          ))
+        }
+        renderInput={params => (
+          <TextField
+            {...params}
+            label="Type name or email"
+            variant="outlined"
+            onChange={async e => {
+              setInputValue(e.target.value);
+            }}
+            InputProps={{
+              ...params.InputProps,
+              endAdornment: (
+                <React.Fragment>
+                  {isLoading ? <CircularProgress color="inherit" size={20} /> : null}
+                  {params.InputProps.endAdornment}
+                </React.Fragment>
+              ),
+            }}
+          />
+        )}
       />
-    </div>
+    </React.Fragment>
   );
 });
 
@@ -183,10 +203,11 @@ export const Invite: React.FC = React.memo(() => {
             <GroupAddIcon color="primary" fontSize="large" />
             <Spacer size={12} />
             <Typography align="left" variant="h5">
-              Invite collaborators to discuss this paper
+              Invite Collaborators
             </Typography>
           </div>
           <Spacer size={20} />
+          <GooglePermissions />
           <EmailsInput selected={newUsers} setSelected={setNewUsers} />
           <Spacer size={16} />
           <TextField

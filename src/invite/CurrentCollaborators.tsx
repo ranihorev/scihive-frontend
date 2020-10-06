@@ -51,8 +51,9 @@ export const CurrentCollaborators: React.FC = React.memo(() => {
   if (!data) return null;
   return (
     <div>
-      <Typography variant="h6">Current Collaborators</Typography>
-      <Spacer size={12} />
+      <Typography variant="h6" className="pt-2 pb-3">
+        Current Collaborators
+      </Typography>
       {data.author && <Chip label={userToName(data.author)} color="primary" className={styles.chip} />}
       {data.users.map(user => (
         <Chip

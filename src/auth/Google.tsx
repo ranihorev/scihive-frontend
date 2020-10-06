@@ -5,15 +5,16 @@ import { useUserStore } from '../stores/user';
 import { contactsScope, isOnlineResponse, storeUserLocally, useRedirectTo } from './utils';
 
 interface LoginProps {
+  onFailure?: GoogleLoginProps['onFailure'];
   onSuccess?: GoogleLoginProps['onSuccess'];
   defaultRedirectTo?: string;
-  onFailure?: GoogleLoginProps['onFailure'];
   withContacts?: boolean;
   enableRedirect?: boolean;
 }
 
-export const LoginWithGoogle: React.FC<LoginProps> = React.memo(
-  ({ onSuccess, onFailure, defaultRedirectTo, withContacts = true, enableRedirect = true }) => {
+export const LoginWithGoogle: React.FC<LoginProps &
+  Omit<GoogleLoginProps, 'clientId' | 'onFailure' | 'onSuccess'>> = React.memo(
+  ({ onSuccess, onFailure, defaultRedirectTo, withContacts = false, enableRedirect = true, ...otherProps }) => {
     const clientId = process.env.REACT_APP_GOOGLE_ID || '';
 
     if (!clientId) {
@@ -21,7 +22,6 @@ export const LoginWithGoogle: React.FC<LoginProps> = React.memo(
     }
     const onGoogleLogicSuccess = useUserStore(state => state.onGoogleLogicSuccess);
     const onRedirect = useRedirectTo(defaultRedirectTo, enableRedirect);
-
     return (
       <GoogleLogin
         clientId={clientId}
@@ -50,7 +50,7 @@ export const LoginWithGoogle: React.FC<LoginProps> = React.memo(
             toast.error('Failed to log in via Google, please try again');
           }
         }}
-        prompt="select_account"
+        {...otherProps}
       />
     );
   },

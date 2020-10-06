@@ -3,6 +3,7 @@ import { css, jsx } from '@emotion/core';
 import { Button, List, ListItem, Typography } from '@material-ui/core';
 import CreateIcon from '@material-ui/icons/Create';
 import DoneIcon from '@material-ui/icons/Done';
+import cx from 'classnames';
 import Color from 'color';
 import { isEmpty } from 'lodash';
 import React from 'react';
@@ -49,7 +50,7 @@ const GroupRender: React.FC<GroupRenderProps> = ({ group, selected, paperId, onS
         </Typography>
         {selected && <DoneIcon fontSize="small" className={styles.groupSelected} />}
       </div>
-      <div className={styles.editGroupButton} onClick={() => onEdit()}>
+      <div className={cx(styles.editGroupButton, 'ml-1')} onClick={() => onEdit()}>
         <CreateIcon fontSize="small" />
       </div>
     </ListItem>

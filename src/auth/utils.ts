@@ -22,40 +22,31 @@ export const storeUserLocally = (provider: AccountProvider) => {
   localStorage.setItem(STORAGE_KEY, provider);
 };
 
+export const removeUserFromLocalStorage = () => {
+  localStorage.removeItem(STORAGE_KEY);
+};
+
 // Deprecated - we now use the auth server cookie instead
-export const useIsLoggedInViaGoogle = () => {
+export const useLogInViaGoogle = () => {
   if (!process.env.REACT_APP_GOOGLE_ID) throw Error('Google Client ID is missing');
-  const loginProvider = localStorage.getItem(STORAGE_KEY);
-  const isGoogleLogin = loginProvider === 'Google';
-  const { setStatus, status, onGoogleLogicSuccess } = useUserStore(
-    state => pick(state, ['setStatus', 'status', 'onGoogleLogicSuccess']),
-    shallow,
-  );
-  useGoogleLogin({
+  const onGoogleLogicSuccess = useUserStore(state => state.onGoogleLogicSuccess);
+  return useGoogleLogin({
     clientId: process.env.REACT_APP_GOOGLE_ID,
-    onAutoLoadFinished: isIn => {
-      if (!isIn) {
-        setStatus('notAuthenticated');
-      }
-    },
     onSuccess: async res => {
       if (isOnlineResponse(res)) {
         onGoogleLogicSuccess(res);
         storeUserLocally('Google');
       }
     },
-    onFailure: e => {
-      setStatus('notAuthenticated');
-    },
-    isSignedIn: isGoogleLogin,
+    onFailure: e => {},
+    autoLoad: false,
     scope: `profile email ${contactsScope}`,
   });
-  return status;
 };
 
 export const useIsLoggedIn = () => {
-  const { setStatus, status, setProfile, onLogout } = useUserStore(
-    state => pick(state, ['setStatus', 'status', 'setProfile', 'onLogout']),
+  const { setStatus, status, setProfile, onLogout, setGoogleData } = useUserStore(
+    state => pick(state, ['setStatus', 'status', 'setProfile', 'onLogout', 'setGoogleData']),
     shallow,
   );
   if (!process.env.REACT_APP_GOOGLE_ID) throw Error('Google Client ID is missing');
@@ -79,10 +70,17 @@ export const useIsLoggedIn = () => {
     onSuccess: res => {},
     onFailure: () => {},
     onAutoLoadFinished: () => {
+      if (localStorage.getItem(STORAGE_KEY) !== 'Google') return;
       const instance = window.gapi.auth2.getAuthInstance();
       const user = instance.currentUser.get();
       if (!user.isSignedIn()) {
         onLogout();
+      } else {
+        setGoogleData({
+          token: user.getAuthResponse().access_token,
+          googleId: user.getId(),
+          imageUrl: user.getBasicProfile().getImageUrl(),
+        });
       }
     },
   });
@@ -91,30 +89,58 @@ export const useIsLoggedIn = () => {
 };
 
 export const useHasContactsPermission = () => {
+  if (!process.env.REACT_APP_GOOGLE_ID) throw Error('Google Client ID is missing');
   const shownError = React.useRef(false);
-  const { status, contactsPermission, setContactsPermission } = useUserStore(
-    state => pick(state, ['status', 'contactsPermission', 'setContactsPermission']),
+  const { status, contactsPermission, setContactsPermission, profile } = useUserStore(
+    state => pick(state, ['status', 'contactsPermission', 'setContactsPermission', 'profile']),
     shallow,
   );
-  if (status !== 'loggedIn') return false;
-  if (contactsPermission) return true; // We assume that the permissions won't be removed after approval
-  try {
-    const authInstance = window.gapi.auth2.getAuthInstance();
-    const currentUser = authInstance.currentUser.get();
-    const scopes = currentUser.getGrantedScopes();
+
+  const updatePermissionsStatus = useLatestCallback(() => {
+    if (status !== 'loggedIn') return;
+    if (contactsPermission) return; // We assume that the permissions won't be removed after approval
+    const instance = window.gapi.auth2.getAuthInstance();
+    const user = instance.currentUser.get();
+    if (!user.isSignedIn()) return;
+    const scopes = user.getGrantedScopes();
     const contactsInScope = scopes.indexOf(contactsScope) >= 0;
     if (contactsPermission !== contactsInScope) {
       setContactsPermission(contactsInScope);
     }
     shownError.current = false;
-    return contactsInScope;
-  } catch (e) {
-    if (!shownError.current) {
-      toast.error('Failed to connect to Google services');
-      shownError.current = true;
-    }
-  }
-  return false;
+  });
+
+  const { loaded } = useGoogleLogin({
+    clientId: process.env.REACT_APP_GOOGLE_ID,
+    onSuccess: () => {},
+    onFailure: () => {},
+    autoLoad: false,
+    onAutoLoadFinished: () => {
+      updatePermissionsStatus();
+    },
+  });
+
+  React.useEffect(() => {
+    updatePermissionsStatus();
+  }, [status, updatePermissionsStatus, profile?.googleData]);
+
+  const grantPermissions = () => {
+    const instance = window.gapi.auth2.getAuthInstance();
+    const user = instance.currentUser.get();
+    user.grant({ scope: contactsScope }).then(
+      () => {
+        updatePermissionsStatus();
+      },
+      (err: any) => {
+        console.error(err);
+      },
+    );
+  };
+  return {
+    isLoggedInGoogle: Boolean(profile?.googleData),
+    hasPermissions: contactsPermission,
+    grantPermissions: loaded ? grantPermissions : undefined,
+  };
 };
 
 export const useLogout = (goToPath: string) => {
@@ -123,6 +149,7 @@ export const useLogout = (goToPath: string) => {
   const storeLogout = useUserStore(state => state.onLogout);
   const { signOut: googleLogOut } = useGoogleLogout({ clientId: process.env.REACT_APP_GOOGLE_ID });
   const logOut = useLatestCallback(() => {
+    removeUserFromLocalStorage();
     googleLogOut();
     storeLogout();
     history.push(goToPath);

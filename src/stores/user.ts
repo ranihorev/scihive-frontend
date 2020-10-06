@@ -70,6 +70,12 @@ const stateAndActions = (set: NamedSetState<UserState>, get: GetState<UserState>
         status: 'loggedIn',
       });
     },
+    setGoogleData: (data: UserProfile['googleData']) => {
+      set(state => {
+        if (!state.profile) return state;
+        return { ...state, profile: { ...state.profile, googleData: data } };
+      });
+    },
     onLogout: async () => {
       set(state => ({ status: 'notAuthenticated', ...omit(state, ['profile', 'status']) }));
       axios.post('/user/logout');

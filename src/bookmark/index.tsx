@@ -8,7 +8,7 @@ import React from 'react';
 import { Group } from '../models';
 import { HelpTooltip } from '../utils/HelpTooltip';
 import { PopoverMenu } from '../utils/PopoverMenu';
-import { COLORS, smallIconPadding } from '../utils/presets';
+import { COLORS } from '../utils/presets';
 import { OnSelectGroupProps } from '../utils/useGroups';
 import { useProtectedFunc } from '../utils/useProtectFunc';
 import { EditGroup } from './EditGroup';
@@ -59,7 +59,7 @@ export const Bookmark: React.FC<BookmarkProps> = ({
     >
       <HelpTooltip title={hint}>
         <IconButton onClick={onListsClick} buttonRef={anchorRef} size="small">
-          <Star style={{ width: size, height: size, color, padding: smallIconPadding }} />
+          <Star style={{ width: size, height: size, color }} />
         </IconButton>
       </HelpTooltip>
       <div />

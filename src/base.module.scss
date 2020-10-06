@@ -1,9 +1,48 @@
+@import './index.css';
+
 :root {
   --main-color-base: 54, 160, 245;
   --main-color: rgb(var(--main-color-base));
   --text-primary: #0d0d0d;
   --text-secondary: #9d9d9d;
   --text-title: #656565;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  font-family: 'Roboto', -apple-system, 'Segoe UI', 'Helvetica Neue', sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+code {
+  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New', monospace;
+}
+
+
+button:focus {
+  @apply outline-none
+}
+
+button {
+  @apply outline-none
+}
+
+.Toastify__toast--info {
+  background-color: #ceebff;
+  color: #444444;
+}
+
+@media only screen and (min-width: 480px) {
+  .base-toast {
+    width: 400px;
+    margin-left: -200px;
+  }
+}
+
+.download-extesion {
+  text-align: center;
 }
 
 .popup {

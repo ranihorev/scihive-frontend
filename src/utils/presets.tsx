@@ -147,8 +147,6 @@ export const getGroupColor = (color: GroupColor | undefined) => {
 
 export type GroupColor = keyof typeof GROUP_COLORS;
 
-export const smallIconPadding = 4;
-
 export const arrowTooltipsClasses = {
   tooltipPlacementTop: baseStyles.arrowTooltipTop,
   tooltipPlacementBottom: baseStyles.arrowTooltipBottom,

@@ -1,0 +1,13 @@
+@tailwind base;
+
+@tailwind components;
+
+@tailwind utilities;
+
+button:focus {
+  @apply outline-none;
+}
+
+button {
+  @apply outline-none;
+}

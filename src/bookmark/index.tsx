@@ -1,6 +1,6 @@
 /** @jsx jsx */
 import { css, jsx } from '@emotion/core';
-import { IconButton } from '@material-ui/core';
+import { IconButton, IconButtonProps } from '@material-ui/core';
 import StarIcon from '@material-ui/icons/Star';
 import StarBorderIcon from '@material-ui/icons/StarBorder';
 import { isEmpty } from 'lodash';
@@ -24,6 +24,7 @@ interface BookmarkProps {
   selectedGroupIds: string[];
   type: 'single' | 'list';
   className?: string;
+  edge?: IconButtonProps['edge'];
 }
 
 const hint =
@@ -37,6 +38,7 @@ export const Bookmark: React.FC<BookmarkProps> = ({
   size = 18,
   type,
   className,
+  edge,
 }) => {
   const { protectFunc } = useProtectedFunc();
   const [isOpen, setIsOpen] = React.useState(false);
@@ -58,7 +60,7 @@ export const Bookmark: React.FC<BookmarkProps> = ({
       className={className}
     >
       <HelpTooltip title={hint}>
-        <IconButton onClick={onListsClick} buttonRef={anchorRef} size="small">
+        <IconButton onClick={onListsClick} buttonRef={anchorRef} size="small" edge={edge}>
           <Star style={{ width: size, height: size, color }} />
         </IconButton>
       </HelpTooltip>

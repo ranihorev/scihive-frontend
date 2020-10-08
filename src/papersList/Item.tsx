@@ -22,27 +22,11 @@ import {
 } from '../utils/useGroups';
 import { GroupMarkers } from './ItemGroups';
 import styles from './styles.module.scss';
-
-const paragraphCss = css`
-  color: rgba(0, 0, 0, 0.8);
-  font-size: 0.875rem;
-  font-weight: 400;
-  line-height: 1.46429em;
-`;
+import { HelpTooltip } from '../utils/HelpTooltip';
+import cx from 'classnames';
 
 const metadataCss = css`
   margin-right: 6px;
-`;
-
-const expandCss = css`
-  transform: rotate(0deg);
-  margin-left: auto;
-  transition: transform 0.2s;
-`;
-
-const expandedOpenCss = css`
-  ${expandCss};
-  transform: rotate(180deg);
 `;
 
 interface PapersListItemProps {
@@ -53,7 +37,7 @@ interface PapersListItemProps {
 const SingleMetadata: React.FC<{ tooltip: string; icon: string }> = ({ tooltip, icon, children }) => {
   return (
     <Tooltip title={tooltip} placement="top" arrow classes={arrowTooltipClasses}>
-      <Typography color="textSecondary" variant="body2">
+      <Typography variant="body2" className="text-gray-500">
         <i className={icon} css={metadataCss} /> {children}
       </Typography>
     </Tooltip>
@@ -88,19 +72,17 @@ const ExpandPaper: React.FC<{ expanded: boolean; handleExpandClick: (e: React.Mo
   expanded,
   handleExpandClick,
 }) => (
-  <IconButton
-    css={expanded ? expandedOpenCss : expandCss}
-    onClick={handleExpandClick}
-    aria-expanded={expanded}
-    aria-label="Show more"
-    size="small"
-  >
-    <ExpandMoreIcon fontSize="small" />
-  </IconButton>
+  <HelpTooltip title={expanded ? 'Close abstract' : 'Expand Abstract'}>
+    <IconButton onClick={handleExpandClick} aria-expanded={expanded} aria-label="Show more" size="small" edge="end">
+      <ExpandMoreIcon
+        fontSize="small"
+        className={cx('transition-transform duration-300', expanded ? 'transform rotate-180' : undefined)}
+      />
+    </IconButton>
+  </HelpTooltip>
 );
 
 export const Item: React.FC<PapersListItemProps> = ({ paper, groups }) => {
-  const { code: github } = paper;
   const [expanded, setExpanded] = useState(false);
 
   const handleExpandClick = (e: React.MouseEvent) => {
@@ -137,6 +119,7 @@ export const Item: React.FC<PapersListItemProps> = ({ paper, groups }) => {
           </Link>
           <Bookmark
             className={styles.itemBookmark}
+            edge="end"
             paperId={paper.id}
             size={20}
             selectedGroupIds={paper.groups}
@@ -170,42 +153,19 @@ export const Item: React.FC<PapersListItemProps> = ({ paper, groups }) => {
         <Spacer size={12} />
         <div className={baseStyles.centeredRow}>
           <PaperMetadata paper={paper} />
+          <Spacer size={1} grow />
           <ExpandPaper {...{ expanded, handleExpandClick }} />
         </div>
+        {expanded && (
+          <React.Fragment>
+            <Typography variant="body2" className="pt-2">
+              <span className="leading-relaxed text-gray-700">
+                <Latex>{paper.abstract}</Latex>
+              </span>
+            </Typography>
+          </React.Fragment>
+        )}
       </div>
-
-      {expanded && (
-        <React.Fragment>
-          <Spacer size={16} />
-          <Divider variant="middle" />
-          <div>
-            <div css={paragraphCss}>
-              <Latex>{paper.abstract}</Latex>
-              {!isEmpty(github) && (
-                <div
-                  css={css`
-                    font-size: 12px;
-                    margin-top: 5px;
-                    color: grey;
-                  `}
-                >
-                  * Github link is provided by{' '}
-                  <a
-                    href="https://www.paperswithcode.com"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    css={css`
-                      color: inherit;
-                    `}
-                  >
-                    PapersWithCode
-                  </a>
-                </div>
-              )}
-            </div>
-          </div>
-        </React.Fragment>
-      )}
     </div>
   );
 };

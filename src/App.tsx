@@ -1,4 +1,4 @@
-import { MuiThemeProvider } from '@material-ui/core/styles';
+import { MuiThemeProvider, StylesProvider } from '@material-ui/core/styles';
 import React from 'react';
 import * as ReactHintFactory from 'react-hint';
 import { ReactQueryDevtools } from 'react-query-devtools';
@@ -60,19 +60,21 @@ const App: React.FC = () => {
 
   return (
     <MuiThemeProvider theme={theme}>
-      <MainRoutes />
-      <ToastContainer
-        position="bottom-center"
-        autoClose={false}
-        newestOnTop={false}
-        closeOnClick={false}
-        className="base-toast"
-        rtl={false}
-        draggable
-      />
-      <ReactQueryDevtools />
-      <LoginModal />
-      <ReactHint autoPosition events={{ hover: true }} delay={{ show: 300, hide: 0 }} />
+      <StylesProvider injectFirst>
+        <MainRoutes />
+        <ToastContainer
+          position="bottom-center"
+          autoClose={false}
+          newestOnTop={false}
+          closeOnClick={false}
+          className="base-toast"
+          rtl={false}
+          draggable
+        />
+        <ReactQueryDevtools />
+        <LoginModal />
+        <ReactHint autoPosition events={{ hover: true }} delay={{ show: 300, hide: 0 }} />
+      </StylesProvider>
     </MuiThemeProvider>
   );
 };

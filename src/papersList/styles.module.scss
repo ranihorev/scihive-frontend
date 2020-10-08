@@ -26,15 +26,6 @@
   width: 100%;
   position: relative;
   padding: 16px 0;
-
-  .itemCardContent {
-    padding-bottom: 4px;
-    padding-top: 4px;
-
-    &:last-child {
-      padding-bottom: 4px;
-    }
-  }
 }
 
 .itemTitleSection {
@@ -48,20 +39,9 @@
   margin-top: -8px;
 }
 
-.groupMarkers {
-  display: flex;
-  flex-direction: row-reverse;
-  position: absolute;
-  top: 0;
-  right: 10px;
-}
-
 .groupMarker {
-  border-radius: 0 0 3px 3px;
   height: 6px;
   min-width: 30px;
-  margin-right: 5px;
-  padding: 1px;
 }
 
 .filtersRow {

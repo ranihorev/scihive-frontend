@@ -20,15 +20,6 @@ code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New', monospace;
 }
 
-
-button:focus {
-  @apply outline-none
-}
-
-button {
-  @apply outline-none
-}
-
 .Toastify__toast--info {
   background-color: #ceebff;
   color: #444444;
@@ -129,11 +120,10 @@ $arrowMargin: 10px;
 }
 
 .basePage {
-  --padding: 10px;
   display: flex;
   flex-direction: column;
   max-width: 992px;
-  padding: var(--padding);
+  padding: 10px;
   align-self: center;
-  width: calc(100% - 2 * var(--padding));
+  width: 100%;
 }

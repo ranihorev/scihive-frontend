@@ -17,7 +17,7 @@ import cx from 'classnames';
 
 type UploadStatus = 'idle' | 'uploading' | 'processing';
 
-const getPaperPath = (paperId: string) => `/paper/${paperId}/invite`;
+const getPaperPath = (paperId: string) => `/paper/${paperId}`;
 
 export const FileUpload: React.FC = () => {
   const history = useHistory();

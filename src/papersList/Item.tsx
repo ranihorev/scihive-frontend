@@ -1,6 +1,6 @@
 /** @jsx jsx */
 import { css, jsx } from '@emotion/core';
-import { Card, CardContent, Divider, IconButton, Link, Tooltip, Typography } from '@material-ui/core';
+import { Divider, IconButton, Link, Tooltip, Typography } from '@material-ui/core';
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import { isEmpty } from 'lodash';
 import moment from 'moment';
@@ -128,9 +128,9 @@ export const Item: React.FC<PapersListItemProps> = ({ paper, groups }) => {
   );
 
   return (
-    <Card className={styles.itemCard}>
+    <div className="relative border-t border-gray-200 rounded-none">
       <GroupMarkers groups={groups} paperGroupIds={paper.groups} />
-      <CardContent classes={{ root: styles.itemCardContent }}>
+      <div className="pt-5 pb-4">
         <div className={styles.itemTitleSection}>
           <Link variant="h6" color="textPrimary" component={RouterLink} to={`/paper/${paper.id}`}>
             <Latex>{paper.title}</Latex>
@@ -172,13 +172,13 @@ export const Item: React.FC<PapersListItemProps> = ({ paper, groups }) => {
           <PaperMetadata paper={paper} />
           <ExpandPaper {...{ expanded, handleExpandClick }} />
         </div>
-      </CardContent>
+      </div>
 
       {expanded && (
         <React.Fragment>
           <Spacer size={16} />
           <Divider variant="middle" />
-          <CardContent style={{ paddingBottom: 0 }}>
+          <div>
             <div css={paragraphCss}>
               <Latex>{paper.abstract}</Latex>
               {!isEmpty(github) && (
@@ -203,9 +203,9 @@ export const Item: React.FC<PapersListItemProps> = ({ paper, groups }) => {
                 </div>
               )}
             </div>
-          </CardContent>
+          </div>
         </React.Fragment>
       )}
-    </Card>
+    </div>
   );
 };

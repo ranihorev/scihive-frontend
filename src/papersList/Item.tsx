@@ -1,8 +1,8 @@
 /** @jsx jsx */
 import { css, jsx } from '@emotion/core';
-import { Divider, IconButton, Link, Tooltip, Typography } from '@material-ui/core';
+import { IconButton, Link, Tooltip, Typography } from '@material-ui/core';
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
-import { isEmpty } from 'lodash';
+import cx from 'classnames';
 import moment from 'moment';
 import React, { useState } from 'react';
 import { useMutation } from 'react-query';
@@ -11,6 +11,7 @@ import { toast } from 'react-toastify';
 import baseStyles from '../base.module.scss';
 import { Bookmark } from '../bookmark';
 import { Group, PaperListItem } from '../models';
+import { HelpTooltip } from '../utils/HelpTooltip';
 import { Latex } from '../utils/latex';
 import { arrowTooltipsClasses as arrowTooltipClasses } from '../utils/presets';
 import { QueryContext } from '../utils/QueryContext';
@@ -22,8 +23,7 @@ import {
 } from '../utils/useGroups';
 import { GroupMarkers } from './ItemGroups';
 import styles from './styles.module.scss';
-import { HelpTooltip } from '../utils/HelpTooltip';
-import cx from 'classnames';
+import { itemClassNames } from './utils';
 
 const metadataCss = css`
   margin-right: 6px;
@@ -110,62 +110,55 @@ export const Item: React.FC<PapersListItemProps> = ({ paper, groups }) => {
   );
 
   return (
-    <div className="relative border-t border-gray-200 rounded-none">
+    <div className={itemClassNames}>
       <GroupMarkers groups={groups} paperGroupIds={paper.groups} />
-      <div className="pt-5 pb-4">
-        <div className={styles.itemTitleSection}>
-          <Link variant="h6" color="textPrimary" component={RouterLink} to={`/paper/${paper.id}`}>
-            <Latex>{paper.title}</Latex>
-          </Link>
-          <Bookmark
-            className={styles.itemBookmark}
-            edge="end"
-            paperId={paper.id}
-            size={20}
-            selectedGroupIds={paper.groups}
-            onSelectGroup={props => {
-              onSelectGroup(props);
-            }}
-            type="list"
-          />
-        </div>
-        <Spacer size={8} />
-        <Typography component="div" variant="body2" color="textSecondary">
-          {paper.authors.map((author, index) => (
-            <React.Fragment key={index}>
-              <Link
-                component={RouterLink}
-                variant="body2"
-                color="textSecondary"
-                to={`/discover/?author=${author.name}`}
-              >
-                {author.name}
-              </Link>
-              {index < paper.authors.length - 1 ? <React.Fragment>,&nbsp;</React.Fragment> : ''}
-            </React.Fragment>
-          ))}
-        </Typography>
-        <Spacer size={4} />
-        <Typography variant="body2" color="textSecondary">
-          {moment.utc(paper.time_published).format('MMM DD, YYYY')}
-        </Typography>
-
-        <Spacer size={12} />
-        <div className={baseStyles.centeredRow}>
-          <PaperMetadata paper={paper} />
-          <Spacer size={1} grow />
-          <ExpandPaper {...{ expanded, handleExpandClick }} />
-        </div>
-        {expanded && (
-          <React.Fragment>
-            <Typography variant="body2" className="pt-2">
-              <span className="leading-relaxed text-gray-700">
-                <Latex>{paper.abstract}</Latex>
-              </span>
-            </Typography>
-          </React.Fragment>
-        )}
+      <div className={styles.itemTitleSection}>
+        <Link variant="h6" color="textPrimary" component={RouterLink} to={`/paper/${paper.id}`}>
+          <Latex>{paper.title}</Latex>
+        </Link>
+        <Bookmark
+          className={styles.itemBookmark}
+          edge="end"
+          paperId={paper.id}
+          size={20}
+          selectedGroupIds={paper.groups}
+          onSelectGroup={props => {
+            onSelectGroup(props);
+          }}
+          type="list"
+        />
       </div>
+      <Spacer size={8} />
+      <Typography component="div" variant="body2" color="textSecondary">
+        {paper.authors.map((author, index) => (
+          <React.Fragment key={index}>
+            <Link component={RouterLink} variant="body2" color="textSecondary" to={`/discover/?author=${author.name}`}>
+              {author.name}
+            </Link>
+            {index < paper.authors.length - 1 ? <React.Fragment>,&nbsp;</React.Fragment> : ''}
+          </React.Fragment>
+        ))}
+      </Typography>
+      <Spacer size={4} />
+      <Typography variant="body2" color="textSecondary">
+        {moment.utc(paper.time_published).format('MMM DD, YYYY')}
+      </Typography>
+
+      <Spacer size={12} />
+      <div className={baseStyles.centeredRow}>
+        <PaperMetadata paper={paper} />
+        <Spacer size={1} grow />
+        <ExpandPaper {...{ expanded, handleExpandClick }} />
+      </div>
+      {expanded && (
+        <React.Fragment>
+          <Typography variant="body2" className="pt-2">
+            <span className="leading-relaxed text-gray-700">
+              <Latex>{paper.abstract}</Latex>
+            </span>
+          </Typography>
+        </React.Fragment>
+      )}
     </div>
   );
 };

@@ -144,6 +144,7 @@ const PapersListContent: React.FC<{ isLibraryMode: boolean }> = ({ isLibraryMode
       {totalPapers === 0 && <Typography variant="h5">No papers found :(</Typography>}
       <div>
         {data?.map(group => group.papers.map(paper => <Item key={paper.id} paper={paper} groups={groups} />))}
+        {!data && <Spacer size={16} />}
         {(!data || isFetchingMore) && <ItemPlaceholder count={data ? 2 : 5} />}
       </div>
     </div>

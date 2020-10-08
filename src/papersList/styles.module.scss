@@ -1,16 +1,3 @@
-.placeholderCard {
-  margin: 10px 0;
-  display: flex;
-  flex-shrink: 1;
-  position: relative;
-  margin-bottom: 20px;
-  padding: 28px 20px;
-
-  @media only screen and (max-width: 480px) {
-    padding: 16px;
-  }
-}
-
 .paperListTitleWrapper {
   display: flex;
   flex-direction: row;

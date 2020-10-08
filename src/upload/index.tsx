@@ -110,7 +110,7 @@ export const FileUpload: React.FC = () => {
                   value={link}
                   onChange={e => setLink(e.target.value)}
                   type="url"
-                  placeholder="Paste URL or arXiv ID"
+                  placeholder="Paste URL"
                   fullWidth
                   required
                 />

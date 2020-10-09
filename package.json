@@ -12,7 +12,6 @@
     "@material-ui/styles": "^4.10.0",
     "@sentry/browser": "^5.4.0",
     "@types/mixpanel-browser": "^2.23.2",
-    "autosuggest-highlight": "^3.1.1",
     "axios": "^0.19.2",
     "body-scroll-lock": "^2.6.1",
     "classnames": "^2.2.6",
@@ -36,7 +35,7 @@
     "react-draggable": "^4.2.0",
     "react-dropzone": "^10.2.1",
     "react-ga": "^2.5.7",
-    "react-google-login": "^5.1.20",
+    "react-google-login": "https://github.com/ranihorev/react-google-login",
     "react-headroom": "^3.0.0",
     "react-helmet": "^5.2.1",
     "react-hint": "^3.2.0",
@@ -78,7 +77,6 @@
     "not op_mini all"
   ],
   "devDependencies": {
-    "@types/autosuggest-highlight": "^3.1.0",
     "@types/chrome": "^0.0.97",
     "@types/classnames": "^2.2.10",
     "@types/color": "^3.0.0",

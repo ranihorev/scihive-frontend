@@ -1,18 +1,20 @@
 import axios from 'axios';
 import { queryCache, QueryKey, useMutation, useQuery } from 'react-query';
 import { Group, PaperListResponse } from '../models';
+import { useUserStore } from '../stores/user';
 import { GroupColor } from '../utils/presets';
 
 const FETCH_GROUPS_Q = 'fetchGroups';
 
 export const useFetchGroups = () => {
+  const isLoggedIn = useUserStore(state => state.status === 'loggedIn');
   const { data } = useQuery(
     FETCH_GROUPS_Q,
     async () => {
       const response = await axios.get<Group[]>('/groups/all');
       return response.data;
     },
-    { cacheTime: 60000, refetchOnMount: false, refetchOnWindowFocus: false },
+    { cacheTime: 60000, refetchOnMount: false, refetchOnWindowFocus: false, enabled: isLoggedIn },
   );
   const groups = data || [];
   return groups;

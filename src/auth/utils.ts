@@ -43,11 +43,27 @@ export const useLogInViaGoogle = () => {
   });
 };
 
+export const useLogout = (goToPath: string) => {
+  if (!process.env.REACT_APP_GOOGLE_ID) throw Error('Google Client ID is missing');
+  const history = useHistory();
+  const storeLogout = useUserStore(state => state.onLogout);
+  const { signOut: googleLogOut } = useGoogleLogout({ clientId: process.env.REACT_APP_GOOGLE_ID });
+  const logOut = useLatestCallback(() => {
+    removeUserFromLocalStorage();
+    googleLogOut();
+    storeLogout();
+    history.push(goToPath);
+  });
+  return logOut;
+};
+
 export const useIsLoggedIn = () => {
-  const { setStatus, status, setProfile, onLogout, setGoogleData } = useUserStore(
-    state => pick(state, ['setStatus', 'status', 'setProfile', 'onLogout', 'setGoogleData']),
+  const { setStatus, status, setProfile, setGoogleData } = useUserStore(
+    state => pick(state, ['setStatus', 'status', 'setProfile', 'setGoogleData']),
     shallow,
   );
+
+  const onLogout = useLogout('/');
   if (!process.env.REACT_APP_GOOGLE_ID) throw Error('Google Client ID is missing');
   React.useEffect(() => {
     if (status !== 'loggingIn') return;
@@ -68,7 +84,7 @@ export const useIsLoggedIn = () => {
     clientId: process.env.REACT_APP_GOOGLE_ID,
     onSuccess: res => {},
     onFailure: () => {},
-    onAutoLoadFinished: () => {
+    onAutoLoadFinished: isIn => {
       if (localStorage.getItem(STORAGE_KEY) !== 'Google') return;
       const instance = window.gapi.auth2.getAuthInstance();
       const user = instance.currentUser.get();
@@ -142,20 +158,6 @@ export const useHasContactsPermission = () => {
     hasPermissions: contactsPermission,
     grantPermissions: loaded ? grantPermissions : undefined,
   };
-};
-
-export const useLogout = (goToPath: string) => {
-  if (!process.env.REACT_APP_GOOGLE_ID) throw Error('Google Client ID is missing');
-  const history = useHistory();
-  const storeLogout = useUserStore(state => state.onLogout);
-  const { signOut: googleLogOut } = useGoogleLogout({ clientId: process.env.REACT_APP_GOOGLE_ID });
-  const logOut = useLatestCallback(() => {
-    removeUserFromLocalStorage();
-    googleLogOut();
-    storeLogout();
-    history.push(goToPath);
-  });
-  return logOut;
 };
 
 export const useRedirectTo = (defaultRedirectTo?: string, enabled: boolean = true) => {

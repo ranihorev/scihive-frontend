@@ -50,6 +50,7 @@ export const LoginWithGoogle: React.FC<LoginProps &
             toast.error('Failed to log in via Google, please try again');
           }
         }}
+        autoLoad={false}
         {...otherProps}
       />
     );

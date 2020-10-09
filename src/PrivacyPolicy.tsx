@@ -1,8 +1,9 @@
 import React from 'react';
+import baseStyles from './base.module.scss';
 
 export const PrivacyPolicy: React.FC = () => {
   return (
-    <div>
+    <div className={baseStyles.legalDocs}>
       <h1>Privacy Policy</h1>
 
       <p>

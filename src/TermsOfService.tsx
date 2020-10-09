@@ -1,8 +1,10 @@
 import React from 'react';
+import baseStyles from './base.module.scss';
+
 
 export const TermOfService: React.FC = () => {
   return (
-    <div>
+    <div className={baseStyles.legalDocs}>
       <h2>
         <strong>Terms and Conditions</strong>
       </h2>

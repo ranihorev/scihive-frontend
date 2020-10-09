@@ -4,7 +4,6 @@ import * as queryString from 'query-string';
 import React from 'react';
 import { GoogleLoginResponse, GoogleLoginResponseOffline, useGoogleLogin, useGoogleLogout } from 'react-google-login';
 import { useHistory, useLocation } from 'react-router';
-import { toast } from 'react-toastify';
 import shallow from 'zustand/shallow';
 import { AccountProvider, ProfileResponse, useUserStore } from '../stores/user';
 import { useLatestCallback } from '../utils/useLatestCallback';
@@ -96,6 +95,8 @@ export const useHasContactsPermission = () => {
     shallow,
   );
 
+  const googleData = profile?.googleData;
+
   const updatePermissionsStatus = useLatestCallback(() => {
     if (status !== 'loggedIn') return;
     if (contactsPermission) return; // We assume that the permissions won't be removed after approval
@@ -122,7 +123,7 @@ export const useHasContactsPermission = () => {
 
   React.useEffect(() => {
     updatePermissionsStatus();
-  }, [status, updatePermissionsStatus, profile?.googleData]);
+  }, [status, updatePermissionsStatus, googleData]);
 
   const grantPermissions = () => {
     const instance = window.gapi.auth2.getAuthInstance();

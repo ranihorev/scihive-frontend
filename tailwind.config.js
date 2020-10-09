@@ -14,8 +14,7 @@ module.exports = {
         'main-color': 'var(--main-color)',
         'text-primary': 'var(--text-primary)',
         'text-secondary': 'var(--text-secondary)',
-        'text-title': 'var(--text-title)'
-      }
+      },
     },
     screens: {
       sm: '640px',

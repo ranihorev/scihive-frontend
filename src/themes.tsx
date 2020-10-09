@@ -5,6 +5,11 @@ const themeInner = createMuiTheme({
   palette: themePalette,
   typography: {
     fontFamily: 'Roboto, Helvetica, Arial, sans-serif',
+    h2: {
+      fontSize: '3rem',
+      fontWeight: 500,
+      letterSpacing: 0.5,
+    },
     h3: {
       fontSize: '1.6rem',
       fontWeight: 500,

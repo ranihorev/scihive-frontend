@@ -1706,10 +1706,6 @@ video {
   border-color: var(--text-secondary);
 }
 
-.divide-text-title > :not(template) ~ :not(template) {
-  border-color: var(--text-title);
-}
-
 .divide-solid > :not(template) ~ :not(template) {
   border-style: solid;
 }
@@ -2403,10 +2399,6 @@ video {
   background-color: var(--text-secondary);
 }
 
-.bg-text-title {
-  background-color: var(--text-title);
-}
-
 .hover\:bg-transparent:hover {
   background-color: transparent;
 }
@@ -2977,10 +2969,6 @@ video {
 
 .hover\:bg-text-secondary:hover {
   background-color: var(--text-secondary);
-}
-
-.hover\:bg-text-title:hover {
-  background-color: var(--text-title);
 }
 
 .focus\:bg-transparent:focus {
@@ -3555,10 +3543,6 @@ video {
   background-color: var(--text-secondary);
 }
 
-.focus\:bg-text-title:focus {
-  background-color: var(--text-title);
-}
-
 .bg-none {
   background-image: none;
 }
@@ -4080,11 +4064,6 @@ video {
   --gradient-color-stops: var(--gradient-from-color), var(--gradient-to-color, rgba(255, 255, 255, 0));
 }
 
-.from-text-title {
-  --gradient-from-color: var(--text-title);
-  --gradient-color-stops: var(--gradient-from-color), var(--gradient-to-color, rgba(255, 255, 255, 0));
-}
-
 .via-transparent {
   --gradient-via-color: transparent;
   --gradient-color-stops: var(--gradient-from-color), var(--gradient-via-color), var(--gradient-to-color, rgba(0, 0, 0, 0));
@@ -4570,11 +4549,6 @@ video {
   --gradient-color-stops: var(--gradient-from-color), var(--gradient-via-color), var(--gradient-to-color, rgba(255, 255, 255, 0));
 }
 
-.via-text-title {
-  --gradient-via-color: var(--text-title);
-  --gradient-color-stops: var(--gradient-from-color), var(--gradient-via-color), var(--gradient-to-color, rgba(255, 255, 255, 0));
-}
-
 .to-transparent {
   --gradient-to-color: transparent;
 }
@@ -4961,10 +4935,6 @@ video {
 
 .to-text-secondary {
   --gradient-to-color: var(--text-secondary);
-}
-
-.to-text-title {
-  --gradient-to-color: var(--text-title);
 }
 
 .hover\:from-transparent:hover {
@@ -5449,11 +5419,6 @@ video {
 
 .hover\:from-text-secondary:hover {
   --gradient-from-color: var(--text-secondary);
-  --gradient-color-stops: var(--gradient-from-color), var(--gradient-to-color, rgba(255, 255, 255, 0));
-}
-
-.hover\:from-text-title:hover {
-  --gradient-from-color: var(--text-title);
   --gradient-color-stops: var(--gradient-from-color), var(--gradient-to-color, rgba(255, 255, 255, 0));
 }
 
@@ -5942,11 +5907,6 @@ video {
   --gradient-color-stops: var(--gradient-from-color), var(--gradient-via-color), var(--gradient-to-color, rgba(255, 255, 255, 0));
 }
 
-.hover\:via-text-title:hover {
-  --gradient-via-color: var(--text-title);
-  --gradient-color-stops: var(--gradient-from-color), var(--gradient-via-color), var(--gradient-to-color, rgba(255, 255, 255, 0));
-}
-
 .hover\:to-transparent:hover {
   --gradient-to-color: transparent;
 }
@@ -6333,10 +6293,6 @@ video {
 
 .hover\:to-text-secondary:hover {
   --gradient-to-color: var(--text-secondary);
-}
-
-.hover\:to-text-title:hover {
-  --gradient-to-color: var(--text-title);
 }
 
 .focus\:from-transparent:focus {
@@ -6821,11 +6777,6 @@ video {
 
 .focus\:from-text-secondary:focus {
   --gradient-from-color: var(--text-secondary);
-  --gradient-color-stops: var(--gradient-from-color), var(--gradient-to-color, rgba(255, 255, 255, 0));
-}
-
-.focus\:from-text-title:focus {
-  --gradient-from-color: var(--text-title);
   --gradient-color-stops: var(--gradient-from-color), var(--gradient-to-color, rgba(255, 255, 255, 0));
 }
 
@@ -7314,11 +7265,6 @@ video {
   --gradient-color-stops: var(--gradient-from-color), var(--gradient-via-color), var(--gradient-to-color, rgba(255, 255, 255, 0));
 }
 
-.focus\:via-text-title:focus {
-  --gradient-via-color: var(--text-title);
-  --gradient-color-stops: var(--gradient-from-color), var(--gradient-via-color), var(--gradient-to-color, rgba(255, 255, 255, 0));
-}
-
 .focus\:to-transparent:focus {
   --gradient-to-color: transparent;
 }
@@ -7705,10 +7651,6 @@ video {
 
 .focus\:to-text-secondary:focus {
   --gradient-to-color: var(--text-secondary);
-}
-
-.focus\:to-text-title:focus {
-  --gradient-to-color: var(--text-title);
 }
 
 .bg-opacity-0 {
@@ -8423,10 +8365,6 @@ video {
   border-color: var(--text-secondary);
 }
 
-.border-text-title {
-  border-color: var(--text-title);
-}
-
 .hover\:border-transparent:hover {
   border-color: transparent;
 }
@@ -8999,10 +8937,6 @@ video {
   border-color: var(--text-secondary);
 }
 
-.hover\:border-text-title:hover {
-  border-color: var(--text-title);
-}
-
 .focus\:border-transparent:focus {
   border-color: transparent;
 }
@@ -9573,10 +9507,6 @@ video {
 
 .focus\:border-text-secondary:focus {
   border-color: var(--text-secondary);
-}
-
-.focus\:border-text-title:focus {
-  border-color: var(--text-title);
 }
 
 .border-opacity-0 {
@@ -14515,18 +14445,6 @@ video {
   color: var(--text-secondary);
 }
 
-.placeholder-text-title::-webkit-input-placeholder {
-  color: var(--text-title);
-}
-
-.placeholder-text-title::-ms-input-placeholder {
-  color: var(--text-title);
-}
-
-.placeholder-text-title::placeholder {
-  color: var(--text-title);
-}
-
 .focus\:placeholder-transparent:focus::-webkit-input-placeholder {
   color: transparent;
 }
@@ -16243,18 +16161,6 @@ video {
   color: var(--text-secondary);
 }
 
-.focus\:placeholder-text-title:focus::-webkit-input-placeholder {
-  color: var(--text-title);
-}
-
-.focus\:placeholder-text-title:focus::-ms-input-placeholder {
-  color: var(--text-title);
-}
-
-.focus\:placeholder-text-title:focus::placeholder {
-  color: var(--text-title);
-}
-
 .placeholder-opacity-0::-webkit-input-placeholder {
   --placeholder-opacity: 0;
 }
@@ -17222,10 +17128,6 @@ video {
   color: var(--text-secondary);
 }
 
-.text-text-title {
-  color: var(--text-title);
-}
-
 .hover\:text-transparent:hover {
   color: transparent;
 }
@@ -17798,10 +17700,6 @@ video {
   color: var(--text-secondary);
 }
 
-.hover\:text-text-title:hover {
-  color: var(--text-title);
-}
-
 .focus\:text-transparent:focus {
   color: transparent;
 }
@@ -18372,10 +18270,6 @@ video {
 
 .focus\:text-text-secondary:focus {
   color: var(--text-secondary);
-}
-
-.focus\:text-text-title:focus {
-  color: var(--text-title);
 }
 
 .text-opacity-0 {
@@ -22762,10 +22656,6 @@ button {
     border-color: var(--text-secondary);
   }
 
-  .sm\:divide-text-title > :not(template) ~ :not(template) {
-    border-color: var(--text-title);
-  }
-
   .sm\:divide-solid > :not(template) ~ :not(template) {
     border-style: solid;
   }
@@ -23459,10 +23349,6 @@ button {
     background-color: var(--text-secondary);
   }
 
-  .sm\:bg-text-title {
-    background-color: var(--text-title);
-  }
-
   .sm\:hover\:bg-transparent:hover {
     background-color: transparent;
   }
@@ -24033,10 +23919,6 @@ button {
 
   .sm\:hover\:bg-text-secondary:hover {
     background-color: var(--text-secondary);
-  }
-
-  .sm\:hover\:bg-text-title:hover {
-    background-color: var(--text-title);
   }
 
   .sm\:focus\:bg-transparent:focus {
@@ -24611,10 +24493,6 @@ button {
     background-color: var(--text-secondary);
   }
 
-  .sm\:focus\:bg-text-title:focus {
-    background-color: var(--text-title);
-  }
-
   .sm\:bg-none {
     background-image: none;
   }
@@ -25136,11 +25014,6 @@ button {
     --gradient-color-stops: var(--gradient-from-color), var(--gradient-to-color, rgba(255, 255, 255, 0));
   }
 
-  .sm\:from-text-title {
-    --gradient-from-color: var(--text-title);
-    --gradient-color-stops: var(--gradient-from-color), var(--gradient-to-color, rgba(255, 255, 255, 0));
-  }
-
   .sm\:via-transparent {
     --gradient-via-color: transparent;
     --gradient-color-stops: var(--gradient-from-color), var(--gradient-via-color), var(--gradient-to-color, rgba(0, 0, 0, 0));
@@ -25626,11 +25499,6 @@ button {
     --gradient-color-stops: var(--gradient-from-color), var(--gradient-via-color), var(--gradient-to-color, rgba(255, 255, 255, 0));
   }
 
-  .sm\:via-text-title {
-    --gradient-via-color: var(--text-title);
-    --gradient-color-stops: var(--gradient-from-color), var(--gradient-via-color), var(--gradient-to-color, rgba(255, 255, 255, 0));
-  }
-
   .sm\:to-transparent {
     --gradient-to-color: transparent;
   }
@@ -26017,10 +25885,6 @@ button {
 
   .sm\:to-text-secondary {
     --gradient-to-color: var(--text-secondary);
-  }
-
-  .sm\:to-text-title {
-    --gradient-to-color: var(--text-title);
   }
 
   .sm\:hover\:from-transparent:hover {
@@ -26505,11 +26369,6 @@ button {
 
   .sm\:hover\:from-text-secondary:hover {
     --gradient-from-color: var(--text-secondary);
-    --gradient-color-stops: var(--gradient-from-color), var(--gradient-to-color, rgba(255, 255, 255, 0));
-  }
-
-  .sm\:hover\:from-text-title:hover {
-    --gradient-from-color: var(--text-title);
     --gradient-color-stops: var(--gradient-from-color), var(--gradient-to-color, rgba(255, 255, 255, 0));
   }
 
@@ -26998,11 +26857,6 @@ button {
     --gradient-color-stops: var(--gradient-from-color), var(--gradient-via-color), var(--gradient-to-color, rgba(255, 255, 255, 0));
   }
 
-  .sm\:hover\:via-text-title:hover {
-    --gradient-via-color: var(--text-title);
-    --gradient-color-stops: var(--gradient-from-color), var(--gradient-via-color), var(--gradient-to-color, rgba(255, 255, 255, 0));
-  }
-
   .sm\:hover\:to-transparent:hover {
     --gradient-to-color: transparent;
   }
@@ -27389,10 +27243,6 @@ button {
 
   .sm\:hover\:to-text-secondary:hover {
     --gradient-to-color: var(--text-secondary);
-  }
-
-  .sm\:hover\:to-text-title:hover {
-    --gradient-to-color: var(--text-title);
   }
 
   .sm\:focus\:from-transparent:focus {
@@ -27877,11 +27727,6 @@ button {
 
   .sm\:focus\:from-text-secondary:focus {
     --gradient-from-color: var(--text-secondary);
-    --gradient-color-stops: var(--gradient-from-color), var(--gradient-to-color, rgba(255, 255, 255, 0));
-  }
-
-  .sm\:focus\:from-text-title:focus {
-    --gradient-from-color: var(--text-title);
     --gradient-color-stops: var(--gradient-from-color), var(--gradient-to-color, rgba(255, 255, 255, 0));
   }
 
@@ -28370,11 +28215,6 @@ button {
     --gradient-color-stops: var(--gradient-from-color), var(--gradient-via-color), var(--gradient-to-color, rgba(255, 255, 255, 0));
   }
 
-  .sm\:focus\:via-text-title:focus {
-    --gradient-via-color: var(--text-title);
-    --gradient-color-stops: var(--gradient-from-color), var(--gradient-via-color), var(--gradient-to-color, rgba(255, 255, 255, 0));
-  }
-
   .sm\:focus\:to-transparent:focus {
     --gradient-to-color: transparent;
   }
@@ -28761,10 +28601,6 @@ button {
 
   .sm\:focus\:to-text-secondary:focus {
     --gradient-to-color: var(--text-secondary);
-  }
-
-  .sm\:focus\:to-text-title:focus {
-    --gradient-to-color: var(--text-title);
   }
 
   .sm\:bg-opacity-0 {
@@ -29479,10 +29315,6 @@ button {
     border-color: var(--text-secondary);
   }
 
-  .sm\:border-text-title {
-    border-color: var(--text-title);
-  }
-
   .sm\:hover\:border-transparent:hover {
     border-color: transparent;
   }
@@ -30055,10 +29887,6 @@ button {
     border-color: var(--text-secondary);
   }
 
-  .sm\:hover\:border-text-title:hover {
-    border-color: var(--text-title);
-  }
-
   .sm\:focus\:border-transparent:focus {
     border-color: transparent;
   }
@@ -30629,10 +30457,6 @@ button {
 
   .sm\:focus\:border-text-secondary:focus {
     border-color: var(--text-secondary);
-  }
-
-  .sm\:focus\:border-text-title:focus {
-    border-color: var(--text-title);
   }
 
   .sm\:border-opacity-0 {
@@ -35571,18 +35395,6 @@ button {
     color: var(--text-secondary);
   }
 
-  .sm\:placeholder-text-title::-webkit-input-placeholder {
-    color: var(--text-title);
-  }
-
-  .sm\:placeholder-text-title::-ms-input-placeholder {
-    color: var(--text-title);
-  }
-
-  .sm\:placeholder-text-title::placeholder {
-    color: var(--text-title);
-  }
-
   .sm\:focus\:placeholder-transparent:focus::-webkit-input-placeholder {
     color: transparent;
   }
@@ -37299,18 +37111,6 @@ button {
     color: var(--text-secondary);
   }
 
-  .sm\:focus\:placeholder-text-title:focus::-webkit-input-placeholder {
-    color: var(--text-title);
-  }
-
-  .sm\:focus\:placeholder-text-title:focus::-ms-input-placeholder {
-    color: var(--text-title);
-  }
-
-  .sm\:focus\:placeholder-text-title:focus::placeholder {
-    color: var(--text-title);
-  }
-
   .sm\:placeholder-opacity-0::-webkit-input-placeholder {
     --placeholder-opacity: 0;
   }
@@ -38278,10 +38078,6 @@ button {
     color: var(--text-secondary);
   }
 
-  .sm\:text-text-title {
-    color: var(--text-title);
-  }
-
   .sm\:hover\:text-transparent:hover {
     color: transparent;
   }
@@ -38854,10 +38650,6 @@ button {
     color: var(--text-secondary);
   }
 
-  .sm\:hover\:text-text-title:hover {
-    color: var(--text-title);
-  }
-
   .sm\:focus\:text-transparent:focus {
     color: transparent;
   }
@@ -39428,10 +39220,6 @@ button {
 
   .sm\:focus\:text-text-secondary:focus {
     color: var(--text-secondary);
-  }
-
-  .sm\:focus\:text-text-title:focus {
-    color: var(--text-title);
   }
 
   .sm\:text-opacity-0 {
@@ -43745,10 +43533,6 @@ button {
     border-color: var(--text-secondary);
   }
 
-  .md\:divide-text-title > :not(template) ~ :not(template) {
-    border-color: var(--text-title);
-  }
-
   .md\:divide-solid > :not(template) ~ :not(template) {
     border-style: solid;
   }
@@ -44442,10 +44226,6 @@ button {
     background-color: var(--text-secondary);
   }
 
-  .md\:bg-text-title {
-    background-color: var(--text-title);
-  }
-
   .md\:hover\:bg-transparent:hover {
     background-color: transparent;
   }
@@ -45016,10 +44796,6 @@ button {
 
   .md\:hover\:bg-text-secondary:hover {
     background-color: var(--text-secondary);
-  }
-
-  .md\:hover\:bg-text-title:hover {
-    background-color: var(--text-title);
   }
 
   .md\:focus\:bg-transparent:focus {
@@ -45594,10 +45370,6 @@ button {
     background-color: var(--text-secondary);
   }
 
-  .md\:focus\:bg-text-title:focus {
-    background-color: var(--text-title);
-  }
-
   .md\:bg-none {
     background-image: none;
   }
@@ -46119,11 +45891,6 @@ button {
     --gradient-color-stops: var(--gradient-from-color), var(--gradient-to-color, rgba(255, 255, 255, 0));
   }
 
-  .md\:from-text-title {
-    --gradient-from-color: var(--text-title);
-    --gradient-color-stops: var(--gradient-from-color), var(--gradient-to-color, rgba(255, 255, 255, 0));
-  }
-
   .md\:via-transparent {
     --gradient-via-color: transparent;
     --gradient-color-stops: var(--gradient-from-color), var(--gradient-via-color), var(--gradient-to-color, rgba(0, 0, 0, 0));
@@ -46609,11 +46376,6 @@ button {
     --gradient-color-stops: var(--gradient-from-color), var(--gradient-via-color), var(--gradient-to-color, rgba(255, 255, 255, 0));
   }
 
-  .md\:via-text-title {
-    --gradient-via-color: var(--text-title);
-    --gradient-color-stops: var(--gradient-from-color), var(--gradient-via-color), var(--gradient-to-color, rgba(255, 255, 255, 0));
-  }
-
   .md\:to-transparent {
     --gradient-to-color: transparent;
   }
@@ -47000,10 +46762,6 @@ button {
 
   .md\:to-text-secondary {
     --gradient-to-color: var(--text-secondary);
-  }
-
-  .md\:to-text-title {
-    --gradient-to-color: var(--text-title);
   }
 
   .md\:hover\:from-transparent:hover {
@@ -47488,11 +47246,6 @@ button {
 
   .md\:hover\:from-text-secondary:hover {
     --gradient-from-color: var(--text-secondary);
-    --gradient-color-stops: var(--gradient-from-color), var(--gradient-to-color, rgba(255, 255, 255, 0));
-  }
-
-  .md\:hover\:from-text-title:hover {
-    --gradient-from-color: var(--text-title);
     --gradient-color-stops: var(--gradient-from-color), var(--gradient-to-color, rgba(255, 255, 255, 0));
   }
 
@@ -47981,11 +47734,6 @@ button {
     --gradient-color-stops: var(--gradient-from-color), var(--gradient-via-color), var(--gradient-to-color, rgba(255, 255, 255, 0));
   }
 
-  .md\:hover\:via-text-title:hover {
-    --gradient-via-color: var(--text-title);
-    --gradient-color-stops: var(--gradient-from-color), var(--gradient-via-color), var(--gradient-to-color, rgba(255, 255, 255, 0));
-  }
-
   .md\:hover\:to-transparent:hover {
     --gradient-to-color: transparent;
   }
@@ -48372,10 +48120,6 @@ button {
 
   .md\:hover\:to-text-secondary:hover {
     --gradient-to-color: var(--text-secondary);
-  }
-
-  .md\:hover\:to-text-title:hover {
-    --gradient-to-color: var(--text-title);
   }
 
   .md\:focus\:from-transparent:focus {
@@ -48860,11 +48604,6 @@ button {
 
   .md\:focus\:from-text-secondary:focus {
     --gradient-from-color: var(--text-secondary);
-    --gradient-color-stops: var(--gradient-from-color), var(--gradient-to-color, rgba(255, 255, 255, 0));
-  }
-
-  .md\:focus\:from-text-title:focus {
-    --gradient-from-color: var(--text-title);
     --gradient-color-stops: var(--gradient-from-color), var(--gradient-to-color, rgba(255, 255, 255, 0));
   }
 
@@ -49353,11 +49092,6 @@ button {
     --gradient-color-stops: var(--gradient-from-color), var(--gradient-via-color), var(--gradient-to-color, rgba(255, 255, 255, 0));
   }
 
-  .md\:focus\:via-text-title:focus {
-    --gradient-via-color: var(--text-title);
-    --gradient-color-stops: var(--gradient-from-color), var(--gradient-via-color), var(--gradient-to-color, rgba(255, 255, 255, 0));
-  }
-
   .md\:focus\:to-transparent:focus {
     --gradient-to-color: transparent;
   }
@@ -49744,10 +49478,6 @@ button {
 
   .md\:focus\:to-text-secondary:focus {
     --gradient-to-color: var(--text-secondary);
-  }
-
-  .md\:focus\:to-text-title:focus {
-    --gradient-to-color: var(--text-title);
   }
 
   .md\:bg-opacity-0 {
@@ -50462,10 +50192,6 @@ button {
     border-color: var(--text-secondary);
   }
 
-  .md\:border-text-title {
-    border-color: var(--text-title);
-  }
-
   .md\:hover\:border-transparent:hover {
     border-color: transparent;
   }
@@ -51038,10 +50764,6 @@ button {
     border-color: var(--text-secondary);
   }
 
-  .md\:hover\:border-text-title:hover {
-    border-color: var(--text-title);
-  }
-
   .md\:focus\:border-transparent:focus {
     border-color: transparent;
   }
@@ -51612,10 +51334,6 @@ button {
 
   .md\:focus\:border-text-secondary:focus {
     border-color: var(--text-secondary);
-  }
-
-  .md\:focus\:border-text-title:focus {
-    border-color: var(--text-title);
   }
 
   .md\:border-opacity-0 {
@@ -56554,18 +56272,6 @@ button {
     color: var(--text-secondary);
   }
 
-  .md\:placeholder-text-title::-webkit-input-placeholder {
-    color: var(--text-title);
-  }
-
-  .md\:placeholder-text-title::-ms-input-placeholder {
-    color: var(--text-title);
-  }
-
-  .md\:placeholder-text-title::placeholder {
-    color: var(--text-title);
-  }
-
   .md\:focus\:placeholder-transparent:focus::-webkit-input-placeholder {
     color: transparent;
   }
@@ -58282,18 +57988,6 @@ button {
     color: var(--text-secondary);
   }
 
-  .md\:focus\:placeholder-text-title:focus::-webkit-input-placeholder {
-    color: var(--text-title);
-  }
-
-  .md\:focus\:placeholder-text-title:focus::-ms-input-placeholder {
-    color: var(--text-title);
-  }
-
-  .md\:focus\:placeholder-text-title:focus::placeholder {
-    color: var(--text-title);
-  }
-
   .md\:placeholder-opacity-0::-webkit-input-placeholder {
     --placeholder-opacity: 0;
   }
@@ -59261,10 +58955,6 @@ button {
     color: var(--text-secondary);
   }
 
-  .md\:text-text-title {
-    color: var(--text-title);
-  }
-
   .md\:hover\:text-transparent:hover {
     color: transparent;
   }
@@ -59837,10 +59527,6 @@ button {
     color: var(--text-secondary);
   }
 
-  .md\:hover\:text-text-title:hover {
-    color: var(--text-title);
-  }
-
   .md\:focus\:text-transparent:focus {
     color: transparent;
   }
@@ -60411,10 +60097,6 @@ button {
 
   .md\:focus\:text-text-secondary:focus {
     color: var(--text-secondary);
-  }
-
-  .md\:focus\:text-text-title:focus {
-    color: var(--text-title);
   }
 
   .md\:text-opacity-0 {
@@ -64728,10 +64410,6 @@ button {
     border-color: var(--text-secondary);
   }
 
-  .lg\:divide-text-title > :not(template) ~ :not(template) {
-    border-color: var(--text-title);
-  }
-
   .lg\:divide-solid > :not(template) ~ :not(template) {
     border-style: solid;
   }
@@ -65425,10 +65103,6 @@ button {
     background-color: var(--text-secondary);
   }
 
-  .lg\:bg-text-title {
-    background-color: var(--text-title);
-  }
-
   .lg\:hover\:bg-transparent:hover {
     background-color: transparent;
   }
@@ -65999,10 +65673,6 @@ button {
 
   .lg\:hover\:bg-text-secondary:hover {
     background-color: var(--text-secondary);
-  }
-
-  .lg\:hover\:bg-text-title:hover {
-    background-color: var(--text-title);
   }
 
   .lg\:focus\:bg-transparent:focus {
@@ -66577,10 +66247,6 @@ button {
     background-color: var(--text-secondary);
   }
 
-  .lg\:focus\:bg-text-title:focus {
-    background-color: var(--text-title);
-  }
-
   .lg\:bg-none {
     background-image: none;
   }
@@ -67102,11 +66768,6 @@ button {
     --gradient-color-stops: var(--gradient-from-color), var(--gradient-to-color, rgba(255, 255, 255, 0));
   }
 
-  .lg\:from-text-title {
-    --gradient-from-color: var(--text-title);
-    --gradient-color-stops: var(--gradient-from-color), var(--gradient-to-color, rgba(255, 255, 255, 0));
-  }
-
   .lg\:via-transparent {
     --gradient-via-color: transparent;
     --gradient-color-stops: var(--gradient-from-color), var(--gradient-via-color), var(--gradient-to-color, rgba(0, 0, 0, 0));
@@ -67592,11 +67253,6 @@ button {
     --gradient-color-stops: var(--gradient-from-color), var(--gradient-via-color), var(--gradient-to-color, rgba(255, 255, 255, 0));
   }
 
-  .lg\:via-text-title {
-    --gradient-via-color: var(--text-title);
-    --gradient-color-stops: var(--gradient-from-color), var(--gradient-via-color), var(--gradient-to-color, rgba(255, 255, 255, 0));
-  }
-
   .lg\:to-transparent {
     --gradient-to-color: transparent;
   }
@@ -67983,10 +67639,6 @@ button {
 
   .lg\:to-text-secondary {
     --gradient-to-color: var(--text-secondary);
-  }
-
-  .lg\:to-text-title {
-    --gradient-to-color: var(--text-title);
   }
 
   .lg\:hover\:from-transparent:hover {
@@ -68471,11 +68123,6 @@ button {
 
   .lg\:hover\:from-text-secondary:hover {
     --gradient-from-color: var(--text-secondary);
-    --gradient-color-stops: var(--gradient-from-color), var(--gradient-to-color, rgba(255, 255, 255, 0));
-  }
-
-  .lg\:hover\:from-text-title:hover {
-    --gradient-from-color: var(--text-title);
     --gradient-color-stops: var(--gradient-from-color), var(--gradient-to-color, rgba(255, 255, 255, 0));
   }
 
@@ -68964,11 +68611,6 @@ button {
     --gradient-color-stops: var(--gradient-from-color), var(--gradient-via-color), var(--gradient-to-color, rgba(255, 255, 255, 0));
   }
 
-  .lg\:hover\:via-text-title:hover {
-    --gradient-via-color: var(--text-title);
-    --gradient-color-stops: var(--gradient-from-color), var(--gradient-via-color), var(--gradient-to-color, rgba(255, 255, 255, 0));
-  }
-
   .lg\:hover\:to-transparent:hover {
     --gradient-to-color: transparent;
   }
@@ -69355,10 +68997,6 @@ button {
 
   .lg\:hover\:to-text-secondary:hover {
     --gradient-to-color: var(--text-secondary);
-  }
-
-  .lg\:hover\:to-text-title:hover {
-    --gradient-to-color: var(--text-title);
   }
 
   .lg\:focus\:from-transparent:focus {
@@ -69843,11 +69481,6 @@ button {
 
   .lg\:focus\:from-text-secondary:focus {
     --gradient-from-color: var(--text-secondary);
-    --gradient-color-stops: var(--gradient-from-color), var(--gradient-to-color, rgba(255, 255, 255, 0));
-  }
-
-  .lg\:focus\:from-text-title:focus {
-    --gradient-from-color: var(--text-title);
     --gradient-color-stops: var(--gradient-from-color), var(--gradient-to-color, rgba(255, 255, 255, 0));
   }
 
@@ -70336,11 +69969,6 @@ button {
     --gradient-color-stops: var(--gradient-from-color), var(--gradient-via-color), var(--gradient-to-color, rgba(255, 255, 255, 0));
   }
 
-  .lg\:focus\:via-text-title:focus {
-    --gradient-via-color: var(--text-title);
-    --gradient-color-stops: var(--gradient-from-color), var(--gradient-via-color), var(--gradient-to-color, rgba(255, 255, 255, 0));
-  }
-
   .lg\:focus\:to-transparent:focus {
     --gradient-to-color: transparent;
   }
@@ -70727,10 +70355,6 @@ button {
 
   .lg\:focus\:to-text-secondary:focus {
     --gradient-to-color: var(--text-secondary);
-  }
-
-  .lg\:focus\:to-text-title:focus {
-    --gradient-to-color: var(--text-title);
   }
 
   .lg\:bg-opacity-0 {
@@ -71445,10 +71069,6 @@ button {
     border-color: var(--text-secondary);
   }
 
-  .lg\:border-text-title {
-    border-color: var(--text-title);
-  }
-
   .lg\:hover\:border-transparent:hover {
     border-color: transparent;
   }
@@ -72021,10 +71641,6 @@ button {
     border-color: var(--text-secondary);
   }
 
-  .lg\:hover\:border-text-title:hover {
-    border-color: var(--text-title);
-  }
-
   .lg\:focus\:border-transparent:focus {
     border-color: transparent;
   }
@@ -72595,10 +72211,6 @@ button {
 
   .lg\:focus\:border-text-secondary:focus {
     border-color: var(--text-secondary);
-  }
-
-  .lg\:focus\:border-text-title:focus {
-    border-color: var(--text-title);
   }
 
   .lg\:border-opacity-0 {
@@ -77537,18 +77149,6 @@ button {
     color: var(--text-secondary);
   }
 
-  .lg\:placeholder-text-title::-webkit-input-placeholder {
-    color: var(--text-title);
-  }
-
-  .lg\:placeholder-text-title::-ms-input-placeholder {
-    color: var(--text-title);
-  }
-
-  .lg\:placeholder-text-title::placeholder {
-    color: var(--text-title);
-  }
-
   .lg\:focus\:placeholder-transparent:focus::-webkit-input-placeholder {
     color: transparent;
   }
@@ -79265,18 +78865,6 @@ button {
     color: var(--text-secondary);
   }
 
-  .lg\:focus\:placeholder-text-title:focus::-webkit-input-placeholder {
-    color: var(--text-title);
-  }
-
-  .lg\:focus\:placeholder-text-title:focus::-ms-input-placeholder {
-    color: var(--text-title);
-  }
-
-  .lg\:focus\:placeholder-text-title:focus::placeholder {
-    color: var(--text-title);
-  }
-
   .lg\:placeholder-opacity-0::-webkit-input-placeholder {
     --placeholder-opacity: 0;
   }
@@ -80244,10 +79832,6 @@ button {
     color: var(--text-secondary);
   }
 
-  .lg\:text-text-title {
-    color: var(--text-title);
-  }
-
   .lg\:hover\:text-transparent:hover {
     color: transparent;
   }
@@ -80820,10 +80404,6 @@ button {
     color: var(--text-secondary);
   }
 
-  .lg\:hover\:text-text-title:hover {
-    color: var(--text-title);
-  }
-
   .lg\:focus\:text-transparent:focus {
     color: transparent;
   }
@@ -81394,10 +80974,6 @@ button {
 
   .lg\:focus\:text-text-secondary:focus {
     color: var(--text-secondary);
-  }
-
-  .lg\:focus\:text-text-title:focus {
-    color: var(--text-title);
   }
 
   .lg\:text-opacity-0 {
@@ -85711,10 +85287,6 @@ button {
     border-color: var(--text-secondary);
   }
 
-  .xl\:divide-text-title > :not(template) ~ :not(template) {
-    border-color: var(--text-title);
-  }
-
   .xl\:divide-solid > :not(template) ~ :not(template) {
     border-style: solid;
   }
@@ -86408,10 +85980,6 @@ button {
     background-color: var(--text-secondary);
   }
 
-  .xl\:bg-text-title {
-    background-color: var(--text-title);
-  }
-
   .xl\:hover\:bg-transparent:hover {
     background-color: transparent;
   }
@@ -86982,10 +86550,6 @@ button {
 
   .xl\:hover\:bg-text-secondary:hover {
     background-color: var(--text-secondary);
-  }
-
-  .xl\:hover\:bg-text-title:hover {
-    background-color: var(--text-title);
   }
 
   .xl\:focus\:bg-transparent:focus {
@@ -87560,10 +87124,6 @@ button {
     background-color: var(--text-secondary);
   }
 
-  .xl\:focus\:bg-text-title:focus {
-    background-color: var(--text-title);
-  }
-
   .xl\:bg-none {
     background-image: none;
   }
@@ -88085,11 +87645,6 @@ button {
     --gradient-color-stops: var(--gradient-from-color), var(--gradient-to-color, rgba(255, 255, 255, 0));
   }
 
-  .xl\:from-text-title {
-    --gradient-from-color: var(--text-title);
-    --gradient-color-stops: var(--gradient-from-color), var(--gradient-to-color, rgba(255, 255, 255, 0));
-  }
-
   .xl\:via-transparent {
     --gradient-via-color: transparent;
     --gradient-color-stops: var(--gradient-from-color), var(--gradient-via-color), var(--gradient-to-color, rgba(0, 0, 0, 0));
@@ -88575,11 +88130,6 @@ button {
     --gradient-color-stops: var(--gradient-from-color), var(--gradient-via-color), var(--gradient-to-color, rgba(255, 255, 255, 0));
   }
 
-  .xl\:via-text-title {
-    --gradient-via-color: var(--text-title);
-    --gradient-color-stops: var(--gradient-from-color), var(--gradient-via-color), var(--gradient-to-color, rgba(255, 255, 255, 0));
-  }
-
   .xl\:to-transparent {
     --gradient-to-color: transparent;
   }
@@ -88966,10 +88516,6 @@ button {
 
   .xl\:to-text-secondary {
     --gradient-to-color: var(--text-secondary);
-  }
-
-  .xl\:to-text-title {
-    --gradient-to-color: var(--text-title);
   }
 
   .xl\:hover\:from-transparent:hover {
@@ -89454,11 +89000,6 @@ button {
 
   .xl\:hover\:from-text-secondary:hover {
     --gradient-from-color: var(--text-secondary);
-    --gradient-color-stops: var(--gradient-from-color), var(--gradient-to-color, rgba(255, 255, 255, 0));
-  }
-
-  .xl\:hover\:from-text-title:hover {
-    --gradient-from-color: var(--text-title);
     --gradient-color-stops: var(--gradient-from-color), var(--gradient-to-color, rgba(255, 255, 255, 0));
   }
 
@@ -89947,11 +89488,6 @@ button {
     --gradient-color-stops: var(--gradient-from-color), var(--gradient-via-color), var(--gradient-to-color, rgba(255, 255, 255, 0));
   }
 
-  .xl\:hover\:via-text-title:hover {
-    --gradient-via-color: var(--text-title);
-    --gradient-color-stops: var(--gradient-from-color), var(--gradient-via-color), var(--gradient-to-color, rgba(255, 255, 255, 0));
-  }
-
   .xl\:hover\:to-transparent:hover {
     --gradient-to-color: transparent;
   }
@@ -90338,10 +89874,6 @@ button {
 
   .xl\:hover\:to-text-secondary:hover {
     --gradient-to-color: var(--text-secondary);
-  }
-
-  .xl\:hover\:to-text-title:hover {
-    --gradient-to-color: var(--text-title);
   }
 
   .xl\:focus\:from-transparent:focus {
@@ -90826,11 +90358,6 @@ button {
 
   .xl\:focus\:from-text-secondary:focus {
     --gradient-from-color: var(--text-secondary);
-    --gradient-color-stops: var(--gradient-from-color), var(--gradient-to-color, rgba(255, 255, 255, 0));
-  }
-
-  .xl\:focus\:from-text-title:focus {
-    --gradient-from-color: var(--text-title);
     --gradient-color-stops: var(--gradient-from-color), var(--gradient-to-color, rgba(255, 255, 255, 0));
   }
 
@@ -91319,11 +90846,6 @@ button {
     --gradient-color-stops: var(--gradient-from-color), var(--gradient-via-color), var(--gradient-to-color, rgba(255, 255, 255, 0));
   }
 
-  .xl\:focus\:via-text-title:focus {
-    --gradient-via-color: var(--text-title);
-    --gradient-color-stops: var(--gradient-from-color), var(--gradient-via-color), var(--gradient-to-color, rgba(255, 255, 255, 0));
-  }
-
   .xl\:focus\:to-transparent:focus {
     --gradient-to-color: transparent;
   }
@@ -91710,10 +91232,6 @@ button {
 
   .xl\:focus\:to-text-secondary:focus {
     --gradient-to-color: var(--text-secondary);
-  }
-
-  .xl\:focus\:to-text-title:focus {
-    --gradient-to-color: var(--text-title);
   }
 
   .xl\:bg-opacity-0 {
@@ -92428,10 +91946,6 @@ button {
     border-color: var(--text-secondary);
   }
 
-  .xl\:border-text-title {
-    border-color: var(--text-title);
-  }
-
   .xl\:hover\:border-transparent:hover {
     border-color: transparent;
   }
@@ -93004,10 +92518,6 @@ button {
     border-color: var(--text-secondary);
   }
 
-  .xl\:hover\:border-text-title:hover {
-    border-color: var(--text-title);
-  }
-
   .xl\:focus\:border-transparent:focus {
     border-color: transparent;
   }
@@ -93578,10 +93088,6 @@ button {
 
   .xl\:focus\:border-text-secondary:focus {
     border-color: var(--text-secondary);
-  }
-
-  .xl\:focus\:border-text-title:focus {
-    border-color: var(--text-title);
   }
 
   .xl\:border-opacity-0 {
@@ -98520,18 +98026,6 @@ button {
     color: var(--text-secondary);
   }
 
-  .xl\:placeholder-text-title::-webkit-input-placeholder {
-    color: var(--text-title);
-  }
-
-  .xl\:placeholder-text-title::-ms-input-placeholder {
-    color: var(--text-title);
-  }
-
-  .xl\:placeholder-text-title::placeholder {
-    color: var(--text-title);
-  }
-
   .xl\:focus\:placeholder-transparent:focus::-webkit-input-placeholder {
     color: transparent;
   }
@@ -100248,18 +99742,6 @@ button {
     color: var(--text-secondary);
   }
 
-  .xl\:focus\:placeholder-text-title:focus::-webkit-input-placeholder {
-    color: var(--text-title);
-  }
-
-  .xl\:focus\:placeholder-text-title:focus::-ms-input-placeholder {
-    color: var(--text-title);
-  }
-
-  .xl\:focus\:placeholder-text-title:focus::placeholder {
-    color: var(--text-title);
-  }
-
   .xl\:placeholder-opacity-0::-webkit-input-placeholder {
     --placeholder-opacity: 0;
   }
@@ -101227,10 +100709,6 @@ button {
     color: var(--text-secondary);
   }
 
-  .xl\:text-text-title {
-    color: var(--text-title);
-  }
-
   .xl\:hover\:text-transparent:hover {
     color: transparent;
   }
@@ -101803,10 +101281,6 @@ button {
     color: var(--text-secondary);
   }
 
-  .xl\:hover\:text-text-title:hover {
-    color: var(--text-title);
-  }
-
   .xl\:focus\:text-transparent:focus {
     color: transparent;
   }
@@ -102377,10 +101851,6 @@ button {
 
   .xl\:focus\:text-text-secondary:focus {
     color: var(--text-secondary);
-  }
-
-  .xl\:focus\:text-text-title:focus {
-    color: var(--text-title);
   }
 
   .xl\:text-opacity-0 {

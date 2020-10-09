@@ -8,7 +8,7 @@ import { LoginModal } from './auth/LoginModal';
 import { PrivateRoute } from './auth/PrivateRoute';
 import { useIsLoggedIn } from './auth/utils';
 import { Groups } from './groups';
-import { Landing } from './Landing';
+import { Landing } from './landing';
 import { NotFound } from './NotFound';
 import { PdfPaperPage } from './paper';
 import { PapersList } from './papersList';

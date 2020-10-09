@@ -3,7 +3,6 @@ import Axios from 'axios';
 import React from 'react';
 import { queryCache, useMutation, useQuery } from 'react-query';
 import { usePaperStore } from '../stores/paper';
-import { Spacer } from '../utils/Spacer';
 import styles from './invite.module.css';
 
 interface User {

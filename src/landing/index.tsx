@@ -1,4 +1,4 @@
-import { Typography, Link } from '@material-ui/core';
+import { Typography, Link, Button } from '@material-ui/core';
 import IconButton from '@material-ui/core/IconButton';
 import EmailIcon from '@material-ui/icons/Email';
 import TwitterIcon from '@material-ui/icons/Twitter';
@@ -96,7 +96,18 @@ export const Landing: React.FC = () => {
         <Section className="bg-gray-100">
           <Title>Get Started</Title>
           <div className="px-4">
-            <LoginForm />
+            {isLoggedIn ? (
+              <div className="space-x-0 space-y-5 flex flex-col md:flex-row md:space-y-0 md:space-x-8 items-center justify-center">
+                <Button variant="contained" color="primary" component={RouterLink} to="/upload">
+                  Upload New Paper
+                </Button>
+                <Button variant="contained" color="primary" component={RouterLink} to="/library">
+                  View Your Library
+                </Button>
+              </div>
+            ) : (
+              <LoginForm />
+            )}
           </div>
         </Section>
 

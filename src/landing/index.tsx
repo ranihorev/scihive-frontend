@@ -19,7 +19,7 @@ import princeton from './images/institutes_logos/princeton.png';
 import stanford from './images/institutes_logos/stanford.png';
 import navigateImg from './images/Navigate.gif';
 import organizeImg from './images/Organize.gif';
-import {Link as RouterLink} from 'react-router-dom';
+import { Link as RouterLink } from 'react-router-dom';
 
 const FeatureText: React.FC<{ title: string; text: React.ReactElement }> = ({ text, title }) => {
   return (
@@ -40,8 +40,12 @@ const FeatureImg: React.FC<{ img: string; alt?: string }> = ({ img, alt = 'Featu
   );
 };
 
-const Feature: React.FC<{className?: string}> = ({ className, children }) => {
-  return <div className={cx("mb-12 flex flex-col md:grid md:grid-cols-1 md:grid-cols-2 gap-6 w-full", className)}>{children}</div>;
+const Feature: React.FC<{ className?: string }> = ({ className, children }) => {
+  return (
+    <div className={cx('mb-12 flex flex-col md:grid md:grid-cols-1 md:grid-cols-2 gap-6 w-full', className)}>
+      {children}
+    </div>
+  );
 };
 
 const Section: React.FC<{ className?: string; container?: boolean }> = ({ className, container, children }) => (
@@ -175,7 +179,9 @@ export const Landing: React.FC = () => {
 
         <Section>
           <img src={logoWhite} alt="Logo" className="h-20" />
-          <Typography variant="body1" className="mt-2">&copy; 2020 SciHive.Org</Typography>
+          <Typography variant="body1" className="mt-2">
+            &copy; 2020 SciHive.Org
+          </Typography>
 
           <div className="mt-4">
             <IconButton aria-label="E-mail us">
@@ -190,8 +196,12 @@ export const Landing: React.FC = () => {
             </IconButton>
           </div>
           <div className="mt-8 flex flex-col items-center space-y-4">
-            <Link component={RouterLink} to="/privacy-policy" className="text-gray-800 text-sm">Privacy Policy</Link> 
-            <Link component={RouterLink} to="/terms-of-service" className="text-gray-800 text-sm">Terms of Service</Link> 
+            <Link component={RouterLink} to="/privacy-policy" className="text-gray-800 text-sm">
+              Privacy Policy
+            </Link>
+            <Link component={RouterLink} to="/terms-of-service" className="text-gray-800 text-sm">
+              Terms of Service
+            </Link>
           </div>
         </Section>
       </div>

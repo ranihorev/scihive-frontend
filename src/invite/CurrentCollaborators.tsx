@@ -3,7 +3,7 @@ import Axios from 'axios';
 import React from 'react';
 import { queryCache, useMutation, useQuery } from 'react-query';
 import { usePaperStore } from '../stores/paper';
-import styles from './invite.module.css';
+import PeopleOutlineIcon from '@material-ui/icons/PeopleOutline';
 
 interface User {
   first_name?: string;
@@ -50,21 +50,25 @@ export const CurrentCollaborators: React.FC = React.memo(() => {
   if (!data) return null;
   return (
     <div>
-      <Typography variant="h6" className="pt-2 pb-3">
-        Current Collaborators
-      </Typography>
-      {data.author && <Chip label={userToName(data.author)} color="primary" className={styles.chip} />}
-      {data.users.map(user => (
-        <Chip
-          className={styles.chip}
-          key={user.email}
-          label={userToName(user)}
-          color="default"
-          onDelete={() => {
-            removePermission({ email: user.email });
-          }}
-        />
-      ))}
+      <div className="pt-2 pb-3 flex flex-row items-center">
+        <PeopleOutlineIcon className="mr-2" />
+        <Typography className="">Current Collaborators</Typography>
+      </div>
+      <div className="space-x-2">
+        {data.author && <Chip size="small" label={userToName(data.author)} className="bg-blue-200" />}
+        {data.users.map(user => (
+          <Chip
+            className=""
+            key={user.email}
+            label={userToName(user)}
+            color="default"
+            size="small"
+            onDelete={() => {
+              removePermission({ email: user.email });
+            }}
+          />
+        ))}
+      </div>
     </div>
   );
 });

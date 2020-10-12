@@ -195,9 +195,12 @@ const stateAndActions = (set: NamedSetState<PaperState>, get: GetState<PaperStat
       updateHighlightHelper(res.data.comment);
       return res.data.comment;
     },
-    fetchPaper: async ({ paperId }: { paperId: string }) => {
+    fetchPaper: async ({ paperId, token }: { paperId: string; token?: string }) => {
       resetState();
-      const { data } = await axios.get<FetchPaperResponse>(`/paper/${paperId}`, { withCredentials: true });
+      const { data } = await axios.get<FetchPaperResponse>(`/paper/${paperId}`, {
+        withCredentials: true,
+        params: { token },
+      });
       paperId = data.id;
       const newState: Partial<PaperState> = {
         url: data.url,

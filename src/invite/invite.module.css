@@ -1,9 +1,0 @@
-.close {
-  position: absolute;
-  top: 5px;
-  right: 5px;
-}
-
-.chip:not(:last-of-type) {
-  margin-right: 8px;
-}

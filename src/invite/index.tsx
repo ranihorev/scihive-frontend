@@ -26,7 +26,7 @@ import baseStyle from '../base.module.scss';
 import { usePaperStore } from '../stores/paper';
 import { Spacer } from '../utils/Spacer';
 import { CurrentCollaborators, GET_PERMISSIONS_Q } from './CurrentCollaborators';
-import styles from './invite.module.css';
+import { ShareLink } from './ShareLink';
 
 interface Suggestion {
   email: string;
@@ -194,15 +194,14 @@ export const Invite: React.FC = React.memo(() => {
     >
       <Fade in={isInviteOpen}>
         <div className={baseStyle.modal} style={{ width: 600 }}>
-          <div className={styles.close}>
+          <div className="absolute right-0 top-0 mr-1 mt-1">
             <IconButton size="small" onClick={() => setIsInviteOpen(false)}>
               <CloseIcon fontSize="small" />
             </IconButton>
           </div>
-          <div className={baseStyle.centeredRow}>
-            <GroupAddIcon color="primary" fontSize="large" />
-            <Spacer size={12} />
-            <Typography align="left" variant="h5">
+          <div className="flex flex-row items-center">
+            <GroupAddIcon color="primary" fontSize="large" className="mr-2" />
+            <Typography align="left" className="text-lg font-medium">
               Invite Collaborators
             </Typography>
           </div>
@@ -228,13 +227,18 @@ export const Invite: React.FC = React.memo(() => {
               reset();
               await submitInvites();
             }}
-            css={{ alignSelf: 'center' }}
+            className="self-center px-8"
           >
             Invite
           </Button>
 
           {isEditable ? (
-            <CurrentCollaborators />
+            <React.Fragment>
+              <Spacer size={16} />
+              <CurrentCollaborators />
+              <Spacer size={16} />
+              <ShareLink paperId={paperId} />
+            </React.Fragment>
           ) : (
             <React.Fragment>
               <Spacer size={16} />

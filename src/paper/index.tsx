@@ -12,7 +12,7 @@ import baseStyles from '../base.module.scss';
 import { Invite } from '../invite';
 import { References } from '../models';
 import { usePaperStore } from '../stores/paper';
-import { usePaperId } from '../utils/hooks';
+import { usePaperId, useQueryString } from '../utils/hooks';
 import { Spacer } from '../utils/Spacer';
 import { MenuBars } from './MenuBars';
 import styles from './Paper.module.css';
@@ -49,10 +49,13 @@ const DEFAULT_ERROR_MESSAGE = 'Unknown Error';
 const useLoadPaper = (paperId: string) => {
   const [status, setStatus] = React.useState<LoadStatus>({ state: 'FetchingURL' });
   const [pdfDocument, setPdfDocument] = React.useState<PDFDocumentProxy | null>(null);
+  const queryString = useQueryString();
+  // TODO: Switch to useQuery!
   const { clearPaper, fetchPaper, setSections } = usePaperStore(
     state => pick(state, ['clearPaper', 'fetchPaper', 'setSections']),
     shallow,
   );
+  const token = typeof queryString.token === 'string' ? queryString.token : undefined;
 
   React.useEffect(() => {
     setStatus({ state: 'FetchingURL' });
@@ -61,14 +64,14 @@ const useLoadPaper = (paperId: string) => {
     (async () => {
       let url = '';
       try {
-        const urlData = await fetchPaper({ paperId });
+        const urlData = await fetchPaper({ paperId, token });
         url = urlData.url;
       } catch (e) {
         console.error(e.response);
         if (isAxiosError(e)) {
           const errorCode = e.response?.status as keyof typeof errorCodeToMessage;
           let reason = errorCodeToMessage[errorCode] || DEFAULT_ERROR_MESSAGE;
-          reason = errorCode === 403 && e.response?.data ? e.response.data : reason;
+          reason = errorCode === 403 && e.response?.data ? e.response.data.message : reason;
           setStatus({ state: 'Error', reason: reason });
         } else {
           setStatus({ state: 'Error', reason: 'Unknown Error' });

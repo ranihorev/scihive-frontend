@@ -1,6 +1,7 @@
+import * as queryString from 'query-string';
 import React from 'react';
+import { useLocation, useParams } from 'react-router';
 import ResizeObserver from 'resize-observer-polyfill';
-import { useParams } from 'react-router';
 
 export const useOnClickOutside = <T extends HTMLElement>(
   ref: React.RefObject<T>,
@@ -109,4 +110,9 @@ export const activateOnboarding = (textLayer: any) => {
   return () => {
     clearTimeout(timeoutId);
   };
+};
+
+export const useQueryString = () => {
+  const location = useLocation();
+  return queryString.parse(location.search);
 };

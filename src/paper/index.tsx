@@ -92,7 +92,7 @@ const useLoadPaper = (paperId: string) => {
         },
       );
     })();
-  }, [clearPaper, fetchPaper, paperId, setSections]);
+  }, [clearPaper, fetchPaper, paperId, setSections, token]);
 
   return { status, pdfDocument };
 };

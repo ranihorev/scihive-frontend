@@ -1,9 +1,9 @@
-import React from 'react';
-import { Typography, Switch, Button, Tooltip, Link, TextField } from '@material-ui/core';
-import { useQuery, useMutation, queryCache } from 'react-query';
-import Axios from 'axios';
+import { Button, Link, Switch, Tooltip, Typography } from '@material-ui/core';
 import LinkIcon from '@material-ui/icons/Link';
+import Axios from 'axios';
 import copy from 'clipboard-copy';
+import React from 'react';
+import { queryCache, useMutation, useQuery } from 'react-query';
 
 const CopyButton: React.FC<{ link: string }> = ({ link }) => {
   const [copied, setCopied] = React.useState(false);

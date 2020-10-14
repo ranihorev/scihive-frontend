@@ -11,7 +11,6 @@ import { HighlightContent } from '../HighlightContent';
 import styles from './styles.module.scss';
 
 export const SidebarComments: React.FC = () => {
-  const containerRef = React.useRef<HTMLDivElement>(null);
   const highlightsRef = React.useRef<{ [key: string]: React.RefObject<HTMLDivElement> }>({});
   const highlights = usePaperStore(state => state.highlights);
   const history = useHistory();
@@ -22,7 +21,7 @@ export const SidebarComments: React.FC = () => {
 
   return (
     <React.Fragment>
-      <div ref={containerRef}>
+      <div className="flex flex-col w-full">
         {highlights.map(highlight => {
           if (!isDirectHighlight(highlight) || !highlight.text) return null;
           return (

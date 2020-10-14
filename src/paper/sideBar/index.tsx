@@ -99,7 +99,7 @@ export const Sidebar: React.FC = React.memo(() => {
           setIsDrawerOpen(false);
         }}
       >
-        <List component="nav" className={styles.drawerList}>
+        <List component="nav" className={cx(styles.drawerList, 'pb-16')}>
           {Object.entries(menuItems).map(([key, item]) => (
             <CollapsibleItem key={key} icon={item.icon} title={item.title} openOnMount={key === openItem}>
               {item.element}

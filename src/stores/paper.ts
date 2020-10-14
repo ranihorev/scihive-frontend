@@ -15,12 +15,11 @@ import {
   isGeneralHighlight,
   PaperJump,
   Section,
-  SidebarCommentJump,
-  SidebarTab,
   TempHighlight,
   T_Highlight,
   Visibility,
 } from '../models';
+import { CommentEvent } from '../paper/models';
 import { track } from '../Tracker';
 import { getSectionPosition } from '../utils';
 import { AddRemovePaperToGroup, addRemovePaperToGroupHelper, createWithDevtools, NamedSetState } from './utils';
@@ -36,8 +35,6 @@ export interface PaperState extends BasePaperData {
   groupIds: string[];
   hiddenHighlights: AllHighlight[];
   readingProgress: number;
-  sidebarTab: SidebarTab;
-  sidebarJumpData?: SidebarCommentJump;
   paperJumpData?: PaperJump;
   codeMeta?: CodeMeta;
   commentVisibility: Visibility;
@@ -58,7 +55,6 @@ const initialState: PaperState = {
   highlights: [],
   hiddenHighlights: [],
   acronyms: {},
-  sidebarTab: 'Sections',
   groupIds: [],
   commentVisibility: { type: 'public' },
   isEditable: false,
@@ -93,22 +89,28 @@ const sortHighlights = (highlights: AllHighlight[]): AllHighlight[] => {
 };
 
 const stateAndActions = (set: NamedSetState<PaperState>, get: GetState<PaperState>) => {
-  const fetchComments = async (paperId: string) => {
+  const fetchComments = async (paperId: string, token?: string) => {
     try {
-      const res = await axios.get<{ comments: AllHighlight[] }>(`/paper/${paperId}/comments`);
+      const res = await axios.get<{ comments: AllHighlight[] }>(`/paper/${paperId}/comments`, { params: { token } });
       set({ highlights: sortHighlights(res.data.comments), highlightsState: 'loaded' });
     } catch (err) {
       console.warn(err.response);
     }
   };
 
-  const updateHighlightHelper = (newHighlight: T_Highlight) => {
-    set(
-      state => ({
-        highlights: state.highlights.map(h => (h.id === newHighlight.id ? newHighlight : h)),
-      }),
-      'updateHighlight',
-    );
+  const updateHighlightsHelper = (state: PaperState, highlightToUpdate: T_Highlight): PaperState => {
+    return produce(state, draftState => {
+      const index = draftState.highlights.findIndex(h => h.id === highlightToUpdate.id);
+      if (index > -1) {
+        draftState.highlights[index] = highlightToUpdate;
+      } else {
+        draftState.highlights = sortHighlights([...draftState.highlights, highlightToUpdate]);
+      }
+    });
+  };
+
+  const removeHighlightHelper = (state: PaperState, highlightId: string): Partial<PaperState> => {
+    return { highlights: state.highlights.filter(h => h.id !== highlightId) };
   };
 
   const resetState = () => {
@@ -155,8 +157,7 @@ const stateAndActions = (set: NamedSetState<PaperState>, get: GetState<PaperStat
       track(highlight.text ? 'newComment' : 'newHighlight');
       set(
         state => ({
-          highlights: sortHighlights([...state.highlights, newHighlight]),
-          sidebarTab: 'Comments',
+          ...updateHighlightsHelper(state, newHighlight),
           ...(clearTempHighlight ? { tempHighlight: undefined } : {}),
         }),
         'addHighlight',
@@ -172,7 +173,7 @@ const stateAndActions = (set: NamedSetState<PaperState>, get: GetState<PaperStat
       axios
         .delete(`/paper/comment/${highlightId}`)
         .then(() => {
-          set(state => ({ highlights: state.highlights.filter(h => h.id !== highlightId) }), 'removeHighlight');
+          set(state => removeHighlightHelper(state, highlightId), 'removeHighlight');
         })
         .catch((err: any) => console.warn(err.response));
     },
@@ -184,7 +185,7 @@ const stateAndActions = (set: NamedSetState<PaperState>, get: GetState<PaperStat
         visibility: data.visibility,
       });
       track('editHighlight');
-      updateHighlightHelper(res.data.comment);
+      set(state => updateHighlightsHelper(state, res.data.comment), 'updateHighlight');
       return res.data.comment;
     },
     replyToHighlight: async (highlightId: string, replyText: string) => {
@@ -192,7 +193,7 @@ const stateAndActions = (set: NamedSetState<PaperState>, get: GetState<PaperStat
         text: replyText,
       });
       track('newReply');
-      updateHighlightHelper(res.data.comment);
+      set(state => updateHighlightsHelper(state, res.data.comment), 'updateHighlight');
       return res.data.comment;
     },
     fetchPaper: async ({ paperId, token }: { paperId: string; token?: string }) => {
@@ -224,7 +225,6 @@ const stateAndActions = (set: NamedSetState<PaperState>, get: GetState<PaperStat
       const newData = pick(respData, ['time_published', 'title', 'abstract', 'authors']);
       set(newData, 'editPaper');
     },
-    setSidebarJumpTo: (jumpData: SidebarCommentJump) => set({ sidebarJumpData: jumpData }, 'jumpToSidebar'),
     setPaperJumpTo: ({ type, id }: { type: 'section' | 'highlight'; id: string }) => {
       let jumpData: PaperJump;
       if (type === 'section') {
@@ -250,16 +250,21 @@ const stateAndActions = (set: NamedSetState<PaperState>, get: GetState<PaperStat
       }
       set({ paperJumpData: jumpData }, 'jumpToPaper');
     },
-    clearSidebarJumpTo: () => set({ sidebarJumpData: undefined }, 'clearSidebarJumpTo'),
     clearPaperJumpTo: () => set({ paperJumpData: undefined }, 'clearPaperJumpTo'),
     setCommentVisibilitySettings: (visibility: Visibility) =>
       set({ commentVisibility: visibility }, 'commentVisibility'),
-    setSidebarTab: (tab: SidebarTab) => set({ sidebarTab: tab }, 'sidebarTab'),
     setSections: (sections: Section[]) => set({ sections }, 'setSections'),
     setTempHighlight: (highlight: TempHighlight) => set({ tempHighlight: highlight }),
     clearTempHighlight: () => set({ tempHighlight: undefined }),
     setDocumentReady: () => set({ isDocumentReady: true }),
     setIsInviteOpen: (isInviteOpen: boolean) => set({ isInviteOpen }),
+    onCommentEvent: (event: CommentEvent) => {
+      if (event.type === 'new' || event.type === 'update') {
+        set(state => updateHighlightsHelper(state, event.data));
+      } else if (event.type === 'delete') {
+        set(state => removeHighlightHelper(state, event.id));
+      }
+    },
   };
 };
 

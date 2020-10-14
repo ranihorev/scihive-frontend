@@ -15,11 +15,13 @@ import { usePaperStore } from '../stores/paper';
 import { usePaperId, useQueryString } from '../utils/hooks';
 import { Spacer } from '../utils/Spacer';
 import { MenuBars } from './MenuBars';
+import { LoadStatus, LoadStatusState } from './models';
 import styles from './Paper.module.css';
 import PdfAnnotator from './PdfAnnotator';
 import { ReadingProgress } from './ReadingProgress';
 import { ReferencesProvider } from './ReferencesProvider';
 import { extractSections } from './sections/utils';
+import { useCommentsSocket } from './useCommentsSocket';
 
 pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.js`;
 
@@ -30,9 +32,6 @@ const Loader = () => (
     <CircularProgress />
   </div>
 );
-
-type LoadStatus = { state: 'FetchingURL' | 'DownloadingPdf' | 'Ready' } | { state: 'Error'; reason: string };
-type LoadStatusState = LoadStatus['state'];
 
 const isAxiosError = (e: Error): e is AxiosError => {
   return e.hasOwnProperty('isAxiosError');
@@ -55,7 +54,10 @@ const useLoadPaper = (paperId: string) => {
     state => pick(state, ['clearPaper', 'fetchPaper', 'setSections']),
     shallow,
   );
+
   const token = typeof queryString.token === 'string' ? queryString.token : undefined;
+
+  useCommentsSocket(paperId, status.state, token);
 
   React.useEffect(() => {
     setStatus({ state: 'FetchingURL' });

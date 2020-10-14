@@ -12,14 +12,15 @@ import { Landing } from './landing';
 import { NotFound } from './NotFound';
 import { PdfPaperPage } from './paper';
 import { PapersList } from './papersList';
+import { PrivacyPolicy } from './PrivacyPolicy';
 import './react-hint.css';
+import { TermOfService } from './TermsOfService';
 import { theme } from './themes';
 import { useTracker } from './Tracker';
 import { Unsubscribe } from './Unsubscribe';
 import { Upload } from './upload';
 import { QueryProvider } from './utils/QueryContext';
-import { TermOfService } from './TermsOfService';
-import { PrivacyPolicy } from './PrivacyPolicy';
+import { SocketProvider } from './utils/SocketContext';
 
 const MainRoutes: React.FC = () => {
   useIsLoggedIn();
@@ -61,19 +62,21 @@ const App: React.FC = () => {
   return (
     <MuiThemeProvider theme={theme}>
       <StylesProvider injectFirst>
-        <MainRoutes />
-        <ToastContainer
-          position="bottom-center"
-          autoClose={false}
-          newestOnTop={false}
-          closeOnClick={false}
-          className="base-toast"
-          rtl={false}
-          draggable
-        />
-        <ReactQueryDevtools />
-        <LoginModal />
-        <ReactHint autoPosition events={{ hover: true }} delay={{ show: 300, hide: 0 }} />
+        <SocketProvider>
+          <MainRoutes />
+          <ToastContainer
+            position="bottom-center"
+            autoClose={false}
+            newestOnTop={false}
+            closeOnClick={false}
+            className="base-toast"
+            rtl={false}
+            draggable
+          />
+          <ReactQueryDevtools />
+          <LoginModal />
+          <ReactHint autoPosition events={{ hover: true }} delay={{ show: 300, hide: 0 }} />
+        </SocketProvider>
       </StylesProvider>
     </MuiThemeProvider>
   );

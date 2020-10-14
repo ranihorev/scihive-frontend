@@ -36,6 +36,7 @@ const mergeSameLineItems = (items: TextContentItem[]) => {
   return mergedItems;
 };
 
+// TODO: move to a web-worker!
 export const extractSections = (document: PDFDocumentProxy, onSuccess: (sections: Section[]) => void) => {
   const allHeights: number[] = [];
   let optionalSections: Section[] = [];

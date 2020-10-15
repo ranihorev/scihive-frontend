@@ -30,7 +30,7 @@ export const PrivateRoute: React.FC<RouteProps> = ({ children, ...rest }) => {
       ) : user.status === 'loggingIn' ? (
         <LoggingIn />
       ) : (
-        <Redirect to={`/start?${REDIRECT_TO}=${location.pathname}`} />
+        <Redirect to={`/start?${REDIRECT_TO}=${location.pathname + location.search}`} />
       )}
     </Route>
   );

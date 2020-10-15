@@ -24,6 +24,7 @@ import { SocketProvider } from './utils/SocketContext';
 
 const MainRoutes: React.FC = () => {
   useIsLoggedIn();
+
   return (
     <QueryProvider>
       <Switch>

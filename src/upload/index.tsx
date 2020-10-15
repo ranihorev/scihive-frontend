@@ -2,6 +2,7 @@
 import { jsx } from '@emotion/core';
 import { Button, LinearProgress, TextField, Typography } from '@material-ui/core';
 import Axios from 'axios';
+import cx from 'classnames';
 import { isEmpty } from 'lodash';
 import React from 'react';
 import { DropzoneOptions, useDropzone } from 'react-dropzone';
@@ -11,9 +12,10 @@ import { toast } from 'react-toastify';
 import baseStyles from '../base.module.scss';
 import { TopBar, TopBarButton } from '../topBar';
 import { track } from '../Tracker';
+import { useQueryUploadLink } from '../utils/hooks';
 import { Spacer } from '../utils/Spacer';
 import styles from './styles.module.scss';
-import cx from 'classnames';
+import { useLatestCallback } from '../utils/useLatestCallback';
 
 type UploadStatus = 'idle' | 'uploading' | 'processing';
 
@@ -21,7 +23,8 @@ const getPaperPath = (paperId: string) => `/paper/${paperId}`;
 
 export const FileUpload: React.FC = () => {
   const history = useHistory();
-  const [link, setLink] = React.useState('');
+  const providedUploadLink = useQueryUploadLink();
+  const [link, setLink] = React.useState(providedUploadLink);
   const [uploadStatus, setUploadStatus] = React.useState<{ status: UploadStatus; prct: number }>({
     status: 'idle',
     prct: 0,
@@ -64,7 +67,7 @@ export const FileUpload: React.FC = () => {
     onDropRejected: (res, e) => console.log(e),
   });
 
-  const onSubmitLink = () => {
+  const onSubmitLink = useLatestCallback(() => {
     track('uploadPaper', { type: 'link' });
     setUploadStatus({ status: 'processing', prct: 0 });
     Axios.post<{ id: string }>('/new_paper/add', { link })
@@ -76,7 +79,12 @@ export const FileUpload: React.FC = () => {
         toast.error(`Failed to upload file - ${err.message}`);
         setUploadStatus({ status: 'idle', prct: 0 });
       });
-  };
+  });
+
+  React.useEffect(() => {
+    if (!providedUploadLink) return;
+    onSubmitLink();
+  }, [providedUploadLink, onSubmitLink]);
 
   return (
     <div className={baseStyles.screenCentered}>

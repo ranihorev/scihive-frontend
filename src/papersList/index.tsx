@@ -22,6 +22,7 @@ import { Filters, SearchField } from './filters';
 import { Item } from './Item';
 import { ItemPlaceholder } from './ItemPlaceholder';
 import styles from './styles.module.scss';
+import { useUploadViaUrl } from '../utils/hooks';
 
 export interface PaperListRouterParams {
   authorId?: string;
@@ -152,6 +153,7 @@ const PapersListContent: React.FC<{ isLibraryMode: boolean }> = ({ isLibraryMode
 };
 
 export const PapersList: React.FC<{ isLibraryMode?: boolean }> = ({ isLibraryMode = false }) => {
+  useUploadViaUrl();
   const { isLoggedIn, openLoginModal } = useUserStore(
     state => ({ isLoggedIn: state.status === 'loggedIn', openLoginModal: state.toggleLoginModal }),
     shallow,

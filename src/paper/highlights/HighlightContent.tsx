@@ -114,7 +114,7 @@ export const HighlightContent: React.FC<HighlightContentProps> = ({
             <Spacer size={8} />
           </React.Fragment>
         ) : (
-          <Typography variant="body1" onClick={() => onGoto?.()}>
+          <Typography variant="body1" onClick={() => onGoto?.()} className={onGoto ? 'cursor-pointer' : undefined}>
             <TextLinkifyLatex text={comment} />
           </Typography>
         )}

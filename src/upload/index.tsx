@@ -129,6 +129,10 @@ export const FileUpload: React.FC = () => {
               <input {...getInputProps()} />
               <p>{isDragActive ? 'Drop file here...' : "Drag 'n' drop file here, or click to select"}</p>
             </div>
+            <Typography variant="body2" className="mt-6 text-gray-600">
+              Please recall that some scientific papers have copyrights. SciHive takes no responsibility for the content
+              you upload. You should do it at your own risk.
+            </Typography>
           </React.Fragment>
         )}
       </div>

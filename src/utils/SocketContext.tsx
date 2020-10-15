@@ -4,9 +4,12 @@ import io from 'socket.io-client';
 export class SocketManager {
   public socket: SocketIOClient.Socket;
   constructor(host: string) {
-    this.socket = io(host);
+    this.socket = io(host, { reconnectionDelay: 2000, transports: ['websocket'] });
     this.socket.on('disconnect', () => {
-      console.warn('disconnected');
+      console.warn('Disconnected');
+    });
+    this.socket.on('reconnect', () => {
+      console.info('Reconnected');
     });
   }
 }

@@ -4,7 +4,7 @@ import { Button, Fab, Typography } from '@material-ui/core';
 import AddIcon from '@material-ui/icons/Add';
 import axios from 'axios';
 import * as queryString from 'query-string';
-import React from 'react';
+import React, { Suspense } from 'react';
 import { useInfiniteQuery } from 'react-query';
 import { useHistory, useLocation } from 'react-router';
 import { Link as RouterLink } from 'react-router-dom';
@@ -19,7 +19,6 @@ import { Spacer } from '../utils/Spacer';
 import { useFetchGroups } from '../utils/useGroups';
 import { useLatestCallback } from '../utils/useLatestCallback';
 import { Filters, SearchField } from './filters';
-import { Item } from './Item';
 import { ItemPlaceholder } from './ItemPlaceholder';
 import styles from './styles.module.scss';
 import { useUploadViaUrl } from '../utils/hooks';
@@ -50,6 +49,9 @@ const getSortQuery = (
     (queryParams.q ? 'score' : isLibraryOrList ? 'date_added' : 'date')
   );
 };
+
+const Items = React.lazy(() => import('./Items'));
+
 const PapersListContent: React.FC<{ isLibraryMode: boolean }> = ({ isLibraryMode }) => {
   const queryContext = React.useContext(QueryContext);
   const groups = useFetchGroups();
@@ -144,9 +146,9 @@ const PapersListContent: React.FC<{ isLibraryMode: boolean }> = ({ isLibraryMode
       )}
       {totalPapers === 0 && <Typography variant="h5">No papers found :(</Typography>}
       <div>
-        {data?.map(group => group.papers.map(paper => <Item key={paper.id} paper={paper} groups={groups} />))}
-        {!data && <Spacer size={16} />}
-        {(!data || isFetchingMore) && <ItemPlaceholder count={data ? 2 : 5} />}
+        <Suspense fallback={<ItemPlaceholder count={5} />}>
+          <Items {...{ data, isFetchingMore, groups }} />
+        </Suspense>
       </div>
     </div>
   );

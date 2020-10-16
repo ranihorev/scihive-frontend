@@ -1,25 +1,26 @@
-import { Typography, Link, Button } from '@material-ui/core';
+import { Button, Link, Typography } from '@material-ui/core';
 import IconButton from '@material-ui/core/IconButton';
 import EmailIcon from '@material-ui/icons/Email';
 import TwitterIcon from '@material-ui/icons/Twitter';
 import cx from 'classnames';
 import React from 'react';
+import { Link as RouterLink } from 'react-router-dom';
 import shallow from 'zustand/shallow';
 import { LoginForm } from '../auth/LoginForm';
 import baseStyles from '../base.module.scss';
-import logoWhite from './images/logo_white.png';
 import { useUserStore } from '../stores/user';
 import { TopBar, TopBarButton } from '../topBar';
 import BlueHiveBG from './images/blue_hive_bg.png';
+import chromeLogo from './images/chrome_logo.png';
 // import chrome_logo from './images/chrome_logo.png';
 import collaborateImg from './images/Collaborate.gif';
 import berkeley from './images/institutes_logos/berkeley.png';
 import harvard from './images/institutes_logos/harvard.png';
 import princeton from './images/institutes_logos/princeton.png';
 import stanford from './images/institutes_logos/stanford.png';
+import logoWhite from './images/logo_white.png';
 import navigateImg from './images/Navigate.gif';
 import organizeImg from './images/Organize.gif';
-import { Link as RouterLink } from 'react-router-dom';
 
 const FeatureText: React.FC<{ title: string; text: React.ReactElement }> = ({ text, title }) => {
   return (
@@ -42,7 +43,12 @@ const FeatureImg: React.FC<{ img: string; alt?: string }> = ({ img, alt = 'Featu
 
 const Feature: React.FC<{ className?: string }> = ({ className, children }) => {
   return (
-    <div className={cx('mb-12 flex flex-col md:grid md:grid-cols-1 md:grid-cols-2 gap-6 w-full', className)}>
+    <div
+      className={cx(
+        'mb-16 last:mb-0 flex flex-col md:grid md:grid-cols-1 md:grid-cols-2 md:gap-x-6 space-y-6 md:space-y-0 w-full',
+        className,
+      )}
+    >
       {children}
     </div>
   );
@@ -50,17 +56,23 @@ const Feature: React.FC<{ className?: string }> = ({ className, children }) => {
 
 const Section: React.FC<{ className?: string; container?: boolean }> = ({ className, container, children }) => (
   <div className={container ? 'lg:container mx-auto' : undefined}>
-    <div className={cx(className, 'flex flex-col justify-center items-center py-8 md:py-16 px-4 md:px-8')}>
+    <div className={cx('flex flex-col justify-center items-center py-12 md:py-16 px-4 md:px-8', className)}>
       {children}
     </div>
   </div>
 );
 
-const Title: React.FC<{ className?: string }> = ({ className, children }) => (
-  <Typography variant="h4" className={cx('mb-10 text-center', className)}>
+const Title: React.FC<{ className?: string; marginBottom?: string }> = ({
+  className,
+  marginBottom = 'mb-10',
+  children,
+}) => (
+  <Typography variant="h4" className={cx('text-center', marginBottom, className)}>
     {children}
   </Typography>
 );
+
+const CHROME_EXTENSION_URL = 'https://chrome.google.com/webstore/detail/scihive/dijdhkcfdaocpepndegmbkgphbpomdai?hl=en';
 
 export const Landing: React.FC = () => {
   const { isLoggedIn } = useUserStore(state => ({ isLoggedIn: state.status === 'loggedIn' }), shallow);
@@ -128,7 +140,7 @@ export const Landing: React.FC = () => {
             <FeatureImg img={collaborateImg} />
           </Feature>
 
-          <Feature className="flex-col-reverse">
+          <Feature className="flex-col-reverse space-y-reverse">
             <FeatureImg img={navigateImg} />
             <FeatureText
               title="Navigate"
@@ -169,24 +181,26 @@ export const Landing: React.FC = () => {
           </div>
         </Section>
 
-        {/* <div className={classes.blueBanner}>
-          <div>
-            <Typography variant="h4" component="h3">
-              Download our Chrome extension
-              <br />
-              to use SciHive for all of your papers
-            </Typography>
-          </div>
-          <div>
-            <a
-              href="https://chrome.google.com/webstore/detail/scihive/dijdhkcfdaocpepndegmbkgphbpomdai?hl=en"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              <img src={chrome_logo} alt="Chrome" width="70%" />
-            </a>
-          </div>
-        </div> */}
+        <Section className="bg-main-color pb-0 md:pb-0 mb-8">
+          <Title className="text-white" marginBottom="mb-4">
+            Chrome extension
+          </Title>
+          <Typography variant="h5" className="text-white text-center">
+            Load any PDF paper into your SciHive library with one click
+          </Typography>
+          <Button
+            variant="contained"
+            className="my-8"
+            href={CHROME_EXTENSION_URL}
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            Download Now
+          </Button>
+          <a href={CHROME_EXTENSION_URL} target="_blank" rel="noopener noreferrer">
+            <img src={chromeLogo} alt="Chrome" className="h-32 md:h-40" />
+          </a>
+        </Section>
 
         <Section>
           <img src={logoWhite} alt="Logo" className="h-20" />

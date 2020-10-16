@@ -63,6 +63,7 @@ const UserMenu: React.FC = () => {
         aria-haspopup="true"
         onClick={e => setAnchorEl(e.currentTarget)}
         color="inherit"
+        edge="end"
       >
         <AccountCircleIcon />
       </IconButton>
@@ -90,7 +91,12 @@ export const TopBar: React.FC<{ rightMenu?: React.ReactElement; leftElement?: Re
     <React.Fragment>
       <HideOnScroll>
         <AppBar position="sticky">
-          <Toolbar variant="dense" className={styles.topBar} disableGutters={isMobile}>
+          <Toolbar
+            variant="dense"
+            className={styles.topBar}
+            disableGutters={true}
+            classes={{ root: 'px-2 md:px-3 lg:px-6' }}
+          >
             <div>
               {leftElement}
               <RouterLink to="/library">{isMobile ? <Logo height={26} /> : <LogoWithText height={26} />}</RouterLink>

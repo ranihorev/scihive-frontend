@@ -1,4 +1,9 @@
-module.exports = function override(config) {
-  config.module.rules[0].parser.requireEnsure = true;
-  return config;
+const { override, addWebpackPlugin } = require('customize-cra');
+const BundleAnalyzerPlugin = require('webpack-bundle-analyzer').BundleAnalyzerPlugin;
+
+module.exports = {
+  webpack: override(
+    // usual webpack plugin
+    addWebpackPlugin(new BundleAnalyzerPlugin()),
+  ),
 };

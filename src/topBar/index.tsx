@@ -117,3 +117,12 @@ type ButtonProps = ExtendButtonBase<ButtonTypeMap<{}, 'button'>>;
 export const TopBarButton: React.FC<Omit<ButtonProps, 'component'> & { to: string }> = ({ to, ...props }) => {
   return <Button component={RouterLink} color="inherit" to={to} {...props} />;
 };
+
+export const TopBarLoginButton: React.FC<{ loginModalMessage?: string }> = ({ loginModalMessage }) => {
+  const openLoginModal = useUserStore(state => state.toggleLoginModal);
+  return (
+    <Button color="inherit" onClick={() => openLoginModal(loginModalMessage)}>
+      Log in
+    </Button>
+  );
+};

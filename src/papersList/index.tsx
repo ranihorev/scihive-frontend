@@ -8,12 +8,12 @@ import React, { Suspense } from 'react';
 import { useInfiniteQuery } from 'react-query';
 import { useHistory, useLocation } from 'react-router';
 import { Link as RouterLink } from 'react-router-dom';
-import shallow from 'zustand/shallow';
 import baseStyles from '../base.module.scss';
 import { Group, isValidSort, PaperListResponse, PapersListRequestParams } from '../models';
 import { useUserStore } from '../stores/user';
-import { TopBar, TopBarButton } from '../topBar';
+import { TopBar, TopBarButton, TopBarLoginButton } from '../topBar';
 import { HelpTooltip } from '../utils/HelpTooltip';
+import { useUploadViaUrl } from '../utils/hooks';
 import { QueryContext } from '../utils/QueryContext';
 import { Spacer } from '../utils/Spacer';
 import { useFetchGroups } from '../utils/useGroups';
@@ -21,7 +21,6 @@ import { useLatestCallback } from '../utils/useLatestCallback';
 import { Filters, SearchField } from './filters';
 import { ItemPlaceholder } from './ItemPlaceholder';
 import styles from './styles.module.scss';
-import { useUploadViaUrl } from '../utils/hooks';
 
 export interface PaperListRouterParams {
   authorId?: string;
@@ -156,10 +155,7 @@ const PapersListContent: React.FC<{ isLibraryMode: boolean }> = ({ isLibraryMode
 
 export const PapersList: React.FC<{ isLibraryMode?: boolean }> = ({ isLibraryMode = false }) => {
   useUploadViaUrl();
-  const { isLoggedIn, openLoginModal } = useUserStore(
-    state => ({ isLoggedIn: state.status === 'loggedIn', openLoginModal: state.toggleLoginModal }),
-    shallow,
-  );
+  const isLoggedIn = useUserStore(state => state.status === 'loggedIn');
   return (
     <div className={baseStyles.fullScreen}>
       <TopBar
@@ -171,9 +167,7 @@ export const PapersList: React.FC<{ isLibraryMode?: boolean }> = ({ isLibraryMod
               <TopBarButton to="/library">Library</TopBarButton>
             )
           ) : (
-            <Button color="inherit" onClick={() => openLoginModal()}>
-              Log in
-            </Button>
+            <TopBarLoginButton />
           )
         }
       />

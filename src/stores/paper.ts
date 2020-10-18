@@ -212,7 +212,7 @@ const stateAndActions = (set: NamedSetState<PaperState>, get: GetState<PaperStat
       };
 
       set(newState, 'setPaper');
-      fetchComments(paperId);
+      fetchComments(paperId, token);
       return data;
     },
     editPaper: async (data: FileMetadata) => {

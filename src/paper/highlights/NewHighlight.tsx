@@ -56,7 +56,7 @@ export const CompactTip: React.FC<{ isOnboarding: boolean; expandToComment: () =
       ) : (
         undefined
       )}
-      <div css={{ display: 'flex', flexDirection: 'row', justifyContent: 'center' }}>
+      <div className="flex flex-row justify-center">
         <CompactTipButton
           onClick={() => {
             protectFunc(expandToComment);

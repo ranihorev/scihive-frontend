@@ -6,7 +6,7 @@ import { toast } from 'react-toastify';
 import { Bookmark } from '../bookmark';
 import { usePaperStore } from '../stores/paper';
 import { useUserStore } from '../stores/user';
-import { TopBar } from '../topBar';
+import { TopBar, TopBarLoginButton } from '../topBar';
 import { addOrRemovePaperToGroupRequest, addRemoveGroupFromPaperCache, OnSelectGroupProps } from '../utils/useGroups';
 import { useProtectedFunc } from '../utils/useProtectFunc';
 import { Sidebar } from './sideBar';
@@ -69,17 +69,22 @@ const PaperBookmark: React.FC<{ paperId: string }> = ({ paperId }) => {
 export const MenuBars: React.FC<{ paperId: string }> = ({ paperId }) => {
   const { protectFunc } = useProtectedFunc();
   const setIsInviteOpen = usePaperStore(state => state.setIsInviteOpen);
+  const isLoggedIn = useUserStore(state => state.status === 'loggedIn');
 
   return (
     <React.Fragment>
       <TopBar
         rightMenu={
-          <React.Fragment>
-            <PaperBookmark paperId={paperId} />
-            <Button color="inherit" onClick={() => protectFunc(() => setIsInviteOpen(true))}>
-              Share
-            </Button>
-          </React.Fragment>
+          isLoggedIn ? (
+            <React.Fragment>
+              <PaperBookmark paperId={paperId} />
+              <Button color="inherit" onClick={() => protectFunc(() => setIsInviteOpen(true))}>
+                Share
+              </Button>
+            </React.Fragment>
+          ) : (
+            <TopBarLoginButton />
+          )
         }
       />
       <Sidebar />

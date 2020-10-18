@@ -7,9 +7,9 @@ export const useProtectedFunc = () => {
     shallow,
   );
   return {
-    protectFunc: (func: () => void) => {
+    protectFunc: (func: () => void, message?: string) => {
       if (!isLoggedIn) {
-        toggleLoginModal();
+        toggleLoginModal(message);
         return;
       }
       func();

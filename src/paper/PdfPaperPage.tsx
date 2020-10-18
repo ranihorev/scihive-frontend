@@ -2,7 +2,7 @@
 import { jsx } from '@emotion/core';
 import axios, { AxiosError } from 'axios';
 import { pick } from 'lodash';
-import pdfjs, { getDocument, PDFDocumentProxy } from 'pdfjs-dist';
+import { version as pdfJsVersion, GlobalWorkerOptions, getDocument, PDFDocumentProxy } from 'pdfjs-dist';
 import React from 'react';
 import { useQuery } from 'react-query';
 import shallow from 'zustand/shallow';
@@ -19,7 +19,7 @@ import { ReferencesProvider } from './ReferencesProvider';
 import { extractSections } from './sections/utils';
 import { useCommentsSocket } from './useCommentsSocket';
 
-pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.js`;
+GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfJsVersion}/pdf.worker.js`;
 
 const isAxiosError = (e: Error): e is AxiosError => {
   return e.hasOwnProperty('isAxiosError');

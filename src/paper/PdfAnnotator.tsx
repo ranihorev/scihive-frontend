@@ -5,17 +5,26 @@ import cx from 'classnames';
 import { debounce, pick } from 'lodash';
 import { PDFDocumentProxy } from 'pdfjs-dist';
 // @ts-ignore
-import { PDFFindController, PDFLinkService, PDFViewer } from 'pdfjs-dist/web/pdf_viewer';
+import { EventBus, PDFLinkService, PDFViewer } from 'pdfjs-dist/web/pdf_viewer';
 import 'pdfjs-dist/web/pdf_viewer.css';
 import React from 'react';
 import { useCookies } from 'react-cookie';
 import { isMobile } from 'react-device-detect';
 import ReactDom from 'react-dom';
 import shallow from 'zustand/shallow';
-import { isDirectHighlight, References, T_Highlight, T_NewHighlight, T_Position, T_ScaledPosition } from '../models';
+import {
+  isDirectHighlight,
+  PaperJump,
+  References,
+  T_Highlight,
+  T_NewHighlight,
+  T_Position,
+  T_ScaledPosition,
+} from '../models';
 import { usePaperStore } from '../stores/paper';
+import { createEvent } from '../utils';
 import { Spacer } from '../utils/Spacer';
-import { useJumpToHandler } from '../utils/useJumpToHandler';
+import { JUMP_TO_EVENT, useJumpToHandler } from '../utils/useJumpToHandler';
 import { useLatestCallback } from '../utils/useLatestCallback';
 import { NewHighlightContainer } from './highlights/NewHighlightContainer';
 import { PageHighlights } from './highlights/PageHighlights';
@@ -55,6 +64,25 @@ interface PdfAnnotatorProps {
 }
 
 const ONBOARDING_COOKIE = 'onboarding_cookie';
+
+// TODO: improve typing here
+const jumpToCite = async (doc: any, href: string) => {
+  doc
+    .getDestination(href.replace('#', ''))
+    .then((citePos: any) =>
+      doc.getPageIndex(citePos[0]).then((pageNumber: number) => {
+        document.dispatchEvent(
+          createEvent<PaperJump>(JUMP_TO_EVENT, {
+            area: 'paper',
+            type: 'section',
+            id: href,
+            location: { pageNumber: pageNumber + 1, position: citePos[3] },
+          }),
+        );
+      }),
+    )
+    .catch((e: any) => console.warn(e));
+};
 
 const PdfAnnotator: React.FC<PdfAnnotatorProps> = ({
   setReferencePopoverState,
@@ -266,7 +294,11 @@ const PdfAnnotator: React.FC<PdfAnnotatorProps> = ({
       const target = e.target as HTMLElement;
       if (!target) return;
       const href = target.getAttribute('href') || '';
+      if (e.type === 'click' && !isMobile && target.tagName === 'A') {
+        jumpToCite(pdfDocument, href);
+      }
       if (!(target.tagName === 'A' && href.includes('#cite'))) return;
+
       const cite = decodeURIComponent(href.replace('#cite.', ''));
       if (references.hasOwnProperty(cite)) {
         if (isMobile) {
@@ -300,18 +332,15 @@ const PdfAnnotator: React.FC<PdfAnnotatorProps> = ({
   }, [updateReadingProgress]);
 
   React.useEffect(() => {
-    linkService.current = new PDFLinkService();
-
-    const pdfFindController = new PDFFindController({
-      linkService: linkService.current,
-    });
+    const eventBus = new EventBus();
+    linkService.current = new PDFLinkService({ eventBus });
 
     viewer.current = new PDFViewer({
       container: containerNode.current,
+      eventBus,
       enhanceTextSelection: true,
       removePageBorders: true,
       linkService: linkService.current,
-      findController: pdfFindController,
     });
 
     viewer.current.setDocument(pdfDocument);

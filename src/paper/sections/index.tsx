@@ -50,7 +50,6 @@ export const PaperSections: React.FC = () => {
             variant="body2"
             className={styles.section}
             onClick={() => {
-              console.log(section);
               document.dispatchEvent(
                 createEvent<PaperJump>(JUMP_TO_EVENT, {
                   area: 'paper',

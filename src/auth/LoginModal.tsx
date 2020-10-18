@@ -12,18 +12,24 @@ import cx from 'classnames';
 import styles from './styles.module.scss';
 
 export const LoginModal: React.FC = () => {
-  const { isLoginModalOpen, toggleLoginModal } = useUserStore(
+  const { isLoginModalOpen, toggleLoginModal, message } = useUserStore(
     state => ({
       isLoginModalOpen: state.loginModal.isOpen,
       toggleLoginModal: () => state.toggleLoginModal(),
+      message: state.loginModal.message,
     }),
     shallow,
   );
   return (
     <React.Fragment>
       <Modal open={isLoginModalOpen} onClose={toggleLoginModal}>
-        <div className={cx(baseStyles.modal, styles.modalRoot)}>
-          <Typography variant="h3">Log In</Typography>
+        <div className={cx(baseStyles.modal, styles.modalRoot, 'rounded')}>
+          <Typography variant="h4">Log In</Typography>
+          {message && (
+            <Typography variant="body2" className="mt-4 text-center">
+              {message}
+            </Typography>
+          )}
           <Spacer size={32} />
           <LoginForm
             enableRedirect={false}

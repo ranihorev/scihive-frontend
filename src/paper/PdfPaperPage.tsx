@@ -2,13 +2,14 @@
 import { jsx } from '@emotion/core';
 import axios, { AxiosError } from 'axios';
 import { pick } from 'lodash';
-import { version as pdfJsVersion, GlobalWorkerOptions, getDocument, PDFDocumentProxy } from 'pdfjs-dist';
+import { getDocument, GlobalWorkerOptions, PDFDocumentProxy, version as pdfJsVersion } from 'pdfjs-dist';
 import React from 'react';
 import { useQuery } from 'react-query';
 import shallow from 'zustand/shallow';
 import baseStyles from '../base.module.scss';
 import { References } from '../models';
 import { usePaperStore } from '../stores/paper';
+import { userStoreApi, useUserStore } from '../stores/user';
 import { usePaperId, useQueryString } from '../utils/hooks';
 import { LoaderPlaceholder } from './LoaderPlaceholder';
 import { LoadStatus, LoadStatusState } from './models';
@@ -43,6 +44,8 @@ const useLoadPaper = (paperId: string) => {
     shallow,
   );
 
+  const openLoginModal = useUserStore(state => state.toggleLoginModal);
+
   const token = typeof queryString.token === 'string' ? queryString.token : undefined;
 
   useCommentsSocket(paperId, status.state, token);
@@ -63,6 +66,9 @@ const useLoadPaper = (paperId: string) => {
           let reason = errorCodeToMessage[errorCode] || DEFAULT_ERROR_MESSAGE;
           reason = errorCode === 403 && e.response?.data ? e.response.data.message : reason;
           setStatus({ state: 'Error', reason: reason });
+          if (errorCode === 403 && userStoreApi.getState().status === 'notAuthenticated') {
+            openLoginModal('This paper is private. If you have permissions, please log in first.');
+          }
         } else {
           setStatus({ state: 'Error', reason: 'Unknown Error' });
         }

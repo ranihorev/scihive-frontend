@@ -63,6 +63,11 @@ export const useQueryString = () => {
   return queryString.parse(location.search);
 };
 
+export const useToken = (): string | undefined => {
+  const queryString = useQueryString();
+  return typeof queryString.token === 'string' ? queryString.token : undefined;
+};
+
 export const useQueryUploadLink = () => {
   const query = useQueryString();
   const uploadLink = query.uploadLink || query.upload_link; // Supports old and new version of the extension

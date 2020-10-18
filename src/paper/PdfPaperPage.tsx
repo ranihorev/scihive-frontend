@@ -12,8 +12,9 @@ import baseStyles from '../base.module.scss';
 import { References } from '../models';
 import { usePaperStore } from '../stores/paper';
 import { useUserStore } from '../stores/user';
-import { usePaperId, useQueryString } from '../utils/hooks';
+import { usePaperId, useToken } from '../utils/hooks';
 import { Spacer } from '../utils/Spacer';
+import { useLatestCallback } from '../utils/useLatestCallback';
 import { LoaderPlaceholder } from './LoaderPlaceholder';
 import { LoadStatus, LoadStatusState } from './models';
 import styles from './Paper.module.css';
@@ -21,8 +22,6 @@ import PdfAnnotator from './PdfAnnotator';
 import { ReadingProgress } from './ReadingProgress';
 import { ReferencesProvider } from './ReferencesProvider';
 import { extractSections } from './sections/utils';
-import { useCommentsSocket } from './useCommentsSocket';
-import { useLatestCallback } from '../utils/useLatestCallback';
 
 GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfJsVersion}/pdf.worker.js`;
 
@@ -41,7 +40,8 @@ const DEFAULT_ERROR_MESSAGE = 'Unknown Error';
 const useLoadPaper = (paperId: string) => {
   const [status, setStatus] = React.useState<LoadStatus>({ state: 'FetchingURL' });
   const [pdfDocument, setPdfDocument] = React.useState<PDFDocumentProxy | null>(null);
-  const queryString = useQueryString();
+  const token = useToken();
+
   // TODO: Switch to useQuery!
   const { clearPaper, fetchPaper, setSections } = usePaperStore(
     state => pick(state, ['clearPaper', 'fetchPaper', 'setSections']),
@@ -50,10 +50,6 @@ const useLoadPaper = (paperId: string) => {
 
   const isLoggedIn = useUserStore(state => state.status === 'loggedIn');
   const permissionError = React.useRef(false);
-
-  const token = typeof queryString.token === 'string' ? queryString.token : undefined;
-
-  useCommentsSocket(paperId, status.state, token);
 
   const loadPaperHelper = useLatestCallback(() => {
     setStatus({ state: 'FetchingURL' });

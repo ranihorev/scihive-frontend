@@ -23,6 +23,7 @@ import {
 } from '../models';
 import { usePaperStore } from '../stores/paper';
 import { createEvent } from '../utils';
+import { usePaperId } from '../utils/hooks';
 import { Spacer } from '../utils/Spacer';
 import { JUMP_TO_EVENT, useJumpToHandler } from '../utils/useJumpToHandler';
 import { useLatestCallback } from '../utils/useLatestCallback';
@@ -34,6 +35,7 @@ import getBoundingRect from './pdfUtils/get-bounding-rect';
 import getClientRects from './pdfUtils/get-client-rects';
 import { findOrCreateContainerLayer, getElementFromRange, getPageFromRange } from './pdfUtils/pdfjs-dom';
 import { ReferencesPopoverState } from './ReferencesProvider';
+import { useCommentsSocket } from './useCommentsSocket';
 
 const zoomButtonCss = css`
   color: black;
@@ -99,6 +101,8 @@ const PdfAnnotator: React.FC<PdfAnnotatorProps> = ({
   const [cookies, setCookie] = useCookies([]);
   const isOnboarding = React.useRef(false);
   const onboardingTeardown = React.useRef<() => void>();
+  const paperId = usePaperId();
+  useCommentsSocket(paperId);
 
   const {
     highlights,
@@ -123,7 +127,6 @@ const PdfAnnotator: React.FC<PdfAnnotatorProps> = ({
     shallow,
   );
 
-  const linkService = React.useRef<PDFLinkService>(null);
   const containerNode = React.useRef<HTMLDivElement>(null);
   const highlightLayerNode = React.useRef<HTMLDivElement>(null);
 
@@ -246,13 +249,13 @@ const PdfAnnotator: React.FC<PdfAnnotatorProps> = ({
 
   useJumpToHandler(viewer);
 
-  const onTextLayerRendered = useLatestCallback((event: CustomEvent<{ pageNumber: number }>) => {
+  const onTextLayerRendered = useLatestCallback(({ pageNumber }: { pageNumber: number }) => {
     // TODO: clear previous timeout and remove timeout on unmount
     setTimeout(() => {
       // This hack helps us ensure the the user doesn't zoom in/out too fast
       canZoom.current = true;
     }, 200);
-    const { pageNumber } = event.detail;
+
     renderHighlights(pageNumber);
     pagesReadyToRender.current.push(pageNumber);
     // const { textLayer } = viewer.current.getPageView(pageNumber - 1);
@@ -333,34 +336,31 @@ const PdfAnnotator: React.FC<PdfAnnotatorProps> = ({
 
   React.useEffect(() => {
     const eventBus = new EventBus();
-    linkService.current = new PDFLinkService({ eventBus });
+    const linkService = new PDFLinkService({ eventBus });
 
     viewer.current = new PDFViewer({
       container: containerNode.current,
       eventBus,
       enhanceTextSelection: true,
       removePageBorders: true,
-      linkService: linkService.current,
+      linkService,
     });
 
     viewer.current.setDocument(pdfDocument);
-    linkService.current.setDocument(pdfDocument);
-    linkService.current.setViewer(viewer.current);
-  }, [pdfDocument, viewer]);
-
-  React.useEffect(() => {
-    document.addEventListener('pagesinit', onDocumentReady);
-    document.addEventListener('textlayerrendered', onTextLayerRendered as EventListener);
+    linkService.setDocument(pdfDocument);
+    linkService.setViewer(viewer.current);
+    eventBus.on('pagesinit', onDocumentReady);
+    eventBus.on('textlayerrendered', onTextLayerRendered);
     document.addEventListener('selectionchange', onTextSelectionChange);
     document.addEventListener('keydown', handleKeyDown);
 
     return () => {
-      document.removeEventListener('pagesinit', onDocumentReady);
-      document.removeEventListener('textlayerrendered', onTextLayerRendered as EventListener);
+      eventBus.off('pagesinit', onDocumentReady);
+      eventBus.off('textlayerrendered', onTextLayerRendered);
       document.removeEventListener('selectionchange', onTextSelectionChange);
       document.removeEventListener('keydown', handleKeyDown);
     };
-  }, [handleKeyDown, onDocumentReady, onTextLayerRendered, onTextSelectionChange]);
+  }, [handleKeyDown, onDocumentReady, onTextLayerRendered, onTextSelectionChange, pdfDocument, viewer]);
 
   React.useEffect(() => {
     // Render all of the pages that are ready on every change of highlights

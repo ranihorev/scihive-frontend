@@ -1,7 +1,8 @@
 import React from 'react';
-import { useSocket } from '../utils/SocketContext';
-import { CommentEvent, LoadStatusState } from './models';
 import { usePaperStore } from '../stores/paper';
+import { useToken } from '../utils/hooks';
+import { useSocket } from '../utils/SocketContext';
+import { CommentEvent } from './models';
 
 const useCreateSocketListener = () => {
   const socket = useSocket();
@@ -15,13 +16,13 @@ const useCreateSocketListener = () => {
   return createListener;
 };
 
-export const useCommentsSocket = (paperId: string, status: LoadStatusState, token?: string) => {
+export const useCommentsSocket = (paperId: string) => {
   const socket = useSocket();
   const createListener = useCreateSocketListener();
   const onCommentEventHandler = usePaperStore(state => state.onCommentEvent);
+  const token = useToken();
 
   React.useEffect(() => {
-    if (status !== 'Ready') return () => {};
     const joinRoom = () => socket.emit('join', { paperId, token });
     if (socket.connected) {
       joinRoom();
@@ -38,5 +39,5 @@ export const useCommentsSocket = (paperId: string, status: LoadStatusState, toke
       socket.emit('leave', { paperId });
       listeners.forEach(fn => fn());
     };
-  }, [status, socket, paperId, createListener, onCommentEventHandler, token]);
+  }, [socket, paperId, createListener, onCommentEventHandler, token]);
 };

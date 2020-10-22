@@ -70,14 +70,19 @@ export const useIsLoggedIn = () => {
     if (!localStorage.getItem(STORAGE_KEY)) {
       setStatus('notAuthenticated');
     }
-    axios.get<ProfileResponse | null>('/user/validate').then(response => {
-      const profile = response.data;
-      if (profile) {
-        setProfile(profile);
-      } else {
-        setStatus('notAuthenticated');
-      }
-    });
+    axios
+      .get<ProfileResponse | null>('/user/validate')
+      .then(response => {
+        const profile = response.data;
+        if (profile) {
+          setProfile(profile);
+        } else {
+          setStatus('notAuthenticated');
+        }
+      })
+      .catch(e => {
+        console.error(e);
+      });
   }, [setProfile, setStatus, status]);
 
   useGoogleLogin({

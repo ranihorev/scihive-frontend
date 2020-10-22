@@ -35,7 +35,7 @@
     "react-draggable": "^4.2.0",
     "react-dropzone": "^10.2.1",
     "react-ga": "^2.5.7",
-    "react-google-login": "https://github.com/ranihorev/react-google-login",
+    "react-google-login": "^5.1.22",
     "react-headroom": "^3.0.0",
     "react-helmet": "^5.2.1",
     "react-hint": "^3.2.0",

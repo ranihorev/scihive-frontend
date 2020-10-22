@@ -11704,9 +11704,10 @@ react-ga@^2.5.7:
   resolved "https://registry.yarnpkg.com/react-ga/-/react-ga-2.7.0.tgz#24328f157f31e8cffbf4de74a3396536679d8d7c"
   integrity sha512-AjC7UOZMvygrWTc2hKxTDvlMXEtbmA0IgJjmkhgmQQ3RkXrWR11xEagLGFGaNyaPnmg24oaIiaNPnEoftUhfXA==
 
-"react-google-login@https://github.com/ranihorev/react-google-login":
-  version "5.1.4"
-  resolved "https://github.com/ranihorev/react-google-login#fb3444d9c40a19b5404d673315dd70637f8fff14"
+react-google-login@^5.1.22:
+  version "5.1.22"
+  resolved "https://registry.yarnpkg.com/react-google-login/-/react-google-login-5.1.22.tgz#ea44e328546762e720612d0f43fb95bc6e797c24"
+  integrity sha512-VBRYKGcwxdAz+RFvoGQNNmC2ayjjRRsAqlEs4K0J7WolStux17lO28DCrFmd+nj1Sm7wi+YSvPBKMywppOqXDw==
   dependencies:
     "@types/react" "*"
     prop-types "^15.6.0"

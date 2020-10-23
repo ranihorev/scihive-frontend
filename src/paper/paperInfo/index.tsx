@@ -1,6 +1,6 @@
 /** @jsx jsx */
 import { jsx } from '@emotion/core';
-import { Button, Typography } from '@material-ui/core';
+import { Button, CircularProgress, Typography } from '@material-ui/core';
 import { pick } from 'lodash';
 import moment from 'moment';
 import React from 'react';
@@ -8,6 +8,7 @@ import { Link } from 'react-router-dom';
 import shallow from 'zustand/shallow';
 import { usePaperStore } from '../../stores/paper';
 import { Latex } from '../../utils/latex';
+import { Spacer } from '../../utils/Spacer';
 import { MetadataEditor } from './MetadataEditor';
 import styles from './styles.module.scss';
 
@@ -23,8 +24,8 @@ const InfoItem: React.FC<{ title: string }> = ({ title, children }) => {
 };
 
 const InfoInternal: React.FC = () => {
-  const { title, authors, time_published, abstract } = usePaperStore(
-    state => pick(state, ['title', 'authors', 'time_published', 'abstract']),
+  const { title, authors, time_published, abstract, doi } = usePaperStore(
+    state => pick(state, ['title', 'authors', 'time_published', 'abstract', 'doi']),
     shallow,
   );
   return (
@@ -54,6 +55,7 @@ const InfoInternal: React.FC = () => {
           ))}
         </InfoItem>
         <InfoItem title="Publish Date">{time_published && moment.utc(time_published).format('MMM DD, YYYY')}</InfoItem>
+        {doi && <InfoItem title="DOI">{doi}</InfoItem>}
         <InfoItem title="Abstract">
           <Latex>{abstract || ''}</Latex>
         </InfoItem>
@@ -64,10 +66,17 @@ const InfoInternal: React.FC = () => {
 
 export const Info: React.FC = () => {
   const [isEditOpen, setIsEditOpen] = React.useState(false);
-  const isEditable = usePaperStore(state => state.isEditable, shallow);
+  const isEditable = usePaperStore(state => state.isEditable);
+  const isFetching = usePaperStore(state => state.metadataState === 'Fetching');
   return (
     <div className={styles.root}>
-      {isEditOpen ? (
+      {isFetching ? (
+        <div className="flex flex-row">
+          <Typography>Fetching</Typography>
+          <Spacer size={8} />
+          <CircularProgress size={12} />
+        </div>
+      ) : isEditOpen ? (
         <MetadataEditor onClose={() => setIsEditOpen(false)} />
       ) : (
         <React.Fragment>

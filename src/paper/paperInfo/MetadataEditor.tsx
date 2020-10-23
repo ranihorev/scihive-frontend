@@ -46,6 +46,7 @@ const MetadataEditorInternal: React.FC<AllProps> = ({ onSubmit, onClose, metadat
     title: inputMetadata.title || '',
     date: moment.utc(inputMetadata.date),
     removed_authors: [],
+    doi: inputMetadata.doi || '',
   });
   const [isDatePickerOpen, setIsDatePickerOpen] = React.useState(false);
   const newAuthorAdded = React.useRef(false);
@@ -110,6 +111,19 @@ const MetadataEditorInternal: React.FC<AllProps> = ({ onSubmit, onClose, metadat
             }}
           />
         </MuiPickersUtilsProvider>
+      </div>
+      {/* Title */}
+      <div>
+        <Header>DOI</Header>
+        <TextField
+          required
+          value={metadata.doi}
+          margin="dense"
+          fullWidth
+          onChange={e => {
+            setMetadata({ ...metadata, doi: e.target.value });
+          }}
+        />
       </div>
       {/* Authors */}
       <div>
@@ -213,6 +227,7 @@ export const MetadataEditor: React.FC<{ onClose: () => void }> = ({ onClose }) =
       authors: state.authors,
       date: state.time_published || new Date().toString(),
       abstract: state.abstract || '',
+      doi: state.doi || '',
     }),
     shallow,
   );

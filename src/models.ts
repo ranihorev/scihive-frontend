@@ -178,6 +178,7 @@ export interface BasePaperData {
   abstract: string;
   authors: Author[];
   time_published: string;
+  doi?: string;
 }
 
 export interface PapersListRequestParams {
@@ -210,10 +211,7 @@ export interface Author {
   id?: string;
 }
 
-export interface FileMetadata {
-  title: string;
-  abstract: string;
-  authors: Author[];
+export interface FileMetadata extends Omit<BasePaperData, 'id' | 'time_published'> {
   date: string;
   removed_authors?: string[];
 }

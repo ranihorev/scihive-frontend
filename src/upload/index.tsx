@@ -45,7 +45,7 @@ export const FileUpload: React.FC = () => {
         },
         onUploadProgress: progressEvent => {
           const prct = (100 * progressEvent.loaded) / progressEvent.total;
-          setUploadStatus({ status: prct >= 100 ? 'processing' : 'uploading', prct: prct });
+          setUploadStatus({ status: 'uploading', prct: prct });
         },
       })
         .then(res => {

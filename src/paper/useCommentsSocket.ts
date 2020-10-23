@@ -1,8 +1,10 @@
+import { pick } from 'lodash';
 import React from 'react';
+import shallow from 'zustand/shallow';
 import { usePaperStore } from '../stores/paper';
 import { useToken } from '../utils/hooks';
 import { useSocket } from '../utils/SocketContext';
-import { CommentEvent } from './models';
+import { CommentEvent, MetaDataUpdateEvent } from './models';
 
 const useCreateSocketListener = () => {
   const socket = useSocket();
@@ -19,7 +21,10 @@ const useCreateSocketListener = () => {
 export const useCommentsSocket = (paperId: string) => {
   const socket = useSocket();
   const createListener = useCreateSocketListener();
-  const onCommentEventHandler = usePaperStore(state => state.onCommentEvent);
+  const { onCommentEvent, updateMetadata } = usePaperStore(
+    state => pick(state, ['onCommentEvent', 'updateMetadata']),
+    shallow,
+  );
   const token = useToken();
 
   React.useEffect(() => {
@@ -28,16 +33,23 @@ export const useCommentsSocket = (paperId: string) => {
       joinRoom();
     }
     const onComment = (event: CommentEvent) => {
-      onCommentEventHandler(event);
+      onCommentEvent(event);
+    };
+
+    const onMetaDataUpdate = (response: MetaDataUpdateEvent) => {
+      if (response.success && response.data) {
+        updateMetadata(response.data);
+      }
     };
 
     const listeners: (() => void)[] = [];
     listeners.push(createListener('reconnect', joinRoom));
     listeners.push(createListener('comment', onComment));
+    listeners.push(createListener('paperInfo', onMetaDataUpdate));
 
     return () => {
       socket.emit('leave', { paperId });
       listeners.forEach(fn => fn());
     };
-  }, [socket, paperId, createListener, onCommentEventHandler, token]);
+  }, [socket, paperId, createListener, onCommentEvent, updateMetadata, token]);
 };

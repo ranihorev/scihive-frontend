@@ -1,6 +1,6 @@
 import axios from 'axios';
 import produce from 'immer';
-import { isEmpty, pick, sortBy } from 'lodash';
+import { isEmpty, omit, pick, sortBy } from 'lodash';
 import { GetState } from 'zustand';
 import {
   Acronyms,
@@ -41,6 +41,8 @@ export interface PaperState extends BasePaperData {
   // new highlight data
   tempHighlight?: TempHighlight;
   isInviteOpen: boolean;
+  metadataState: 'Fetching' | 'Ready';
+  doi?: string;
 }
 
 const initialState: PaperState = {
@@ -60,6 +62,7 @@ const initialState: PaperState = {
   isEditable: false,
   isDocumentReady: false,
   isInviteOpen: false,
+  metadataState: 'Fetching',
 };
 
 interface FetchPaperResponse {
@@ -72,6 +75,8 @@ interface FetchPaperResponse {
   code?: CodeMeta;
   groups: string[];
   is_editable: boolean;
+  metadata_state: 'Fetching' | 'Ready';
+  doi?: string;
 }
 
 const sortHighlights = (highlights: AllHighlight[]): AllHighlight[] => {
@@ -208,12 +213,22 @@ const stateAndActions = (set: NamedSetState<PaperState>, get: GetState<PaperStat
         codeMeta: data.code,
         groupIds: data.groups,
         isEditable: data.is_editable,
-        ...pick(data, ['id', 'time_published', 'title', 'abstract', 'authors']),
+        metadataState: data.metadata_state,
+        ...pick(data, ['id', 'time_published', 'title', 'abstract', 'authors', 'doi']),
       };
 
       set(newState, 'setPaper');
       fetchComments(paperId, token);
       return data;
+    },
+    updateMetadata: (metadata: BasePaperData) => {
+      // TODO: consolidate with editPaper
+      const paperId = get().id;
+      if (metadata.id !== paperId) {
+        console.error(`Paper ID does not match meta data ID`);
+        return;
+      }
+      set({ ...omit(metadata, ['id']), metadataState: 'Ready' });
     },
     editPaper: async (data: FileMetadata) => {
       const paperId = get().id;
@@ -222,7 +237,7 @@ const stateAndActions = (set: NamedSetState<PaperState>, get: GetState<PaperStat
         return;
       }
       const { data: respData } = await axios.post<FetchPaperResponse>(`/paper/${paperId}/edit`, data);
-      const newData = pick(respData, ['time_published', 'title', 'abstract', 'authors']);
+      const newData = pick(respData, ['time_published', 'title', 'abstract', 'authors', 'doi']);
       set(newData, 'editPaper');
     },
     setPaperJumpTo: ({ type, id }: { type: 'section' | 'highlight'; id: string }) => {

@@ -1,4 +1,4 @@
-import { T_Highlight } from '../models';
+import { BasePaperData, T_Highlight } from '../models';
 
 export type LoadStatus =
   | { state: 'FetchingURL' | 'DownloadingPdf' | 'Ready' }
@@ -6,3 +6,5 @@ export type LoadStatus =
 export type LoadStatusState = LoadStatus['state'];
 
 export type CommentEvent = { type: 'new' | 'update'; data: T_Highlight } | { type: 'delete'; id: string };
+
+export type MetaDataUpdateEvent = { success: boolean; data?: BasePaperData };

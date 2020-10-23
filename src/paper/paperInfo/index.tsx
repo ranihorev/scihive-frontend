@@ -71,7 +71,7 @@ export const Info: React.FC = () => {
   return (
     <div className={styles.root}>
       {isFetching ? (
-        <div className="flex flex-row">
+        <div className="flex flex-row items-center">
           <Typography>Fetching</Typography>
           <Spacer size={8} />
           <CircularProgress size={12} />

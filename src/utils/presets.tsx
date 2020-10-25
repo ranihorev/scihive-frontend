@@ -1,6 +1,7 @@
 /** @jsx jsx */
 import { css } from '@emotion/core';
 import { random } from 'lodash';
+import baseStyles from '../base.module.scss';
 
 export const row = css`
   display: flex;
@@ -67,10 +68,17 @@ export const themePalette = {
     main: '#36a0f5',
     contrastText: '#ffffff',
   },
-  text: {
-    // primary: '#ffffff',
+  secondary: {
+    main: '#f08000',
   },
-} as const;
+  text: {
+    primary: '#0d0d0d',
+    secondary: '#9d9d9d',
+  },
+  title: {
+    main: '#656565',
+  },
+};
 
 const breakpoints = { s: 576, m: 768, lg: 992, xl: 1200 };
 
@@ -139,4 +147,7 @@ export const getGroupColor = (color: GroupColor | undefined) => {
 
 export type GroupColor = keyof typeof GROUP_COLORS;
 
-export const smallIconPadding = 4;
+export const arrowTooltipsClasses = {
+  tooltipPlacementTop: baseStyles.arrowTooltipTop,
+  tooltipPlacementBottom: baseStyles.arrowTooltipBottom,
+};

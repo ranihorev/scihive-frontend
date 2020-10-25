@@ -1,0 +1,59 @@
+.paperListTitleWrapper {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+}
+
+.paperListTitle {
+  text-transform: uppercase;
+}
+
+.itemCard {
+  margin: 10px 0;
+  width: 100%;
+  position: relative;
+  padding: 16px 0;
+}
+
+.itemTitleSection {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  column-gap: 12px;
+}
+
+.itemBookmark {
+  margin-top: -8px;
+}
+
+.groupMarker {
+  height: 6px;
+  min-width: 30px;
+}
+
+.filtersRow {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.filtersMenu {
+  min-width: 200px;
+  padding: 16px;
+
+  .filterField {
+    min-width: 200px;
+  }
+}
+
+.searchFilter {
+  .searchInputField {
+    padding-right: 0;
+  }
+}
+
+.uploadPaperButton {
+  position: fixed;
+  bottom: 15px;
+  right: 15px;
+}

@@ -1,0 +1,24 @@
+.newComment {
+  padding: 5px 10px 10px;
+  background: #fff;
+  background-clip: padding-box;
+  border: 1px solid #e8e8e8;
+  border-radius: 4px;
+  box-shadow: 0 2px 4px rgba(37, 40, 43, 0.2);
+  width: 290px;
+}
+
+.compactTipButton {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  font-size: 14px;
+  cursor: pointer;
+  padding: 3px;
+  &:not(:last-child) {
+    margin-right: 8px;
+  }
+  &:hover {
+    color: var(--main-color);
+  }
+}

@@ -1,0 +1,23 @@
+.groupsListRoot {
+  width: 100%;
+  max-width: 450px;
+}
+
+.newGroupForm {
+  display: inline-flex;
+  width: 100%;
+}
+
+.group {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  width: 100%;
+}
+
+.groupColor {
+  width: 12px;
+  height: 12px;
+  border-radius: 3px;
+  margin-right: 8px;
+}

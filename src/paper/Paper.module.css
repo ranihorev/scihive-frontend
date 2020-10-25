@@ -1,0 +1,15 @@
+.wrapper {
+  position: relative;
+  overflow-y: hidden;
+  display: flex;
+  flex-direction: column;
+  max-width: 100%;
+}
+
+.fullScreen {
+  display: flex;
+  flex-direction: column;
+  flex-grow: 1;
+  justify-content: center;
+  align-items: center;
+}

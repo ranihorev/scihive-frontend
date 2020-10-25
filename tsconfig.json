@@ -18,7 +18,8 @@
     "forceConsistentCasingInFileNames": true,
     "isolatedModules": true,
     "noEmit": true,
-    "types": ["@emotion/core", "chrome"]
+    "types": ["@emotion/core", "chrome", "gapi", "gapi.auth2"],
+    "plugins": [{ "name": "typescript-plugin-css-modules" }]
   },
   "exclude": ["dist", "node_modules"],
   "include": ["src"]

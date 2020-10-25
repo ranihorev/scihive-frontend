@@ -60,7 +60,7 @@ export interface NewGeneralHighlight {
   isGeneral: true;
 }
 
-export interface Reply {
+export interface ReplyProps {
   id: string;
   user: string;
   text: string;
@@ -74,7 +74,7 @@ export interface User {
 interface ServerHighlightData {
   id: string;
   createdAt: string;
-  replies: Reply[];
+  replies: ReplyProps[];
   username: User;
   canEdit: boolean;
   isGeneral: boolean;
@@ -149,15 +149,6 @@ export interface References {
   [citeId: string]: Reference;
 }
 
-export const SIDEBAR_TABS = ['Sections', 'Comments', 'Info'] as const;
-export type SidebarTab = typeof SIDEBAR_TABS[number];
-
-export interface SidebarCommentJump {
-  id: string;
-  type: 'comment';
-  area: 'sidebar';
-}
-
 interface BasePaperJump {
   id: string;
   area: 'paper';
@@ -187,6 +178,17 @@ export interface BasePaperData {
   abstract: string;
   authors: Author[];
   time_published: string;
+  doi?: string;
+}
+
+export interface PapersListRequestParams {
+  age: string;
+  q: string;
+  sort: SortBy;
+  author: string;
+  page_num: number;
+  group: string;
+  library: boolean;
 }
 
 export interface PaperListItem extends BasePaperData {
@@ -194,8 +196,14 @@ export interface PaperListItem extends BasePaperData {
   twitter_score: number;
   twitter_links?: TwitterLink[];
   num_stars: number;
-  code: CodeMeta;
+  code?: CodeMeta;
   groups: string[];
+}
+
+export interface PaperListResponse {
+  papers: PaperListItem[];
+  count: number;
+  hasMore: boolean;
 }
 
 export interface Author {
@@ -203,10 +211,7 @@ export interface Author {
   id?: string;
 }
 
-export interface FileMetadata {
-  title: string;
-  abstract: string;
-  authors: Author[];
+export interface FileMetadata extends Omit<BasePaperData, 'id' | 'time_published'> {
   date: string;
   removed_authors?: string[];
 }

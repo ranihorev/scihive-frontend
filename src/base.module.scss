@@ -1,0 +1,153 @@
+@import './index.css';
+
+:root {
+  --main-color-base: 54, 160, 245;
+  --main-color: rgb(var(--main-color-base));
+  --text-primary: #0d0d0d;
+  --text-secondary: #9d9d9d;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  font-family: 'Roboto', -apple-system, 'Segoe UI', 'Helvetica Neue', sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+code {
+  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New', monospace;
+}
+
+.Toastify__toast--info {
+  background-color: #ceebff;
+  color: #444444;
+}
+
+@media only screen and (min-width: 480px) {
+  .base-toast {
+    width: 400px;
+    margin-left: -200px;
+  }
+}
+
+.download-extesion {
+  text-align: center;
+}
+
+.popup {
+  padding: 12px;
+  max-width: 300px;
+  max-height: 300px;
+  overflow-y: auto;
+  border-radius: 8px;
+  min-width: 240px;
+  color: #303030;
+  p:first-of-type {
+    margin-top: 0;
+  }
+  p:last-of-type {
+    margin-bottom: 0;
+  }
+}
+
+.modal {
+  position: absolute;
+  display: flex;
+  flex-direction: column;
+  width: 350px;
+  max-width: 90vw;
+  max-height: 80vh;
+  background-color: white;
+  box-shadow: 0px 3px 5px -1px rgba(0, 0, 0, 0.2), 0px 5px 8px 0px rgba(0, 0, 0, 0.14),
+    0px 1px 14px 0px rgba(0, 0, 0, 0.12);
+  padding: 32px;
+  outline: none;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+
+.row {
+  display: flex;
+  flex-direction: row;
+}
+
+.col {
+  display: flex;
+  flex-direction: column;
+}
+
+.centeredRow {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+}
+
+.fullScreen {
+  min-width: 100vw;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.screenCentered {
+  display: flex;
+  flex-direction: column;
+  flex-grow: 1;
+  justify-content: center;
+  align-items: center;
+}
+
+.simpleLink {
+  text-transform: none;
+  text-decoration: none;
+  color: inherit;
+  &:focus {
+    outline: none;
+  }
+}
+
+$arrowMargin: 10px;
+
+.arrowTooltipTop {
+  margin-bottom: $arrowMargin !important;
+}
+
+.arrowTooltipBottom {
+  margin-top: $arrowMargin !important;
+}
+
+.basePage {
+  display: flex;
+  flex-direction: column;
+  max-width: 992px;
+  padding: 10px;
+  align-self: center;
+  width: 100%;
+}
+
+.legalDocs {
+  padding: 15px;
+  h1 {
+    margin-top: 1.5rem;
+    font-size: 1.5rem;
+    font-weight: 500;
+  }
+
+  h2 {
+    margin-top: 1.5rem;
+    font-size: 1.2rem;
+    font-weight: 500;
+  }
+
+  p {
+    margin: 1rem 0;
+  }
+
+  ul {
+    margin: inherit;
+    padding: inherit;
+    list-style: inherit;
+  }
+}

@@ -1,0 +1,54 @@
+.root {
+  display: flex;
+  flex-direction: column;
+  padding: 0px 12px 0 0;
+  overflow-y: auto;
+  width: 100%;
+}
+
+.metadataForm {
+  display: flex;
+  flex-direction: column;
+  overflow-y: hidden;
+  color: #4a4a4a;
+
+  & textarea {
+    font-size: 13px;
+  }
+  & input {
+    font-size: 13px;
+  }
+
+  > div:not(:first-of-type) {
+    margin-top: 16px;
+  }
+}
+
+.title {
+  color: #333;
+}
+
+.actionButtons {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+
+  & button {
+    min-width: 80px;
+  }
+}
+
+.paperInfoWrapper {
+  font-size: 13px;
+}
+
+.paperInfoItem {
+  margin-bottom: 12px;
+  line-height: 1.4;
+  word-break: break-word;
+  hyphens: auto;
+}
+
+.paperInfoItemTitle {
+  font-weight: 500;
+}

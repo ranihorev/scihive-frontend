@@ -1,0 +1,50 @@
+.groupRoot {
+  display: flex;
+  flex-direction: row;
+  width: 100%;
+  align-items: center;
+}
+
+.groupInfo {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  flex-grow: 1;
+  justify-content: space-between;
+  cursor: pointer;
+  border-radius: 4px;
+  font-size: 13px;
+  min-height: 20px;
+  padding: 5px 7px;
+}
+
+.groupName {
+  word-break: break-word;
+}
+
+svg.groupSelected {
+  font-size: 16px;
+}
+
+.editGroupButton {
+  cursor: pointer;
+  color: #a5a5a5;
+  &:hover {
+    color: black;
+  }
+
+  > svg {
+    font-size: 14px;
+  }
+}
+
+.bookmarkContentWrapper {
+  width: 230px;
+}
+
+.groupsList {
+  max-height: 250px;
+  overflow-y: auto;
+  width: 100%;
+  padding-top: 4px;
+}

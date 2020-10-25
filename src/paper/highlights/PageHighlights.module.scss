@@ -1,0 +1,24 @@
+.repliesRoot {
+  margin-top: 12px;
+}
+
+.actionButton {
+  font-size: 0.8rem;
+  cursor: pointer;
+  color: var(--text-primary);
+  opacity: 0.5;
+  padding: 3px;
+  &:not(:first-of-type) {
+    margin-left: 5px;
+  }
+  &:hover {
+    color: var(--main-color);
+  }
+}
+
+.reply {
+  margin-top: 8px;
+  .katex {
+    font-size: 0.75rem;
+  }
+}

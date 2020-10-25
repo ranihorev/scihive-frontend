@@ -1,97 +1,84 @@
-import { MuiThemeProvider } from '@material-ui/core/styles';
-import axios from 'axios';
+import { MuiThemeProvider, StylesProvider } from '@material-ui/core/styles';
 import React from 'react';
-import { useCookies } from 'react-cookie';
 import * as ReactHintFactory from 'react-hint';
+import { ReactQueryDevtools } from 'react-query-devtools';
 import { Route, Switch } from 'react-router-dom';
 import { ToastContainer } from 'react-toastify';
-import shallow from 'zustand/shallow';
-import GroupLoader from './components/Groups/GroupLoader';
-import LoginSignupModal from './components/Login/LoginSignupModal';
-import { LocationProvider } from './LocationContext';
-import Admin from './pages/Admin';
-import Groups from './pages/Groups';
-import Home from './pages/Home';
-import NotFound from './pages/NotFound';
-import Paper from './pages/Paper';
-import { Unsubscribe } from './pages/Unsubscribe';
+import { LoginModal } from './auth/LoginModal';
+import { PrivateRoute } from './auth/PrivateRoute';
+import { useIsLoggedIn } from './auth/utils';
+import { Groups } from './groups';
+import { Landing } from './landing';
+import { NotFound } from './NotFound';
+import { PdfPaperPage } from './paper';
+import { PapersList } from './papersList';
+import { PrivacyPolicy } from './PrivacyPolicy';
 import './react-hint.css';
-import { useUserStore } from './stores/user';
+import { TermOfService } from './TermsOfService';
 import { theme } from './themes';
 import { useTracker } from './Tracker';
-import ChromeExtensionPopup from './utils/chromeExtension';
-import { PrivacyPolicy } from './PrivacyPolicy';
-import { TermOfService } from './TermsOfService';
+import { Unsubscribe } from './Unsubscribe';
+import { Upload } from './upload';
+import { QueryProvider } from './utils/QueryContext';
+import { SocketProvider } from './utils/SocketContext';
+
+const MainRoutes: React.FC = () => {
+  useIsLoggedIn();
+
+  return (
+    <QueryProvider>
+      <Switch>
+        <Route path="/" exact component={Landing} />
+        <Route path="/start" exact component={Landing} />
+        <Route path="/user/unsubscribe/:token" exact component={Unsubscribe} />
+        <Route path="/discover" exact>
+          <PapersList />
+        </Route>
+        <PrivateRoute path="/library" exact>
+          <PapersList isLibraryMode />
+        </PrivateRoute>
+        <PrivateRoute path="/collections" exact component={Groups} />
+        <PrivateRoute path="/upload" exact component={Upload} />
+        <PrivateRoute path="/paper/:paperId/invite" exact>
+          <PdfPaperPage showInviteOnLoad />
+        </PrivateRoute>
+        <Route path="/paper/:paperId" exact>
+          <PdfPaperPage />
+        </Route>
+        <Route path="/privacy-policy" exact component={PrivacyPolicy} />
+        <Route path="/terms-of-service" exact component={TermOfService} />
+        <Route>
+          <NotFound />
+        </Route>
+      </Switch>
+    </QueryProvider>
+  );
+};
 
 const ReactHint = ReactHintFactory(React);
 
 const App: React.FC = () => {
-  const [, setCookie] = useCookies([]);
-  const { user } = useUserStore(state => ({ user: Boolean(state.userData) }), shallow);
-  const [key, setKey] = React.useState(Math.random());
-  const isFirstLoad = React.useRef(true);
-
-  React.useEffect(() => {
-    setCookie('first_load', true, { domain: '.scihive.org', sameSite: true, path: '/' });
-  }, [setCookie]);
-
-  React.useEffect(() => {}, [user]);
-
-  React.useEffect(() => {
-    if (user && !isFirstLoad.current) {
-      setKey(Math.random());
-    }
-    if (user && isFirstLoad.current) {
-      axios
-        .get('/user/validate')
-        .then(() => {})
-        .catch(err => {
-          if (err.response && err.response.status) {
-            localStorage.removeItem('username');
-            window.location.reload();
-          }
-        });
-    }
-    isFirstLoad.current = false;
-  }, [user]);
-
   useTracker();
 
   return (
     <MuiThemeProvider theme={theme}>
-      <LoginSignupModal />
-      <LocationProvider>
-        <Switch key={key}>
-          <Route path="/library" exact component={Home} />
-          <Route path="/" exact component={Home} />
-          <Route path="/home" exact component={Home} />
-          <Route path="/search/" exact component={Home} />
-          <Route path="/author/:authorId" exact component={Home} />
-          <Route path="/paper/:paperId" exact component={Paper} />
-          <Route path="/paper/:field/:paperId" exact component={Paper} />
-          <Route path="/user/unsubscribe/:token" exact component={Unsubscribe} />
-          <Route path="/list/:groupId" exact component={Home} />
-          <Route path="/lists" exact component={Groups} />
-          <Route path="/collection/:groupId" exact component={Home} />
-          <Route path="/collections" exact component={Groups} />
-          <Route path="/admin" exact component={Admin} />
-          <Route path="/privacy-policy" exact component={PrivacyPolicy} />
-          <Route path="/terms-of-service" exact component={TermOfService} />
-          <Route component={NotFound} />
-        </Switch>
-      </LocationProvider>
-      <GroupLoader />
-      <ToastContainer
-        position="bottom-center"
-        autoClose={false}
-        newestOnTop={false}
-        closeOnClick={false}
-        className="base-toast"
-        rtl={false}
-        draggable
-      />
-      <ReactHint autoPosition events={{ hover: true }} delay={{ show: 300, hide: 0 }} />
-      <ChromeExtensionPopup />
+      <StylesProvider injectFirst>
+        <SocketProvider>
+          <MainRoutes />
+          <ToastContainer
+            position="bottom-center"
+            autoClose={false}
+            newestOnTop={false}
+            closeOnClick={false}
+            className="base-toast"
+            rtl={false}
+            draggable
+          />
+          <ReactQueryDevtools />
+          <LoginModal />
+          <ReactHint autoPosition events={{ hover: true }} delay={{ show: 300, hide: 0 }} />
+        </SocketProvider>
+      </StylesProvider>
     </MuiThemeProvider>
   );
 };

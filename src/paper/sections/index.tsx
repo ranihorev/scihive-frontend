@@ -1,5 +1,4 @@
 import { Link, Typography } from '@material-ui/core';
-import WarningIcon from '@material-ui/icons/Warning';
 import { isEmpty, range } from 'lodash';
 import React from 'react';
 import ContentLoader from 'react-content-loader';
@@ -8,7 +7,6 @@ import baseStyles from '../../base.module.scss';
 import { PaperJump } from '../../models';
 import { usePaperStore } from '../../stores/paper';
 import { createEvent, getSectionPosition } from '../../utils';
-import { Spacer } from '../../utils/Spacer';
 import { JUMP_TO_EVENT } from '../../utils/useJumpToHandler';
 import styles from './styles.module.scss';
 
@@ -32,11 +30,9 @@ export const PaperSections: React.FC = () => {
 
   if (isEmpty(sections)) {
     return (
-      <div className={baseStyles.centeredRow}>
-        <WarningIcon fontSize="small" />
-        <Spacer size={8} />
-        <Typography variant="body2">Failed to extract sections</Typography>
-      </div>
+      <Typography variant="body2" color="textSecondary">
+        Failed to extract sections
+      </Typography>
     );
   }
 

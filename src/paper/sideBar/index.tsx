@@ -1,5 +1,15 @@
-import { Collapse, Drawer, List, ListItem, ListItemIcon, ListItemText, useScrollTrigger } from '@material-ui/core';
+import {
+  Collapse,
+  Drawer,
+  List,
+  ListItem,
+  ListItemIcon,
+  ListItemText,
+  useScrollTrigger,
+  IconButton,
+} from '@material-ui/core';
 import AccountTreeIcon from '@material-ui/icons/AccountTree';
+import ChevronLeftIcon from '@material-ui/icons/ChevronLeft';
 import ChatIcon from '@material-ui/icons/Chat';
 import ExpandLess from '@material-ui/icons/ExpandLess';
 import ExpandMore from '@material-ui/icons/ExpandMore';
@@ -99,7 +109,18 @@ export const Sidebar: React.FC = React.memo(() => {
           setIsDrawerOpen(false);
         }}
       >
-        <List component="nav" className={cx(styles.drawerList, 'pb-16')}>
+        <div className="flex flex-row justify-end border-b border-solid border-gray-200 pb-1">
+          <IconButton
+            size="small"
+            className="mt-1 mr-1"
+            onClick={() => {
+              setIsDrawerOpen(false);
+            }}
+          >
+            <ChevronLeftIcon className="p-1 pointer" fontSize="large" color="primary" />
+          </IconButton>
+        </div>
+        <List component="nav" className={cx(styles.drawerList, 'pb-16', 'pt-0')}>
           {Object.entries(menuItems).map(([key, item]) => (
             <CollapsibleItem key={key} icon={item.icon} title={item.title} openOnMount={key === openItem}>
               {item.element}

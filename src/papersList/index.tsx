@@ -45,7 +45,7 @@ const getSortQuery = (
 ): PapersListRequestParams['sort'] => {
   return (
     (isValidSort(queryParams.sort) && queryParams.sort) ||
-    (queryParams.q ? 'score' : isLibraryOrList ? 'date_added' : 'date')
+    (queryParams.q ? 'score' : isLibraryOrList ? 'date_added' : 'tweets')
   );
 };
 

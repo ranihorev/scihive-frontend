@@ -69,7 +69,7 @@ export const FileUpload: React.FC = () => {
 
   const onSubmitLink = useLatestCallback(() => {
     track('uploadPaper', { type: 'link' });
-    setUploadStatus({ status: 'processing', prct: 0 });
+    setUploadStatus({ status: 'uploading', prct: 0 });
     Axios.post<{ id: string }>('/new_paper/add', { link })
       .then(res => {
         history.push(getPaperPath(res.data.id));

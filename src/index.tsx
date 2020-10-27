@@ -1,4 +1,4 @@
-import * as Sentry from '@sentry/browser';
+import * as Sentry from '@sentry/react';
 import axios from 'axios';
 import React from 'react';
 import ReactDOM from 'react-dom';
@@ -11,12 +11,6 @@ if (process.env.REACT_APP_SENTRY_DSN && process.env.NODE_ENV === 'production')
 
 axios.defaults.baseURL = process.env.REACT_APP_BASE_URL;
 axios.defaults.withCredentials = true;
-
-// const user = localStorage.getItem('username');
-
-// if (user) {
-//   userStoreApi.setState({ userData: { username: user } });
-// }
 
 ReactDOM.render(
   <Router>

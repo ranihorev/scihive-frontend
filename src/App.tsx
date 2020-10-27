@@ -1,4 +1,5 @@
 import { MuiThemeProvider, StylesProvider } from '@material-ui/core/styles';
+import * as Sentry from '@sentry/react';
 import React from 'react';
 import * as ReactHintFactory from 'react-hint';
 import { ReactQueryDevtools } from 'react-query-devtools';
@@ -57,29 +58,35 @@ const MainRoutes: React.FC = () => {
 
 const ReactHint = ReactHintFactory(React);
 
+const ErrorFallback: React.FC = () => {
+  return <div>An error has occurred. Please refresh the page :(</div>;
+};
+
 const App: React.FC = () => {
   useTracker();
 
   return (
-    <MuiThemeProvider theme={theme}>
-      <StylesProvider injectFirst>
-        <SocketProvider>
-          <MainRoutes />
-          <ToastContainer
-            position="bottom-center"
-            autoClose={false}
-            newestOnTop={false}
-            closeOnClick={false}
-            className="base-toast"
-            rtl={false}
-            draggable
-          />
-          <ReactQueryDevtools />
-          <LoginModal />
-          <ReactHint autoPosition events={{ hover: true }} delay={{ show: 300, hide: 0 }} />
-        </SocketProvider>
-      </StylesProvider>
-    </MuiThemeProvider>
+    <Sentry.ErrorBoundary fallback={ErrorFallback} showDialog>
+      <MuiThemeProvider theme={theme}>
+        <StylesProvider injectFirst>
+          <SocketProvider>
+            <MainRoutes />
+            <ToastContainer
+              position="bottom-center"
+              autoClose={false}
+              newestOnTop={false}
+              closeOnClick={false}
+              className="base-toast"
+              rtl={false}
+              draggable
+            />
+            <ReactQueryDevtools />
+            <LoginModal />
+            <ReactHint autoPosition events={{ hover: true }} delay={{ show: 300, hide: 0 }} />
+          </SocketProvider>
+        </StylesProvider>
+      </MuiThemeProvider>
+    </Sentry.ErrorBoundary>
   );
 };
 

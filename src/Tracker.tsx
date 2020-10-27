@@ -1,7 +1,7 @@
+import * as mixpanel from 'mixpanel-browser';
 import React, { useEffect } from 'react';
 import ReactGA from 'react-ga';
-import useReactRouter from 'use-react-router';
-import * as mixpanel from 'mixpanel-browser';
+import { useLocation } from 'react-router';
 
 ReactGA.initialize('UA-88259675-7');
 if (process.env.REACT_APP_MIXPANEL_TOKEN) {
@@ -26,7 +26,7 @@ export const useTracker = (options = {}) => {
     },
     [options],
   );
-  const { location } = useReactRouter();
+  const location = useLocation();
 
   useEffect(() => {
     const page = location.pathname + location.search;

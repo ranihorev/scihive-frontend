@@ -37,7 +37,6 @@ const NewReply: React.FC<{ onSubmit: (reply: string) => void }> = ({ onSubmit })
         required
         onKeyDown={e => {
           if ((isMac ? e.metaKey : e.ctrlKey) && e.key === 'Enter') {
-            console.log('here');
             submitForm();
           }
         }}

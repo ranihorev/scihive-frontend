@@ -8,6 +8,7 @@ import Color from 'color';
 import { isEmpty } from 'lodash';
 import React from 'react';
 import { Group } from '../models';
+import { filterGroups } from '../utils';
 import { BASE_GROUP_COLOR, GROUP_COLORS, pickRandomColor } from '../utils/presets';
 import { OnSelectGroupProps, useCreateGroup, useFetchGroups } from '../utils/useGroups';
 import { NewGroup } from './NewGroup';
@@ -78,9 +79,9 @@ export const GroupsList: React.FC<GroupListProps> = ({ selectedGroupIds, onSelec
     }
   };
 
-  const groups = useFetchGroups();
-
-  const filteredGroups = groups.filter(group => new RegExp(`^${newGroupValue}`, 'i').test(group.name));
+  const { groups } = useFetchGroups(true);
+  const filteredGroups = filterGroups(groups, newGroupValue);
+  console.log(groups);
 
   return (
     <React.Fragment>

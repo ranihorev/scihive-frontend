@@ -1,23 +1,40 @@
-.groupsListRoot {
-  width: 100%;
-  max-width: 450px;
+$indicatorCol: indicator;
+$nameCol: groupName;
+$editButtonCol: editButton;
+$numPapersCol: numPapers;
+$dateCol: dateCol;
+
+.indicator {
+  grid-column: $indicatorCol;
 }
 
-.newGroupForm {
-  display: inline-flex;
-  width: 100%;
+.name {
+  grid-column: $nameCol;
 }
 
-.group {
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  width: 100%;
+.date {
+  grid-column: $dateCol;
 }
 
-.groupColor {
-  width: 12px;
-  height: 12px;
-  border-radius: 3px;
-  margin-right: 8px;
+.edit {
+  grid-column: $editButtonCol;
+}
+
+.numPapers {
+  grid-column: $numPapersCol;
+  justify-self: center;
+}
+
+.baseRow {
+  display: grid;
+  column-gap: 12px;
+  grid-template-columns: [$indicatorCol] 16px [$nameCol] 1fr [$dateCol] 100px [$numPapersCol] minmax(60px,max-content) [$editButtonCol] 30px;
+}
+
+.titleRow {
+  min-height: 40px;
+}
+
+.groupRow {
+  min-height: 60px;
 }

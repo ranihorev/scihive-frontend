@@ -53,7 +53,7 @@ const Items = React.lazy(() => import('./Items'));
 
 const PapersListContent: React.FC<{ isLibraryMode: boolean }> = ({ isLibraryMode }) => {
   const queryContext = React.useContext(QueryContext);
-  const groups = useFetchGroups();
+  const { groups } = useFetchGroups();
   const location = useLocation();
   const history = useHistory();
 

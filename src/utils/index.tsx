@@ -1,5 +1,5 @@
+import { Group, Section } from '../models';
 import * as presets from './presets';
-import { Section } from '../models';
 
 export const getSectionPosition = (section: Section) => ({
   pageNumber: section.page + 1,
@@ -16,5 +16,9 @@ export const createListener = <T extends object>(type: string, cb: (event: Custo
 };
 
 export const isMac = /mac/i.test(navigator.platform);
+
+export const filterGroups = <T extends Group>(groups: T[], value: string) => {
+  return groups.filter(group => new RegExp(`^${value}`, 'i').test(group.name));
+};
 
 export { presets };

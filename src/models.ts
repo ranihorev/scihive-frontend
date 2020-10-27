@@ -133,6 +133,9 @@ export interface Group {
   name: string;
   created_at: string;
   color?: GroupColor;
+}
+
+export interface DetailedGroup extends Group {
   num_papers: number;
 }
 

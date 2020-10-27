@@ -6,18 +6,19 @@ import { GroupColor } from '../utils/presets';
 
 const FETCH_GROUPS_Q = 'fetchGroups';
 
-export const useFetchGroups = () => {
+// TODO: find a better name than isDetailed
+export const useFetchGroups = <T extends Group>(isDetailed: boolean = false) => {
   const isLoggedIn = useUserStore(state => state.status === 'loggedIn');
-  const { data } = useQuery(
-    FETCH_GROUPS_Q,
+  const { data, isLoading } = useQuery(
+    [FETCH_GROUPS_Q, { isDetailed }],
     async () => {
-      const response = await axios.get<Group[]>('/groups/all');
+      const response = await axios.get<T[]>(`/groups/all${isDetailed ? '/detailed' : ''}`);
       return response.data;
     },
     { cacheTime: 60000, refetchOnMount: false, refetchOnWindowFocus: false, enabled: isLoggedIn },
   );
   const groups = data || [];
-  return groups;
+  return { groups, isLoading };
 };
 
 export const useCreateGroup = () => {

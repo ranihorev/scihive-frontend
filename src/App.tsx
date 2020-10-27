@@ -8,7 +8,7 @@ import { ToastContainer } from 'react-toastify';
 import { LoginModal } from './auth/LoginModal';
 import { PrivateRoute } from './auth/PrivateRoute';
 import { useIsLoggedIn } from './auth/utils';
-import { Groups } from './groups';
+import Groups from './groups';
 import { Landing } from './landing';
 import { NotFound } from './NotFound';
 import { PdfPaperPage } from './paper';

@@ -131,11 +131,11 @@ export interface CodeMeta {
 export interface Group {
   id: string;
   name: string;
-  created_at: string;
   color?: GroupColor;
 }
 
 export interface DetailedGroup extends Group {
+  created_at: string;
   num_papers: number;
 }
 

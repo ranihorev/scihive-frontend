@@ -68,15 +68,11 @@ const loadContactSuggestions = async (query: string): Promise<Suggestion[]> => {
   return options.filter((option: Suggestion | null) => option !== null);
 };
 
-interface EmailsInputProps {
-  selected: Suggestion[];
-  setSelected: React.Dispatch<Suggestion[]>;
-}
-
-const GooglePermissions: React.FC = () => {
-  const { isLoggedInGoogle, hasPermissions, grantPermissions } = useHasContactsPermission();
+const GooglePermissions: React.FC<{ isLoggedInGoogle: boolean; grantPermissions?: () => void }> = ({
+  isLoggedInGoogle,
+  grantPermissions,
+}) => {
   const { signIn } = useLogInViaGoogle();
-  if (hasPermissions) return null;
   return (
     <div className="bg-gray-200 p-3 rounded mb-3">
       <Typography>
@@ -101,18 +97,25 @@ const GooglePermissions: React.FC = () => {
   );
 };
 
+interface EmailsInputProps {
+  selected: Suggestion[];
+  setSelected: React.Dispatch<Suggestion[]>;
+}
+
 const EmailsInput: React.FC<EmailsInputProps> = React.memo(({ selected, setSelected }) => {
   const [inputValue, setInputValue] = React.useState('');
+  const { isLoggedInGoogle, hasPermissions, grantPermissions } = useHasContactsPermission();
   const { data: options, isLoading } = useQuery(
     `LOAD_SUGGESTIONS_Q_${inputValue}`,
     () => {
       return loadContactSuggestions(inputValue);
     },
-    { refetchOnWindowFocus: false, initialData: [], keepPreviousData: true },
+    { refetchOnWindowFocus: false, initialData: [], keepPreviousData: true, enabled: hasPermissions },
   );
 
   return (
     <React.Fragment>
+      <GooglePermissions {...{ isLoggedInGoogle, grantPermissions }} />
       <Autocomplete
         multiple
         selectOnFocus
@@ -181,6 +184,10 @@ export const Invite: React.FC = React.memo(() => {
         queryCache.invalidateQueries(GET_PERMISSIONS_Q);
         setNewUsers([]);
       },
+      onError: e => {
+        console.log(e);
+        toast.error('Failed to');
+      },
     },
   );
   if (!paperId) return null;
@@ -207,7 +214,6 @@ export const Invite: React.FC = React.memo(() => {
             </Typography>
           </div>
           <Spacer size={20} />
-          <GooglePermissions />
           <EmailsInput selected={newUsers} setSelected={setNewUsers} />
           <Spacer size={16} />
           <TextField

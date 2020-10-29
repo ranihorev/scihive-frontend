@@ -24,13 +24,14 @@ import shallow from 'zustand/shallow';
 import { useHasContactsPermission, useLogInViaGoogle } from '../auth/utils';
 import baseStyle from '../base.module.scss';
 import { usePaperStore } from '../stores/paper';
+import { isAxiosError, isValidEmailAddress } from '../utils';
 import { Spacer } from '../utils/Spacer';
 import { CurrentCollaborators, GET_PERMISSIONS_Q } from './CurrentCollaborators';
 import { ShareLink } from './ShareLink';
 
 interface Suggestion {
   email: string;
-  name: string;
+  name?: string;
 }
 
 const loadGoogleAPIClientAsync = async () => {
@@ -131,7 +132,7 @@ const EmailsInput: React.FC<EmailsInputProps> = React.memo(({ selected, setSelec
         value={selected}
         onChange={(_, newValues) => {
           const newSelected: Suggestion[] = newValues.map(value =>
-            typeof value === 'string' ? { email: value, name: '' } : value,
+            typeof value === 'string' ? { email: value } : value,
           );
           // Ensure that we have unique emails
           setSelected(uniqBy(newSelected, 'email'));
@@ -143,6 +144,11 @@ const EmailsInput: React.FC<EmailsInputProps> = React.memo(({ selected, setSelec
             </Tooltip>
           ))
         }
+        onBlur={() => {
+          if (inputValue && isValidEmailAddress(inputValue)) {
+            setSelected(uniqBy([...selected, { email: inputValue }], 'email'));
+          }
+        }}
         renderInput={params => (
           <TextField
             {...params}
@@ -180,13 +186,24 @@ export const Invite: React.FC = React.memo(() => {
     },
     {
       onSuccess: () => {
-        toast.success('Invites Sent!', { autoClose: 5000 });
+        toast.success('Invites Sent!', { autoClose: 10000 });
         queryCache.invalidateQueries(GET_PERMISSIONS_Q);
         setNewUsers([]);
       },
       onError: e => {
-        console.log(e);
-        toast.error('Failed to');
+        let reason = '';
+        if (isAxiosError(e)) {
+          reason = e.response?.data.message;
+        }
+        toast.error(
+          <div className="p-2">
+            <div>Failed to send invites :(</div>
+            {reason && <div className="text-sm mt-2">Reason: {JSON.stringify(reason)}</div>}
+          </div>,
+          {
+            autoClose: 5000,
+          },
+        );
       },
     },
   );
@@ -231,8 +248,12 @@ export const Invite: React.FC = React.memo(() => {
             variant="contained"
             color="primary"
             onClick={async () => {
-              reset();
-              await submitInvites();
+              if (isEmpty(newUsers)) {
+                toast.error('Please enter valid email addresses.');
+              } else {
+                reset();
+                submitInvites();
+              }
             }}
             className="self-center px-8"
           >

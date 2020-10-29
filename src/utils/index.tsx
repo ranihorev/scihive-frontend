@@ -1,3 +1,4 @@
+import { AxiosError } from 'axios';
 import { Group, Section } from '../models';
 import * as presets from './presets';
 
@@ -19,6 +20,15 @@ export const isMac = /mac/i.test(navigator.platform);
 
 export const filterGroups = <T extends Group>(groups: T[], value: string) => {
   return groups.filter(group => new RegExp(`^${value}`, 'i').test(group.name));
+};
+
+export const isAxiosError = (e: unknown): e is AxiosError => {
+  return e && typeof e === 'object' && e.hasOwnProperty('isAxiosError');
+};
+
+export const isValidEmailAddress = (email: string) => {
+  const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  return re.test(email);
 };
 
 export { presets };

@@ -1,7 +1,7 @@
 /** @jsx jsx */
 import { jsx } from '@emotion/core';
 import { Typography } from '@material-ui/core';
-import axios, { AxiosError } from 'axios';
+import axios from 'axios';
 import { pick } from 'lodash';
 import { getDocument, GlobalWorkerOptions, PDFDocumentProxy, version as pdfJsVersion } from 'pdfjs-dist';
 import React from 'react';
@@ -12,6 +12,7 @@ import baseStyles from '../base.module.scss';
 import { References } from '../models';
 import { usePaperStore } from '../stores/paper';
 import { useUserStore } from '../stores/user';
+import { isAxiosError } from '../utils';
 import { usePaperId, useToken } from '../utils/hooks';
 import { Spacer } from '../utils/Spacer';
 import { useLatestCallback } from '../utils/useLatestCallback';
@@ -24,10 +25,6 @@ import { ReferencesProvider } from './ReferencesProvider';
 import { extractSections } from './sections/utils';
 
 GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfJsVersion}/pdf.worker.js`;
-
-const isAxiosError = (e: Error): e is AxiosError => {
-  return e.hasOwnProperty('isAxiosError');
-};
 
 const errorCodeToMessage = {
   403: 'You do not have permissions to view this paper',

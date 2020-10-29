@@ -14,6 +14,7 @@ import { HelpTooltip } from '../../utils/HelpTooltip';
 import { Spacer } from '../../utils/Spacer';
 import { TextLinkifyLatex } from '../../utils/TextLinkifyLatex';
 import getAge from '../../utils/timeUtils';
+import { useProtectedFunc } from '../../utils/useProtectFunc';
 import { EditHighlight } from './EditHighlight';
 import NewReply from './NewReply';
 import styles from './PageHighlights.module.scss';
@@ -77,6 +78,7 @@ export const HighlightContent: React.FC<HighlightContentProps> = ({
   const contentText = content || '';
   const [isEditOpen, setIsEditOpen] = React.useState(false);
   const [showReply, setShowReply] = React.useState(false);
+  const { protectFunc } = useProtectedFunc();
   const { updateHighlight, replyToHighlight } = usePaperStore(
     state => pick(state, ['updateHighlight', 'replyToHighlight']),
     shallow,
@@ -92,6 +94,13 @@ export const HighlightContent: React.FC<HighlightContentProps> = ({
     } catch (err) {
       console.log(err.response);
     }
+  };
+
+  const onShowReplyHelper = () => {
+    protectFunc(() => {
+      setShowReply(true);
+      onAction?.();
+    });
   };
 
   return (
@@ -126,10 +135,7 @@ export const HighlightContent: React.FC<HighlightContentProps> = ({
       <Spacer size={8} />
       <CommentActions
         {...{ canEdit, id, contentText }}
-        onReply={() => {
-          setShowReply(true);
-          onAction?.();
-        }}
+        onReply={onShowReplyHelper}
         onEdit={() => {
           setIsEditOpen(true);
           onAction?.();

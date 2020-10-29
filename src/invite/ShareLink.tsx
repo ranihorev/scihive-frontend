@@ -1,4 +1,4 @@
-import { Button, Link, Switch, Tooltip, Typography } from '@material-ui/core';
+import { Button, CircularProgress, Link, Switch, Tooltip, Typography } from '@material-ui/core';
 import LinkIcon from '@material-ui/icons/Link';
 import Axios from 'axios';
 import copy from 'clipboard-copy';
@@ -37,10 +37,14 @@ const CopyButton: React.FC<{ link: string }> = ({ link }) => {
 export const ShareLink: React.FC<{ paperId: string }> = ({ paperId }) => {
   const requestURL = `/paper/${paperId}/token`;
   const queryKey = ['ShareLink', { paperId }];
-  const { data } = useQuery(queryKey, async () => {
-    const response = await Axios.get<{ token?: string }>(requestURL);
-    return response.data;
-  });
+  const { data, isLoading } = useQuery(
+    queryKey,
+    async () => {
+      const response = await Axios.get<{ token?: string; canEdit?: boolean }>(requestURL);
+      return response.data;
+    },
+    { refetchOnWindowFocus: false },
+  );
 
   const [updateLinkSharing] = useMutation(
     async (enable: boolean) => {
@@ -65,14 +69,19 @@ export const ShareLink: React.FC<{ paperId: string }> = ({ paperId }) => {
       <div className="pt-2 pb-1 flex flex-row items-center">
         <LinkIcon className="mr-2" />
         <Typography className="mr-1 leading-4">Create Link</Typography>
-        <Switch
-          checked={Boolean(token)}
-          onChange={e => {
-            updateLinkSharing(e.target.checked);
-          }}
-          color="primary"
-          inputProps={{ 'aria-label': 'primary checkbox' }}
-        />
+        {isLoading ? (
+          <CircularProgress size={14} className="ml-3 my-2" />
+        ) : (
+          <Switch
+            checked={Boolean(token)}
+            onChange={e => {
+              updateLinkSharing(e.target.checked);
+            }}
+            color="primary"
+            inputProps={{ 'aria-label': 'primary checkbox' }}
+            disabled={!data?.canEdit}
+          />
+        )}
       </div>
       <div className="h-8">
         {shareLink ? (

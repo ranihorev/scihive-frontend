@@ -1,9 +1,10 @@
 import { Chip, Typography } from '@material-ui/core';
+import PeopleOutlineIcon from '@material-ui/icons/PeopleOutline';
 import Axios from 'axios';
 import React from 'react';
+import ContentLoader from 'react-content-loader';
 import { queryCache, useMutation, useQuery } from 'react-query';
 import { usePaperStore } from '../stores/paper';
-import PeopleOutlineIcon from '@material-ui/icons/PeopleOutline';
 
 interface User {
   first_name?: string;
@@ -20,6 +21,17 @@ const userToName = (user: User) => {
 };
 
 export const GET_PERMISSIONS_Q = 'currentPermissions';
+
+const Placeholder: React.FC = () => {
+  const height = 24;
+  return (
+    <ContentLoader speed={2} width={200} height={height} viewBox={`0 0 200 ${height}`}>
+      <rect x="0" y="0" rx={height / 2} ry={height / 2} width="60" height={height} />
+      <rect x="70" y="0" rx={height / 2} ry={height / 2} width="60" height={height} />
+      <rect x="140" y="0" rx={height / 2} ry={height / 2} width="60" height={height} />
+    </ContentLoader>
+  );
+};
 
 export const CurrentCollaborators: React.FC = React.memo(() => {
   const paperId = usePaperStore(state => state.id);
@@ -47,7 +59,6 @@ export const CurrentCollaborators: React.FC = React.memo(() => {
     },
   );
 
-  if (!data) return null;
   return (
     <div>
       <div className="pt-2 pb-3 flex flex-row items-center">
@@ -55,8 +66,9 @@ export const CurrentCollaborators: React.FC = React.memo(() => {
         <Typography className="">Current Collaborators</Typography>
       </div>
       <div className="space-x-2">
-        {data.author && <Chip size="small" label={userToName(data.author)} className="bg-blue-200" />}
-        {data.users.map(user => (
+        {!data && <Placeholder />}
+        {data?.author && <Chip size="small" label={userToName(data.author)} className="bg-blue-200" />}
+        {data?.users.map(user => (
           <Chip
             className=""
             key={user.email}

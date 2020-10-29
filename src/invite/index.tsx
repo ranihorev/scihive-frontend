@@ -183,6 +183,7 @@ export const Invite: React.FC = React.memo(() => {
       },
     },
   );
+  if (!paperId) return null;
 
   return (
     <Modal

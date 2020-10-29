@@ -5,14 +5,12 @@ import { Helmet } from 'react-helmet';
 import baseStyles from '../base.module.scss';
 import { Invite } from '../invite';
 import { usePaperStore } from '../stores/paper';
-import { usePaperId } from '../utils/hooks';
 import { LoaderPlaceholder } from './LoaderPlaceholder';
 import { MenuBars } from './MenuBars';
 
 const PageContent = React.lazy(() => import('./PdfPaperPage'));
 
 export const PdfPaperPage: React.FC<{ showInviteOnLoad?: boolean }> = ({ showInviteOnLoad }) => {
-  const paperId = usePaperId();
   const title = usePaperStore(state => state.title);
 
   return (
@@ -21,9 +19,9 @@ export const PdfPaperPage: React.FC<{ showInviteOnLoad?: boolean }> = ({ showInv
         <title>{title || 'SciHive'}</title>
       </Helmet>
       <Invite />
-      <MenuBars paperId={paperId} />
+      <MenuBars />
       <Suspense fallback={<LoaderPlaceholder />}>
-        <PageContent />
+        <PageContent showInviteOnLoad={showInviteOnLoad} />
       </Suspense>
     </div>
   );

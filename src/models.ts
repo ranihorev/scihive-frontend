@@ -176,7 +176,7 @@ export interface TwitterLink {
 }
 
 export interface BasePaperData {
-  id: string;
+  id?: string;
   title: string;
   abstract: string;
   authors: Author[];
@@ -195,6 +195,7 @@ export interface PapersListRequestParams {
 }
 
 export interface PaperListItem extends BasePaperData {
+  id: string;
   comments_count: number;
   twitter_score: number;
   twitter_links?: TwitterLink[];

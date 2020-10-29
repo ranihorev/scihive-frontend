@@ -18,16 +18,17 @@ const useCreateSocketListener = () => {
   return createListener;
 };
 
-export const useCommentsSocket = (paperId: string) => {
+export const useCommentsSocket = () => {
   const socket = useSocket();
   const createListener = useCreateSocketListener();
-  const { onCommentEvent, updateMetadata } = usePaperStore(
-    state => pick(state, ['onCommentEvent', 'updateMetadata']),
+  const { onCommentEvent, updateMetadata, id: paperId } = usePaperStore(
+    state => pick(state, ['id', 'onCommentEvent', 'updateMetadata']),
     shallow,
   );
   const token = useToken();
 
   React.useEffect(() => {
+    if (!paperId) return () => {};
     const joinRoom = () => socket.emit('join', { paperId, token });
     if (socket.connected) {
       joinRoom();

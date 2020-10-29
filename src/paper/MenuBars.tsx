@@ -1,8 +1,10 @@
 import { Button } from '@material-ui/core';
 import axios from 'axios';
+import { pick } from 'lodash';
 import React from 'react';
 import { queryCache, useMutation, useQuery } from 'react-query';
 import { toast } from 'react-toastify';
+import shallow from 'zustand/shallow';
 import { Bookmark } from '../bookmark';
 import { usePaperStore } from '../stores/paper';
 import { useUserStore } from '../stores/user';
@@ -66,9 +68,9 @@ const PaperBookmark: React.FC<{ paperId: string }> = ({ paperId }) => {
   );
 };
 
-export const MenuBars: React.FC<{ paperId: string }> = ({ paperId }) => {
+export const MenuBars: React.FC = () => {
   const { protectFunc } = useProtectedFunc();
-  const setIsInviteOpen = usePaperStore(state => state.setIsInviteOpen);
+  const { setIsInviteOpen, id: paperId } = usePaperStore(state => pick(state, ['id', 'setIsInviteOpen']), shallow);
   const isLoggedIn = useUserStore(state => state.status === 'loggedIn');
 
   return (
@@ -77,7 +79,7 @@ export const MenuBars: React.FC<{ paperId: string }> = ({ paperId }) => {
         rightMenu={
           isLoggedIn ? (
             <React.Fragment>
-              <PaperBookmark paperId={paperId} />
+              {paperId && <PaperBookmark paperId={paperId} />}
               <Button color="inherit" onClick={() => protectFunc(() => setIsInviteOpen(true))}>
                 Share
               </Button>

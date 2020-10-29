@@ -28,7 +28,7 @@ export const CompactTip: React.FC<{ isOnboarding: boolean; expandToComment: () =
   }, shallow);
   const { protectFunc } = useProtectedFunc();
   const onHighlight = async () => {
-    if (!tempHighlight) return;
+    if (!tempHighlight || !paperId) return;
     const data: T_NewHighlight = {
       text: '',
       visibility: commentVisibility,
@@ -100,7 +100,7 @@ export const NewHighlightPopup: React.FC<NewHighlightPopupProps> = ({
   }, shallow);
 
   const onSubmit = (text: string) => {
-    if (tempHighlight) {
+    if (tempHighlight && paperId) {
       addHighlight(paperId, {
         text: text,
         highlighted_text: tempHighlight.highlighted_text,

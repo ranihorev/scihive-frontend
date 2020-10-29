@@ -23,7 +23,6 @@ import {
 } from '../models';
 import { usePaperStore } from '../stores/paper';
 import { createEvent } from '../utils';
-import { usePaperId } from '../utils/hooks';
 import { Spacer } from '../utils/Spacer';
 import { JUMP_TO_EVENT, useJumpToHandler } from '../utils/useJumpToHandler';
 import { useLatestCallback } from '../utils/useLatestCallback';
@@ -101,8 +100,6 @@ const PdfAnnotator: React.FC<PdfAnnotatorProps> = ({
   const [cookies, setCookie] = useCookies([]);
   const isOnboarding = React.useRef(false);
   const onboardingTeardown = React.useRef<() => void>();
-  const paperId = usePaperId();
-  useCommentsSocket(paperId);
 
   const {
     highlights,
@@ -126,6 +123,8 @@ const PdfAnnotator: React.FC<PdfAnnotatorProps> = ({
     }),
     shallow,
   );
+
+  useCommentsSocket();
 
   const containerNode = React.useRef<HTMLDivElement>(null);
   const highlightLayerNode = React.useRef<HTMLDivElement>(null);
@@ -291,34 +290,31 @@ const PdfAnnotator: React.FC<PdfAnnotatorProps> = ({
     canZoom.current = false;
   };
 
-  const onReferenceEnter = React.useCallback(
-    (e: React.MouseEvent) => {
-      if (isSelecting) return; // Don't open popup when selecting text
-      const target = e.target as HTMLElement;
-      if (!target) return;
-      const href = target.getAttribute('href') || '';
-      if (e.type === 'click' && !isMobile && target.tagName === 'A') {
-        jumpToCite(pdfDocument, href);
-      }
-      if (!(target.tagName === 'A' && href.includes('#cite'))) return;
+  const onReferenceEnter = useLatestCallback((e: React.MouseEvent) => {
+    if (isSelecting) return; // Don't open popup when selecting text
+    const target = e.target as HTMLElement;
+    if (!target) return;
+    const href = target.getAttribute('href') || '';
+    if (e.type === 'click' && !isMobile && target.tagName === 'A') {
+      jumpToCite(pdfDocument, href);
+    }
+    if (!(target.tagName === 'A' && href.includes('#cite'))) return;
 
-      const cite = decodeURIComponent(href.replace('#cite.', ''));
-      if (references.hasOwnProperty(cite)) {
-        if (isMobile) {
-          target.onclick = event => {
-            event.preventDefault();
-          };
-        }
-        if (!setReferencePopoverState) return;
-        if (e.type === 'click' && !isMobile) {
-          setReferencePopoverState({ citeId: '' });
-        } else {
-          setReferencePopoverState({ anchor: target, citeId: cite });
-        }
+    const cite = decodeURIComponent(href.replace('#cite.', ''));
+    if (references.hasOwnProperty(cite)) {
+      if (isMobile) {
+        target.onclick = event => {
+          event.preventDefault();
+        };
       }
-    },
-    [setReferencePopoverState, references, isSelecting],
-  );
+      if (!setReferencePopoverState) return;
+      if (e.type === 'click' && !isMobile) {
+        setReferencePopoverState({ citeId: '' });
+      } else {
+        setReferencePopoverState({ anchor: target, citeId: cite });
+      }
+    }
+  });
 
   React.useEffect(() => {
     // Update scroll progress. (Based on - https://stackoverflow.com/a/8028584/5737533)

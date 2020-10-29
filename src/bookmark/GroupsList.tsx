@@ -81,7 +81,6 @@ export const GroupsList: React.FC<GroupListProps> = ({ selectedGroupIds, onSelec
 
   const { groups } = useFetchGroups(true);
   const filteredGroups = filterGroups(groups, newGroupValue);
-  console.log(groups);
 
   return (
     <React.Fragment>

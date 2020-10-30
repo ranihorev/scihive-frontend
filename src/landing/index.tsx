@@ -1,6 +1,7 @@
 import { Button, Link, Typography } from '@material-ui/core';
 import IconButton from '@material-ui/core/IconButton';
 import EmailIcon from '@material-ui/icons/Email';
+import GitHubIcon from '@material-ui/icons/GitHub';
 import TwitterIcon from '@material-ui/icons/Twitter';
 import cx from 'classnames';
 import React from 'react';
@@ -12,7 +13,6 @@ import { useUserStore } from '../stores/user';
 import { TopBar, TopBarButton } from '../topBar';
 import BlueHiveBG from './images/blue_hive_bg.png';
 import chromeLogo from './images/chrome_logo.png';
-// import chrome_logo from './images/chrome_logo.png';
 import collaborateImg from './images/Collaborate.gif';
 import berkeley from './images/institutes_logos/berkeley.png';
 import harvard from './images/institutes_logos/harvard.png';
@@ -172,7 +172,7 @@ export const Landing: React.FC = () => {
           </Feature>
         </Section>
 
-        <Section container className="bg-gray-100">
+        <Section className="bg-gray-100">
           <Title>Used by top scientists in top institutes</Title>
           <div className="grid grid-cols-4 gap-4">
             {[princeton, stanford, harvard, berkeley].map(item => (
@@ -208,18 +208,53 @@ export const Landing: React.FC = () => {
             &copy; 2020 SciHive.Org
           </Typography>
 
-          <div className="mt-4">
-            <IconButton aria-label="E-mail us">
-              <a href="mailto:hello@scihive.org">
-                <EmailIcon fontSize="large" />
-              </a>
-            </IconButton>
-            <IconButton aria-label="Follow SciHive on Twitter">
-              <a href="https://twitter.com/SciHiveOrg" target="_blank" rel="noopener noreferrer">
-                <TwitterIcon fontSize="large" />
-              </a>
-            </IconButton>
+          <div className="my-8 flex flex-row items-center space-x-8">
+            <a href="mailto:hello@scihive.org" className="text-gray-500 hover:text-gray-800">
+              <EmailIcon fontSize="large" />
+            </a>
+            <a
+              href="https://twitter.com/SciHiveOrg"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-gray-500 hover:text-gray-800"
+            >
+              <TwitterIcon fontSize="large" />
+            </a>
+            <a
+              href="https://github.com/ranihorev/scihive-frontend"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-gray-500 hover:text-gray-800"
+            >
+              <GitHubIcon fontSize="large" />
+            </a>
           </div>
+          <div>
+            <Typography variant="body2" className="text-center">
+              We are open source :)
+              <br />
+              Check out our{' '}
+              <a
+                href="https://github.com/ranihorev/scihive-frontend"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="hover:underline"
+              >
+                frontend
+              </a>{' '}
+              and{' '}
+              <a
+                href="https://github.com/ranihorev/scihive-backend"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="hover:underline"
+              >
+                backend
+              </a>{' '}
+              repos!
+            </Typography>
+          </div>
+
           <div className="mt-8 flex flex-col items-center space-y-4">
             <Link component={RouterLink} to="/privacy-policy" className="text-gray-800 text-sm">
               Privacy Policy

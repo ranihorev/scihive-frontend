@@ -18,14 +18,17 @@ export const LoginForm: React.FC<{ onSuccess?: () => void; enableRedirect?: bool
     <div className={styles.loginForm}>
       <LoginWithGoogle {...{ defaultRedirectTo, enableRedirect, onSuccess }} />
       <Spacer size={16} />
-      <Typography variant="body2" color="textSecondary">
-        <i>- or -</i>
-      </Typography>
-      <Spacer size={16} />
       {showLoginViaPassword ? (
         <PasswordLoginForm {...{ defaultRedirectTo, enableRedirect, onSuccess }} />
       ) : (
-        <Link href="#" onClick={() => setShowLoginViaPassword(true)}>
+        <Link
+          href="#"
+          onClick={(e: React.MouseEvent) => {
+            e.preventDefault();
+            setShowLoginViaPassword(true);
+          }}
+          variant="body2"
+        >
           Log in with password
         </Link>
       )}

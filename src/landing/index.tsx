@@ -112,12 +112,22 @@ export const Landing: React.FC = () => {
                 <Button variant="contained" color="primary" component={RouterLink} to="/upload">
                   Upload New Paper
                 </Button>
-                <Button variant="contained" color="primary" component={RouterLink} to="/library">
-                  View Your Library
+                <Button variant="contained" color="primary" component={RouterLink} to="/discover">
+                  Discover Papers
                 </Button>
               </div>
             ) : (
-              <LoginForm />
+              <React.Fragment>
+                <LoginForm />
+                <div className="text-center mt-12">
+                  <Typography className="font-medium tracking-wide text-gray-700">
+                    Or browser through our public papers
+                  </Typography>
+                  <Button variant="outlined" color="primary" component={RouterLink} to="/discover" className="mt-4">
+                    Discover Papers
+                  </Button>
+                </div>
+              </React.Fragment>
             )}
           </div>
         </Section>

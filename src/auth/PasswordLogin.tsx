@@ -64,7 +64,7 @@ export const PasswordLoginForm: React.FC<{
         <Input name="password" value={userData.password} onChange={handleChange} type="password" required />
       </FormControl>
       <Spacer size={20} />
-      <Button type="submit" variant="contained" color="primary" className={styles.submitButton}>
+      <Button type="submit" variant="outlined" color="primary" className={styles.submitButton}>
         Submit
       </Button>
       <div className={styles.errorMsg}>{errMsg}</div>

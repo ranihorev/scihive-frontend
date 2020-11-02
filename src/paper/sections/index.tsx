@@ -2,17 +2,17 @@ import { Link, Typography } from '@material-ui/core';
 import { isEmpty, range } from 'lodash';
 import React from 'react';
 import ContentLoader from 'react-content-loader';
-import shallow from 'zustand/shallow';
 import baseStyles from '../../base.module.scss';
 import { PaperJump } from '../../models';
 import { usePaperStore } from '../../stores/paper';
 import { createEvent, getSectionPosition } from '../../utils';
 import { JUMP_TO_EVENT } from '../../utils/useJumpToHandler';
 import styles from './styles.module.scss';
+import cx from 'classnames';
 
-export const PaperSections: React.FC = () => {
-  const { sections } = usePaperStore(state => ({ sections: state.sections }), shallow);
-  if (sections === undefined) {
+export const TableOfContents: React.FC<{ setIsDrawerOpen: React.Dispatch<boolean> }> = ({ setIsDrawerOpen }) => {
+  const tableOfContents = usePaperStore(state => state.tableOfContents);
+  if (tableOfContents === undefined) {
     return (
       <React.Fragment>
         {range(0, 5).map(idx => (
@@ -28,23 +28,23 @@ export const PaperSections: React.FC = () => {
     );
   }
 
-  if (isEmpty(sections)) {
+  if (isEmpty(tableOfContents)) {
     return (
       <Typography variant="body2" color="textSecondary">
-        Failed to extract sections
+        Failed to extract table of contents :(
       </Typography>
     );
   }
 
   return (
-    <div className={baseStyles.col}>
-      {sections.map((section, idx) => {
+    <div className="flex flex-col w-full">
+      {tableOfContents.map((section, idx) => {
         return (
           <Link
             href={`#section-${idx}`}
             color="textSecondary"
             variant="body2"
-            className={styles.section}
+            className={cx(styles.section, 'truncate')}
             onClick={() => {
               document.dispatchEvent(
                 createEvent<PaperJump>(JUMP_TO_EVENT, {
@@ -54,10 +54,11 @@ export const PaperSections: React.FC = () => {
                   location: getSectionPosition(section),
                 }),
               );
+              setIsDrawerOpen(false);
             }}
             key={idx}
           >
-            {section.str}
+            {section.text}
           </Link>
         );
       })}

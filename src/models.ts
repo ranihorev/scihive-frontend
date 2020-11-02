@@ -1,4 +1,3 @@
-import { TextContentItem } from 'pdfjs-dist';
 import { GroupColor } from './utils/presets';
 
 export type OptionalExceptFor<T, TRequired extends keyof T> = Partial<T> & Pick<T, TRequired>;
@@ -139,10 +138,6 @@ export interface DetailedGroup extends Group {
   num_papers: number;
 }
 
-export interface Section extends TextContentItem {
-  page: number;
-}
-
 export interface Reference {
   html: string;
   arxivId: string;
@@ -175,13 +170,30 @@ export interface TwitterLink {
   score: number;
 }
 
+interface BoundingBox {
+  page: number;
+  x: number;
+  y: number;
+  h: number;
+  w: number;
+}
+
+export interface ContentElement {
+  tag: string;
+  text: string;
+  coordinates: BoundingBox[];
+}
+
+export type TableOfContents = ContentElement[];
+
 export interface BasePaperData {
   id?: string;
   title: string;
   abstract: string;
   authors: Author[];
-  time_published: string;
+  timePublished: string;
   doi?: string;
+  tableOfContents?: TableOfContents;
 }
 
 export interface PapersListRequestParams {
@@ -215,7 +227,7 @@ export interface Author {
   id?: string;
 }
 
-export interface FileMetadata extends Omit<BasePaperData, 'id' | 'time_published'> {
+export interface FileMetadata extends Omit<BasePaperData, 'id' | 'timePublished' | 'tableOfContents'> {
   date: string;
   removed_authors?: string[];
 }

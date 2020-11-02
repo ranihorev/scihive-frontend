@@ -225,7 +225,7 @@ export const MetadataEditor: React.FC<{ onClose: () => void }> = ({ onClose }) =
     state => ({
       title: state.title || '',
       authors: state.authors,
-      date: state.time_published || new Date().toString(),
+      date: state.timePublished || new Date().toString(),
       abstract: state.abstract || '',
       doi: state.doi || '',
     }),

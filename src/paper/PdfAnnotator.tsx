@@ -5,7 +5,7 @@ import cx from 'classnames';
 import { debounce, pick } from 'lodash';
 import { PDFDocumentProxy } from 'pdfjs-dist';
 // @ts-ignore
-import { EventBus, PDFLinkService, PDFViewer } from 'pdfjs-dist/web/pdf_viewer';
+import { EventBus, PDFLinkService, PDFViewer, PDFFindController } from 'pdfjs-dist/web/pdf_viewer';
 import 'pdfjs-dist/web/pdf_viewer.css';
 import React from 'react';
 import { useCookies } from 'react-cookie';
@@ -334,12 +334,15 @@ const PdfAnnotator: React.FC<PdfAnnotatorProps> = ({
     const eventBus = new EventBus();
     const linkService = new PDFLinkService({ eventBus });
 
+    const findController = new PDFFindController({ linkService, eventBus });
+
     viewer.current = new PDFViewer({
       container: containerNode.current,
       eventBus,
       enhanceTextSelection: true,
       removePageBorders: true,
       linkService,
+      findController,
     });
 
     viewer.current.setDocument(pdfDocument);

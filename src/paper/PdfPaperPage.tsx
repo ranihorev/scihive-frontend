@@ -22,7 +22,6 @@ import styles from './Paper.module.css';
 import PdfAnnotator from './PdfAnnotator';
 import { ReadingProgress } from './ReadingProgress';
 import { ReferencesProvider } from './ReferencesProvider';
-import { extractSections } from './sections/utils';
 
 GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfJsVersion}/pdf.worker.js`;
 
@@ -40,10 +39,7 @@ const useLoadPaper = (paperId: string) => {
   const token = useToken();
 
   // TODO: Switch to useQuery!
-  const { clearPaper, fetchPaper, setSections } = usePaperStore(
-    state => pick(state, ['clearPaper', 'fetchPaper', 'setSections']),
-    shallow,
-  );
+  const { clearPaper, fetchPaper } = usePaperStore(state => pick(state, ['clearPaper', 'fetchPaper']), shallow);
 
   const isLoggedIn = useUserStore(state => state.status === 'loggedIn');
   const permissionError = React.useRef(false);
@@ -76,7 +72,6 @@ const useLoadPaper = (paperId: string) => {
       doc.promise.then(
         newDoc => {
           setPdfDocument(newDoc);
-          extractSections(newDoc, setSections);
           setStatus({ state: 'Ready' });
         },
         reason => {

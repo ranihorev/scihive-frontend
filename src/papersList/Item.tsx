@@ -141,7 +141,7 @@ export const Item: React.FC<PapersListItemProps> = ({ paper, groups }) => {
       </Typography>
       <Spacer size={4} />
       <Typography variant="body2" color="textSecondary">
-        {moment.utc(paper.time_published).format('MMM DD, YYYY')}
+        {moment.utc(paper.timePublished).format('MMM DD, YYYY')}
       </Typography>
 
       <Spacer size={12} />

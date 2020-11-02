@@ -19,7 +19,7 @@ import React from 'react';
 import { HelpTooltip } from '../../utils/HelpTooltip';
 import { SidebarComments } from '../highlights/sidebar';
 import { Info } from '../paperInfo';
-import { PaperSections } from '../sections';
+import { TableOfContents } from '../sections';
 import styles from './styles.module.scss';
 
 const CollapsibleItem: React.FC<{ icon?: React.ReactElement; title: string; openOnMount?: boolean }> = ({
@@ -66,17 +66,17 @@ export const Sidebar: React.FC = React.memo(() => {
   const trigger = useScrollTrigger({ target: window });
   const menuItems = {
     info: {
-      icon: <InfoIcon />,
+      icon: <InfoIcon fontSize="small" />,
       title: 'Paper Details',
       element: <Info />,
     },
     sections: {
-      icon: <AccountTreeIcon />,
-      title: 'Sections',
-      element: <PaperSections />,
+      icon: <AccountTreeIcon fontSize="small" />,
+      title: 'Table of Contents',
+      element: <TableOfContents setIsDrawerOpen={setIsDrawerOpen} />,
     },
     comments: {
-      icon: <ChatIcon />,
+      icon: <ChatIcon fontSize="small" />,
       title: 'Comments',
       element: <SidebarComments />,
     },

@@ -15,7 +15,7 @@ import styles from './styles.module.scss';
 const InfoItem: React.FC<{ title: string }> = ({ title, children }) => {
   return (
     <div className={styles.paperInfoItem}>
-      <Typography className={styles.paperInfoItemTitle}>{title}</Typography>
+      <Typography>{title}</Typography>
       <Typography variant="body2" color="textSecondary">
         {children}
       </Typography>
@@ -24,8 +24,8 @@ const InfoItem: React.FC<{ title: string }> = ({ title, children }) => {
 };
 
 const InfoInternal: React.FC = () => {
-  const { title, authors, time_published, abstract, doi } = usePaperStore(
-    state => pick(state, ['title', 'authors', 'time_published', 'abstract', 'doi']),
+  const { title, authors, timePublished, abstract, doi } = usePaperStore(
+    state => pick(state, ['title', 'authors', 'timePublished', 'abstract', 'doi']),
     shallow,
   );
   return (
@@ -54,7 +54,7 @@ const InfoInternal: React.FC = () => {
             </React.Fragment>
           ))}
         </InfoItem>
-        <InfoItem title="Publish Date">{time_published && moment.utc(time_published).format('MMM DD, YYYY')}</InfoItem>
+        <InfoItem title="Publish Date">{timePublished && moment.utc(timePublished).format('MMM DD, YYYY')}</InfoItem>
         {doi && <InfoItem title="DOI">{doi}</InfoItem>}
         <InfoItem title="Abstract">
           <Latex>{abstract || ''}</Latex>
@@ -72,9 +72,11 @@ export const Info: React.FC = () => {
     <div className={styles.root}>
       {isFetching ? (
         <div className="flex flex-row items-center">
-          <Typography>Analyzing document...</Typography>
+          <Typography variant="body2" color="textSecondary">
+            Analyzing document...
+          </Typography>
           <Spacer size={8} />
-          <CircularProgress size={12} />
+          <CircularProgress size={10} />
         </div>
       ) : isEditOpen ? (
         <MetadataEditor onClose={() => setIsEditOpen(false)} />

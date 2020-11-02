@@ -14,10 +14,10 @@ import {
   GeneralHighlight,
   isGeneralHighlight,
   PaperJump,
-  Section,
   TempHighlight,
   T_Highlight,
   Visibility,
+  TableOfContents,
 } from '../models';
 import { CommentEvent } from '../paper/models';
 import { track } from '../Tracker';
@@ -27,7 +27,6 @@ import { AddRemovePaperToGroup, addRemovePaperToGroupHelper, createWithDevtools,
 export interface PaperState extends BasePaperData {
   url?: string;
   isDocumentReady: boolean;
-  sections?: Section[];
   acronyms: Acronyms;
   highlights: AllHighlight[];
   highlightsState: 'loading' | 'loaded';
@@ -50,7 +49,7 @@ const initialState: PaperState = {
   url: '',
   title: '',
   abstract: '',
-  time_published: '',
+  timePublished: '',
   authors: [],
   readingProgress: 0,
   highlightsState: 'loading',
@@ -68,15 +67,16 @@ const initialState: PaperState = {
 interface FetchPaperResponse {
   id: string;
   authors: Author[];
-  time_published?: string;
+  timePublished?: string;
   abstract?: string;
   url: string;
   title: string;
   code?: CodeMeta;
   groups: string[];
-  is_editable: boolean;
-  metadata_state: 'Fetching' | 'Ready';
+  isEditable: boolean;
+  metadataState: PaperState['metadataState'];
   doi?: string;
+  tableOfContents?: TableOfContents;
 }
 
 const sortHighlights = (highlights: AllHighlight[]): AllHighlight[] => {
@@ -209,12 +209,20 @@ const stateAndActions = (set: NamedSetState<PaperState>, get: GetState<PaperStat
       });
       paperId = data.id;
       const newState: Partial<PaperState> = {
-        url: data.url,
         codeMeta: data.code,
         groupIds: data.groups,
-        isEditable: data.is_editable,
-        metadataState: data.metadata_state,
-        ...pick(data, ['id', 'time_published', 'title', 'abstract', 'authors', 'doi']),
+        ...pick(data, [
+          'id',
+          'title',
+          'abstract',
+          'authors',
+          'doi',
+          'tableOfContents',
+          'timePublished',
+          'metadataState',
+          'isEditable',
+          'url',
+        ]),
       };
 
       set(newState, 'setPaper');
@@ -237,13 +245,16 @@ const stateAndActions = (set: NamedSetState<PaperState>, get: GetState<PaperStat
         return;
       }
       const { data: respData } = await axios.post<FetchPaperResponse>(`/paper/${paperId}/edit`, data);
-      const newData = pick(respData, ['time_published', 'title', 'abstract', 'authors', 'doi']);
+      const newData: Partial<PaperState> = {
+        ...pick(respData, ['title', 'abstract', 'authors', 'doi']),
+        timePublished: respData.timePublished,
+      };
       set(newData, 'editPaper');
     },
     setPaperJumpTo: ({ type, id }: { type: 'section' | 'highlight'; id: string }) => {
       let jumpData: PaperJump;
       if (type === 'section') {
-        const sections = get().sections || [];
+        const sections = get().tableOfContents || [];
         const currentSection = sections[parseInt(id)];
         if (!currentSection) return;
         jumpData = {
@@ -268,7 +279,6 @@ const stateAndActions = (set: NamedSetState<PaperState>, get: GetState<PaperStat
     clearPaperJumpTo: () => set({ paperJumpData: undefined }, 'clearPaperJumpTo'),
     setCommentVisibilitySettings: (visibility: Visibility) =>
       set({ commentVisibility: visibility }, 'commentVisibility'),
-    setSections: (sections: Section[]) => set({ sections }, 'setSections'),
     setTempHighlight: (highlight: TempHighlight) => set({ tempHighlight: highlight }),
     clearTempHighlight: () => set({ tempHighlight: undefined }),
     setDocumentReady: () => set({ isDocumentReady: true }),

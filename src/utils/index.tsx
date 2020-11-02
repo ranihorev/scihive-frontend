@@ -1,10 +1,11 @@
 import { AxiosError } from 'axios';
-import { Group, Section } from '../models';
+import { Group, ContentElement } from '../models';
 import * as presets from './presets';
 
-export const getSectionPosition = (section: Section) => ({
-  pageNumber: section.page + 1,
-  position: section.transform[section.transform.length - 1] + section.height,
+export const getSectionPosition = (section: ContentElement) => ({
+  // TODO: handle errors here
+  pageNumber: section.coordinates[0].page,
+  position: section.coordinates[0].y, // TODO: reverse this
 });
 
 export const createEvent = <D extends any>(type: string, details: D) => {

@@ -19,7 +19,10 @@ export const LoginForm: React.FC<{ onSuccess?: () => void; enableRedirect?: bool
       <LoginWithGoogle {...{ defaultRedirectTo, enableRedirect, onSuccess }} />
       <Spacer size={16} />
       {showLoginViaPassword ? (
-        <PasswordLoginForm {...{ defaultRedirectTo, enableRedirect, onSuccess }} />
+        <React.Fragment>
+          <Spacer size={12} />
+          <PasswordLoginForm {...{ defaultRedirectTo, enableRedirect, onSuccess }} />
+        </React.Fragment>
       ) : (
         <Link
           href="#"

@@ -145,12 +145,16 @@ export const Landing: React.FC = () => {
               title="Navigate"
               text={
                 <>
-                  Start navigating papers like a champ.
-                  <br />
-                  <br />
-                  Access references by the click of a button, instead of searching the literature manually.
-                  <br />
-                  SciHive also generates a convenient table of contents and deciphers acronyms automatically for you.
+                  Access references by the click of a button, instead of searching the literature manually. Using{' '}
+                  <Link
+                    href="https://github.com/kermitt2/grobid"
+                    color="inherit"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    GROBID
+                  </Link>
+                  , SciHive also generates a convenient table of contents with headers, figures and more.
                 </>
               }
             />

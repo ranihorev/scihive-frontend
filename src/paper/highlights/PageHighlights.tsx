@@ -3,20 +3,13 @@ import { css, jsx } from '@emotion/core';
 import { Paper } from '@material-ui/core';
 import React from 'react';
 import baseStyles from '../../base.module.scss';
-import {
-  isValidHighlight,
-  PaperJump,
-  TempHighlight,
-  T_ExtendedHighlight,
-  T_Highlight,
-  T_Position,
-  T_ScaledPosition,
-} from '../../models';
+import { isValidHighlight, PaperJump, TempHighlight, T_ExtendedHighlight, T_Highlight, T_Position } from '../../models';
+import { createListener } from '../../utils';
 import { Popup } from '../../utils/Popup';
+import { JUMP_TO_EVENT } from '../../utils/useJumpToHandler';
+import { scaledPositionToViewport } from '../pdfUtils/coordinates';
 import { HighlightContent, HighlightContentProps } from './HighlightContent';
 import SingleHighlightRects from './SingleHighlightRects';
-import { createListener } from '../../utils';
-import { JUMP_TO_EVENT } from '../../utils/useJumpToHandler';
 
 const PopupHighlightContent: React.FC<HighlightContentProps> = props => {
   return (
@@ -52,19 +45,14 @@ const SingleHighlight: React.FC<SingleHighlight> = React.memo(
   },
 );
 
-interface AllHighlights {
+interface PageHighlightsProps {
+  viewer: React.MutableRefObject<any>; // TODO: fix type
   highlights: T_ExtendedHighlight[];
   onHighlightClick?: (id: string) => void;
-  scaledPositionToViewport: (position: T_ScaledPosition) => T_Position;
   pageNumber: number;
 }
 
-export const PageHighlights: React.FC<AllHighlights> = ({
-  highlights,
-  onHighlightClick,
-  scaledPositionToViewport,
-  pageNumber,
-}) => {
+export const PageHighlights: React.FC<PageHighlightsProps> = ({ viewer, highlights, onHighlightClick, pageNumber }) => {
   const [scrollToId, setScrollToId] = React.useState<string | undefined>();
 
   React.useEffect(() => {
@@ -95,7 +83,7 @@ export const PageHighlights: React.FC<AllHighlights> = ({
       `}
     >
       {highlights.map((highlight, index) => {
-        const viewportPosition = scaledPositionToViewport(highlight.position);
+        const viewportPosition = scaledPositionToViewport(viewer, highlight.position);
         const isScrolledTo = Boolean(isValidHighlight(highlight) && scrollToId === highlight.id);
 
         const id = isValidHighlight(highlight) ? highlight.id : `temp-${index}`;

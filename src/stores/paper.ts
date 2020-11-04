@@ -14,10 +14,11 @@ import {
   GeneralHighlight,
   isGeneralHighlight,
   PaperJump,
+  References,
+  TableOfContents,
   TempHighlight,
   T_Highlight,
   Visibility,
-  TableOfContents,
 } from '../models';
 import { CommentEvent } from '../paper/models';
 import { track } from '../Tracker';
@@ -77,6 +78,7 @@ interface FetchPaperResponse {
   metadataState: PaperState['metadataState'];
   doi?: string;
   tableOfContents?: TableOfContents;
+  references?: References;
 }
 
 const sortHighlights = (highlights: AllHighlight[]): AllHighlight[] => {
@@ -143,7 +145,9 @@ const stateAndActions = (set: NamedSetState<PaperState>, get: GetState<PaperStat
         'updateGroups',
       );
     },
-    clearPaper: () => set(initialState, 'clearPaper'),
+    clearPaper: () => {
+      set({ ...initialState, references: undefined }, 'clearPaper');
+    },
     updateReadingProgress: (progress: number) => set({ readingProgress: progress }),
     setPaperData: (data: Partial<PaperState>) => set(data, 'setPaperData'),
     toggleHighlightsVisibility: () => {
@@ -218,6 +222,7 @@ const stateAndActions = (set: NamedSetState<PaperState>, get: GetState<PaperStat
           'authors',
           'doi',
           'tableOfContents',
+          'references',
           'timePublished',
           'metadataState',
           'isEditable',

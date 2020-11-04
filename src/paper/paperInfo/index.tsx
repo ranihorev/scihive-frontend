@@ -1,6 +1,6 @@
 /** @jsx jsx */
 import { jsx } from '@emotion/core';
-import { Button, CircularProgress, Typography } from '@material-ui/core';
+import { Button, Typography } from '@material-ui/core';
 import { pick } from 'lodash';
 import moment from 'moment';
 import React from 'react';
@@ -8,7 +8,6 @@ import { Link } from 'react-router-dom';
 import shallow from 'zustand/shallow';
 import { usePaperStore } from '../../stores/paper';
 import { Latex } from '../../utils/latex';
-import { Spacer } from '../../utils/Spacer';
 import { MetadataEditor } from './MetadataEditor';
 import styles from './styles.module.scss';
 
@@ -67,18 +66,9 @@ const InfoInternal: React.FC = () => {
 export const Info: React.FC = () => {
   const [isEditOpen, setIsEditOpen] = React.useState(false);
   const isEditable = usePaperStore(state => state.isEditable);
-  const isFetching = usePaperStore(state => state.metadataState === 'Fetching');
   return (
     <div className={styles.root}>
-      {isFetching ? (
-        <div className="flex flex-row items-center">
-          <Typography variant="body2" color="textSecondary">
-            Analyzing document...
-          </Typography>
-          <Spacer size={8} />
-          <CircularProgress size={10} />
-        </div>
-      ) : isEditOpen ? (
+      {isEditOpen ? (
         <MetadataEditor onClose={() => setIsEditOpen(false)} />
       ) : (
         <React.Fragment>

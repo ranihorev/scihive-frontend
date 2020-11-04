@@ -6,7 +6,7 @@ import { useLocation } from 'react-router';
 import shallow from 'zustand/shallow';
 import { createEvent, createListener, getSectionPosition } from '.';
 import { AllHighlight, isGeneralHighlight, PaperJump, TableOfContents } from '../models';
-import { scaledToViewport } from '../paper/pdfUtils/coordinates';
+import { scaledRectToViewport } from '../paper/pdfUtils/coordinates';
 import { usePaperStore } from '../stores/paper';
 
 export const JUMP_TO_EVENT = 'jumpToPaperLocation';
@@ -78,7 +78,7 @@ export const useJumpToHandler = (viewer: PDFViewer) => {
       if (event.detail.type === 'highlight') {
         const { boundingRect } = event.detail.location;
         if (page && page.div) {
-          inPageOffset = scaledToViewport(boundingRect, page.viewport, false).top;
+          inPageOffset = scaledRectToViewport(boundingRect, page.viewport).top;
         }
       } else {
         // scroll to section.

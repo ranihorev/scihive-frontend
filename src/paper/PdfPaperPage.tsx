@@ -1,15 +1,12 @@
 /** @jsx jsx */
 import { jsx } from '@emotion/core';
 import { Typography } from '@material-ui/core';
-import axios from 'axios';
 import { pick } from 'lodash';
 import { getDocument, GlobalWorkerOptions, PDFDocumentProxy, version as pdfJsVersion } from 'pdfjs-dist';
 import React from 'react';
-import { useQuery } from 'react-query';
 import shallow from 'zustand/shallow';
 import { LoginForm } from '../auth/LoginForm';
 import baseStyles from '../base.module.scss';
-import { References } from '../models';
 import { usePaperStore } from '../stores/paper';
 import { useUserStore } from '../stores/user';
 import { isAxiosError } from '../utils';
@@ -21,7 +18,6 @@ import { LoadStatus, LoadStatusState } from './models';
 import styles from './Paper.module.css';
 import PdfAnnotator from './PdfAnnotator';
 import { ReadingProgress } from './ReadingProgress';
-import { ReferencesProvider } from './ReferencesProvider';
 
 GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfJsVersion}/pdf.worker.js`;
 
@@ -105,15 +101,6 @@ const PdfPaperPage: React.FC<{ showInviteOnLoad?: boolean }> = ({ showInviteOnLo
   const setIsInviteOpen = usePaperStore(state => state.setIsInviteOpen);
   const isLoggedIn = useUserStore(state => state.status === 'loggedIn');
 
-  const { data: references } = useQuery(
-    ['references', { paperId }],
-    async () => {
-      const res = await axios.get<References>(`/paper/${paperId}/references`);
-      return res.data;
-    },
-    { refetchOnWindowFocus: false },
-  );
-
   React.useEffect(() => {
     if (SHOW_INVITE_STATES.includes(status.state) && showInviteOnLoad) {
       setIsInviteOpen(true);
@@ -147,9 +134,7 @@ const PdfPaperPage: React.FC<{ showInviteOnLoad?: boolean }> = ({ showInviteOnLo
       {pdfDocument && status.state === 'Ready' && (
         <React.Fragment>
           <div className={styles.wrapper}>
-            <ReferencesProvider references={references}>
-              <PdfAnnotator pdfDocument={pdfDocument} viewer={viewer} references={references} />
-            </ReferencesProvider>
+            <PdfAnnotator pdfDocument={pdfDocument} viewer={viewer} />
           </div>
           <div style={{ position: 'sticky', bottom: 0 }}>
             <ReadingProgress />

@@ -1,34 +1,17 @@
 import { Link, Typography } from '@material-ui/core';
-import { isEmpty, range } from 'lodash';
+import cx from 'classnames';
+import { isEmpty } from 'lodash';
 import React from 'react';
-import ContentLoader from 'react-content-loader';
-import baseStyles from '../../base.module.scss';
 import { PaperJump } from '../../models';
 import { usePaperStore } from '../../stores/paper';
 import { createEvent, getSectionPosition } from '../../utils';
 import { JUMP_TO_EVENT } from '../../utils/useJumpToHandler';
 import styles from './styles.module.scss';
-import cx from 'classnames';
 
 export const TableOfContents: React.FC<{ setIsDrawerOpen: React.Dispatch<boolean> }> = ({ setIsDrawerOpen }) => {
   const tableOfContents = usePaperStore(state => state.tableOfContents);
-  if (tableOfContents === undefined) {
-    return (
-      <React.Fragment>
-        {range(0, 5).map(idx => (
-          <ContentLoader key={idx} height={100}>
-            <React.Fragment>
-              <rect x="0" y="0" rx="3" ry="3" width="90%" height="13" />
-              <rect x="0" y="30" rx="3" ry="3" width="80%" height="13" />
-              <rect x="20" y="60" rx="3" ry="3" width="80%" height="13" />
-            </React.Fragment>
-          </ContentLoader>
-        ))}
-      </React.Fragment>
-    );
-  }
 
-  if (isEmpty(tableOfContents)) {
+  if (!tableOfContents || isEmpty(tableOfContents)) {
     return (
       <Typography variant="body2" color="textSecondary">
         Failed to extract table of contents :(

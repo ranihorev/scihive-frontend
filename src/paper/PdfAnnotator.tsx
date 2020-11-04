@@ -5,35 +5,24 @@ import cx from 'classnames';
 import { debounce, pick } from 'lodash';
 import { PDFDocumentProxy } from 'pdfjs-dist';
 // @ts-ignore
-import { EventBus, PDFLinkService, PDFViewer, PDFFindController } from 'pdfjs-dist/web/pdf_viewer';
+import { EventBus, PDFFindController, PDFLinkService, PDFViewer } from 'pdfjs-dist/web/pdf_viewer';
 import 'pdfjs-dist/web/pdf_viewer.css';
 import React from 'react';
-import { useCookies } from 'react-cookie';
-import { isMobile } from 'react-device-detect';
 import ReactDom from 'react-dom';
 import shallow from 'zustand/shallow';
-import {
-  isDirectHighlight,
-  PaperJump,
-  References,
-  T_Highlight,
-  T_NewHighlight,
-  T_Position,
-  T_ScaledPosition,
-} from '../models';
+import { isDirectHighlight, T_Highlight, T_NewHighlight, T_Position } from '../models';
 import { usePaperStore } from '../stores/paper';
-import { createEvent } from '../utils';
 import { Spacer } from '../utils/Spacer';
-import { JUMP_TO_EVENT, useJumpToHandler } from '../utils/useJumpToHandler';
+import { useJumpToHandler } from '../utils/useJumpToHandler';
 import { useLatestCallback } from '../utils/useLatestCallback';
 import { NewHighlightContainer } from './highlights/NewHighlightContainer';
 import { PageHighlights } from './highlights/PageHighlights';
 import styles from './PdfAnnotator.module.scss';
-import { scaledToViewport, viewportToScaled } from './pdfUtils/coordinates';
+import { viewportPositionToScaled } from './pdfUtils/coordinates';
 import getBoundingRect from './pdfUtils/get-bounding-rect';
 import getClientRects from './pdfUtils/get-client-rects';
-import { findOrCreateContainerLayer, getElementFromRange, getPageFromRange } from './pdfUtils/pdfjs-dom';
-import { ReferencesPopoverState } from './ReferencesProvider';
+import { findOrCreateLayer, getElementFromRange, getPageFromRange } from './pdfUtils/pdfjs-dom';
+import { ActiveReference, ReferencesPopupManager, useRenderCitations, useToggleReferencesOnMove } from './references';
 import { useCommentsSocket } from './useCommentsSocket';
 
 const zoomButtonCss = css`
@@ -57,49 +46,37 @@ const ZoomButton = ({ direction, onClick }: any) => (
 );
 
 interface PdfAnnotatorProps {
-  setReferencePopoverState?: (props: ReferencesPopoverState) => void;
   pdfDocument: PDFDocumentProxy;
   initialWidth?: number;
   viewer: React.MutableRefObject<PDFViewer>;
-  references?: References;
 }
 
-const ONBOARDING_COOKIE = 'onboarding_cookie';
-
 // TODO: improve typing here
-const jumpToCite = async (doc: any, href: string) => {
-  doc
-    .getDestination(href.replace('#', ''))
-    .then((citePos: any) =>
-      doc.getPageIndex(citePos[0]).then((pageNumber: number) => {
-        document.dispatchEvent(
-          createEvent<PaperJump>(JUMP_TO_EVENT, {
-            area: 'paper',
-            type: 'section',
-            id: href,
-            location: { pageNumber: pageNumber + 1, position: citePos[3] },
-          }),
-        );
-      }),
-    )
-    .catch((e: any) => console.warn(e));
-};
+// const jumpToCite = async (doc: any, href: string) => {
+//   doc
+//     .getDestination(href.replace('#', ''))
+//     .then((citePos: any) =>
+//       doc.getPageIndex(citePos[0]).then((pageNumber: number) => {
+//         document.dispatchEvent(
+//           createEvent<PaperJump>(JUMP_TO_EVENT, {
+//             area: 'paper',
+//             type: 'section',
+//             id: href,
+//             location: { pageNumber: pageNumber + 1, position: citePos[3] },
+//           }),
+//         );
+//       }),
+//     )
+//     .catch((e: any) => console.warn(e));
+// };
 
-const PdfAnnotator: React.FC<PdfAnnotatorProps> = ({
-  setReferencePopoverState,
-  pdfDocument,
-  initialWidth,
-  viewer,
-  references = {},
-}) => {
+const PdfAnnotator: React.FC<PdfAnnotatorProps> = ({ pdfDocument, initialWidth, viewer }) => {
   const [isSelecting, setIsSelecting] = React.useState(false);
+  const [activeReference, setActiveReference] = React.useState<ActiveReference | undefined>();
   const lastTempHighlightPage = React.useRef<number | undefined>();
   const selectionTextLayerRef = React.useRef<HTMLElement | null>(null);
   const pagesReadyToRender = React.useRef<number[]>([]);
-  const canZoom = React.useRef(true);
-  const [cookies, setCookie] = useCookies([]);
-  const isOnboarding = React.useRef(false);
-  const onboardingTeardown = React.useRef<() => void>();
+  const zoomTimeout = React.useRef<number | undefined>();
 
   const {
     highlights,
@@ -126,8 +103,10 @@ const PdfAnnotator: React.FC<PdfAnnotatorProps> = ({
 
   useCommentsSocket();
 
+  const renderCitations = useRenderCitations({ viewer, isDocumentReady, pagesReadyToRender });
+  const onMouseMove = useToggleReferencesOnMove(isSelecting, setActiveReference);
+
   const containerNode = React.useRef<HTMLDivElement>(null);
-  const highlightLayerNode = React.useRef<HTMLDivElement>(null);
 
   const handleKeyDown = useLatestCallback((event: KeyboardEvent) => {
     if (event.code === 'Escape') {
@@ -182,20 +161,10 @@ const PdfAnnotator: React.FC<PdfAnnotatorProps> = ({
     debouncedOnTextSelection(curRange);
   });
 
-  const viewportPositionToScaled = ({ pageNumber, boundingRect, rects }: T_Position) => {
-    const { viewport } = viewer.current.getPageView(pageNumber - 1);
-
-    return {
-      boundingRect: viewportToScaled(boundingRect, viewport),
-      rects: (rects || []).map(rect => viewportToScaled(rect, viewport)),
-      pageNumber,
-    };
-  };
-
   const renderTipAtPosition = (position: T_Position, highlighted_text: T_NewHighlight['highlighted_text']) => {
     const { boundingRect, pageNumber } = position;
     const page = { node: viewer.current.getPageView(pageNumber - 1).div };
-    const scaledPosition = viewportPositionToScaled(position);
+    const scaledPosition = viewportPositionToScaled(viewer, position);
 
     const size = {
       left: page.node.offsetLeft + boundingRect.left + boundingRect.width / 2,
@@ -203,22 +172,6 @@ const PdfAnnotator: React.FC<PdfAnnotatorProps> = ({
       bottom: boundingRect.top + page.node.offsetTop + boundingRect.height,
     };
     setTempHighlight({ position: scaledPosition, highlighted_text, size });
-  };
-
-  const scaledPositionToViewport = ({ pageNumber, boundingRect, rects, usePdfCoordinates }: T_ScaledPosition) => {
-    const { viewport } = viewer.current.getPageView(pageNumber - 1);
-
-    return {
-      boundingRect: scaledToViewport(boundingRect, viewport, usePdfCoordinates),
-      rects: (rects || []).map(rect => scaledToViewport(rect, viewport, usePdfCoordinates)),
-      pageNumber,
-    };
-  };
-
-  const findOrCreateHighlightLayer = (page: number) => {
-    const { annotationLayer } = viewer.current.getPageView(page - 1);
-    if (!annotationLayer) return null;
-    return findOrCreateContainerLayer(annotationLayer.pageDiv, 'page-highlights');
   };
 
   const renderHighlights = useLatestCallback((pageNumber: number) => {
@@ -232,14 +185,14 @@ const PdfAnnotator: React.FC<PdfAnnotatorProps> = ({
         : existingPageHighlights;
 
     if (!pdfDocument) return;
-    const highlightLayer = findOrCreateHighlightLayer(pageNumber);
+    const highlightLayer = findOrCreateLayer(viewer, pageNumber, 'page-highlights');
     if (highlightLayer) {
       ReactDom.render(
         <PageHighlights
+          viewer={viewer}
           pageNumber={pageNumber}
           onHighlightClick={() => {}}
           highlights={pageHighlights}
-          scaledPositionToViewport={scaledPositionToViewport}
         />,
         highlightLayer,
       );
@@ -249,28 +202,14 @@ const PdfAnnotator: React.FC<PdfAnnotatorProps> = ({
   useJumpToHandler(viewer);
 
   const onTextLayerRendered = useLatestCallback(({ pageNumber }: { pageNumber: number }) => {
-    // TODO: clear previous timeout and remove timeout on unmount
-    setTimeout(() => {
-      // This hack helps us ensure the the user doesn't zoom in/out too fast
-      canZoom.current = true;
-    }, 200);
-
     renderHighlights(pageNumber);
+    renderCitations(pageNumber);
     pagesReadyToRender.current.push(pageNumber);
-    // const { textLayer } = viewer.current.getPageView(pageNumber - 1);
-    if (pageNumber - 1 === 0 && !cookies[ONBOARDING_COOKIE]) {
-      // onboardingTeardown.current = activateOnboarding(textLayer);
-      isOnboarding.current = true;
-      setCookie(ONBOARDING_COOKIE, { domain: '.scihive.org', sameSite: true, path: '/' });
-    }
   });
 
-  React.useEffect(() => {
-    return onboardingTeardown.current?.();
-  }, []);
+  React.useEffect(() => {}, []);
 
   const onMouseDown = (event: React.MouseEvent) => {
-    isOnboarding.current = false;
     clearTempHighlight();
   };
 
@@ -284,36 +223,19 @@ const PdfAnnotator: React.FC<PdfAnnotatorProps> = ({
   };
 
   const zoom = (sign: number) => {
-    if (canZoom.current) {
-      viewer.current.currentScale = viewer.current.currentScale + sign * 0.05;
-    }
-    canZoom.current = false;
+    if (zoomTimeout.current) return;
+    viewer.current.currentScale = viewer.current.currentScale + sign * 0.05;
+    zoomTimeout.current = window.setTimeout(() => {
+      // This hack helps us ensure the the user doesn't zoom in/out too fast
+      clearTimeout(zoomTimeout.current);
+      zoomTimeout.current = undefined;
+    }, 200);
   };
 
-  const onReferenceEnter = useLatestCallback((e: React.MouseEvent) => {
-    if (isSelecting) return; // Don't open popup when selecting text
-    const target = e.target as HTMLElement;
-    if (!target) return;
-    const href = target.getAttribute('href') || '';
-    if (e.type === 'click' && !isMobile && target.tagName === 'A') {
-      jumpToCite(pdfDocument, href);
-    }
-    if (!(target.tagName === 'A' && href.includes('#cite'))) return;
-
-    const cite = decodeURIComponent(href.replace('#cite.', ''));
-    if (references.hasOwnProperty(cite)) {
-      if (isMobile) {
-        target.onclick = event => {
-          event.preventDefault();
-        };
-      }
-      if (!setReferencePopoverState) return;
-      if (e.type === 'click' && !isMobile) {
-        setReferencePopoverState({ citeId: '' });
-      } else {
-        setReferencePopoverState({ anchor: target, citeId: cite });
-      }
-    }
+  React.useEffect(() => {
+    return () => {
+      clearTimeout(zoomTimeout.current);
+    };
   });
 
   React.useEffect(() => {
@@ -393,13 +315,13 @@ const PdfAnnotator: React.FC<PdfAnnotatorProps> = ({
         onMouseUp={onMouseUp}
         className={styles.pdfHighlighter}
         onContextMenu={e => e.preventDefault()}
-        onClick={onReferenceEnter}
-        onMouseOver={onReferenceEnter}
+        // onClick={onReferenceEnter}
+        onMouseOver={onMouseMove}
       >
         <div id="pdfViewer" className={cx(styles.pdfViewer, 'pdfViewer')} />
-        <NewHighlightContainer isOnboarding={isOnboarding.current} />
-        <div ref={highlightLayerNode} />
+        <NewHighlightContainer />
       </div>
+      <ReferencesPopupManager activeReference={activeReference} clearReference={() => setActiveReference(undefined)} />
     </React.Fragment>
   );
 };

@@ -1,9 +1,9 @@
 /** @jsx jsx */
 import { jsx } from '@emotion/core';
-import { Link, Typography } from '@material-ui/core';
+import { Link } from '@material-ui/core';
 import React from 'react';
-import { LoginWithGoogle } from './Google';
 import { Spacer } from '../utils/Spacer';
+import { LoginWithGoogle } from './Google';
 import { PasswordLoginForm } from './PasswordLogin';
 import styles from './styles.module.scss';
 

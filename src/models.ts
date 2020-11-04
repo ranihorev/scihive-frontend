@@ -30,7 +30,6 @@ export interface T_ScaledPosition {
   boundingRect: T_Scaled;
   rects: T_Scaled[];
   pageNumber: number;
-  usePdfCoordinates?: boolean;
 }
 
 export interface SimplePosition {
@@ -138,13 +137,23 @@ export interface DetailedGroup extends Group {
   num_papers: number;
 }
 
-export interface Reference {
-  html: string;
-  arxivId: string;
+export interface Citation {
+  target: string;
+  coordinates: BoundingBox[];
+}
+
+export interface BibliographyItem {
+  text: string;
+  coordinates?: BoundingBox[];
+}
+
+export interface Bibliography {
+  [citeId: string]: BibliographyItem;
 }
 
 export interface References {
-  [citeId: string]: Reference;
+  citations: Citation[];
+  bibliography: Bibliography;
 }
 
 interface BasePaperJump {
@@ -194,6 +203,7 @@ export interface BasePaperData {
   timePublished: string;
   doi?: string;
   tableOfContents?: TableOfContents;
+  references?: References;
 }
 
 export interface PapersListRequestParams {
@@ -227,7 +237,7 @@ export interface Author {
   id?: string;
 }
 
-export interface FileMetadata extends Omit<BasePaperData, 'id' | 'timePublished' | 'tableOfContents'> {
+export interface FileMetadata extends Omit<BasePaperData, 'id' | 'timePublished' | 'tableOfContents' | 'references'> {
   date: string;
   removed_authors?: string[];
 }

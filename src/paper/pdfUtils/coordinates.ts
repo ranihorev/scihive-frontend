@@ -3,7 +3,7 @@
 // for clarity reasons I decided not to store actual (0, 1) coordinates, but
 // provide width and height, so user can compute ratio himself if needed
 
-import { T_LTWH, T_Scaled } from '../../models';
+import { T_LTWH, T_Position, T_Scaled, T_ScaledPosition } from '../../models';
 
 interface T_VIEWPORT {
   convertToPdfPoint: (x: number, y: number) => Array<number>;
@@ -14,7 +14,7 @@ interface T_VIEWPORT {
 
 type WIDTH_HEIGHT = { width: number; height: number };
 
-export const viewportToScaled = (rect: T_LTWH, { width, height }: WIDTH_HEIGHT): T_Scaled => {
+export const viewportRectToScaled = (rect: T_LTWH, { width, height }: WIDTH_HEIGHT): T_Scaled => {
   return {
     x1: rect.left,
     y1: rect.top,
@@ -27,32 +27,8 @@ export const viewportToScaled = (rect: T_LTWH, { width, height }: WIDTH_HEIGHT):
   };
 };
 
-const pdfToViewport = (pdf: T_Scaled, viewport: T_VIEWPORT): T_LTWH => {
-  const [x1, y1, x2, y2] = viewport.convertToViewportRectangle([pdf.x1, pdf.y1, pdf.x2, pdf.y2]);
-
-  return {
-    left: x1,
-    top: y1,
-
-    width: x2 - x1,
-    height: y1 - y2,
-  };
-};
-
-export const scaledToViewport = (
-  scaled: T_Scaled,
-  viewport: T_VIEWPORT,
-  usePdfCoordinates: boolean = false,
-): T_LTWH => {
+export const scaledRectToViewport = (scaled: T_Scaled, viewport: T_VIEWPORT): T_LTWH => {
   const { width, height } = viewport;
-
-  if (usePdfCoordinates) {
-    return pdfToViewport(scaled, viewport);
-  }
-
-  if (scaled.x1 === undefined) {
-    throw new Error('You are using old position format, please update');
-  }
 
   const x1 = (width * scaled.x1) / scaled.width;
   const y1 = (height * scaled.y1) / scaled.height;
@@ -65,5 +41,31 @@ export const scaledToViewport = (
     top: y1,
     width: x2 - x1,
     height: y2 - y1,
+  };
+};
+
+// TODO: replace with proper type
+export const viewportPositionToScaled = (
+  viewer: React.MutableRefObject<any>,
+  { pageNumber, boundingRect, rects }: T_Position,
+) => {
+  const { viewport } = viewer.current.getPageView(pageNumber - 1);
+
+  return {
+    boundingRect: viewportRectToScaled(boundingRect, viewport),
+    rects: (rects || []).map(rect => viewportRectToScaled(rect, viewport)),
+    pageNumber,
+  };
+};
+
+export const scaledPositionToViewport = (
+  viewer: React.MutableRefObject<any>,
+  { pageNumber, boundingRect, rects }: T_ScaledPosition,
+) => {
+  const { viewport } = viewer.current.getPageView(pageNumber - 1);
+  return {
+    boundingRect: scaledRectToViewport(boundingRect, viewport),
+    rects: (rects || []).map(rect => scaledRectToViewport(rect, viewport)),
+    pageNumber,
   };
 };

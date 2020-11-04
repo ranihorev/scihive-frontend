@@ -45,3 +45,10 @@ export const findOrCreateContainerLayer = (container: HTMLElement, className: st
 
   return layer;
 };
+
+// TODO: replace viewer type with the proper type from pdfjs
+export const findOrCreateLayer = (viewer: React.MutableRefObject<any>, page: number, layerName: string) => {
+  const { annotationLayer } = viewer.current.getPageView(page - 1);
+  if (!annotationLayer) return null;
+  return findOrCreateContainerLayer(annotationLayer.pageDiv, layerName);
+};

@@ -1,14 +1,13 @@
 import { Link, Typography } from '@material-ui/core';
+import cx from 'classnames';
 import { isEmpty, range } from 'lodash';
 import React from 'react';
 import ContentLoader from 'react-content-loader';
-import baseStyles from '../../base.module.scss';
 import { PaperJump } from '../../models';
 import { usePaperStore } from '../../stores/paper';
 import { createEvent, getSectionPosition } from '../../utils';
 import { JUMP_TO_EVENT } from '../../utils/useJumpToHandler';
 import styles from './styles.module.scss';
-import cx from 'classnames';
 
 export const TableOfContents: React.FC<{ setIsDrawerOpen: React.Dispatch<boolean> }> = ({ setIsDrawerOpen }) => {
   const tableOfContents = usePaperStore(state => state.tableOfContents);

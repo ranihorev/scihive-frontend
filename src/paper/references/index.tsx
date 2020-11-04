@@ -64,6 +64,13 @@ interface UseRenderCitationsProps {
   pagesReadyToRender: React.MutableRefObject<number[]>;
 }
 
+const clearLinkAnnotations = (viewer: React.MutableRefObject<any>, pageNumber: number) => {
+  const pageDiv = viewer.current.getPageView(pageNumber - 1)?.div as Element | undefined;
+  if (!pageDiv) return;
+  const linkAnnotations = pageDiv.querySelectorAll('.linkAnnotation');
+  linkAnnotations.forEach(link => link.remove());
+};
+
 export const useRenderCitations = ({
   viewer,
   isDocumentReady,
@@ -75,13 +82,14 @@ export const useRenderCitations = ({
     if (!references) return;
     const citationsLayer = findOrCreateLayer(viewer, pageNumber, 'page-citations');
     if (citationsLayer) {
+      clearLinkAnnotations(viewer, pageNumber);
       ReactDom.render(<PageCitations {...{ viewer, references, pageNumber, setActiveReference }} />, citationsLayer);
     }
   });
 
   React.useEffect(() => {
     // Render all of the pages that are ready on every change of highlights
-    if (!isDocumentReady || references) return;
+    if (!isDocumentReady || !references) return;
     for (const pageNumber of pagesReadyToRender.current) {
       renderPageCitations(pageNumber);
     }
@@ -99,7 +107,7 @@ export const ReferencesPopupManager: React.FC<{
   const activeReferenceData = activeReference ? references.bibliography[activeReference.id] : undefined;
   const content = activeReferenceData ? (
     <Paper className={baseStyles.popup}>
-      <Typography variant="body2">
+      <Typography variant="body2" className="leading-5">
         <Linkify>{activeReferenceData.text}</Linkify>
       </Typography>
     </Paper>

@@ -145,7 +145,9 @@ const stateAndActions = (set: NamedSetState<PaperState>, get: GetState<PaperStat
         'updateGroups',
       );
     },
-    clearPaper: () => set(initialState, 'clearPaper'),
+    clearPaper: () => {
+      set({ ...initialState, references: undefined }, 'clearPaper');
+    },
     updateReadingProgress: (progress: number) => set({ readingProgress: progress }),
     setPaperData: (data: Partial<PaperState>) => set(data, 'setPaperData'),
     toggleHighlightsVisibility: () => {

@@ -2,7 +2,7 @@
 import { css, jsx } from '@emotion/core';
 import Fab from '@material-ui/core/Fab';
 import cx from 'classnames';
-import { debounce, pick } from 'lodash';
+import { pick, throttle } from 'lodash';
 import { PDFDocumentProxy } from 'pdfjs-dist';
 // @ts-ignore
 import { EventBus, PDFFindController, PDFLinkService, PDFViewer } from 'pdfjs-dist/web/pdf_viewer';
@@ -130,7 +130,7 @@ const PdfAnnotator: React.FC<PdfAnnotatorProps> = ({ pdfDocument, initialWidth, 
     setDocumentReady();
   });
 
-  const debouncedOnTextSelection = debounce(newRange => {
+  const onTextSelection = useLatestCallback((newRange: Range) => {
     const page = getPageFromRange(newRange);
     if (!page) return;
     const rects = getClientRects(newRange, page.node);
@@ -142,7 +142,11 @@ const PdfAnnotator: React.FC<PdfAnnotatorProps> = ({ pdfDocument, initialWidth, 
 
     const highlighted_text: T_NewHighlight['highlighted_text'] = newRange.toString();
     renderTipAtPosition(viewportPosition, highlighted_text);
-  }, 30);
+  });
+
+  const throttledOnTextSelection = React.useMemo(() => {
+    return throttle(onTextSelection, 200, { leading: true, trailing: true });
+  }, [onTextSelection]);
 
   const onTextSelectionChange = useLatestCallback(() => {
     const selection = window.getSelection();
@@ -158,7 +162,7 @@ const PdfAnnotator: React.FC<PdfAnnotatorProps> = ({ pdfDocument, initialWidth, 
       selectionTextLayerRef.current = textLayer;
       textLayer.style.zIndex = '5';
     }
-    debouncedOnTextSelection(curRange);
+    throttledOnTextSelection(curRange);
   });
 
   const renderTipAtPosition = (position: T_Position, highlighted_text: T_NewHighlight['highlighted_text']) => {
@@ -265,6 +269,7 @@ const PdfAnnotator: React.FC<PdfAnnotatorProps> = ({ pdfDocument, initialWidth, 
       removePageBorders: true,
       linkService,
       findController,
+      textLayerMode: 2,
     });
 
     viewer.current.setDocument(pdfDocument);

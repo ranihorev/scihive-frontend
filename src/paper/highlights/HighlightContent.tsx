@@ -1,6 +1,7 @@
 /** @jsx jsx */
 import { jsx } from '@emotion/core';
 import { Typography } from '@material-ui/core';
+import cx from 'classnames';
 import copy from 'clipboard-copy';
 import { isEmpty, pick } from 'lodash';
 import React from 'react';
@@ -123,7 +124,12 @@ export const HighlightContent: React.FC<HighlightContentProps> = ({
             <Spacer size={8} />
           </React.Fragment>
         ) : (
-          <Typography variant="body1" onClick={() => onGoto?.()} className={onGoto ? 'cursor-pointer' : undefined}>
+          <Typography
+            component="div"
+            variant="body1"
+            onClick={() => onGoto?.()}
+            className={cx(onGoto ? 'cursor-pointer' : undefined, 'whitespace-pre-line')}
+          >
             <TextLinkifyLatex text={comment} />
           </Typography>
         )}

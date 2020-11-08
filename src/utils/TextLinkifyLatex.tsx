@@ -8,7 +8,13 @@ const truncateURL = (url: string) => {
 
 const componentDecoratorWithTargetBlank = (decoratedHref: string, decoratedText: string, key: number) => {
   return (
-    <a href={decoratedHref} key={key} target="_blank" rel="noopener noreferrer">
+    <a
+      href={decoratedHref}
+      key={key}
+      target="_blank"
+      rel="noopener noreferrer"
+      className="text-blue-500 hover:underline"
+    >
       {decoratedText}
     </a>
   );

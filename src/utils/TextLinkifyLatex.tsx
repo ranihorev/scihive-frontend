@@ -6,7 +6,7 @@ const truncateURL = (url: string) => {
   return `${url.replace(/^https?:\/\//, '').substring(0, 20)}...`;
 };
 
-const componentDecoratorWithTargetBlank = (decoratedHref: string, decoratedText: string, key: number) => {
+export const componentDecoratorWithTargetBlank = (decoratedHref: string, decoratedText: string, key: number) => {
   return (
     <a
       href={decoratedHref}
@@ -17,6 +17,28 @@ const componentDecoratorWithTargetBlank = (decoratedHref: string, decoratedText:
     >
       {decoratedText}
     </a>
+  );
+};
+
+export const LinkifyArxivIds: React.FC = ({ children }) => {
+  return (
+    <Linkify
+      matchDecorator={value => {
+        const matches = value.matchAll(/\d{4}\.\d{4,5}/g);
+        return [...matches].map(match => {
+          return {
+            schema: '',
+            index: match.index || 0,
+            lastIndex: (match.index || 0) + match[0].length,
+            text: match[0],
+            url: `/paper/${match[0]}`,
+          };
+        });
+      }}
+      componentDecorator={componentDecoratorWithTargetBlank}
+    >
+      {children}
+    </Linkify>
   );
 };
 

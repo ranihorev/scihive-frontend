@@ -7,6 +7,7 @@ import baseStyles from '../../base.module.scss';
 import { References } from '../../models';
 import { usePaperStore } from '../../stores/paper';
 import { PopupManager } from '../../utils/Popup';
+import { componentDecoratorWithTargetBlank, LinkifyArxivIds } from '../../utils/TextLinkifyLatex';
 import { useLatestCallback } from '../../utils/useLatestCallback';
 import { findOrCreateLayer } from '../pdfUtils/pdfjs-dom';
 
@@ -108,7 +109,9 @@ export const ReferencesPopupManager: React.FC<{
   const content = activeReferenceData ? (
     <Paper className={baseStyles.popup}>
       <Typography variant="body2" className="leading-5">
-        <Linkify>{activeReferenceData.text}</Linkify>
+        <LinkifyArxivIds>
+          <Linkify componentDecorator={componentDecoratorWithTargetBlank}>{activeReferenceData.text}</Linkify>
+        </LinkifyArxivIds>
       </Typography>
     </Paper>
   ) : null;

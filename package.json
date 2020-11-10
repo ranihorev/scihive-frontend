@@ -1,7 +1,27 @@
 {
   "name": "knowpro-frontend",
-  "version": "0.1.0",
+  "version": "1.0.0",
   "private": true,
+  "scripts": {
+    "start:watch": "npm-run-all -p watch:css start",
+    "start:react": "react-scripts start",
+    "start": "yarn build:css && yarn start:react",
+    "build": "NODE_ENV=production yarn build:css && react-app-rewired build",
+    "analyze": "NODE_ENV=production yarn build && source-map-explorer 'build/static/js/*.js'",
+    "test": "react-app-rewired test",
+    "eject": "react-scripts eject",
+    "build:css": "postcss src/tailwind.css -o src/index.css",
+    "watch:css": "postcss -w src/tailwind.css -o src/index.css"
+  },
+  "eslintConfig": {
+    "extends": "react-app"
+  },
+  "browserslist": [
+    ">0.2%",
+    "not dead",
+    "not ie <= 11",
+    "not op_mini all"
+  ],
   "dependencies": {
     "@date-io/moment": "^1.3.13",
     "@emotion/core": "^10.0.28",
@@ -44,27 +64,8 @@
     "typescript": "^3.9.6",
     "zustand": "^2.2.1"
   },
-  "scripts": {
-    "start:watch": "npm-run-all -p watch:css start",
-    "start:react": "react-scripts start",
-    "start": "yarn build:css && yarn start:react",
-    "build": "NODE_ENV=production yarn build:css && react-scripts build",
-    "analyze": "NODE_ENV=production yarn build && source-map-explorer 'build/static/js/*.js'",
-    "test": "react-app-rewired test",
-    "eject": "react-scripts eject",
-    "build:css": "postcss src/tailwind.css -o src/index.css",
-    "watch:css": "postcss -w src/tailwind.css -o src/index.css"
-  },
-  "eslintConfig": {
-    "extends": "react-app"
-  },
-  "browserslist": [
-    ">0.2%",
-    "not dead",
-    "not ie <= 11",
-    "not op_mini all"
-  ],
   "devDependencies": {
+    "@sentry/webpack-plugin": "^1.13.0",
     "@types/chrome": "^0.0.97",
     "@types/classnames": "^2.2.10",
     "@types/color": "^3.0.0",
@@ -104,7 +105,7 @@
     "npm-run-all": "^4.1.5",
     "postcss-cli": "^8.0.0",
     "prettier": "^1.17.0",
-    "react-app-rewired": "^2.1.3",
+    "react-app-rewired": "^2.1.6",
     "react-query-devtools": "^2.4.4",
     "source-map-explorer": "^2.5.0",
     "tailwindcss": "^1.8.10",

@@ -198,7 +198,7 @@ export type TableOfContents = ContentElement[];
 export interface BasePaperData {
   id?: string;
   title: string;
-  abstract: string;
+  abstract?: string;
   authors: Author[];
   timePublished: string;
   doi?: string;

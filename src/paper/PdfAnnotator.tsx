@@ -23,7 +23,7 @@ import getBoundingRect from './pdfUtils/get-bounding-rect';
 import getClientRects from './pdfUtils/get-client-rects';
 import { findOrCreateLayer, getElementFromRange, getPageFromRange } from './pdfUtils/pdfjs-dom';
 import { ActiveReference, ReferencesPopupManager, useRenderCitations, useToggleReferencesOnMove } from './references';
-import { useCommentsSocket } from './useCommentsSocket';
+import { useCommentsSocket, useFetchMetadata } from './usePaperSocket';
 
 const zoomButtonCss = css`
   color: black;
@@ -102,6 +102,7 @@ const PdfAnnotator: React.FC<PdfAnnotatorProps> = ({ pdfDocument, initialWidth, 
   );
 
   useCommentsSocket();
+  useFetchMetadata();
 
   const renderCitations = useRenderCitations({ viewer, isDocumentReady, pagesReadyToRender });
   const onMouseMove = useToggleReferencesOnMove(isSelecting, setActiveReference);

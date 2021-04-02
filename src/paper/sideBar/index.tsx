@@ -32,7 +32,7 @@ const RenderIfReady: React.FC<{ children: React.ReactElement }> = ({ children })
     return (
       <div className="flex flex-row items-center">
         <Typography variant="body2" color="textSecondary">
-          Analyzing document...
+          Analyzing document. This could take 2-3 minutes...
         </Typography>
         <Spacer size={8} />
         <CircularProgress size={10} />

@@ -6,7 +6,6 @@ import {
   Acronyms,
   AllHighlight,
   AllNewHighlight,
-  Author,
   BasePaperData,
   CodeMeta,
   EditHighlightData,
@@ -14,8 +13,6 @@ import {
   GeneralHighlight,
   isGeneralHighlight,
   PaperJump,
-  References,
-  TableOfContents,
   TempHighlight,
   T_Highlight,
   Visibility,
@@ -65,20 +62,13 @@ const initialState: PaperState = {
   metadataState: 'Fetching',
 };
 
-interface FetchPaperResponse {
+export interface FetchPaperResponse extends BasePaperData {
   id: string;
-  authors: Author[];
-  timePublished?: string;
-  abstract?: string;
   url: string;
-  title: string;
   code?: CodeMeta;
   groups: string[];
   isEditable: boolean;
   metadataState: PaperState['metadataState'];
-  doi?: string;
-  tableOfContents?: TableOfContents;
-  references?: References;
 }
 
 const sortHighlights = (highlights: AllHighlight[]): AllHighlight[] => {

@@ -153,9 +153,7 @@ export const Item: React.FC<PapersListItemProps> = ({ paper, groups }) => {
       {expanded && (
         <React.Fragment>
           <Typography variant="body2" className="pt-2">
-            <span className="leading-relaxed text-gray-700">
-              <Latex>{paper.abstract}</Latex>
-            </span>
+            <span className="leading-relaxed text-gray-700">{paper.abstract && <Latex>{paper.abstract}</Latex>}</span>
           </Typography>
         </React.Fragment>
       )}

@@ -43,6 +43,7 @@ const Header: React.FC = ({ children }) => {
 const MetadataEditorInternal: React.FC<AllProps> = ({ onSubmit, onClose, metadata: inputMetadata }) => {
   const [metadata, setMetadata] = React.useState<Required<FileMetadataInternal>>({
     ...inputMetadata,
+    abstract: inputMetadata.abstract || '',
     title: inputMetadata.title || '',
     date: moment.utc(inputMetadata.date),
     removed_authors: [],

@@ -1,8 +1,8 @@
 import React from 'react';
-import io from 'socket.io-client';
+import { io, Socket } from 'socket.io-client';
 
 export class SocketManager {
-  public socket: SocketIOClient.Socket;
+  public socket: Socket;
   constructor(host: string) {
     this.socket = io(host, { reconnectionDelay: 2000, transports: ['websocket'] });
     this.socket.on('disconnect', () => {

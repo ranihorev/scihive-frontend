@@ -32,7 +32,7 @@
     "@material-ui/styles": "^4.10.0",
     "@sentry/react": "^5.27.1",
     "@types/mixpanel-browser": "^2.23.2",
-    "axios": "^0.19.2",
+    "axios": "^0.21.1",
     "classnames": "^2.2.6",
     "clipboard-copy": "^3.1.0",
     "color": "^3.1.2",
